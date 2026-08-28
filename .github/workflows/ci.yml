@@ -25,7 +25,3 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: make check
       - run: make build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: scaffold-build
-          path: dist/
