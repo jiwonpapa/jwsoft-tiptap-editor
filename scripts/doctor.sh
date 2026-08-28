@@ -13,8 +13,8 @@ require_command unzip
 require_command ssh
 require_command rsync
 
-node -e "const [major, minor] = process.versions.node.split('.').map(Number); if (major < 20 || (major === 20 && minor < 19) || major >= 27) process.exit(1)" \
-  || fail "Node.js 20.19 이상 27 미만이 필요합니다. 현재: $(node --version)"
+node -e "const [major, minor, patch] = process.versions.node.split('.').map(Number); const ok = (major === 22 && (minor > 22 || (minor === 22 && patch >= 2))) || (major === 24 && minor >= 15) || major === 26; if (!ok) process.exit(1)" \
+  || fail "Node.js 22.22.2+, 24.15.0+ 또는 26.x가 필요합니다. 현재: $(node --version)"
 
 php -r 'exit(version_compare(PHP_VERSION, "8.2.0", ">=") ? 0 : 1);' \
   || fail "PHP 8.2 이상이 필요합니다. 현재: $(php -r 'echo PHP_VERSION;')"

@@ -2,15 +2,15 @@
 
 ## 기준선
 
-| 항목    |     환경 단계 기준 |                             stable 목표 |
-| ------- | -----------------: | --------------------------------------: |
-| G7      |              7.0.9 |               최신 stable + 직전 stable |
-| PHP     |            8.2~8.5 |                            G7 지원 범위 |
-| Node    |           20.19~26 |                               빌드 전용 |
-| MySQL   |               8.0+ |                                통합/E2E |
-| MariaDB |              10.3+ |                   최소 1회 release 검증 |
-| Browser |      Chromium 최신 |          Chromium, Firefox, WebKit 최신 |
-| Mobile  | Chromium emulation | Android Chrome + iOS Safari 실기기 표본 |
+| 항목    |           환경 단계 기준 |                             stable 목표 |
+| ------- | -----------------------: | --------------------------------------: |
+| G7      |                    7.0.9 |               최신 stable + 직전 stable |
+| PHP     |                  8.2~8.5 |                            G7 지원 범위 |
+| Node    | 22.22.2+, 24.15.0+, 26.x |               최신 jsdom 호환 빌드 전용 |
+| MySQL   |                     8.0+ |                                통합/E2E |
+| MariaDB |                    10.3+ |                   최소 1회 release 검증 |
+| Browser |            Chromium 최신 |          Chromium, Firefox, WebKit 최신 |
+| Mobile  |       Chromium emulation | Android Chrome + iOS Safari 실기기 표본 |
 
 ## G7 화면
 
