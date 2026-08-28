@@ -21,7 +21,8 @@
               "placeholder": "{{extensionPointProps.placeholder ?? ''}}",
               "readOnly": "{{_computed.isReadOnly ?? extensionPointProps.readOnly ?? false}}",
               "disabled": "{{extensionPointProps.disabled ?? false}}",
-              "height": "{{extensionPointProps.height ?? 400}}"
+              "height": "{{extensionPointProps.height ?? 400}}",
+              "toolbar": "{{extensionPointProps.toolbar ?? 'standard'}}"
             }
           }
         ],

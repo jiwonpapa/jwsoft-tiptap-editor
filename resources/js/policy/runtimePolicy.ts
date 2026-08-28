@@ -11,7 +11,7 @@ const URI_PATTERN =
 const allowedClassTokens = new Set<string>(EDITOR_CLASS_TOKENS);
 const globalAttributes = new Set<string>(EDITOR_POLICY.globalAttributes);
 
-function isAllowedUrl(value: string, media: boolean): boolean {
+export function isAllowedEditorUrl(value: string, media = false): boolean {
   const candidate = value.trim();
   if (
     !candidate ||
@@ -116,13 +116,13 @@ function normalizeElement(element: Element): void {
 
   if (
     element.hasAttribute("href") &&
-    !isAllowedUrl(element.getAttribute("href")!, false)
+    !isAllowedEditorUrl(element.getAttribute("href")!, false)
   ) {
     element.removeAttribute("href");
   }
   if (
     element.hasAttribute("src") &&
-    !isAllowedUrl(element.getAttribute("src")!, true)
+    !isAllowedEditorUrl(element.getAttribute("src")!, true)
   ) {
     element.removeAttribute("src");
   }

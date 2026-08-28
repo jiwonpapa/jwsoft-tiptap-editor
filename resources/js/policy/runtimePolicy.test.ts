@@ -1,6 +1,10 @@
 import securityCorpus from "../../../harness/fixtures/security-corpus.json";
 
-import { analyzeLegacyHtml, sanitizeClientHtml } from "@/policy/runtimePolicy";
+import {
+  analyzeLegacyHtml,
+  isAllowedEditorUrl,
+  sanitizeClientHtml,
+} from "@/policy/runtimePolicy";
 
 describe("browser policy defense", () => {
   it.each(securityCorpus.cases)("sanitizes $id", (fixture) => {
@@ -43,5 +47,12 @@ describe("browser policy defense", () => {
         '<p><a href="https://example.com" rel="noopener noreferrer" target="_blank">링크</a></p>',
       ).hasLoss,
     ).toBe(false);
+  });
+
+  it("shares strict link and media URL validation with toolbar dialogs", () => {
+    expect(isAllowedEditorUrl("https://example.com/path")).toBe(true);
+    expect(isAllowedEditorUrl("/relative/path")).toBe(true);
+    expect(isAllowedEditorUrl("mailto:test@example.com", true)).toBe(false);
+    expect(isAllowedEditorUrl("javascript:alert(1)")).toBe(false);
   });
 });

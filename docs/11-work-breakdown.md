@@ -24,12 +24,13 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 ## Epic 2 — Tiptap core
 
 - [x] starter schema
-- [ ] toolbar profiles
-- [ ] table/image/link dialogs
-- [ ] class-token extensions
+- [x] toolbar profiles
+- [x] table/image URL/link dialogs
+- [x] class-token extensions
 - [x] 초기 HTML policy·schema 손실 분석과 명시적 확인
-- [ ] clipboard paste 손실 분석
-- [ ] IME·keyboard·mobile tests
+- [x] clipboard paste 손실 분석과 실행취소 안내
+- [x] 선택 영역 unit·toolbar keyboard·mobile viewport browser tests
+- [ ] 실제 한글 IME·Android/iOS 실기기 tests
 
 ## Epic 3 — 서버 정책
 

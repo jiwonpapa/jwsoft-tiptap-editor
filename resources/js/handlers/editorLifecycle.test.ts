@@ -75,15 +75,15 @@ describe("G7 editor lifecycle", () => {
 
     const editable = container.querySelector(".tiptap");
     expect(editable?.getAttribute("contenteditable")).toBe("false");
-    expect(container.querySelector("[role='alert']")?.textContent).toContain(
-      "저장이 차단",
-    );
+    expect(
+      container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
+    ).toContain("저장이 차단");
 
     container
       .querySelector<HTMLButtonElement>("[data-primary='true']")
       ?.click();
     expect(editable?.getAttribute("contenteditable")).toBe("true");
-    expect(container.querySelector("[role='alert']")).toBeNull();
+    expect(container.querySelector(".jwsoft-tiptap-legacy-warning")).toBeNull();
     expect(window.G7Core?.state?.setLocal).toHaveBeenCalledWith(
       expect.objectContaining({
         "form.jwsoft_editor_policy_ack": expect.any(String),
@@ -121,5 +121,235 @@ describe("G7 editor lifecycle", () => {
     expect(container.querySelector("[role='alert']")?.textContent).toContain(
       "sirsoft-ckeditor5",
     );
+  });
+
+  it("runs selected-range and class-token commands from the standard toolbar", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>가나다</p>" } },
+      undefined,
+    );
+    const editor = editorRegistry.get(editorContainerId("content"), "ko");
+    expect(editor).toBeDefined();
+    editor?.commands.setTextSelection({ from: 2, to: 3 });
+
+    const bold = [
+      ...container.querySelectorAll<HTMLButtonElement>("button"),
+    ].find((button) => button.textContent === "굵게");
+    expect(bold?.disabled).toBe(false);
+    bold?.click();
+
+    const alignment = container.querySelector<HTMLSelectElement>(
+      "select[aria-label='정렬']",
+    );
+    expect(alignment).not.toBeNull();
+    if (alignment) {
+      alignment.value = "jw-align-center";
+      alignment.dispatchEvent(new Event("change"));
+    }
+    expect(editor?.getHTML()).toBe(
+      '<p class="jw-align-center">가<strong>나</strong>다</p>',
+    );
+  });
+
+  it("supports minimal/full profiles and omits editing controls in read-only mode", async () => {
+    const minimal = addContainer("summary");
+    await initEditorHandler(
+      {
+        params: {
+          name: "summary",
+          content: "<p>요약</p>",
+          toolbar: "minimal",
+        },
+      },
+      undefined,
+    );
+    expect(minimal.querySelector("[role='toolbar']")?.textContent).toContain(
+      "링크",
+    );
+    expect(
+      minimal.querySelector("[role='toolbar']")?.textContent,
+    ).not.toContain("이미지 URL");
+
+    const full = addContainer("description");
+    await initEditorHandler(
+      {
+        params: {
+          name: "description",
+          content: "<p>설명</p>",
+          toolbar: "full",
+        },
+      },
+      undefined,
+    );
+    expect(full.querySelector("[role='toolbar']")?.textContent).toContain(
+      "표 삭제",
+    );
+
+    const readOnly = addContainer("notice");
+    await initEditorHandler(
+      {
+        params: {
+          name: "notice",
+          content: "<p>공지</p>",
+          readOnly: true,
+        },
+      },
+      undefined,
+    );
+    expect(readOnly.querySelector("[role='toolbar']")).toBeNull();
+  });
+
+  it("opens the link dialog and creates a hardened blank-target link", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>링크</p>" } },
+      undefined,
+    );
+    const editor = editorRegistry.get(editorContainerId("content"), "ko");
+    editor?.commands.setTextSelection({ from: 1, to: 3 });
+    const trigger = [
+      ...container.querySelectorAll<HTMLButtonElement>("button"),
+    ].find((button) => button.textContent === "링크");
+    trigger?.click();
+    const dialog = container.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-dialog:not([hidden])",
+    );
+    expect(dialog).not.toBeNull();
+    const inputs = dialog?.querySelectorAll<HTMLInputElement>("input");
+    if (inputs) {
+      inputs[0].value = "https://example.com";
+      inputs[1].value = "예시";
+      inputs[2].checked = true;
+    }
+    dialog
+      ?.querySelector("form")
+      ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+
+    expect(editor?.getHTML()).toBe(
+      '<p><a target="_blank" rel="noopener noreferrer" href="https://example.com" title="예시">링크</a></p>',
+    );
+  });
+
+  it("inserts policy-tokenized tables and URL images from dialogs", async () => {
+    const tableContainer = addContainer("table_content");
+    await initEditorHandler(
+      {
+        params: { name: "table_content", content: "<p>표 앞</p>" },
+      },
+      undefined,
+    );
+    const tableTrigger = [
+      ...tableContainer.querySelectorAll<HTMLButtonElement>("button"),
+    ].find((button) => button.textContent === "표");
+    tableTrigger?.click();
+    const tableDialog = tableContainer.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-dialog:not([hidden])",
+    );
+    const tableInputs = tableDialog?.querySelectorAll<HTMLInputElement>(
+      "input[type='number']",
+    );
+    if (tableInputs) {
+      tableInputs[0].value = "2";
+      tableInputs[1].value = "2";
+    }
+    tableDialog
+      ?.querySelector("form")
+      ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    const tableHtml = editorRegistry
+      .get(editorContainerId("table_content"), "ko")
+      ?.getHTML();
+    expect(tableHtml).toContain('<table class="jw-table">');
+    expect(tableHtml).toContain("<th");
+    expect(tableHtml).not.toContain("style=");
+
+    const imageContainer = addContainer("image_content");
+    await initEditorHandler(
+      {
+        params: { name: "image_content", content: "<p></p>" },
+      },
+      undefined,
+    );
+    const imageTrigger = [
+      ...imageContainer.querySelectorAll<HTMLButtonElement>("button"),
+    ].find((button) => button.textContent === "이미지 URL");
+    imageTrigger?.click();
+    const imageDialog = imageContainer.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-dialog:not([hidden])",
+    );
+    const imageInputs =
+      imageDialog?.querySelectorAll<HTMLInputElement>("input");
+    if (imageInputs) {
+      imageInputs[0].value = "/assets/example.webp";
+      imageInputs[1].value = "예시 이미지";
+      imageInputs[2].value = "설명";
+    }
+    imageDialog
+      ?.querySelector("form")
+      ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    const imageHtml = editorRegistry
+      .get(editorContainerId("image_content"), "ko")
+      ?.getHTML();
+    const wrapper = document.createElement("div");
+    wrapper.innerHTML = imageHtml ?? "";
+    const image = wrapper.querySelector("img");
+    expect(image?.getAttribute("src")).toBe("/assets/example.webp");
+    expect(image?.getAttribute("alt")).toBe("예시 이미지");
+    expect(image?.className).toBe("jw-image-block");
+    expect(imageHtml).not.toContain("style=");
+  });
+
+  it("moves toolbar focus with arrow keys and closes dialogs with Escape", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>본문</p>" } },
+      undefined,
+    );
+    const buttons = [
+      ...container.querySelectorAll<HTMLButtonElement>("button"),
+    ];
+    const bold = buttons.find((button) => button.textContent === "굵게");
+    const italic = buttons.find((button) => button.textContent === "기울임");
+    bold?.focus();
+    bold?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true }),
+    );
+    expect(document.activeElement).toBe(italic);
+
+    const link = buttons.find((button) => button.textContent === "링크");
+    link?.click();
+    const dialog = container.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-dialog:not([hidden])",
+    );
+    dialog?.dispatchEvent(
+      new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
+    );
+    expect(dialog?.hidden).toBe(true);
+    expect(document.activeElement).toBe(link);
+  });
+
+  it("shows a reversible warning when clipboard HTML loses unsupported formatting", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p></p>" } },
+      undefined,
+    );
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: {
+        getData: (type: string) =>
+          type === "text/html"
+            ? '<p style="color:red" onclick="alert(1)">붙여넣기</p>'
+            : "",
+      },
+    });
+    container.querySelector(".tiptap")?.dispatchEvent(event);
+
+    expect(container.querySelector("[role='status']")?.textContent).toContain(
+      "실행취소",
+    );
+    expect(
+      editorRegistry.get(editorContainerId("content"), "ko")?.getHTML(),
+    ).toBe("<p>붙여넣기</p>");
   });
 });

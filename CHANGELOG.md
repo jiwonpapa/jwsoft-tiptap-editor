@@ -18,3 +18,8 @@
 - 위험 태그·속성·URL·임의 class 제거, 문서·표 상한, 정책 오류 fail-closed 응답
 - legacy HTML 손실 사전 경고와 사용자 확인 전 저장 차단
 - 출력 `HtmlContent` DOMPurify allowlist와 브라우저 보안 corpus
+- `minimal`·`standard`·`full` 반응형 툴바와 키보드 포커스 이동
+- 선택 영역 글자 서식, 문단 H2~H4, 인용·목록·코드·구분선·실행취소/다시실행
+- inline style 없이 정책 `jw-*` class token만 출력하는 문단 크기·정렬·줄 간격
+- 정책 URL 검증을 공유하는 링크·표·URL 이미지 대화상자와 표 편집 명령
+- 붙여넣기 HTML 선제 정제, 손실 안내와 실행취소 경로

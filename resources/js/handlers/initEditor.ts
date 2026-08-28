@@ -12,12 +12,17 @@ import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
+  createEditorToolbar,
+  normalizeToolbarProfile,
+  type ToolbarProfile,
+} from "@/editor/toolbar";
+import {
   ensureHtmlMode,
   setEditorPolicyAcknowledgement,
   syncEditorValue,
 } from "@/editor/stateSync";
 import type { G7Action, InitEditorParams } from "@/g7/types";
-import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
+import { analyzeLegacyHtml, sanitizeClientHtml } from "@/policy/runtimePolicy";
 
 const LOCALE_LABELS: Record<string, string> = {
   ko: "한국어",
@@ -49,20 +54,27 @@ function createShell(
   container: HTMLElement,
   height: number,
   editable: boolean,
-): HTMLElement {
+): { shell: HTMLElement; status: HTMLElement } {
   container.replaceChildren();
   container.style.setProperty("--jwsoft-tiptap-height", `${height}px`);
   const shell = document.createElement("div");
   shell.className = "jwsoft-tiptap-shell";
   const notice = document.createElement("div");
-  notice.className = "jwsoft-tiptap-stage-notice";
+  notice.className = "jwsoft-tiptap-status";
   notice.setAttribute("role", "status");
+  notice.dataset.tone = "neutral";
   notice.textContent = editable
-    ? "서버 canonical HTML 저장 정책이 적용됩니다."
+    ? "안전한 HTML 저장 정책 적용"
     : "이 편집기는 현재 읽기 전용입니다.";
   shell.appendChild(notice);
   container.appendChild(shell);
-  return shell;
+  return { shell, status: notice };
+}
+
+function showPasteLoss(status: HTMLElement): void {
+  status.dataset.tone = "warning";
+  status.textContent =
+    "붙여넣기에서 지원하지 않는 서식을 제거했습니다. 필요하면 실행취소할 수 있습니다.";
 }
 
 function renderLegacyWarning(options: {
@@ -116,11 +128,16 @@ function mountLocaleEditor(options: {
   placeholder: string;
   editable: boolean;
   multilingual: boolean;
+  toolbar: ToolbarProfile;
+  status: HTMLElement;
 }): void {
   if (editorRegistry.has(options.containerId, options.locale)) return;
   const core = window.G7Core;
+  options.mount.className = "jwsoft-tiptap-editor-frame";
+  const editorMount = document.createElement("div");
+  options.mount.appendChild(editorMount);
   const editor = createEditor({
-    element: options.mount,
+    element: editorMount,
     content: options.content,
     placeholder: options.placeholder,
     editable: false,
@@ -129,14 +146,18 @@ function mountLocaleEditor(options: {
         core: window.G7Core,
         name: options.name,
         locale: options.locale,
-        value,
+        value: sanitizeClientHtml(value),
         multilingual: options.multilingual,
       });
     },
+    onPasteSanitized: () => showPasteLoss(options.status),
   });
   editorRegistry.set(options.containerId, options.locale, editor);
 
   if (!options.editable) return;
+
+  const toolbar = createEditorToolbar({ editor, profile: options.toolbar });
+  options.mount.insertBefore(toolbar, editorMount);
 
   ensureHtmlMode(core, options.name);
   const analysis = analyzeLegacyHtml(options.content, editor.getHTML());
@@ -151,8 +172,8 @@ function mountLocaleEditor(options: {
     .getElementById(options.containerId)
     ?.setAttribute("aria-readonly", "true");
   renderLegacyWarning({
-    shell: options.mount.parentElement ?? options.mount,
-    mount: options.mount,
+    shell: options.mount,
+    mount: toolbar,
     onContinue: () => {
       setEditorPolicyAcknowledgement(window.G7Core, true);
       syncEditorValue({
@@ -177,6 +198,8 @@ function mountMultilingualEditors(options: {
   content: Record<string, string>;
   placeholder: string;
   editable: boolean;
+  toolbar: ToolbarProfile;
+  status: HTMLElement;
 }): void {
   const core = window.G7Core;
   const locales = supportedLocales(core);
@@ -215,6 +238,8 @@ function mountMultilingualEditors(options: {
         placeholder: options.placeholder,
         editable: options.editable,
         multilingual: true,
+        toolbar: options.toolbar,
+        status: options.status,
       });
     });
   }
@@ -232,6 +257,8 @@ function mountMultilingualEditors(options: {
       placeholder: options.placeholder,
       editable: options.editable,
       multilingual: true,
+      toolbar: options.toolbar,
+      status: options.status,
     });
   }
 }
@@ -260,7 +287,12 @@ export async function initEditorHandler(
   const readOnly = booleanParam(params.readOnly);
   const disabled = booleanParam(params.disabled);
   const editable = isEditorWriteEnabled(readOnly, disabled);
-  const shell = createShell(container, safeHeight(params.height), editable);
+  const { shell, status } = createShell(
+    container,
+    safeHeight(params.height),
+    editable,
+  );
+  const toolbar = normalizeToolbarProfile(params.toolbar);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
 
@@ -272,6 +304,8 @@ export async function initEditorHandler(
       content: resolveMultilingualContent(params, window.G7Core),
       placeholder: params.placeholder ?? "",
       editable,
+      toolbar,
+      status,
     });
     return;
   }
@@ -287,5 +321,7 @@ export async function initEditorHandler(
     placeholder: params.placeholder ?? "",
     editable,
     multilingual: false,
+    toolbar,
+    status,
   });
 }

@@ -53,6 +53,7 @@ export interface InitEditorParams {
   readOnly?: boolean | string;
   disabled?: boolean | string;
   height?: number | string;
+  toolbar?: string;
 }
 
 export interface JWSoftTiptapRuntime {

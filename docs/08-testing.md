@@ -36,6 +36,8 @@
 - 이미지와 표
 - 전환·롤백
 
+현재 3차의 독립 Chromium 검사는 데스크톱 선택 영역 서식·키보드 포커스와 Pixel 7 viewport의 툴바 스크롤·대화상자 폭을 검증합니다. G7 화면과 실제 한글 IME·Android/iOS 실기기는 parity 단계에서 별도 증거를 생성합니다.
+
 ## 증거 파일
 
 `test-results/parity/evidence.json`은 다음을 포함합니다.

@@ -2,7 +2,7 @@
 
 그누보드7의 `sirsoft-ckeditor5`를 코어 수정 없이 대체하기 위한 Tiptap v3 기반 WYSIWYG 편집기 플러그인입니다.
 
-> 현재 상태: **MVP 저장 안전 경로 검증 단계**입니다. 게시판 작성·수정에는 서버 canonical sanitizer가 연결됐고 legacy 손실 확인도 동작합니다. toolbar·이미지·전체 화면 parity가 남아 있어 아직 운영 설치 대상은 아닙니다.
+> 현재 상태: **MVP 기본 편집 기능 검증 단계**입니다. 기본 툴바, class-token 서식, 링크·표·URL 이미지, 붙여넣기 정제와 게시판 canonical 저장 경로가 연결됐습니다. 실제 이미지 업로드·브라우저 IME·전체 화면 parity가 남아 있어 아직 운영 설치 대상은 아닙니다.
 
 ## 결론
 
