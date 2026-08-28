@@ -9,6 +9,7 @@
 - ZIP 확장
 - G7 플러그인 디렉터리 쓰기 권한
 - 빌드된 릴리스 ZIP과 SHA256SUMS
+- 제품 `LICENSE`, `THIRD_PARTY_NOTICES.md`, `licenses/` manifest·원문
 
 운영 설치에는 Node와 Composer가 필요하지 않습니다. `dist/`와 PHP `vendor/`가 릴리스 ZIP에 포함됩니다.
 
@@ -60,4 +61,4 @@ php artisan plugin:activate sirsoft-ckeditor5
 php artisan optimize:clear
 ```
 
-롤백 후 편집·조회 smoke를 다시 실행합니다. MVP 5 하네스에서는 페이지·게시글·상품 canonical HTML과 이미지 레코드 수가 업데이트·롤백·복구 전후 동일함을 해시로 검증합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.
+롤백 후 편집·조회 smoke를 다시 실행합니다. MVP 6 하네스에서는 페이지·게시글·상품 canonical HTML과 이미지 레코드 수가 alpha.6 → alpha.7 업데이트·롤백·복구 전후 동일함을 해시로 검증합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.

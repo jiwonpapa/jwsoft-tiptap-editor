@@ -36,5 +36,7 @@ if (npmManifest.private !== true || npmManifest.license !== "UNLICENSED")
   fail("공개 결정 전 npm 패키지는 private/UNLICENSED여야 합니다.");
 if (composer.license !== "proprietary")
   fail("공개 결정 전 Composer 라이선스는 proprietary여야 합니다.");
+if (plugin.license !== "Proprietary")
+  fail("플러그인 제품 라이선스는 Proprietary여야 합니다.");
 
 if (!process.exitCode) console.log("[jwsoft] Manifest 계약 검사 통과");

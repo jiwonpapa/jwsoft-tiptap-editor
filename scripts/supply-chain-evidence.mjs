@@ -1,7 +1,6 @@
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import process from "node:process";
 import { execFileSync } from "node:child_process";
 
 const root = path.resolve(import.meta.dirname, "..");
@@ -12,10 +11,6 @@ const artifact = path.join(
   root,
   `.build/jwsoft-tiptap-editor-${pkg.version}.zip`,
 );
-const expectedSha256 = process.argv
-  .slice(2)
-  .find((argument) => argument.startsWith("--expected-sha256="))
-  ?.slice("--expected-sha256=".length);
 if (!fs.existsSync(artifact))
   throw new Error(`package artifact is missing: ${artifact}`);
 
@@ -54,8 +49,13 @@ const listing = execFileSync("unzip", ["-Z1", artifact], { encoding: "utf8" })
   .split("\n");
 const requiredEntries = [
   "jwsoft-tiptap-editor/plugin.json",
+  "jwsoft-tiptap-editor/LICENSE",
+  "jwsoft-tiptap-editor/THIRD_PARTY_NOTICES.md",
   "jwsoft-tiptap-editor/config/settings/defaults.json",
   "jwsoft-tiptap-editor/dist/js/plugin.iife.js",
+  "jwsoft-tiptap-editor/licenses/npm-manifest.json",
+  "jwsoft-tiptap-editor/licenses/composer-manifest.json",
+  "jwsoft-tiptap-editor/licenses/npm/dompurify/LICENSE",
   "jwsoft-tiptap-editor/vendor-bundle.zip",
   "jwsoft-tiptap-editor/vendor-bundle.json",
 ];
@@ -75,10 +75,23 @@ const sha256 = crypto
   .createHash("sha256")
   .update(fs.readFileSync(artifact))
   .digest("hex");
-if (expectedSha256 && sha256 !== expectedSha256) {
-  throw new Error(
-    `reproducible package checksum mismatch: ${sha256} != ${expectedSha256}`,
-  );
+const reproducibilityFile = path.join(
+  root,
+  "test-results/release/reproducibility.json",
+);
+if (!fs.existsSync(reproducibilityFile)) {
+  throw new Error("reproducibility evidence is missing");
+}
+const reproducibility = JSON.parse(
+  fs.readFileSync(reproducibilityFile, "utf8"),
+);
+if (
+  reproducibility.status !== "pass" ||
+  reproducibility.version !== pkg.version ||
+  reproducibility.builds < 2 ||
+  reproducibility.artifactSha256 !== sha256
+) {
+  throw new Error("artifact does not match reproducibility evidence");
 }
 const output = path.join(root, "test-results/parity/supply-chain.json");
 fs.mkdirSync(path.dirname(output), { recursive: true });
@@ -90,7 +103,7 @@ fs.writeFileSync(
       status: "pass",
       artifact: path.relative(root, artifact),
       artifactSha256: sha256,
-      reproducibleChecksumVerified: Boolean(expectedSha256),
+      reproducibleChecksumVerified: true,
       runtimeCdnReferences: 0,
       runtimeReactDependencies: 0,
       npmLock: "package-lock.json",

@@ -34,3 +34,8 @@
 - ZIP 업데이트·CKEditor 전환·롤백 증거와 artifact provenance parity gate
 - G7 7.0.9 CLI 활성화 우회 경로의 CKEditor 자동 롤백과 활성 상태 기반 대칭 충돌 guard
 - 실제 인증 G7 한국어·영어 재편집 screenshot 및 route-to-editor 성능·단일 instance evidence
+- Proprietary 제품 라이선스와 lockfile 기반 third-party notices
+- 런타임 NPM 원문 라이선스·Composer manifest가 포함된 self-contained ZIP
+- 동일 commit epoch 2회 checksum을 강제하는 재현 패키지 gate
+- 전체 P0 미완료 시 stable을 차단하는 readiness gate와 별도 alpha release-candidate gate
+- CKEditor 비활성화 후 JWSoft 활성화를 보장하는 배포 순서 계약 검사

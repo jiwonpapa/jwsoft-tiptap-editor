@@ -44,7 +44,7 @@ info "호스트: $DEPLOY_HOST"
 info "G7: $G7_REMOTE_ROOT"
 info "artifact: $artifact"
 info "sha256: $checksum"
-info "적용 순서: 업로드 -> 원격 검증 -> 플러그인 $DEPLOY_MODE -> jwsoft 활성화 -> sirsoft-ckeditor5 비활성화 -> 캐시 정리 -> smoke"
+info "적용 순서: 업로드 -> 원격 검증 -> 플러그인 $DEPLOY_MODE -> sirsoft-ckeditor5 비활성화 -> jwsoft 활성화 -> 캐시 정리 -> smoke"
 
 [ "$action" = "--apply" ] || { info "계획만 출력했습니다. 서버 변경 없음."; exit 0; }
 
@@ -95,8 +95,8 @@ else
   "$php_bin" artisan plugin:update jwsoft-tiptap-editor --zip="$artifact" --force --vendor-mode=bundled --no-interaction
 fi
 
-"$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction
 "$php_bin" artisan plugin:deactivate sirsoft-ckeditor5 --no-interaction || true
+"$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction
 "$php_bin" artisan optimize:clear --no-interaction
 "$php_bin" artisan plugin:list | grep -q 'jwsoft-tiptap-editor'
 trap - ERR

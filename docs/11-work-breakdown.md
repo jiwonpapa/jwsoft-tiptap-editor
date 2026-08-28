@@ -64,8 +64,10 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 
 ## Epic 6 — 출시
 
-- [ ] 라이선스 결정
-- [ ] third-party notices
-- [ ] stable package reproducibility
+- [x] Proprietary 제품 라이선스 결정
+- [x] third-party notices와 런타임 원문 라이선스 패키징
+- [x] alpha release-candidate package reproducibility
 - [ ] staging 검증
 - [ ] GitHub public/release 여부 승인
+
+6차는 `alpha.7`을 같은 commit epoch로 두 번 패키징해 동일 checksum을 확인했습니다. 전용 로컬 G7 7.0.9에서 alpha.6 → alpha.7 업데이트, CKEditor 롤백, JWSoft 복구와 페이지·게시글·상품 정본 해시 보존도 통과했습니다. 실제 staging 환경 파일과 배포 승인이 없으므로 staging·stable·공개 릴리스는 진행하지 않았습니다.

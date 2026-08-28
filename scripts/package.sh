@@ -30,7 +30,7 @@ rm -rf "$build_root"
 rm -f "$artifact"
 mkdir -p "$stage"
 
-for file in plugin.php plugin.json components.json composer.json composer.lock CHANGELOG.md; do
+for file in plugin.php plugin.json components.json composer.json composer.lock CHANGELOG.md LICENSE THIRD_PARTY_NOTICES.md; do
   [ -f "$PROJECT_ROOT/$file" ] || fail "runtime 파일 누락: $file"
   rsync -a "$PROJECT_ROOT/$file" "$stage/$file"
 done
@@ -51,6 +51,8 @@ COMPOSER_ROOT_VERSION="$version" composer install \
   --no-interaction \
   --prefer-dist \
   --classmap-authoritative
+
+node "$PROJECT_ROOT/scripts/copy-runtime-licenses.mjs" "$stage"
 
 find "$stage/vendor" -exec touch -t 198001010000 {} +
 (cd "$stage" && find vendor -type f -o -type l | LC_ALL=C sort | zip -X -q vendor-bundle.zip -@)

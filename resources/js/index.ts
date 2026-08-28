@@ -11,7 +11,7 @@ import type { HandlerMap } from "@/g7/types";
 export const JWSoftTiptapEditorBuild = Object.freeze({
   identifier: "jwsoft-tiptap-editor",
   stage: "integration-parity-alpha",
-  version: "0.1.0-alpha.6",
+  version: "0.1.0-alpha.7",
   writeEnabled: true,
 });
 
