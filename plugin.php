@@ -11,6 +11,10 @@ use Throwable;
 /**
  * G7 editor replacement plugin.
  */
+if (class_exists(Plugin::class, false)) {
+    return;
+}
+
 class Plugin extends AbstractPlugin
 {
     private const LEGACY_CONTENT_RISK_SETTING = 'legacyContentRiskAcknowledged';

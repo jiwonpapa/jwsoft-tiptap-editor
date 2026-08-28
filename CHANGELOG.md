@@ -6,6 +6,7 @@
 
 ### Changed
 
+- `0.1.0-alpha.12`: G7 GitHub 설치 과정에서 `_pending`과 활성 경로의 동일 진입점이 한 프로세스에 로드될 때 class 재선언을 방지
 - `0.1.0-alpha.11`: GitHub 저장소를 public으로 전환하고 G7의 GitHub URL 설치에 필요한 빌드 JS·Composer vendor bundle을 공개 source archive에 포함
 - 공개 열람과 Proprietary 사용권을 분리하고 개발·staging 온라인 설치 절차를 문서화
 

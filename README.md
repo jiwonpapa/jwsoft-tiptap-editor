@@ -2,7 +2,7 @@
 
 그누보드7의 `sirsoft-ckeditor5`를 코어 수정 없이 대체하기 위한 Tiptap v3 기반 WYSIWYG 편집기 플러그인입니다.
 
-> 현재 상태: **`alpha.11` 공개 GitHub 설치 검증 단계**입니다. 개발·staging에서는 GitHub URL로 설치할 수 있지만, 전체 브라우저·수명주기·staging 증거가 완료되기 전까지 stable·운영 설치 대상이 아닙니다.
+> 현재 상태: **`alpha.12` 공개 GitHub 설치 검증 단계**입니다. 개발·staging에서는 GitHub URL로 설치할 수 있지만, 전체 브라우저·수명주기·staging 증거가 완료되기 전까지 stable·운영 설치 대상이 아닙니다.
 
 ## 결론
 
