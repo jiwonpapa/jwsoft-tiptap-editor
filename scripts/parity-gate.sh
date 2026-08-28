@@ -4,7 +4,7 @@ set -Eeuo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
 evidence="$PROJECT_ROOT/test-results/parity/evidence.json"
-[ -f "$evidence" ] || fail "동등성 증거가 없습니다: test-results/parity/evidence.json (환경 단계에서는 정상적인 차단입니다.)"
+[ -f "$evidence" ] || fail "동등성 증거가 없습니다: test-results/parity/evidence.json (stable 이전 단계에서는 정상적인 차단입니다.)"
 
 node --input-type=module - "$PROJECT_ROOT" "$evidence" <<'NODE'
 import fs from 'node:fs';

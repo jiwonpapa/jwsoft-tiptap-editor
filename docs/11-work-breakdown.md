@@ -13,11 +13,13 @@
 
 ## Epic 1 — G7 editor adapter
 
-- [ ] `html_editor`/`html_content` extension JSON
-- [ ] lifecycle handler와 instance registry
-- [ ] props·다국어·readOnly·state sync
-- [ ] CKEditor 충돌 detector
-- [ ] extension layout tests
+- [x] `html_editor`/`html_content` extension JSON
+- [x] lifecycle handler와 instance registry
+- [x] props·다국어·readOnly·state sync
+- [x] CKEditor 충돌 detector
+- [x] extension contract와 adapter unit tests
+
+서버 sanitizer가 연결되는 Epic 3 전에는 저장을 허용하지 않도록 adapter runtime을 fail-closed read-only로 고정합니다. 전용 G7 7.0.9+ 호스트의 integration evidence가 생성되기 전에는 parity 완료로 판정하지 않습니다.
 
 ## Epic 2 — Tiptap core
 

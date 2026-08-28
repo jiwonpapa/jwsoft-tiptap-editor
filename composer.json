@@ -9,7 +9,10 @@
   },
   "autoload": {
     "psr-4": {
-      "Plugins\\Jwsoft\\TiptapEditor\\": "src/"
+      "Plugins\\Jwsoft\\TiptapEditor\\": [
+        "src/",
+        "./"
+      ]
     }
   },
   "config": {

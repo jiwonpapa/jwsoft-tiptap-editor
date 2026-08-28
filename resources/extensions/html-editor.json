@@ -1,0 +1,40 @@
+{
+  "extension_point": "html_editor",
+  "mode": "replace",
+  "components": [
+    {
+      "id": "jwsoft_tiptap_editor_container",
+      "type": "basic",
+      "name": "Div",
+      "props": {
+        "id": "jwsoft-tiptap-{{extensionPointProps.name ?? 'content'}}",
+        "className": "jwsoft-tiptap-wrapper"
+      },
+      "lifecycle": {
+        "onMount": [
+          {
+            "handler": "jwsoft-tiptap-editor.initEditor",
+            "params": {
+              "name": "{{extensionPointProps.name ?? 'content'}}",
+              "content": "{{extensionPointProps.content ?? extensionPointProps.value ?? ''}}",
+              "multilingual": "{{extensionPointProps.multilingual ?? false}}",
+              "placeholder": "{{extensionPointProps.placeholder ?? ''}}",
+              "readOnly": "{{_computed.isReadOnly ?? extensionPointProps.readOnly ?? false}}",
+              "disabled": "{{extensionPointProps.disabled ?? false}}",
+              "height": "{{extensionPointProps.height ?? 400}}"
+            }
+          }
+        ],
+        "onUnmount": [
+          {
+            "handler": "jwsoft-tiptap-editor.destroyEditor",
+            "params": {
+              "name": "{{extensionPointProps.name ?? 'content'}}"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "priority": 100
+}

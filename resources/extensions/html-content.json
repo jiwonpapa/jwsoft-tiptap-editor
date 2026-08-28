@@ -1,0 +1,32 @@
+{
+  "extension_point": "html_content",
+  "mode": "replace",
+  "components": [
+    {
+      "type": "composite",
+      "name": "HtmlContent",
+      "props": {
+        "content": "{{extensionPointProps.content ?? ''}}",
+        "isHtml": "{{extensionPointProps.isHtml ?? true}}",
+        "className": "{{(extensionPointProps.className ?? '') + ' jwsoft-tiptap-content'}}",
+        "purifyConfig": "{{extensionPointProps.purifyConfig ?? undefined}}"
+      }
+    },
+    {
+      "id": "jwsoft_tiptap_content_style_injector",
+      "type": "basic",
+      "name": "Div",
+      "props": {
+        "className": "hidden"
+      },
+      "lifecycle": {
+        "onMount": [
+          {
+            "handler": "jwsoft-tiptap-editor.injectContentStyles"
+          }
+        ]
+      }
+    }
+  ],
+  "priority": 100
+}
