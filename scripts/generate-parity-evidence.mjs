@@ -31,6 +31,13 @@ const pkg = JSON.parse(
 if (data.browser.locales?.join(",") !== "ko,en") {
   throw new Error("Korean/English browser evidence is incomplete");
 }
+if (
+  !data.browser.pluginVersion ||
+  !/^[0-9a-f]{40}$/.test(data.browser.sourceCommit ?? "") ||
+  Number.isNaN(Date.parse(data.browser.observedAt ?? ""))
+) {
+  throw new Error("browser evidence provenance is incomplete");
+}
 for (const surface of ["board", "ecommerce", "page"]) {
   const value = data.browser.surfaces?.[surface];
   if (!value?.create || !value?.reedit || !value?.recordId) {
@@ -112,6 +119,17 @@ const evidence = {
   pluginVersion: pkg.version,
   commit,
   artifactSha256: data.supplyChain.artifactSha256,
+  evidenceBoundaries: {
+    browser: {
+      pluginVersion: data.browser.pluginVersion,
+      sourceCommit: data.browser.sourceCommit,
+      observedAt: data.browser.observedAt,
+    },
+    packageLifecycle: {
+      pluginVersion: pkg.version,
+      sourceCommit: commit,
+    },
+  },
   environment: {
     platform: `${os.platform()}-${os.arch()}`,
     node: process.version,

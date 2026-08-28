@@ -74,12 +74,22 @@ const output = {
   },
   scope: {
     environment: "dedicated-local-g7",
+    browserEvidenceVersion:
+      data.parity.evidenceBoundaries?.browser?.pluginVersion,
+    packageLifecycleVersion:
+      data.parity.evidenceBoundaries?.packageLifecycle?.pluginVersion,
     actualStagingApplied: false,
     productionApplied: false,
     publicReleaseCreated: false,
   },
   artifacts: Object.values(files),
 };
+if (
+  !output.scope.browserEvidenceVersion ||
+  output.scope.packageLifecycleVersion !== packageJson.version
+) {
+  throw new Error("release candidate evidence boundary 누락");
+}
 const target = path.join(root, "test-results/release/candidate.json");
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, `${JSON.stringify(output, null, 2)}\n`);

@@ -30,6 +30,9 @@ const requiredArgs = [
   "editor-label",
   "toolbar-label",
   "tabbable",
+  "plugin-version",
+  "source-commit",
+  "observed-at",
 ];
 for (const key of requiredArgs) {
   if (!args[key])
@@ -76,11 +79,23 @@ if (args["editor-label"] !== "JWSoft Tiptap editor") {
 if (args["toolbar-label"] !== "standard editor tools") {
   throw new Error("English toolbar accessible label mismatch");
 }
+if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(args["plugin-version"])) {
+  throw new Error("plugin-version must be a semantic version");
+}
+if (!/^[0-9a-f]{40}$/.test(args["source-commit"])) {
+  throw new Error("source-commit must be a full git commit");
+}
+if (Number.isNaN(Date.parse(args["observed-at"]))) {
+  throw new Error("observed-at must be an ISO date-time");
+}
 
 const evidence = {
   schemaVersion: 1,
   status: "pass",
   browser: args.browser ?? "Chromium via Playwright CLI",
+  observedAt: new Date(args["observed-at"]).toISOString(),
+  pluginVersion: args["plugin-version"],
+  sourceCommit: args["source-commit"],
   surfaces: {
     board: {
       create: true,
@@ -110,5 +125,5 @@ fs.writeFileSync(
   `${JSON.stringify(evidence, null, 2)}\n`,
 );
 console.log(
-  `[jwsoft] 실제 G7 화면 ${screenshots.length}개 browser evidence 기록`,
+  `[jwsoft] 실제 G7 ${args["plugin-version"]} 화면 ${screenshots.length}개 browser evidence 기록`,
 );
