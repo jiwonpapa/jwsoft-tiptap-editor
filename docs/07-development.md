@@ -42,4 +42,4 @@ make build
 
 ## 전용 G7 checkout
 
-`G7_ROOT`가 dirty이면 integration 하네스는 기본 실패합니다. 정말 필요한 경우에만 `JW_EDITOR_ALLOW_DIRTY_G7=1`을 로컬 `.env`에 설정하며 CI와 배포에서는 금지합니다.
+`G7_ROOT`가 dirty이면 integration 하네스는 기본 실패합니다. 정말 필요한 경우에만 `ALLOW_DIRTY_G7=1`을 로컬 `.env`에 설정하며 CI와 배포에서는 금지합니다.

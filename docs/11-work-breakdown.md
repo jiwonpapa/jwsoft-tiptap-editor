@@ -19,24 +19,26 @@
 - [x] CKEditor 충돌 detector
 - [x] extension contract와 adapter unit tests
 
-서버 sanitizer가 연결되는 Epic 3 전에는 저장을 허용하지 않도록 adapter runtime을 fail-closed read-only로 고정합니다. 전용 G7 7.0.9+ 호스트의 integration evidence가 생성되기 전에는 parity 완료로 판정하지 않습니다.
+Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니다. 전용 G7 7.0.9+ 호스트의 integration evidence가 생성되기 전에는 parity 완료로 판정하지 않습니다.
 
 ## Epic 2 — Tiptap core
 
-- [ ] starter schema
+- [x] starter schema
 - [ ] toolbar profiles
 - [ ] table/image/link dialogs
 - [ ] class-token extensions
-- [ ] paste/legacy loss analysis
+- [x] 초기 HTML policy·schema 손실 분석과 명시적 확인
+- [ ] clipboard paste 손실 분석
 - [ ] IME·keyboard·mobile tests
 
 ## Epic 3 — 서버 정책
 
-- [ ] policy codegen
-- [ ] Symfony sanitizer service
-- [ ] FormRequest와 canonical response
-- [ ] 모든 content write path 적용 확인
-- [ ] security corpus
+- [x] policy codegen과 checksum gate
+- [x] Symfony sanitizer service와 canonical response
+- [x] G7 게시판 사용자·관리자 create/update 미들웨어
+- [ ] 쇼핑몰·페이지를 포함한 모든 content write path 적용 확인
+- [x] PHP·브라우저·G7 직접 제출 security corpus
+- [ ] clipboard paste·저장 후 render security corpus
 
 ## Epic 4 — 이미지 parity
 

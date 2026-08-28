@@ -1,5 +1,7 @@
 import { Editor } from "@tiptap/core";
+import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
+import { TableKit } from "@tiptap/extension-table";
 import StarterKit from "@tiptap/starter-kit";
 
 interface CreateEditorOptions {
@@ -18,7 +20,19 @@ export function createEditor(options: CreateEditorOptions): Editor {
     extensions: [
       StarterKit.configure({
         heading: { levels: [2, 3, 4] },
+        link: {
+          defaultProtocol: "https",
+          openOnClick: false,
+          protocols: ["https", "mailto", "tel"],
+          HTMLAttributes: {
+            target: null,
+            rel: null,
+            class: null,
+          },
+        },
       }),
+      Image.configure({ allowBase64: false }),
+      TableKit.configure({ table: { resizable: false } }),
       Placeholder.configure({
         placeholder: options.placeholder,
       }),

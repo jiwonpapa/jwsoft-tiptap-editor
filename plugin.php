@@ -16,6 +16,28 @@ class Plugin extends AbstractPlugin
     ];
 
     /**
+     * G7 7.0.9 게시글 HTML 저장 경로에 서버 canonical sanitizer를 연결합니다.
+     *
+     * @return array<int, array{class: class-string, groups: array<int, string>, timing: string, targets: array<int, string>}>
+     */
+    public function getMiddleware(): array
+    {
+        return [
+            [
+                'class' => Http\Middleware\CanonicalizeBoardPostHtml::class,
+                'groups' => ['api'],
+                'timing' => 'after_core',
+                'targets' => [
+                    'api.modules.sirsoft-board.boards.posts.store',
+                    'api.modules.sirsoft-board.boards.posts.update',
+                    'api.modules.sirsoft-board.admin.board.posts.store',
+                    'api.modules.sirsoft-board.admin.board.posts.update',
+                ],
+            ],
+        ];
+    }
+
+    /**
      * Prevent two replace-mode editors from competing for the same extension
      * points. Installation may coexist, activation may not.
      */

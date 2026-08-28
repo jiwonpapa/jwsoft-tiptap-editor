@@ -1,4 +1,4 @@
-export const SERVER_WRITE_POLICY_READY = false;
+export const SERVER_WRITE_POLICY_READY = true;
 
 export function isEditorWriteEnabled(
   readOnly: boolean,

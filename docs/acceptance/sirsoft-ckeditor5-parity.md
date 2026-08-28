@@ -2,6 +2,8 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 단순 체크 표시가 아니라 `test-results/parity/evidence.json`의 성공 결과가 필요합니다.
 
+현재 MVP 2차는 게시판 4개 쓰기 라우트의 sanitizer 계약까지만 구현했습니다. 아래 체크는 실제 설치·DB·브라우저 parity evidence가 생성될 때만 완료 처리합니다.
+
 ## A. 편집기 교체
 
 - [ ] `html_editor` replace extension 제공

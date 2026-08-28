@@ -1,6 +1,6 @@
 {
   "name": "@jwsoft/tiptap-editor",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "description": "Core-free Tiptap editor plugin for Gnuboard 7",
   "private": true,
   "type": "module",
@@ -12,10 +12,12 @@
   "scripts": {
     "build": "vite build",
     "check": "npm run format:check && npm run typecheck && npm run validate && npm run test:unit",
+    "generate": "node scripts/generate-policy.mjs",
+    "generate:check": "node scripts/generate-policy.mjs --check",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "validate": "npm run validate:manifest && npm run validate:policy && npm run validate:docs && npm run validate:contracts",
+    "validate": "npm run generate:check && npm run validate:manifest && npm run validate:policy && npm run validate:docs && npm run validate:contracts",
     "validate:manifest": "node scripts/validate-manifest.mjs",
     "validate:policy": "node scripts/validate-policy.mjs",
     "validate:docs": "node scripts/validate-docs.mjs",

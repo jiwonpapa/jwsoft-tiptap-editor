@@ -33,4 +33,6 @@ update_help="$(cd "$G7_ROOT" && php artisan plugin:update --help 2>/dev/null)"
 printf '%s' "$install_help" | grep -q -- '--vendor-mode' || fail "plugin:install vendor-mode 계약이 없습니다."
 printf '%s' "$update_help" | grep -q -- '--zip' || fail "plugin:update --zip 계약이 없습니다."
 
+php "$PROJECT_ROOT/tests/integration/g7_middleware_test.php" "$G7_ROOT" "$PROJECT_ROOT"
+
 info "G7 $version 통합 호스트 계약 검사 통과: $G7_ROOT"

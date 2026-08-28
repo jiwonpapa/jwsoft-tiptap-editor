@@ -12,7 +12,8 @@
 
 ### PHP contract
 
-- sanitizer service
+- policy checksum과 sanitizer service
+- 게시판 4개 write route middleware 선언
 - FormRequest
 - image upload/serve/cleanup
 - repository와 StorageInterface
@@ -24,6 +25,8 @@
 - extension point 주입
 - state submit과 API 저장
 - legacy HTML round-trip
+
+현재 `make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약과 실제 Illuminate Request 기반 게시판 HTML 미들웨어를 검사합니다. 설치·활성화·DB 저장·재조회는 아직 parity evidence가 아니므로 별도 단계로 유지합니다.
 
 ### Browser E2E
 

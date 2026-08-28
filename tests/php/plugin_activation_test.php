@@ -68,5 +68,19 @@ namespace {
         throw new RuntimeException('Conflict rejection must include an operator-facing reason.');
     }
 
+    $middleware = $plugin->getMiddleware();
+    $targets = $middleware[0]['targets'] ?? [];
+    $expectedTargets = [
+        'api.modules.sirsoft-board.boards.posts.store',
+        'api.modules.sirsoft-board.boards.posts.update',
+        'api.modules.sirsoft-board.admin.board.posts.store',
+        'api.modules.sirsoft-board.admin.board.posts.update',
+    ];
+    if (($middleware[0]['groups'] ?? []) !== ['api']
+        || ($middleware[0]['timing'] ?? null) !== 'after_core'
+        || $targets !== $expectedTargets) {
+        throw new RuntimeException('Board HTML middleware targets must match G7 7.0.9 write routes exactly.');
+    }
+
     echo "[jwsoft] Plugin activation conflict test passed\n";
 }

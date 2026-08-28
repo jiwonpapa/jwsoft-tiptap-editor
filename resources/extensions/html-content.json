@@ -9,22 +9,64 @@
         "content": "{{extensionPointProps.content ?? ''}}",
         "isHtml": "{{extensionPointProps.isHtml ?? true}}",
         "className": "{{(extensionPointProps.className ?? '') + ' jwsoft-tiptap-content'}}",
-        "purifyConfig": "{{extensionPointProps.purifyConfig ?? undefined}}"
+        "purifyConfig": {
+          "ALLOWED_TAGS": [
+            "p",
+            "br",
+            "h2",
+            "h3",
+            "h4",
+            "strong",
+            "em",
+            "u",
+            "s",
+            "blockquote",
+            "ul",
+            "ol",
+            "li",
+            "a",
+            "pre",
+            "code",
+            "hr",
+            "table",
+            "thead",
+            "tbody",
+            "tr",
+            "th",
+            "td",
+            "img"
+          ],
+          "ALLOWED_ATTR": [
+            "alt",
+            "class",
+            "colspan",
+            "dir",
+            "height",
+            "href",
+            "lang",
+            "loading",
+            "rel",
+            "rowspan",
+            "scope",
+            "src",
+            "start",
+            "target",
+            "title",
+            "width"
+          ],
+          "ALLOW_DATA_ATTR": false,
+          "ALLOW_ARIA_ATTR": false,
+          "FORBID_ATTR": ["id", "style"]
+        }
       }
     },
     {
       "id": "jwsoft_tiptap_content_style_injector",
       "type": "basic",
       "name": "Div",
-      "props": {
-        "className": "hidden"
-      },
+      "props": { "className": "hidden" },
       "lifecycle": {
-        "onMount": [
-          {
-            "handler": "jwsoft-tiptap-editor.injectContentStyles"
-          }
-        ]
+        "onMount": [{ "handler": "jwsoft-tiptap-editor.injectContentStyles" }]
       }
     }
   ],

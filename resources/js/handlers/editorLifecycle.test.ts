@@ -32,7 +32,7 @@ describe("G7 editor lifecycle", () => {
     return container;
   }
 
-  it("mounts one fail-closed Tiptap instance and destroys it on unmount", async () => {
+  it("mounts one server-policy-backed Tiptap instance and destroys it on unmount", async () => {
     const container = addContainer();
     await initEditorHandler(
       {
@@ -50,8 +50,8 @@ describe("G7 editor lifecycle", () => {
     expect(container.querySelector(".tiptap")?.textContent).toBe("초기 본문");
     expect(
       container.querySelector(".tiptap")?.getAttribute("contenteditable"),
-    ).toBe("false");
-    expect(container.getAttribute("aria-readonly")).toBe("true");
+    ).toBe("true");
+    expect(container.getAttribute("aria-readonly")).toBe("false");
     expect(container.style.getPropertyValue("--jwsoft-tiptap-height")).toBe(
       "320px",
     );
@@ -59,6 +59,37 @@ describe("G7 editor lifecycle", () => {
     await destroyEditorHandler({ params: { name: "content" } }, undefined);
     expect(editorRegistry.size).toBe(0);
     expect(container.childElementCount).toBe(0);
+  });
+
+  it("keeps lossy legacy HTML read-only until the user acknowledges it", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      {
+        params: {
+          name: "content",
+          content: '<p style="text-align:center">기존 본문</p>',
+        },
+      },
+      undefined,
+    );
+
+    const editable = container.querySelector(".tiptap");
+    expect(editable?.getAttribute("contenteditable")).toBe("false");
+    expect(container.querySelector("[role='alert']")?.textContent).toContain(
+      "저장이 차단",
+    );
+
+    container
+      .querySelector<HTMLButtonElement>("[data-primary='true']")
+      ?.click();
+    expect(editable?.getAttribute("contenteditable")).toBe("true");
+    expect(container.querySelector("[role='alert']")).toBeNull();
+    expect(window.G7Core?.state?.setLocal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        "form.jwsoft_editor_policy_ack": expect.any(String),
+      }),
+      { render: false, selfManaged: true },
+    );
   });
 
   it("mounts multilingual content lazily by locale", async () => {

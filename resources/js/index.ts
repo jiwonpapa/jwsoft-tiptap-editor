@@ -10,9 +10,9 @@ import type { HandlerMap } from "@/g7/types";
 
 export const JWSoftTiptapEditorBuild = Object.freeze({
   identifier: "jwsoft-tiptap-editor",
-  stage: "editor-adapter-readonly",
-  version: "0.1.0-alpha.2",
-  writeEnabled: false,
+  stage: "board-canonical-write-alpha",
+  version: "0.1.0-alpha.3",
+  writeEnabled: true,
 });
 
 export const handlerMap: HandlerMap = {

@@ -39,6 +39,8 @@ Tiptap core와 custom node/mark를 소유합니다. 일반 TextStyle을 통한 i
 
 플러그인 서비스가 입력 길이 검사, HTML parse, element/attribute/class/URL/media 정제, canonical serialize를 수행합니다. controller가 직접 sanitizer나 model을 호출하지 않습니다.
 
+G7 7.0.9 게시판의 사용자·관리자 `store/update` 라우트는 플러그인 self-gate 미들웨어가 감쌉니다. HTML 수정 요청은 `content_mode=html`을 명시해야 하며, 정책 파일과 codegen checksum이 다르면 저장하지 않습니다. 정제로 HTML이 바뀌는 요청은 현재 정책 hash에 대한 브라우저 확인값이 있어야 통과합니다.
+
 ### 5. Image subsystem
 
 G7 StorageInterface를 사용합니다. 업로드 레코드, serve, 참조 스캔, 관리자 조회·삭제, 미사용 정리를 `sirsoft-ckeditor5`와 동등하게 제공합니다. 실제 이미지 최적화는 G7MediaBooster 같은 외부 훅 소비자가 담당할 수 있습니다.

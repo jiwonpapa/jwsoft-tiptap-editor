@@ -11,8 +11,13 @@ import { createEditor } from "@/editor/createEditor";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
-import { ensureHtmlMode, syncEditorValue } from "@/editor/stateSync";
+import {
+  ensureHtmlMode,
+  setEditorPolicyAcknowledgement,
+  syncEditorValue,
+} from "@/editor/stateSync";
 import type { G7Action, InitEditorParams } from "@/g7/types";
+import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
 const LOCALE_LABELS: Record<string, string> = {
   ko: "한국어",
@@ -40,7 +45,11 @@ function renderFailure(container: HTMLElement, message: string): void {
   container.appendChild(alert);
 }
 
-function createShell(container: HTMLElement, height: number): HTMLElement {
+function createShell(
+  container: HTMLElement,
+  height: number,
+  editable: boolean,
+): HTMLElement {
   container.replaceChildren();
   container.style.setProperty("--jwsoft-tiptap-height", `${height}px`);
   const shell = document.createElement("div");
@@ -48,11 +57,54 @@ function createShell(container: HTMLElement, height: number): HTMLElement {
   const notice = document.createElement("div");
   notice.className = "jwsoft-tiptap-stage-notice";
   notice.setAttribute("role", "status");
-  notice.textContent =
-    "서버 저장 정책 연결 전 검증 단계입니다. 이 편집기는 현재 읽기 전용입니다.";
+  notice.textContent = editable
+    ? "서버 canonical HTML 저장 정책이 적용됩니다."
+    : "이 편집기는 현재 읽기 전용입니다.";
   shell.appendChild(notice);
   container.appendChild(shell);
   return shell;
+}
+
+function renderLegacyWarning(options: {
+  shell: HTMLElement;
+  mount: HTMLElement;
+  onContinue: () => void;
+}): void {
+  const warning = document.createElement("div");
+  warning.className = "jwsoft-tiptap-legacy-warning";
+  warning.setAttribute("role", "alert");
+
+  const message = document.createElement("div");
+  message.textContent =
+    "기존 HTML 중 지원하지 않는 태그·속성·서식이 있습니다. 변경 결과를 승인하기 전에는 저장이 차단됩니다.";
+  warning.appendChild(message);
+
+  const actions = document.createElement("div");
+  actions.className = "jwsoft-tiptap-legacy-actions";
+
+  const continueButton = document.createElement("button");
+  continueButton.type = "button";
+  continueButton.className = "jwsoft-tiptap-legacy-action";
+  continueButton.dataset.primary = "true";
+  continueButton.textContent = "변경 확인 후 편집 계속";
+  continueButton.addEventListener("click", () => {
+    options.onContinue();
+    warning.remove();
+  });
+
+  const keepReadOnlyButton = document.createElement("button");
+  keepReadOnlyButton.type = "button";
+  keepReadOnlyButton.className = "jwsoft-tiptap-legacy-action";
+  keepReadOnlyButton.textContent = "읽기 전용 유지";
+  keepReadOnlyButton.addEventListener("click", () => {
+    keepReadOnlyButton.disabled = true;
+    message.textContent =
+      "읽기 전용으로 유지했습니다. 변경을 승인하기 전에는 저장이 차단됩니다.";
+  });
+
+  actions.append(continueButton, keepReadOnlyButton);
+  warning.appendChild(actions);
+  options.shell.insertBefore(warning, options.mount);
 }
 
 function mountLocaleEditor(options: {
@@ -71,7 +123,7 @@ function mountLocaleEditor(options: {
     element: options.mount,
     content: options.content,
     placeholder: options.placeholder,
-    editable: options.editable,
+    editable: false,
     onUpdate: (value) => {
       syncEditorValue({
         core: window.G7Core,
@@ -83,7 +135,39 @@ function mountLocaleEditor(options: {
     },
   });
   editorRegistry.set(options.containerId, options.locale, editor);
+
+  if (!options.editable) return;
+
   ensureHtmlMode(core, options.name);
+  const analysis = analyzeLegacyHtml(options.content, editor.getHTML());
+  if (!analysis.hasLoss) {
+    setEditorPolicyAcknowledgement(core, true);
+    editor.setEditable(true);
+    return;
+  }
+
+  setEditorPolicyAcknowledgement(core, false);
+  document
+    .getElementById(options.containerId)
+    ?.setAttribute("aria-readonly", "true");
+  renderLegacyWarning({
+    shell: options.mount.parentElement ?? options.mount,
+    mount: options.mount,
+    onContinue: () => {
+      setEditorPolicyAcknowledgement(window.G7Core, true);
+      syncEditorValue({
+        core: window.G7Core,
+        name: options.name,
+        locale: options.locale,
+        value: analysis.canonicalEditorHtml,
+        multilingual: options.multilingual,
+      });
+      editor.setEditable(true);
+      document
+        .getElementById(options.containerId)
+        ?.setAttribute("aria-readonly", "false");
+    },
+  });
 }
 
 function mountMultilingualEditors(options: {
@@ -176,7 +260,7 @@ export async function initEditorHandler(
   const readOnly = booleanParam(params.readOnly);
   const disabled = booleanParam(params.disabled);
   const editable = isEditorWriteEnabled(readOnly, disabled);
-  const shell = createShell(container, safeHeight(params.height));
+  const shell = createShell(container, safeHeight(params.height), editable);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
 

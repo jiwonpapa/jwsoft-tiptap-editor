@@ -1,4 +1,8 @@
-import { ensureHtmlMode, syncEditorValue } from "@/editor/stateSync";
+import {
+  ensureHtmlMode,
+  setEditorPolicyAcknowledgement,
+  syncEditorValue,
+} from "@/editor/stateSync";
 import type { G7CoreApi } from "@/g7/types";
 
 describe("G7 state synchronization", () => {
@@ -59,5 +63,25 @@ describe("G7 state synchronization", () => {
       "content",
     );
     expect(setLocal).toHaveBeenCalledWith({ "form.content_mode": "html" });
+  });
+
+  it("sets and clears the server policy acknowledgement without marking changes", () => {
+    const setLocal = vi.fn();
+    const core: G7CoreApi = { state: { setLocal } };
+
+    setEditorPolicyAcknowledgement(core, true);
+    expect(setLocal).toHaveBeenLastCalledWith(
+      {
+        "form.jwsoft_editor_policy_ack": expect.any(String),
+      },
+      { render: false, selfManaged: true },
+    );
+    setEditorPolicyAcknowledgement(core, false);
+    expect(setLocal).toHaveBeenLastCalledWith(
+      {
+        "form.jwsoft_editor_policy_ack": null,
+      },
+      { render: false, selfManaged: true },
+    );
   });
 });

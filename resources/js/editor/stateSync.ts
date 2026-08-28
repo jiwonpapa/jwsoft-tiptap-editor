@@ -1,4 +1,7 @@
 import type { G7CoreApi } from "@/g7/types";
+import { EDITOR_POLICY_HASH } from "@/generated/editorPolicy";
+
+export const EDITOR_POLICY_ACK_FIELD = "jwsoft_editor_policy_ack";
 
 interface SyncEditorValueOptions {
   core: G7CoreApi | undefined;
@@ -22,6 +25,23 @@ export function ensureHtmlMode(
   if (form[`${name}_mode`] !== "html") {
     state?.setLocal?.({ [`form.${name}_mode`]: "html" });
   }
+}
+
+export function setEditorPolicyAcknowledgement(
+  core: G7CoreApi | undefined,
+  acknowledged: boolean,
+): void {
+  core?.state?.setLocal?.(
+    {
+      [`form.${EDITOR_POLICY_ACK_FIELD}`]: acknowledged
+        ? EDITOR_POLICY_HASH
+        : null,
+    },
+    {
+      render: false,
+      selfManaged: true,
+    },
+  );
 }
 
 export function syncEditorValue({

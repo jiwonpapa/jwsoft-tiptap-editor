@@ -13,6 +13,8 @@ check:
 	npm run check
 	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer validate --strict --no-check-publish
 	php tests/php/plugin_activation_test.php
+	php tests/php/editor_sanitizer_test.php
+	find src tests/php tests/integration -name '*.php' -print0 | xargs -0 -n1 php -l
 	./scripts/check-shell.sh
 
 build:
