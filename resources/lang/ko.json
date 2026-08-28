@@ -47,6 +47,19 @@
     "image": {
       "not_found": "이미지를 찾을 수 없습니다."
     },
+    "media": {
+      "session_created": "MP4 업로드를 시작했습니다.",
+      "session_status": "MP4 업로드 상태를 확인했습니다.",
+      "session_not_found": "MP4 업로드 세션을 찾을 수 없습니다.",
+      "part_received": "MP4 청크를 저장했습니다.",
+      "part_rejected": "MP4 청크가 업로드 정책을 통과하지 못했습니다.",
+      "created": "MP4를 업로드했습니다.",
+      "rejected": "MP4가 업로드 정책을 통과하지 못했습니다.",
+      "failed": "MP4 업로드에 실패했습니다.",
+      "cancelled": "MP4 업로드를 취소했습니다.",
+      "cancel_failed": "MP4 업로드 취소에 실패했습니다.",
+      "not_found": "동영상을 찾을 수 없습니다."
+    },
     "uploads": {
       "not_found": "업로드 기록을 찾을 수 없습니다.",
       "deleted": "이미지를 삭제했습니다.",

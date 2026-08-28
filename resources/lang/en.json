@@ -47,6 +47,19 @@
     "image": {
       "not_found": "Image not found."
     },
+    "media": {
+      "session_created": "MP4 upload started.",
+      "session_status": "MP4 upload status loaded.",
+      "session_not_found": "MP4 upload session not found.",
+      "part_received": "MP4 chunk stored.",
+      "part_rejected": "The MP4 chunk did not pass the upload policy.",
+      "created": "MP4 uploaded.",
+      "rejected": "The MP4 did not pass the upload policy.",
+      "failed": "MP4 upload failed.",
+      "cancelled": "MP4 upload cancelled.",
+      "cancel_failed": "MP4 upload cancellation failed.",
+      "not_found": "Video not found."
+    },
     "uploads": {
       "not_found": "Upload record not found.",
       "deleted": "Image deleted.",

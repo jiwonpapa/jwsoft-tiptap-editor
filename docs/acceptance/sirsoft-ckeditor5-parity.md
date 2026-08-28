@@ -49,10 +49,12 @@
 - [ ] 저장 HTML에 iframe·video·script 0
 - [ ] 출력 player 클릭 후 로드·반응형·자동재생 opt-in
 - [ ] provider 설정 OFF와 기존 media node 무손실
+- [ ] MP4 청크 해시·재시도·재개·서버 재검증
+- [ ] 중단 업로드 24시간 만료 정리와 완성 파일 serve
 
 ## E. G7 관리 기능
 
-- [ ] imageUpload, imageMaxSizeMb, editorHeight, toolbar 설정
+- [ ] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, editorHeight, toolbar 설정
 - [ ] public asset disk 설정
 - [ ] cleanup 설정
 - [ ] 관리자 메뉴와 read/delete 권한

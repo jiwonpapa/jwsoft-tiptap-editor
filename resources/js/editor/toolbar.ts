@@ -12,6 +12,7 @@ import {
   normalizeMediaUrl,
   type MediaEmbedOptions,
 } from "@/editor/mediaEmbed";
+import { uploadEditorMedia } from "@/editor/mediaUpload";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -24,6 +25,8 @@ interface ToolbarOptions {
   imageMaxSizeMb: number;
   mediaEmbed: boolean;
   mediaOptions: MediaEmbedOptions;
+  videoUpload: boolean;
+  videoMaxSizeMb: number;
   locale?: string;
 }
 
@@ -539,6 +542,8 @@ function createMediaDialog(
   editor: Editor,
   trigger: HTMLButtonElement,
   allowed: MediaEmbedOptions,
+  uploadEnabled: boolean,
+  maxSizeMb: number,
   locale: string,
 ): DialogHandle {
   const form = document.createElement("form");
@@ -547,21 +552,81 @@ function createMediaDialog(
   url.type = "url";
   url.inputMode = "url";
   url.placeholder = "https://youtube.com/… / vimeo.com/… / video.mp4";
+  const file = document.createElement("input");
+  file.type = "file";
+  file.accept = "video/mp4,.mp4";
+  const progress = document.createElement("div");
+  progress.className = "jwsoft-tiptap-upload-status";
+  progress.setAttribute("role", "status");
+  progress.setAttribute("aria-live", "polite");
+  progress.hidden = true;
   const error = formError();
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = editorText(locale, "동영상 삽입");
-  form.append(formField(editorText(locale, "동영상 URL"), url), error, apply);
+  if (uploadEnabled) {
+    const hint = document.createElement("div");
+    hint.className = "jwsoft-tiptap-upload-hint";
+    hint.textContent =
+      locale === "en"
+        ? `Chunked MP4 upload: up to ${maxSizeMb} MB`
+        : `MP4 청크 업로드: 최대 ${maxSizeMb}MB`;
+    form.append(
+      formField(editorText(locale, "MP4 파일"), file),
+      hint,
+      progress,
+    );
+  }
+  form.append(
+    formField(
+      editorText(locale, uploadEnabled ? "또는 동영상 URL" : "동영상 URL"),
+      url,
+    ),
+    error,
+    apply,
+  );
   const handle = createDialog({
     title: editorText(locale, "동영상"),
     trigger,
     content: form,
     locale,
   });
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const media = normalizeMediaUrl(url.value, allowed);
+    error.hidden = true;
+    let value = url.value;
+    const selected = file.files?.[0];
+    if (selected && uploadEnabled) {
+      apply.disabled = true;
+      file.disabled = true;
+      progress.hidden = false;
+      try {
+        const uploaded = await uploadEditorMedia(selected, {
+          maxSizeMb,
+          locale,
+          onProgress: (completed, total) => {
+            progress.textContent = editorText(
+              locale,
+              "동영상 청크 {{current}}/{{total}} 업로드 중…",
+              { current: completed, total },
+            );
+          },
+        });
+        value = uploaded.url;
+      } catch (uploadError) {
+        error.textContent =
+          uploadError instanceof Error
+            ? uploadError.message
+            : editorText(locale, "동영상 업로드에 실패했습니다.");
+        error.hidden = false;
+        file.disabled = false;
+        apply.disabled = false;
+        file.focus();
+        return;
+      }
+    }
+    const media = normalizeMediaUrl(value, allowed);
     if (!media) {
       error.textContent = editorText(
         locale,
@@ -573,6 +638,9 @@ function createMediaDialog(
     }
     insertMediaEmbed(editor, media);
     form.reset();
+    progress.hidden = true;
+    file.disabled = false;
+    apply.disabled = false;
     error.hidden = true;
     handle.close();
   });
@@ -754,7 +822,14 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     );
     if (media) {
       dialogs.push(
-        createMediaDialog(editor, media, options.mediaOptions, locale),
+        createMediaDialog(
+          editor,
+          media,
+          options.mediaOptions,
+          options.videoUpload,
+          options.videoMaxSizeMb,
+          locale,
+        ),
       );
     }
   }

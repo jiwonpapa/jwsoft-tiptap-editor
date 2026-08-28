@@ -80,3 +80,5 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 - [x] YouTube·Vimeo·MP4 provider URL 정규화
 - [x] 저장 HTML 무실행 media node와 반응형 output player
 - [x] provider·자동 변환·자동재생·외부 로드 설정
+- [x] MP4 청크 업로드·SHA-256 검증·재시도·동일 탭 재개
+- [x] MP4 StorageInterface 조립·serve·24시간 만료 세션 정리

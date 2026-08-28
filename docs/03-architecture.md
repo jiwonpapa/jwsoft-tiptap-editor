@@ -53,6 +53,12 @@ G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve
 
 YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합니다. iframe·video·provider script는 저장하지 않으며, 출력 handler가 URL과 provider를 다시 검사한 뒤 자체 번들 코드로 반응형 player DOM을 만듭니다. 기본 동작은 클릭 후 로드이고 자동재생은 꺼져 있습니다. 상세 결정은 [ADR 0007](adr/0007-safe-media-embeds.md)을 따릅니다.
 
+### 7. MP4 chunk upload subsystem
+
+브라우저는 MP4를 서버가 지정한 1~10MB 청크로 순차 업로드합니다. 각 청크는 SHA-256으로 검증하며, 동일 청크 재전송은 멱등 처리합니다. 세션 토큰과 수신 청크 목록으로 같은 브라우저 탭의 재시도를 이어가고, 서버는 완료 시 청크 순서·해시·전체 크기·MP4 `ftyp` 구조와 실제 MIME을 다시 검사합니다.
+
+임시 청크는 G7 StorageInterface의 `media-temp`, 완성 파일은 공개 자산 디스크의 `media` 범주에 저장합니다. DB 기록 실패 시 완성 파일을 회수하고, 24시간 지난 중단 세션은 매시간 정리합니다. 상세 결정은 [ADR 0008](adr/0008-mp4-chunk-uploads.md)을 따릅니다.
+
 ## 저장 형식
 
 - DB: 기존 HTML 문자열 또는 다국어 HTML map

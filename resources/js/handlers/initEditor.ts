@@ -55,6 +55,12 @@ function safeImageMaxSize(value: unknown): number {
   return Math.min(10, Math.max(1, Math.floor(parsed)));
 }
 
+function safeVideoMaxSize(value: unknown): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 200;
+  return Math.min(500, Math.max(1, Math.floor(parsed)));
+}
+
 function renderFailure(container: HTMLElement, message: string): void {
   container.replaceChildren();
   const alert = document.createElement("div");
@@ -212,6 +218,8 @@ function mountLocaleEditor(options: {
   mediaEmbed: boolean;
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
+  videoUpload: boolean;
+  videoMaxSizeMb: number;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -273,6 +281,8 @@ function mountLocaleEditor(options: {
     imageMaxSizeMb: options.imageMaxSizeMb,
     mediaEmbed: options.mediaEmbed,
     mediaOptions: options.mediaOptions,
+    videoUpload: options.videoUpload,
+    videoMaxSizeMb: options.videoMaxSizeMb,
     locale: options.locale,
   });
   options.mount.insertBefore(toolbar, editorMount);
@@ -324,6 +334,8 @@ function mountMultilingualEditors(options: {
   mediaEmbed: boolean;
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
+  videoUpload: boolean;
+  videoMaxSizeMb: number;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -371,6 +383,8 @@ function mountMultilingualEditors(options: {
         mediaEmbed: options.mediaEmbed,
         autoEmbedUrls: options.autoEmbedUrls,
         mediaOptions: options.mediaOptions,
+        videoUpload: options.videoUpload,
+        videoMaxSizeMb: options.videoMaxSizeMb,
         imageMaxSizeMb: options.imageMaxSizeMb,
         status: options.status,
       });
@@ -397,6 +411,8 @@ function mountMultilingualEditors(options: {
       mediaEmbed: options.mediaEmbed,
       autoEmbedUrls: options.autoEmbedUrls,
       mediaOptions: options.mediaOptions,
+      videoUpload: options.videoUpload,
+      videoMaxSizeMb: options.videoMaxSizeMb,
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
@@ -449,6 +465,8 @@ export async function initEditorHandler(
     vimeo: booleanParam(params.vimeoEmbed),
     mp4: booleanParam(params.mp4Embed),
   };
+  const videoUpload = booleanParam(params.videoUpload);
+  const videoMaxSizeMb = safeVideoMaxSize(params.videoMaxSizeMb);
   const imageMaxSizeMb = safeImageMaxSize(params.imageMaxSizeMb);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
@@ -468,6 +486,8 @@ export async function initEditorHandler(
       mediaEmbed,
       autoEmbedUrls,
       mediaOptions,
+      videoUpload,
+      videoMaxSizeMb,
       imageMaxSizeMb,
       status,
     });
@@ -492,6 +512,8 @@ export async function initEditorHandler(
     mediaEmbed,
     autoEmbedUrls,
     mediaOptions,
+    videoUpload,
+    videoMaxSizeMb,
     imageMaxSizeMb,
     status,
   });

@@ -7,13 +7,18 @@ use App\Contracts\Repositories\PluginRepositoryInterface;
 use App\Extension\BasePluginServiceProvider;
 use App\Extension\HookManager;
 use Plugins\Jwsoft\TiptapEditor\Console\Commands\PruneUnusedImagesCommand;
+use Plugins\Jwsoft\TiptapEditor\Console\Commands\PruneMediaUploadSessionsCommand;
 use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\ImageReferenceSourceRepositoryInterface;
 use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\ImageUploadRepositoryInterface;
+use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\MediaUploadRepositoryInterface;
 use Plugins\Jwsoft\TiptapEditor\Repositories\ImageReferenceSourceRepository;
 use Plugins\Jwsoft\TiptapEditor\Repositories\ImageUploadRepository;
+use Plugins\Jwsoft\TiptapEditor\Repositories\MediaUploadRepository;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageCleanupService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageServeService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageUploadService;
+use Plugins\Jwsoft\TiptapEditor\Services\MediaServeService;
+use Plugins\Jwsoft\TiptapEditor\Services\MediaUploadService;
 use RuntimeException;
 
 class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
@@ -23,11 +28,16 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
     protected array $repositories = [
         ImageUploadRepositoryInterface::class => ImageUploadRepository::class,
         ImageReferenceSourceRepositoryInterface::class => ImageReferenceSourceRepository::class,
+        MediaUploadRepositoryInterface::class => MediaUploadRepository::class,
     ];
 
     protected array $storageServices = [ImageServeService::class, ImageCleanupService::class];
 
-    protected array $storageCategoryServices = [ImageUploadService::class => 'images'];
+    protected array $storageCategoryServices = [
+        ImageUploadService::class => 'images',
+        MediaUploadService::class => 'media',
+        MediaServeService::class => 'media',
+    ];
 
     public function boot(): void
     {
@@ -43,7 +53,7 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
             1,
         );
         if ($this->app->runningInConsole()) {
-            $this->commands([PruneUnusedImagesCommand::class]);
+            $this->commands([PruneUnusedImagesCommand::class, PruneMediaUploadSessionsCommand::class]);
         }
     }
 

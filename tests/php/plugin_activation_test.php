@@ -105,7 +105,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'mediaAutoplay', 'externalMediaLoadMode', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -117,6 +117,9 @@ namespace {
         || ($settings['pasteImageUpload']['default'] ?? null) !== true
         || ($settings['mediaEmbed']['default'] ?? null) !== false
         || ($settings['autoEmbedUrls']['default'] ?? null) !== false
+        || ($settings['videoUpload']['default'] ?? null) !== false
+        || ($settings['videoMaxSizeMb']['default'] ?? null) !== 200
+        || ($settings['videoChunkSizeMb']['default'] ?? null) !== 5
         || ($settings['mediaAutoplay']['default'] ?? null) !== false
         || ($settings['externalMediaLoadMode']['default'] ?? null) !== 'click'
         || ($settings['legacyContentRiskAcknowledged']['default'] ?? null) !== false
@@ -132,7 +135,8 @@ namespace {
     if (($settingsConfig['defaults']['legacyContentRiskAcknowledged'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['dragDropImageUpload']['expose'] ?? null) !== true
-        || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true) {
+        || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true
+        || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false) {
         throw new RuntimeException('Transition acknowledgement must default off and stay server-side.');
     }
 
@@ -149,7 +153,12 @@ namespace {
     }
     if (($plugin->getAdminMenus()[0]['url'] ?? null) !== '/admin/plugins/jwsoft-tiptap-editor/uploads'
         || ($plugin->getSchedules()[0]['enabled_config'] ?? null) !== 'jwsoft-tiptap-editor.unusedImageCleanup'
-        || $plugin->getDynamicTables() !== ['jwsoft_tiptap_image_uploads']) {
+        || ($plugin->getSchedules()[1]['command'] ?? null) !== 'jwsoft-tiptap-editor:prune-media-sessions'
+        || $plugin->getDynamicTables() !== [
+            'jwsoft_tiptap_image_uploads',
+            'jwsoft_tiptap_media_uploads',
+            'jwsoft_tiptap_media_upload_sessions',
+        ]) {
         throw new RuntimeException('Image menu, schedule, or dynamic table contract mismatch.');
     }
 

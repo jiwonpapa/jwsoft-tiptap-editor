@@ -62,6 +62,8 @@ export interface InitEditorParams {
   youtubeEmbed?: boolean | string;
   vimeoEmbed?: boolean | string;
   mp4Embed?: boolean | string;
+  videoUpload?: boolean | string;
+  videoMaxSizeMb?: number | string;
   imageMaxSizeMb?: number | string;
 }
 

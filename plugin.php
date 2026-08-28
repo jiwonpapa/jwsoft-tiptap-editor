@@ -88,6 +88,31 @@ class Plugin extends AbstractPlugin
                 'hint' => ['ko' => 'HTTPS 또는 플러그인 내부 MP4 URL을 플레이어로 삽입합니다.', 'en' => 'Allow HTTPS or plugin-owned MP4 URLs.'],
                 'required' => false,
             ],
+            'videoUpload' => [
+                'type' => 'boolean',
+                'default' => false,
+                'label' => ['ko' => '동영상 파일 업로드', 'en' => 'Video file upload'],
+                'hint' => ['ko' => 'MP4 파일을 청크 단위로 업로드하고 반응형 플레이어로 삽입합니다.', 'en' => 'Upload MP4 files in chunks and insert a responsive player.'],
+                'required' => false,
+            ],
+            'videoMaxSizeMb' => [
+                'type' => 'integer',
+                'min' => 1,
+                'max' => 500,
+                'default' => 200,
+                'label' => ['ko' => '동영상 최대 크기 (MB)', 'en' => 'Video max size (MB)'],
+                'hint' => ['ko' => 'MP4 파일당 최대 업로드 크기입니다.', 'en' => 'Maximum upload size per MP4 file.'],
+                'required' => false,
+            ],
+            'videoChunkSizeMb' => [
+                'type' => 'integer',
+                'min' => 1,
+                'max' => 10,
+                'default' => 5,
+                'label' => ['ko' => '동영상 청크 크기 (MB)', 'en' => 'Video chunk size (MB)'],
+                'hint' => ['ko' => '불안정한 연결에서 재시도할 업로드 조각 크기입니다.', 'en' => 'Chunk size retried on unstable connections.'],
+                'required' => false,
+            ],
             'mediaAutoplay' => [
                 'type' => 'boolean',
                 'default' => false,
@@ -208,17 +233,25 @@ class Plugin extends AbstractPlugin
 
     public function getSchedules(): array
     {
-        return [[
-            'command' => 'jwsoft-tiptap-editor:prune-unused-images --scheduled',
-            'schedule' => 'daily',
-            'description' => '미참조 에디터 업로드 이미지 정리',
-            'enabled_config' => 'jwsoft-tiptap-editor.unusedImageCleanup',
-        ]];
+        return [
+            [
+                'command' => 'jwsoft-tiptap-editor:prune-unused-images --scheduled',
+                'schedule' => 'daily',
+                'description' => '미참조 에디터 업로드 이미지 정리',
+                'enabled_config' => 'jwsoft-tiptap-editor.unusedImageCleanup',
+            ],
+            [
+                'command' => 'jwsoft-tiptap-editor:prune-media-sessions',
+                'schedule' => 'hourly',
+                'description' => '만료된 MP4 청크 업로드 세션 정리',
+                'enabled_config' => null,
+            ],
+        ];
     }
 
     public function getStorageDiskFor(string $category): string
     {
-        if ($category !== 'images') {
+        if (! in_array($category, ['images', 'media'], true)) {
             return $this->getStorageDisk();
         }
 
@@ -230,7 +263,11 @@ class Plugin extends AbstractPlugin
 
     public function getDynamicTables(): array
     {
-        return ['jwsoft_tiptap_image_uploads'];
+        return [
+            'jwsoft_tiptap_image_uploads',
+            'jwsoft_tiptap_media_uploads',
+            'jwsoft_tiptap_media_upload_sessions',
+        ];
     }
 
     /**

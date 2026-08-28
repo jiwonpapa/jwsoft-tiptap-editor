@@ -14,6 +14,7 @@ async function mountEditor(
   toolbar = "standard",
   imageUpload = false,
   mediaEmbed = false,
+  videoUpload = false,
 ): Promise<void> {
   await page.route("http://jwsoft.test/", (route) =>
     route.fulfill({
@@ -47,7 +48,7 @@ async function mountEditor(
   });
   await page.addScriptTag({ path: bundlePath });
   await page.evaluate(
-    async ({ profile, withImageUpload, withMediaEmbed }) => {
+    async ({ profile, withImageUpload, withMediaEmbed, withVideoUpload }) => {
       const runtime = window as typeof window & {
         __e2eHandlers: Record<
           string,
@@ -63,6 +64,8 @@ async function mountEditor(
             toolbar: profile,
             imageUpload: withImageUpload,
             mediaEmbed: withMediaEmbed,
+            videoUpload: withVideoUpload,
+            videoMaxSizeMb: 200,
             autoEmbedUrls: withMediaEmbed,
             youtubeEmbed: true,
             vimeoEmbed: true,
@@ -77,6 +80,7 @@ async function mountEditor(
       profile: toolbar,
       withImageUpload: imageUpload,
       withMediaEmbed: mediaEmbed,
+      withVideoUpload: videoUpload,
     },
   );
 }
@@ -229,4 +233,80 @@ test("media URL creates safe canonical HTML and a click-to-load responsive playe
   );
   const box = await output.boundingBox();
   expect((box?.width ?? 0) / (box?.height ?? 1)).toBeCloseTo(16 / 9, 1);
+});
+
+test("MP4 file uses the chunk protocol and inserts a canonical responsive media node", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  const token = "0123456789abcdef0123456789abcdef";
+  let partRequests = 0;
+  await page.route(
+    "http://jwsoft.test/api/plugins/jwsoft-tiptap-editor/media/uploads**",
+    async (route) => {
+      const request = route.request();
+      const url = request.url();
+      if (url.endsWith("/media/uploads")) {
+        await route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({
+            success: true,
+            data: {
+              upload_token: token,
+              chunk_size: 32,
+              total_parts: 1,
+              received_parts: [],
+            },
+          }),
+        });
+        return;
+      }
+      if (url.endsWith("/parts/0")) {
+        partRequests += 1;
+        expect(request.method()).toBe("PUT");
+        expect(request.postDataBuffer()?.length).toBeGreaterThan(32);
+        await route.fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({ success: true, data: {} }),
+        });
+        return;
+      }
+      if (url.endsWith("/complete")) {
+        await route.fulfill({
+          status: 201,
+          contentType: "application/json",
+          body: JSON.stringify({
+            success: true,
+            data: {
+              download_url:
+                "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
+            },
+          }),
+        });
+        return;
+      }
+      await route.abort();
+    },
+  );
+  await mountEditor(page, "standard", false, true, true);
+  await page.getByRole("button", { name: "동영상" }).click();
+  const dialog = page.getByRole("dialog", { name: "동영상" });
+  await dialog.getByLabel("MP4 파일").setInputFiles({
+    name: "proof.mp4",
+    mimeType: "video/mp4",
+    buffer: Buffer.from([
+      0, 0, 0, 24, 102, 116, 121, 112, 105, 115, 111, 109, 0, 0, 0, 0, 105, 115,
+      111, 109, 109, 112, 52, 49, 0, 0, 0, 8, 109, 100, 97, 116,
+    ]),
+  });
+  await dialog.getByRole("button", { name: "동영상 삽입" }).click();
+
+  const media = page.locator(".jwsoft-tiptap-editable figure.jw-media-mp4");
+  await expect(media.locator("a.jw-media-source")).toHaveAttribute(
+    "href",
+    "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
+  );
+  await expect(media.locator("iframe, video")).toHaveCount(0);
+  expect(partRequests).toBe(1);
 });

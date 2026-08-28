@@ -56,6 +56,17 @@ const ENGLISH_COPY: Record<string, string> = {
   동영상: "Video",
   "동영상 URL": "Video URL",
   "동영상 삽입": "Insert video",
+  "MP4 파일": "MP4 file",
+  "또는 동영상 URL": "Or video URL",
+  "MP4 동영상 파일만 업로드할 수 있습니다.":
+    "Only MP4 video files can be uploaded.",
+  "동영상 업로드를 시작하지 못했습니다.": "Could not start video upload.",
+  "동영상 청크 업로드에 실패했습니다.": "Video chunk upload failed.",
+  "동영상 업로드 세션 정보가 올바르지 않습니다.":
+    "The video upload session is invalid.",
+  "동영상 업로드에 실패했습니다.": "Video upload failed.",
+  "동영상 청크 {{current}}/{{total}} 업로드 중…":
+    "Uploading video chunk {{current}}/{{total}}…",
   "허용된 YouTube·Vimeo·MP4 URL을 입력하십시오.":
     "Enter an allowed YouTube, Vimeo, or MP4 URL.",
   "이미지를 업로드하는 중입니다…": "Uploading image…",

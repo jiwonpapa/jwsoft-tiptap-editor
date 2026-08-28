@@ -29,6 +29,8 @@
               "youtubeEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.youtubeEmbed ?? true}}",
               "vimeoEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.vimeoEmbed ?? true}}",
               "mp4Embed": "{{_global.plugins['jwsoft-tiptap-editor']?.mp4Embed ?? true}}",
+              "videoUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.videoUpload ?? false}}",
+              "videoMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.videoMaxSizeMb ?? 200}}",
               "imageMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.imageMaxSizeMb ?? 2}}",
               "height": "{{extensionPointProps.height ?? _global.plugins['jwsoft-tiptap-editor']?.editorHeight ?? 400}}",
               "toolbar": "{{extensionPointProps.toolbar ?? _global.plugins['jwsoft-tiptap-editor']?.toolbar ?? 'standard'}}"
