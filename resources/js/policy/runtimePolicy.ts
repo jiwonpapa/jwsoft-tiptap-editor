@@ -163,12 +163,91 @@ function normalizeElement(element: Element): void {
   for (const [name, value] of attributes) element.setAttribute(name, value);
 }
 
+function cardProviderForHost(provider: string, host: string): boolean {
+  const domains: Record<string, readonly string[]> = {
+    instagram: ["instagram.com"],
+    x: ["x.com", "twitter.com"],
+    tiktok: ["tiktok.com"],
+    facebook: ["facebook.com", "fb.watch"],
+    threads: ["threads.net"],
+  };
+  if (provider === "generic") return host !== "";
+  return (domains[provider] ?? []).some(
+    (domain) => host === domain || host.endsWith(`.${domain}`),
+  );
+}
+
+function normalizeCardFigures(root: DocumentFragment): void {
+  const providers = [
+    "generic",
+    "instagram",
+    "x",
+    "tiktok",
+    "facebook",
+    "threads",
+  ] as const;
+  for (const figure of root.querySelectorAll<HTMLElement>("figure.jw-card")) {
+    const matched = providers.filter((provider) =>
+      figure.classList.contains(`jw-card-${provider}`),
+    );
+    const link = figure.querySelector<HTMLAnchorElement>("a.jw-card-link");
+    const strong = link?.querySelector("strong");
+    let parsed: URL | null = null;
+    try {
+      parsed = link ? new URL(link.getAttribute("href") ?? "") : null;
+    } catch {
+      parsed = null;
+    }
+    let valid =
+      matched.length === 1 &&
+      !!link &&
+      !!strong?.textContent?.trim() &&
+      parsed?.protocol === "https:" &&
+      !parsed.username &&
+      !parsed.password &&
+      !parsed.port &&
+      cardProviderForHost(matched[0] ?? "", parsed.hostname.toLowerCase());
+    const image = link?.querySelector<HTMLImageElement>("img.jw-card-image");
+    if (valid && image) {
+      try {
+        const imageUrl = new URL(image.getAttribute("src") ?? "");
+        valid =
+          imageUrl.protocol === "https:" &&
+          !imageUrl.username &&
+          !imageUrl.password &&
+          !imageUrl.port &&
+          imageUrl.hostname.toLowerCase() === parsed!.hostname.toLowerCase();
+      } catch {
+        valid = false;
+      }
+    }
+    if (valid && link) {
+      link.setAttribute("target", "_blank");
+      link.setAttribute("rel", "noopener noreferrer");
+      normalizeElement(link);
+      continue;
+    }
+    for (const element of [
+      figure,
+      ...figure.querySelectorAll<HTMLElement>("*"),
+    ]) {
+      const classes = [...element.classList].filter(
+        (token) => !token.startsWith("jw-card"),
+      );
+      if (classes.length) element.setAttribute("class", classes.join(" "));
+      else element.removeAttribute("class");
+      normalizeElement(element);
+    }
+  }
+}
+
 function normalizeFragment(html: string): string {
   const template = document.createElement("template");
   template.innerHTML = html;
   for (const element of [...template.content.querySelectorAll("*")]) {
     normalizeElement(element);
   }
+  normalizeCardFigures(template.content);
   return template.innerHTML;
 }
 

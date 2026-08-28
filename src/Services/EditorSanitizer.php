@@ -122,6 +122,7 @@ final class EditorSanitizer
             $this->normalizeAttributes($element, $policy);
             if ($element->tagName === 'figure') {
                 $this->normalizeMediaFigure($element);
+                $this->normalizeCardFigure($element);
             }
             $this->sortAttributes($element);
         }
@@ -329,6 +330,101 @@ final class EditorSanitizer
         if ($provider === 'mp4') {
             return str_ends_with(strtolower($path), '.mp4')
                 || preg_match('#^/api/plugins/jwsoft-tiptap-editor/media/[a-f0-9]{12}$#', $path) === 1;
+        }
+
+        return false;
+    }
+
+    private function normalizeCardFigure(DOMElement $element): void
+    {
+        $classes = preg_split('/\s+/u', trim($element->getAttribute('class'))) ?: [];
+        $providerClasses = [
+            'jw-card-generic', 'jw-card-instagram', 'jw-card-x',
+            'jw-card-tiktok', 'jw-card-facebook', 'jw-card-threads',
+        ];
+        $providers = array_values(array_intersect($classes, $providerClasses));
+        if (! in_array('jw-card', $classes, true) || count($providers) !== 1) {
+            return;
+        }
+        $link = $element->getElementsByTagName('a')->item(0);
+        $provider = substr($providers[0], strlen('jw-card-'));
+        $strong = $element->getElementsByTagName('strong')->item(0);
+        $valid = $link instanceof DOMElement
+            && $strong instanceof DOMElement
+            && trim($strong->textContent) !== ''
+            && in_array('jw-card-link', preg_split('/\s+/u', trim($link->getAttribute('class'))) ?: [], true)
+            && $this->isAllowedCardUrl($link->getAttribute('href'), $provider);
+
+        $image = $element->getElementsByTagName('img')->item(0);
+        if ($valid && $image instanceof DOMElement) {
+            $linkHost = strtolower((string) parse_url($link->getAttribute('href'), PHP_URL_HOST));
+            $imageHost = strtolower((string) parse_url($image->getAttribute('src'), PHP_URL_HOST));
+            $valid = in_array('jw-card-image', preg_split('/\s+/u', trim($image->getAttribute('class'))) ?: [], true)
+                && $imageHost !== ''
+                && $imageHost === $linkHost
+                && strtolower((string) parse_url($image->getAttribute('src'), PHP_URL_SCHEME)) === 'https';
+        }
+
+        if ($valid) {
+            $link->setAttribute('target', '_blank');
+            $link->setAttribute('rel', 'noopener noreferrer');
+
+            return;
+        }
+
+        $nodes = [$element];
+        foreach ($element->getElementsByTagName('*') as $descendant) {
+            $nodes[] = $descendant;
+        }
+        foreach ($nodes as $node) {
+            if (! $node instanceof DOMElement || ! $node->hasAttribute('class')) {
+                continue;
+            }
+            $nodeClasses = preg_split('/\s+/u', trim($node->getAttribute('class'))) ?: [];
+            $nodeClasses = array_values(array_filter(
+                $nodeClasses,
+                static fn (string $class): bool => ! str_starts_with($class, 'jw-card'),
+            ));
+            if ($nodeClasses === []) {
+                $node->removeAttribute('class');
+            } else {
+                $node->setAttribute('class', implode(' ', $nodeClasses));
+            }
+        }
+    }
+
+    private function isAllowedCardUrl(string $url, string $provider): bool
+    {
+        $url = trim($url);
+        $parts = parse_url($url);
+        if ($parts === false
+            || strtolower((string) ($parts['scheme'] ?? '')) !== 'https'
+            || ($parts['user'] ?? '') !== ''
+            || ($parts['pass'] ?? '') !== ''
+            || isset($parts['port'])
+            || ! isset($parts['host'])) {
+            return false;
+        }
+        $host = strtolower(rtrim((string) $parts['host'], '.'));
+        $domains = match ($provider) {
+            'instagram' => ['instagram.com'],
+            'x' => ['x.com', 'twitter.com'],
+            'tiktok' => ['tiktok.com'],
+            'facebook' => ['facebook.com', 'fb.watch'],
+            'threads' => ['threads.net'],
+            'generic' => [],
+            default => null,
+        };
+        if ($domains === null) {
+            return false;
+        }
+        if ($provider === 'generic') {
+            return $host !== '';
+        }
+        foreach ($domains as $domain) {
+            if ($host === $domain || str_ends_with($host, '.'.$domain)) {
+                return true;
+            }
         }
 
         return false;

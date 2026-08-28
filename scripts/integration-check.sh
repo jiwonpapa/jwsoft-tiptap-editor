@@ -36,6 +36,7 @@ printf '%s' "$update_help" | grep -q -- '--zip' || fail "plugin:update --zip 계
 php "$PROJECT_ROOT/tests/integration/g7_middleware_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 php "$PROJECT_ROOT/tests/integration/g7_image_subsystem_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 php "$PROJECT_ROOT/tests/integration/g7_media_subsystem_test.php" "$G7_ROOT" "$PROJECT_ROOT"
+php "$PROJECT_ROOT/tests/integration/g7_link_preview_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 node "$PROJECT_ROOT/scripts/write-integration-evidence.mjs" "$version"
 
 info "G7 $version 통합 호스트 계약 검사 통과: $G7_ROOT"

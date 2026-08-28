@@ -19,6 +19,8 @@ use Plugins\Jwsoft\TiptapEditor\Services\ImageServeService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageUploadService;
 use Plugins\Jwsoft\TiptapEditor\Services\MediaServeService;
 use Plugins\Jwsoft\TiptapEditor\Services\MediaUploadService;
+use Plugins\Jwsoft\TiptapEditor\Services\Contracts\SafeUrlResolverInterface;
+use Plugins\Jwsoft\TiptapEditor\Services\DnsSafeUrlResolver;
 use RuntimeException;
 
 class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
@@ -29,6 +31,7 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
         ImageUploadRepositoryInterface::class => ImageUploadRepository::class,
         ImageReferenceSourceRepositoryInterface::class => ImageReferenceSourceRepository::class,
         MediaUploadRepositoryInterface::class => MediaUploadRepository::class,
+        SafeUrlResolverInterface::class => DnsSafeUrlResolver::class,
     ];
 
     protected array $storageServices = [ImageServeService::class, ImageCleanupService::class];

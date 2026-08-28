@@ -58,6 +58,18 @@ $spoofedMedia = $sanitizer->sanitize(
 );
 assertEditorPolicy(! str_contains($spoofedMedia->canonicalHtml, 'jw-media-youtube'), 'provider-mismatched media class must be removed');
 
+$card = $sanitizer->sanitize(
+    '<figure class="jw-card jw-card-instagram"><a class="jw-card-link" href="https://www.instagram.com/p/proof"><strong>Proof</strong><p>Safe description</p></a></figure>',
+);
+assertEditorPolicy(str_contains($card->canonicalHtml, 'jw-card-instagram'), 'allowlisted smart card must survive');
+assertEditorPolicy(str_contains($card->canonicalHtml, 'rel="noopener noreferrer"'), 'smart card must force safe rel');
+assertEditorPolicy(str_contains($card->canonicalHtml, 'target="_blank"'), 'smart card must force blank target');
+
+$spoofedCard = $sanitizer->sanitize(
+    '<figure class="jw-card jw-card-instagram"><a class="jw-card-link" href="https://evil.example/post"><strong>Spoof</strong></a></figure>',
+);
+assertEditorPolicy(! str_contains($spoofedCard->canonicalHtml, 'jw-card'), 'provider-mismatched smart card classes must be removed');
+
 try {
     $sanitizer->sanitize(str_repeat('가', 400_000));
     throw new RuntimeException('oversized HTML must fail');

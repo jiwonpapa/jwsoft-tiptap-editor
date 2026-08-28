@@ -43,3 +43,4 @@
 - 설정 가능한 다중 이미지 드래그·드롭 및 클립보드 업로드
 - 설정 가능한 YouTube·Vimeo·MP4 URL 자동 감지와 저장 HTML 무실행 반응형 플레이어
 - 설정 가능한 MP4 청크 업로드, SHA-256 조각 검증·재시도·재개와 만료 세션 자동 정리
+- 설정 가능한 Instagram·X·TikTok·Facebook·Threads·일반 URL 스마트카드와 SSRF 방어형 서버 미리보기

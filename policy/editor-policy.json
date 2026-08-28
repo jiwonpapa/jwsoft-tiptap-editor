@@ -1,6 +1,6 @@
 {
   "$schema": "./editor-policy.schema.json",
-  "policyVersion": "1.1.0",
+  "policyVersion": "1.2.0",
   "elements": {
     "p": { "attributes": ["class"] },
     "br": { "attributes": [] },
@@ -53,6 +53,17 @@
       "jw-media-vimeo",
       "jw-media-mp4",
       "jw-media-source"
+    ],
+    "card": [
+      "jw-card",
+      "jw-card-generic",
+      "jw-card-instagram",
+      "jw-card-x",
+      "jw-card-tiktok",
+      "jw-card-facebook",
+      "jw-card-threads",
+      "jw-card-link",
+      "jw-card-image"
     ]
   },
   "urls": {

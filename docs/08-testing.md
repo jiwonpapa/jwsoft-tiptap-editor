@@ -17,6 +17,7 @@
 - FormRequest
 - image upload/serve/cleanup
 - MP4 chunk checksum/retry/assembly/serve/session cleanup
+- link preview provider/metadata/redirect/SSRF/body limit and canonical card
 - repository와 StorageInterface
 - permission, hook, settings schema
 
@@ -27,7 +28,7 @@
 - state submit과 API 저장
 - legacy HTML round-trip
 
-`make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약, 실제 Illuminate Request 기반 게시판 HTML 미들웨어, 이미지 업로드의 신·구 훅 발화·StorageInterface 저장·DB 실패 롤백·고아 레코드 정리, MP4 청크 해시·멱등 재시도·조립·서빙·만료 정리를 검사합니다. 별도 lifecycle 하네스는 실제 ZIP 업데이트, 동시 활성화 차단, CKEditor 롤백·JWSoft 복구와 페이지·게시글·상품 DB 해시 보존을 기록합니다.
+`make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약, 실제 Illuminate Request 기반 게시판 HTML 미들웨어, 이미지 업로드의 신·구 훅 발화·StorageInterface 저장·DB 실패 롤백·고아 레코드 정리, MP4 청크 해시·멱등 재시도·조립·서빙·만료 정리, 링크 미리보기 provider·metadata·redirect·SSRF gate를 검사합니다. 별도 lifecycle 하네스는 실제 ZIP 업데이트, 동시 활성화 차단, CKEditor 롤백·JWSoft 복구와 페이지·게시글·상품 DB 해시 보존을 기록합니다.
 
 ### Browser E2E
 

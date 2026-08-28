@@ -105,7 +105,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -122,6 +122,11 @@ namespace {
         || ($settings['videoChunkSizeMb']['default'] ?? null) !== 5
         || ($settings['mediaAutoplay']['default'] ?? null) !== false
         || ($settings['externalMediaLoadMode']['default'] ?? null) !== 'click'
+        || ($settings['smartCards']['default'] ?? null) !== false
+        || ($settings['autoSmartCards']['default'] ?? null) !== false
+        || ($settings['socialCards']['default'] ?? null) !== true
+        || ($settings['genericLinkCards']['default'] ?? null) !== true
+        || ($settings['smartCardImages']['default'] ?? null) !== false
         || ($settings['legacyContentRiskAcknowledged']['default'] ?? null) !== false
         || ! str_contains((string) ($settings['legacyContentRiskAcknowledged']['hint']['ko'] ?? ''), '자동 변환되지 않습니다')) {
         throw new RuntimeException('Image size and fail-safe cleanup defaults mismatch.');
@@ -136,7 +141,10 @@ namespace {
         || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['dragDropImageUpload']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true
-        || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false) {
+        || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false
+        || ($settingsConfig['defaults']['smartCards'] ?? null) !== false
+        || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== false
+        || ($settingsConfig['frontend_schema']['smartCardImages']['expose'] ?? null) !== false) {
         throw new RuntimeException('Transition acknowledgement must default off and stay server-side.');
     }
 

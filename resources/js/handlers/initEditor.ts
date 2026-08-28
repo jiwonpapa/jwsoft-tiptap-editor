@@ -19,6 +19,11 @@ import {
 } from "@/editor/mediaEmbed";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
+  fetchLinkPreview,
+  insertSmartCard,
+  isSmartCardUrl,
+} from "@/editor/smartCard";
+import {
   createEditorToolbar,
   normalizeToolbarProfile,
   type ToolbarProfile,
@@ -220,6 +225,8 @@ function mountLocaleEditor(options: {
   mediaOptions: MediaEmbedOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
+  smartCards: boolean;
+  autoSmartCards: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -262,11 +269,51 @@ function mountLocaleEditor(options: {
       options.editable && options.imageUpload && options.pasteImageUpload
         ? uploadAt
         : undefined,
-    onMediaUrlPasted:
-      options.editable && options.mediaEmbed && options.autoEmbedUrls
-        ? (url) => {
-            const media = normalizeMediaUrl(url, options.mediaOptions);
-            return media ? insertMediaEmbed(editor, media) : false;
+    onPlainUrlPasted:
+      options.editable &&
+      ((options.mediaEmbed && options.autoEmbedUrls) ||
+        (options.smartCards && options.autoSmartCards))
+        ? (url, position) => {
+            if (options.mediaEmbed && options.autoEmbedUrls) {
+              const media = normalizeMediaUrl(url, options.mediaOptions);
+              if (media) return insertMediaEmbed(editor, media);
+            }
+            if (
+              !options.smartCards ||
+              !options.autoSmartCards ||
+              !isSmartCardUrl(url)
+            ) {
+              return false;
+            }
+            options.status.dataset.tone = "neutral";
+            options.status.textContent = editorText(
+              options.locale,
+              "링크 미리보기를 가져오는 중입니다…",
+            );
+            void fetchLinkPreview(url, fetch, options.locale)
+              .then((preview) => {
+                if (editor.isDestroyed) return;
+                insertSmartCard(editor, preview, position);
+                options.status.dataset.tone = "success";
+                options.status.textContent = editorText(
+                  options.locale,
+                  "링크 카드를 삽입했습니다.",
+                );
+              })
+              .catch(() => {
+                if (editor.isDestroyed) return;
+                editor.commands.insertContentAt(position, {
+                  type: "text",
+                  text: url,
+                  marks: [{ type: "link", attrs: { href: url } }],
+                });
+                options.status.dataset.tone = "warning";
+                options.status.textContent = editorText(
+                  options.locale,
+                  "미리보기를 가져오지 못해 원래 URL을 삽입했습니다.",
+                );
+              });
+            return true;
           }
         : undefined,
   });
@@ -283,6 +330,7 @@ function mountLocaleEditor(options: {
     mediaOptions: options.mediaOptions,
     videoUpload: options.videoUpload,
     videoMaxSizeMb: options.videoMaxSizeMb,
+    smartCards: options.smartCards,
     locale: options.locale,
   });
   options.mount.insertBefore(toolbar, editorMount);
@@ -336,6 +384,8 @@ function mountMultilingualEditors(options: {
   mediaOptions: MediaEmbedOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
+  smartCards: boolean;
+  autoSmartCards: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -385,6 +435,8 @@ function mountMultilingualEditors(options: {
         mediaOptions: options.mediaOptions,
         videoUpload: options.videoUpload,
         videoMaxSizeMb: options.videoMaxSizeMb,
+        smartCards: options.smartCards,
+        autoSmartCards: options.autoSmartCards,
         imageMaxSizeMb: options.imageMaxSizeMb,
         status: options.status,
       });
@@ -413,6 +465,8 @@ function mountMultilingualEditors(options: {
       mediaOptions: options.mediaOptions,
       videoUpload: options.videoUpload,
       videoMaxSizeMb: options.videoMaxSizeMb,
+      smartCards: options.smartCards,
+      autoSmartCards: options.autoSmartCards,
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
@@ -467,6 +521,8 @@ export async function initEditorHandler(
   };
   const videoUpload = booleanParam(params.videoUpload);
   const videoMaxSizeMb = safeVideoMaxSize(params.videoMaxSizeMb);
+  const smartCards = booleanParam(params.smartCards);
+  const autoSmartCards = booleanParam(params.autoSmartCards);
   const imageMaxSizeMb = safeImageMaxSize(params.imageMaxSizeMb);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
@@ -488,6 +544,8 @@ export async function initEditorHandler(
       mediaOptions,
       videoUpload,
       videoMaxSizeMb,
+      smartCards,
+      autoSmartCards,
       imageMaxSizeMb,
       status,
     });
@@ -514,6 +572,8 @@ export async function initEditorHandler(
     mediaOptions,
     videoUpload,
     videoMaxSizeMb,
+    smartCards,
+    autoSmartCards,
     imageMaxSizeMb,
     status,
   });

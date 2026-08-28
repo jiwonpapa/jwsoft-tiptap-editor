@@ -13,6 +13,7 @@ import {
   type MediaEmbedOptions,
 } from "@/editor/mediaEmbed";
 import { uploadEditorMedia } from "@/editor/mediaUpload";
+import { fetchLinkPreview, insertSmartCard } from "@/editor/smartCard";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -27,6 +28,7 @@ interface ToolbarOptions {
   mediaOptions: MediaEmbedOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
+  smartCards: boolean;
   locale?: string;
 }
 
@@ -78,6 +80,17 @@ const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
     "jw-media-vimeo": "Vimeo",
     "jw-media-mp4": "MP4",
     "jw-media-source": "미디어 주소",
+  },
+  card: {
+    "jw-card": "링크 카드",
+    "jw-card-generic": "일반 링크 카드",
+    "jw-card-instagram": "Instagram 카드",
+    "jw-card-x": "X 카드",
+    "jw-card-tiktok": "TikTok 카드",
+    "jw-card-facebook": "Facebook 카드",
+    "jw-card-threads": "Threads 카드",
+    "jw-card-link": "카드 주소",
+    "jw-card-image": "카드 이미지",
   },
 };
 let dialogSequence = 0;
@@ -647,6 +660,68 @@ function createMediaDialog(
   return handle;
 }
 
+function createSmartCardDialog(
+  editor: Editor,
+  trigger: HTMLButtonElement,
+  locale: string,
+): DialogHandle {
+  const form = document.createElement("form");
+  form.className = "jwsoft-tiptap-dialog-form";
+  const url = document.createElement("input");
+  url.type = "url";
+  url.inputMode = "url";
+  url.placeholder = "https://example.com/post";
+  const progress = document.createElement("div");
+  progress.className = "jwsoft-tiptap-upload-status";
+  progress.setAttribute("role", "status");
+  progress.hidden = true;
+  const error = formError();
+  const apply = document.createElement("button");
+  apply.type = "submit";
+  apply.className = "jwsoft-tiptap-dialog-primary";
+  apply.textContent = editorText(locale, "링크 카드 삽입");
+  form.append(
+    formField(editorText(locale, "HTTPS 주소"), url),
+    progress,
+    error,
+    apply,
+  );
+  const handle = createDialog({
+    title: editorText(locale, "링크 카드"),
+    trigger,
+    content: form,
+    locale,
+  });
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    error.hidden = true;
+    progress.hidden = false;
+    progress.textContent = editorText(
+      locale,
+      "링크 미리보기를 가져오는 중입니다…",
+    );
+    apply.disabled = true;
+    try {
+      insertSmartCard(editor, await fetchLinkPreview(url.value, fetch, locale));
+      form.reset();
+      progress.hidden = true;
+      handle.close();
+    } catch (previewError) {
+      error.textContent =
+        previewError instanceof Error
+          ? previewError.message
+          : editorText(locale, "링크 미리보기를 가져오지 못했습니다.");
+      error.hidden = false;
+      progress.hidden = true;
+      url.focus();
+    } finally {
+      apply.disabled = false;
+    }
+  });
+
+  return handle;
+}
+
 function installRovingKeyboard(toolbar: HTMLElement): void {
   toolbar.addEventListener("keydown", (event) => {
     if (!(event.target instanceof HTMLButtonElement)) return;
@@ -831,6 +906,14 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
           locale,
         ),
       );
+    }
+    if (options.smartCards) {
+      const smartCard = createButton({
+        label: t("링크 카드"),
+        run: () => undefined,
+      });
+      add(insert, smartCard);
+      dialogs.push(createSmartCardDialog(editor, smartCard, locale));
     }
   }
 

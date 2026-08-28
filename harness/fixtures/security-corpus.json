@@ -48,6 +48,12 @@
       "input": "<iframe src=\"https://www.youtube.com/embed/dQw4w9WgXcQ\"></iframe><video src=\"https://example.com/x.mp4\"></video>",
       "mustKeep": [],
       "mustRemove": ["<iframe", "<video", "youtube.com", "example.com"]
+    },
+    {
+      "id": "spoofed-social-card",
+      "input": "<figure class=\"jw-card jw-card-instagram\"><a class=\"jw-card-link\" href=\"https://evil.example/post\"><strong>Spoof</strong><script>alert(1)</script></a></figure>",
+      "mustKeep": ["<strong>Spoof</strong>"],
+      "mustRemove": ["jw-card", "<script", "alert(1)"]
     }
   ]
 }

@@ -59,6 +59,12 @@ YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합�
 
 임시 청크는 G7 StorageInterface의 `media-temp`, 완성 파일은 공개 자산 디스크의 `media` 범주에 저장합니다. DB 기록 실패 시 완성 파일을 회수하고, 24시간 지난 중단 세션은 매시간 정리합니다. 상세 결정은 [ADR 0008](adr/0008-mp4-chunk-uploads.md)을 따릅니다.
 
+### 8. Smart card subsystem
+
+Instagram·X·TikTok·Facebook·Threads·일반 HTTPS URL은 서버가 제한적으로 HTML metadata를 읽어 `figure > a > strong/p` 카드로 삽입합니다. 저장 HTML에는 provider script·iframe·oEmbed 응답을 넣지 않습니다. SNS가 metadata 요청을 차단하면 검증된 원래 URL과 provider 이름만 가진 안전한 카드로 폴백합니다.
+
+서버 fetch는 공개 DNS 주소를 검사해 cURL 연결 IP를 고정하고, 리다이렉트마다 다시 검증합니다. HTTPS 443만 허용하며 6초 timeout, 3회 redirect, 512KB HTML 상한과 분당 10회 throttle을 적용합니다. 상세 결정은 [ADR 0009](adr/0009-ssrf-safe-smart-cards.md)을 따릅니다.
+
 ## 저장 형식
 
 - DB: 기존 HTML 문자열 또는 다국어 HTML map

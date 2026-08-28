@@ -52,9 +52,17 @@
 - [ ] MP4 청크 해시·재시도·재개·서버 재검증
 - [ ] 중단 업로드 24시간 만료 정리와 완성 파일 serve
 
+## D-2. 링크 스마트카드
+
+- [ ] Instagram·X·TikTok·Facebook·Threads·일반 HTTPS provider 분류
+- [ ] 붙여넣기 자동 변환·툴바 수동 삽입·실패 시 원 URL 보존
+- [ ] DNS·redirect 공개 IP 검증과 연결 IP 고정
+- [ ] 저장 HTML에 provider script·iframe·임의 embed 0
+- [ ] 기능 OFF와 기존 canonical card 무손실
+
 ## E. G7 관리 기능
 
-- [ ] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, editorHeight, toolbar 설정
+- [ ] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정
 - [ ] public asset disk 설정
 - [ ] cleanup 설정
 - [ ] 관리자 메뉴와 read/delete 권한

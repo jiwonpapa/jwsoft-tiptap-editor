@@ -4,11 +4,16 @@ use Illuminate\Support\Facades\Route;
 use Plugins\Jwsoft\TiptapEditor\Http\Controllers\Admin\ImageUploadAdminController;
 use Plugins\Jwsoft\TiptapEditor\Http\Controllers\ImageServeController;
 use Plugins\Jwsoft\TiptapEditor\Http\Controllers\ImageUploadController;
+use Plugins\Jwsoft\TiptapEditor\Http\Controllers\LinkPreviewController;
 use Plugins\Jwsoft\TiptapEditor\Http\Controllers\MediaServeController;
 use Plugins\Jwsoft\TiptapEditor\Http\Controllers\MediaUploadController;
 
 Route::post('upload', [ImageUploadController::class, 'upload'])
     ->name('api.jwsoft-tiptap-editor.upload');
+
+Route::post('link-preview', [LinkPreviewController::class, 'preview'])
+    ->middleware('throttle:10,1')
+    ->name('api.jwsoft-tiptap-editor.link-preview');
 
 Route::get('images/{hash}', [ImageServeController::class, 'serve'])
     ->where('hash', '[a-f0-9]{12}')

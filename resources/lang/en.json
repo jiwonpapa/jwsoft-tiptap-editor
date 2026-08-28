@@ -60,6 +60,11 @@
       "cancel_failed": "MP4 upload cancellation failed.",
       "not_found": "Video not found."
     },
+    "preview": {
+      "created": "Link preview created.",
+      "rejected": "The link preview could not be fetched safely.",
+      "failed": "Link preview creation failed."
+    },
     "uploads": {
       "not_found": "Upload record not found.",
       "deleted": "Image deleted.",

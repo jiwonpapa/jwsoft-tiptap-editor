@@ -69,6 +69,15 @@
 - 청크는 순차 조립하고 전체 파일을 PHP 문자열 하나로 읽지 않습니다. 저장소에서 읽는 메모리 상한은 설정된 청크 크기입니다.
 - DB 기록 실패 시 완성 파일을 회수하고, 중단 세션은 24시간 뒤 자동 정리합니다.
 
+## 링크 스마트카드
+
+- `smartCards`와 `autoSmartCards` 기본값은 꺼짐이며 서버 endpoint도 마스터 설정으로 차단합니다.
+- HTTPS 443만 허용하고 URL 사용자정보·제어문자·비표준 포트를 거부합니다.
+- DNS의 모든 A/AAAA 응답이 공개 IP인지 검사하고 선택한 IP를 cURL `CURLOPT_RESOLVE`로 고정합니다. 최대 3회 redirect도 같은 검사를 반복합니다.
+- HTML만 최대 512KB까지 읽고 연결 3초·전체 6초 timeout과 분당 10회 요청 제한을 적용합니다.
+- 저장 정본은 allowlist class와 text·검증 URL만 가진 링크 카드입니다. SNS script·iframe·임의 embed는 저장하지 않습니다.
+- 대표 이미지는 기본 꺼짐이며 opt-in이어도 최종 페이지와 같은 공개 호스트의 HTTPS URL만 허용합니다.
+
 ## 업데이트
 
 - `npm audit`, `composer audit`를 CI와 release gate에서 실행

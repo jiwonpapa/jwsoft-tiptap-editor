@@ -26,6 +26,7 @@ const EDITABLE_NODE_TYPES: Record<ClassTokenCategory, readonly string[]> = {
   table: ["table"],
   image: ["image"],
   media: [],
+  card: [],
 };
 const allowedTokens = new Set<string>(EDITOR_CLASS_TOKENS);
 

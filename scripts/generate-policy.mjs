@@ -56,6 +56,17 @@ const tokenCss = `
 .jw-media-source, .jw-media-load { display: grid; place-items: center; border: 0; padding: 1rem; background: #111827; color: #fff; text-align: center; text-decoration: none; cursor: pointer; }
 .jw-media-source:hover, .jw-media-load:hover { background: #1f2937; }
 .jw-media-player { border: 0; background: #000; }
+.jw-card { width: min(100%, 42rem); margin: 1rem auto; overflow: hidden; border: 1px solid #d1d5db; border-radius: 0.625rem; background: #fff; color: #111827; }
+.jw-card-link { display: grid; color: inherit; text-decoration: none; }
+.jw-card-link:hover { background: #f9fafb; }
+.jw-card-link > strong { display: block; padding: 1rem 1rem 0.25rem; font-size: 1rem; line-height: 1.4; overflow-wrap: anywhere; }
+.jw-card-link > p { margin: 0; padding: 0 1rem 1rem; color: #4b5563; line-height: 1.5; overflow-wrap: anywhere; }
+.jw-card-image { display: block; width: 100%; max-height: 18rem; object-fit: cover; }
+.jw-card-instagram { border-inline-start: 0.25rem solid #c13584; }
+.jw-card-x { border-inline-start: 0.25rem solid #111827; }
+.jw-card-tiktok { border-inline-start: 0.25rem solid #25f4ee; }
+.jw-card-facebook { border-inline-start: 0.25rem solid #1877f2; }
+.jw-card-threads { border-inline-start: 0.25rem solid #000; }
 `.trim();
 
 function phpQuote(value) {

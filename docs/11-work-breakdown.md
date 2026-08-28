@@ -82,3 +82,5 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 - [x] provider·자동 변환·자동재생·외부 로드 설정
 - [x] MP4 청크 업로드·SHA-256 검증·재시도·동일 탭 재개
 - [x] MP4 StorageInterface 조립·serve·24시간 만료 세션 정리
+- [x] SNS·일반 HTTPS URL 스마트카드와 붙여넣기 자동 변환
+- [x] 서버 metadata 정제·SSRF·redirect·크기·timeout·throttle 방어

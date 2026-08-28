@@ -61,7 +61,7 @@ describe("safe media embeds", () => {
       placeholder: "",
       editable: true,
       onUpdate: vi.fn(),
-      onMediaUrlPasted: (url) => {
+      onPlainUrlPasted: (url) => {
         const media = normalizeMediaUrl(url);
         return media ? insertMediaEmbed(editor, media) : false;
       },

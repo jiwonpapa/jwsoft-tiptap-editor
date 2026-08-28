@@ -67,6 +67,14 @@ const ENGLISH_COPY: Record<string, string> = {
   "동영상 업로드에 실패했습니다.": "Video upload failed.",
   "동영상 청크 {{current}}/{{total}} 업로드 중…":
     "Uploading video chunk {{current}}/{{total}}…",
+  "링크 카드": "Link card",
+  "링크 카드 삽입": "Insert link card",
+  "HTTPS 주소": "HTTPS URL",
+  "링크 미리보기를 가져오는 중입니다…": "Fetching link preview…",
+  "링크 미리보기를 가져오지 못했습니다.": "Could not fetch link preview.",
+  "링크 카드를 삽입했습니다.": "Link card inserted.",
+  "미리보기를 가져오지 못해 원래 URL을 삽입했습니다.":
+    "Could not fetch the preview, so the original URL was inserted.",
   "허용된 YouTube·Vimeo·MP4 URL을 입력하십시오.":
     "Enter an allowed YouTube, Vimeo, or MP4 URL.",
   "이미지를 업로드하는 중입니다…": "Uploading image…",
