@@ -24,6 +24,11 @@
               "imageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.imageUpload ?? false}}",
               "dragDropImageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.dragDropImageUpload ?? true}}",
               "pasteImageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.pasteImageUpload ?? true}}",
+              "mediaEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaEmbed ?? false}}",
+              "autoEmbedUrls": "{{_global.plugins['jwsoft-tiptap-editor']?.autoEmbedUrls ?? false}}",
+              "youtubeEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.youtubeEmbed ?? true}}",
+              "vimeoEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.vimeoEmbed ?? true}}",
+              "mp4Embed": "{{_global.plugins['jwsoft-tiptap-editor']?.mp4Embed ?? true}}",
               "imageMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.imageMaxSizeMb ?? 2}}",
               "height": "{{extensionPointProps.height ?? _global.plugins['jwsoft-tiptap-editor']?.editorHeight ?? 400}}",
               "toolbar": "{{extensionPointProps.toolbar ?? _global.plugins['jwsoft-tiptap-editor']?.toolbar ?? 'standard'}}"

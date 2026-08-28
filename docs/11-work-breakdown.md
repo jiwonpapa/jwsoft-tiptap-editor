@@ -77,3 +77,6 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 - [x] 이미지 드래그·드롭 업로드 설정
 - [x] 클립보드 이미지 파일 업로드 설정
 - [x] 기존 이미지 업로드 서버 검증과 단일 경로 사용
+- [x] YouTube·Vimeo·MP4 provider URL 정규화
+- [x] 저장 HTML 무실행 media node와 반응형 output player
+- [x] provider·자동 변환·자동재생·외부 로드 설정

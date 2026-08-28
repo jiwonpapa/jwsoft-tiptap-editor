@@ -34,7 +34,8 @@
             "tr",
             "th",
             "td",
-            "img"
+            "img",
+            "figure"
           ],
           "ALLOWED_ATTR": [
             "alt",
@@ -66,7 +67,15 @@
       "name": "Div",
       "props": { "className": "hidden" },
       "lifecycle": {
-        "onMount": [{ "handler": "jwsoft-tiptap-editor.injectContentStyles" }]
+        "onMount": [
+          {
+            "handler": "jwsoft-tiptap-editor.injectContentStyles",
+            "params": {
+              "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'click'}}",
+              "mediaAutoplay": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaAutoplay ?? false}}"
+            }
+          }
+        ]
       }
     }
   ],

@@ -47,6 +47,17 @@ $link = $sanitizer->sanitize(
 );
 assertEditorPolicy($link->canonicalHtml === '<p class="jw-align-center"><a href="https://example.com" rel="noopener noreferrer ugc" target="_blank">링크</a></p>', 'class token and _blank rel normalization failed');
 
+$media = $sanitizer->sanitize(
+    '<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">YouTube</a></figure>',
+);
+assertEditorPolicy(str_contains($media->canonicalHtml, 'jw-media-youtube'), 'allowlisted media figure must survive');
+assertEditorPolicy(! str_contains($media->canonicalHtml, '<iframe'), 'stored media must not contain iframe');
+
+$spoofedMedia = $sanitizer->sanitize(
+    '<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://evil.example/video">가짜</a></figure>',
+);
+assertEditorPolicy(! str_contains($spoofedMedia->canonicalHtml, 'jw-media-youtube'), 'provider-mismatched media class must be removed');
+
 try {
     $sanitizer->sanitize(str_repeat('가', 400_000));
     throw new RuntimeException('oversized HTML must fail');

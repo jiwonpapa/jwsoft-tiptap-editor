@@ -13,6 +13,7 @@ async function mountEditor(
   page: Page,
   toolbar = "standard",
   imageUpload = false,
+  mediaEmbed = false,
 ): Promise<void> {
   await page.route("http://jwsoft.test/", (route) =>
     route.fulfill({
@@ -46,7 +47,7 @@ async function mountEditor(
   });
   await page.addScriptTag({ path: bundlePath });
   await page.evaluate(
-    async ({ profile, withImageUpload }) => {
+    async ({ profile, withImageUpload, withMediaEmbed }) => {
       const runtime = window as typeof window & {
         __e2eHandlers: Record<
           string,
@@ -61,13 +62,22 @@ async function mountEditor(
             height: 280,
             toolbar: profile,
             imageUpload: withImageUpload,
+            mediaEmbed: withMediaEmbed,
+            autoEmbedUrls: withMediaEmbed,
+            youtubeEmbed: true,
+            vimeoEmbed: true,
+            mp4Embed: true,
             imageMaxSizeMb: 2,
           },
         },
         undefined,
       );
     },
-    { profile: toolbar, withImageUpload: imageUpload },
+    {
+      profile: toolbar,
+      withImageUpload: imageUpload,
+      withMediaEmbed: mediaEmbed,
+    },
   );
 }
 
@@ -174,4 +184,49 @@ test("inline image upload reports completion and inserts the canonical URL", asy
     "/api/plugins/jwsoft-tiptap-editor/images/abcdef123456",
   );
   await expect(image).toHaveAttribute("alt", "업로드 증빙");
+});
+
+test("media URL creates safe canonical HTML and a click-to-load responsive player", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await mountEditor(page, "standard", false, true);
+  await page.getByRole("button", { name: "동영상" }).click();
+  const dialog = page.getByRole("dialog", { name: "동영상" });
+  await dialog.getByLabel("동영상 URL").fill("https://youtu.be/dQw4w9WgXcQ");
+  await dialog.getByRole("button", { name: "동영상 삽입" }).click();
+
+  const media = page.locator(".jwsoft-tiptap-editable figure.jw-media-youtube");
+  await expect(media).toBeVisible();
+  await expect(media.locator("a.jw-media-source")).toHaveAttribute(
+    "href",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  );
+  await expect(media.locator("iframe, video")).toHaveCount(0);
+
+  await page.evaluate(async () => {
+    const runtime = window as typeof window & {
+      __e2eHandlers: Record<
+        string,
+        (action: Record<string, unknown>, context: unknown) => unknown
+      >;
+    };
+    const output = document.createElement("div");
+    output.className = "jwsoft-tiptap-content";
+    output.innerHTML = `<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">YouTube video</a></figure>`;
+    document.body.appendChild(output);
+    await runtime.__e2eHandlers["jwsoft-tiptap-editor.injectContentStyles"](
+      { params: { externalMediaLoadMode: "click", mediaAutoplay: false } },
+      undefined,
+    );
+    await Promise.resolve();
+  });
+  const output = page.locator(".jwsoft-tiptap-content figure.jw-media");
+  await output.getByRole("button", { name: /YouTube 플레이어/ }).click();
+  await expect(output.locator("iframe")).toHaveAttribute(
+    "src",
+    /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ/,
+  );
+  const box = await output.boundingBox();
+  expect((box?.width ?? 0) / (box?.height ?? 1)).toBeCloseTo(16 / 9, 1);
 });

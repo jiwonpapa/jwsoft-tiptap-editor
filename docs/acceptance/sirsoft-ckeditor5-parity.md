@@ -27,7 +27,7 @@
 
 - [ ] 서버 sanitizer가 모든 저장 endpoint에 적용
 - [ ] `style`, 이벤트 속성, 미등록 class 저장 0
-- [ ] 위험 URL·SVG·form·script·iframe 차단
+- [ ] 위험 URL·SVG·form·script·임의 iframe 차단
 - [ ] DOMPurify 최신 allowlist 출력
 - [ ] security corpus 전체 통과
 - [ ] 정책 오류 시 fail closed
@@ -42,6 +42,13 @@
 - [ ] 미사용 이미지 cleanup opt-in과 retention
 - [ ] before/after/filter/reference source 훅 동등성 또는 명시적 호환 alias
 - [ ] 외부 이미지/업로드 실패/고아 파일 처리
+
+## D-1. 미디어 하위 시스템
+
+- [ ] YouTube·Vimeo·MP4 URL provider allowlist
+- [ ] 저장 HTML에 iframe·video·script 0
+- [ ] 출력 player 클릭 후 로드·반응형·자동재생 opt-in
+- [ ] provider 설정 OFF와 기존 media node 무손실
 
 ## E. G7 관리 기능
 

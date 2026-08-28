@@ -49,6 +49,13 @@ const tokenCss = `
 .jw-image-inline { display: inline-block; }
 .jw-image-block { display: block; margin-inline: auto; }
 .jw-image-rounded { border-radius: 0.5rem; }
+.jw-media { position: relative; width: min(100%, 60rem); margin: 1rem auto; overflow: hidden; border-radius: 0.625rem; background: #111827; color: #fff; }
+.jw-media-16x9 { aspect-ratio: 16 / 9; }
+.jw-media-9x16 { width: min(100%, 26rem); aspect-ratio: 9 / 16; }
+.jw-media-source, .jw-media-load, .jw-media-player { position: absolute; inset: 0; box-sizing: border-box; width: 100%; height: 100%; }
+.jw-media-source, .jw-media-load { display: grid; place-items: center; border: 0; padding: 1rem; background: #111827; color: #fff; text-align: center; text-decoration: none; cursor: pointer; }
+.jw-media-source:hover, .jw-media-load:hover { background: #1f2937; }
+.jw-media-player { border: 0; background: #000; }
 `.trim();
 
 function phpQuote(value) {

@@ -120,6 +120,9 @@ final class EditorSanitizer
         foreach ($root->getElementsByTagName('*') as $element) {
             $this->normalizeClass($element, $allowedClassTokens);
             $this->normalizeAttributes($element, $policy);
+            if ($element->tagName === 'figure') {
+                $this->normalizeMediaFigure($element);
+            }
             $this->sortAttributes($element);
         }
 
@@ -242,6 +245,93 @@ final class EditorSanitizer
         } else {
             $element->setAttribute('rel', implode(' ', $rel));
         }
+    }
+
+    private function normalizeMediaFigure(DOMElement $element): void
+    {
+        $classes = preg_split('/\s+/u', trim($element->getAttribute('class'))) ?: [];
+        $providers = array_values(array_intersect(
+            $classes,
+            ['jw-media-youtube', 'jw-media-vimeo', 'jw-media-mp4'],
+        ));
+        if (! in_array('jw-media', $classes, true) || count($providers) !== 1) {
+            return;
+        }
+
+        $source = $element->getElementsByTagName('a')->item(0);
+        $provider = substr($providers[0], strlen('jw-media-'));
+        $valid = $source instanceof DOMElement
+            && in_array('jw-media-source', preg_split('/\s+/u', trim($source->getAttribute('class'))) ?: [], true)
+            && $this->isAllowedMediaFigureUrl($source->getAttribute('href'), $provider);
+        if ($valid) {
+            return;
+        }
+
+        $classes = array_values(array_filter(
+            $classes,
+            static fn (string $class): bool => ! str_starts_with($class, 'jw-media'),
+        ));
+        if ($classes === []) {
+            $element->removeAttribute('class');
+        } else {
+            $element->setAttribute('class', implode(' ', $classes));
+        }
+    }
+
+    private function isAllowedMediaFigureUrl(string $url, string $provider): bool
+    {
+        $url = trim($url);
+        if ($url === '' || str_starts_with($url, '//')) {
+            return false;
+        }
+        $parts = parse_url($url);
+        if ($parts === false) {
+            return false;
+        }
+        $relative = str_starts_with($url, '/');
+        if (! $relative && strtolower((string) ($parts['scheme'] ?? '')) !== 'https') {
+            return false;
+        }
+        if (($parts['user'] ?? '') !== '' || ($parts['pass'] ?? '') !== '') {
+            return false;
+        }
+
+        $host = strtolower((string) ($parts['host'] ?? ''));
+        $host = preg_replace('/^www\./', '', $host) ?? $host;
+        $path = (string) ($parts['path'] ?? '');
+        if ($provider === 'youtube') {
+            $id = '';
+            if ($host === 'youtu.be') {
+                $id = explode('/', trim($path, '/'))[0] ?? '';
+            } elseif (in_array($host, ['youtube.com', 'm.youtube.com', 'music.youtube.com'], true)) {
+                $segments = explode('/', trim($path, '/'));
+                if (($segments[0] ?? '') === 'watch') {
+                    parse_str((string) ($parts['query'] ?? ''), $query);
+                    $id = (string) ($query['v'] ?? '');
+                } elseif (in_array($segments[0] ?? '', ['embed', 'shorts', 'live'], true)) {
+                    $id = $segments[1] ?? '';
+                }
+            }
+
+            return preg_match('/^[A-Za-z0-9_-]{11}$/', $id) === 1;
+        }
+        if ($provider === 'vimeo') {
+            if (! in_array($host, ['vimeo.com', 'player.vimeo.com'], true)) {
+                return false;
+            }
+            $segments = explode('/', trim($path, '/'));
+            $id = $host === 'player.vimeo.com' && ($segments[0] ?? '') === 'video'
+                ? ($segments[1] ?? '')
+                : ($segments[0] ?? '');
+
+            return preg_match('/^[0-9]{5,12}$/', $id) === 1;
+        }
+        if ($provider === 'mp4') {
+            return str_ends_with(strtolower($path), '.mp4')
+                || preg_match('#^/api/plugins/jwsoft-tiptap-editor/media/[a-f0-9]{12}$#', $path) === 1;
+        }
+
+        return false;
     }
 
     private function sortAttributes(DOMElement $element): void

@@ -25,6 +25,7 @@ const EDITABLE_NODE_TYPES: Record<ClassTokenCategory, readonly string[]> = {
   spacing: ["paragraph", "heading", "codeBlock"],
   table: ["table"],
   image: ["image"],
+  media: [],
 };
 const allowedTokens = new Set<string>(EDITOR_CLASS_TOKENS);
 

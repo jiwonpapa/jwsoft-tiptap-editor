@@ -53,6 +53,11 @@ const ENGLISH_COPY: Record<string, string> = {
   "이미지 주소": "Image URL",
   "대체 텍스트": "Alternative text",
   이미지: "Image",
+  동영상: "Video",
+  "동영상 URL": "Video URL",
+  "동영상 삽입": "Insert video",
+  "허용된 YouTube·Vimeo·MP4 URL을 입력하십시오.":
+    "Enter an allowed YouTube, Vimeo, or MP4 URL.",
   "이미지를 업로드하는 중입니다…": "Uploading image…",
   "업로드 완료. 본문에 삽입합니다.": "Upload complete. Inserting into content.",
   "이미지 업로드에 실패했습니다.": "Image upload failed.",

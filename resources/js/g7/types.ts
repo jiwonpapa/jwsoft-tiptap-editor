@@ -57,6 +57,11 @@ export interface InitEditorParams {
   imageUpload?: boolean | string;
   dragDropImageUpload?: boolean | string;
   pasteImageUpload?: boolean | string;
+  mediaEmbed?: boolean | string;
+  autoEmbedUrls?: boolean | string;
+  youtubeEmbed?: boolean | string;
+  vimeoEmbed?: boolean | string;
+  mp4Embed?: boolean | string;
   imageMaxSizeMb?: number | string;
 }
 

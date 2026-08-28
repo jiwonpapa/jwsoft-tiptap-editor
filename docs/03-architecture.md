@@ -49,6 +49,10 @@ G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve
 
 공개 훅은 `jwsoft-tiptap-editor.image.*`를 정본으로 사용합니다. 교체 시 기존 게시판·페이지·쇼핑몰 및 이미지 최적화 소비자가 끊기지 않도록 `sirsoft-ckeditor5.image.*` 이름도 호환 별칭으로 순차 발화합니다. 외부 소비자는 중복 처리를 피하기 위해 새 이름과 별칭 중 하나만 구독합니다.
 
+### 6. Media embed subsystem
+
+YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합니다. iframe·video·provider script는 저장하지 않으며, 출력 handler가 URL과 provider를 다시 검사한 뒤 자체 번들 코드로 반응형 player DOM을 만듭니다. 기본 동작은 클릭 후 로드이고 자동재생은 꺼져 있습니다. 상세 결정은 [ADR 0007](adr/0007-safe-media-embeds.md)을 따릅니다.
+
 ## 저장 형식
 
 - DB: 기존 HTML 문자열 또는 다국어 HTML map

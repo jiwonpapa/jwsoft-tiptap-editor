@@ -12,6 +12,11 @@ import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
 import { uploadEditorImage } from "@/editor/imageUpload";
+import {
+  insertMediaEmbed,
+  normalizeMediaUrl,
+  type MediaEmbedOptions,
+} from "@/editor/mediaEmbed";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
   createEditorToolbar,
@@ -204,6 +209,9 @@ function mountLocaleEditor(options: {
   imageUpload: boolean;
   dragDropImageUpload: boolean;
   pasteImageUpload: boolean;
+  mediaEmbed: boolean;
+  autoEmbedUrls: boolean;
+  mediaOptions: MediaEmbedOptions;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -246,6 +254,13 @@ function mountLocaleEditor(options: {
       options.editable && options.imageUpload && options.pasteImageUpload
         ? uploadAt
         : undefined,
+    onMediaUrlPasted:
+      options.editable && options.mediaEmbed && options.autoEmbedUrls
+        ? (url) => {
+            const media = normalizeMediaUrl(url, options.mediaOptions);
+            return media ? insertMediaEmbed(editor, media) : false;
+          }
+        : undefined,
   });
   editorRegistry.set(options.containerId, options.locale, editor);
 
@@ -256,6 +271,8 @@ function mountLocaleEditor(options: {
     profile: options.toolbar,
     imageUpload: options.imageUpload,
     imageMaxSizeMb: options.imageMaxSizeMb,
+    mediaEmbed: options.mediaEmbed,
+    mediaOptions: options.mediaOptions,
     locale: options.locale,
   });
   options.mount.insertBefore(toolbar, editorMount);
@@ -304,6 +321,9 @@ function mountMultilingualEditors(options: {
   imageUpload: boolean;
   dragDropImageUpload: boolean;
   pasteImageUpload: boolean;
+  mediaEmbed: boolean;
+  autoEmbedUrls: boolean;
+  mediaOptions: MediaEmbedOptions;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -348,6 +368,9 @@ function mountMultilingualEditors(options: {
         imageUpload: options.imageUpload,
         dragDropImageUpload: options.dragDropImageUpload,
         pasteImageUpload: options.pasteImageUpload,
+        mediaEmbed: options.mediaEmbed,
+        autoEmbedUrls: options.autoEmbedUrls,
+        mediaOptions: options.mediaOptions,
         imageMaxSizeMb: options.imageMaxSizeMb,
         status: options.status,
       });
@@ -371,6 +394,9 @@ function mountMultilingualEditors(options: {
       imageUpload: options.imageUpload,
       dragDropImageUpload: options.dragDropImageUpload,
       pasteImageUpload: options.pasteImageUpload,
+      mediaEmbed: options.mediaEmbed,
+      autoEmbedUrls: options.autoEmbedUrls,
+      mediaOptions: options.mediaOptions,
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
@@ -416,6 +442,13 @@ export async function initEditorHandler(
   const imageUpload = booleanParam(params.imageUpload);
   const dragDropImageUpload = booleanParam(params.dragDropImageUpload);
   const pasteImageUpload = booleanParam(params.pasteImageUpload);
+  const mediaEmbed = booleanParam(params.mediaEmbed);
+  const autoEmbedUrls = booleanParam(params.autoEmbedUrls);
+  const mediaOptions: MediaEmbedOptions = {
+    youtube: booleanParam(params.youtubeEmbed),
+    vimeo: booleanParam(params.vimeoEmbed),
+    mp4: booleanParam(params.mp4Embed),
+  };
   const imageMaxSizeMb = safeImageMaxSize(params.imageMaxSizeMb);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
@@ -432,6 +465,9 @@ export async function initEditorHandler(
       imageUpload,
       dragDropImageUpload,
       pasteImageUpload,
+      mediaEmbed,
+      autoEmbedUrls,
+      mediaOptions,
       imageMaxSizeMb,
       status,
     });
@@ -453,6 +489,9 @@ export async function initEditorHandler(
     imageUpload,
     dragDropImageUpload,
     pasteImageUpload,
+    mediaEmbed,
+    autoEmbedUrls,
+    mediaOptions,
     imageMaxSizeMb,
     status,
   });

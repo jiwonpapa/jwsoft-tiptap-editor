@@ -23,7 +23,8 @@
     "tr",
     "th",
     "td",
-    "img"
+    "img",
+    "figure"
   ],
   "ALLOWED_ATTR": [
     "alt",

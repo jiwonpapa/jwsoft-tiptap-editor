@@ -7,6 +7,11 @@ import {
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { uploadEditorImage } from "@/editor/imageUpload";
 import { editorText } from "@/editor/locale";
+import {
+  insertMediaEmbed,
+  normalizeMediaUrl,
+  type MediaEmbedOptions,
+} from "@/editor/mediaEmbed";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -17,6 +22,8 @@ interface ToolbarOptions {
   profile: ToolbarProfile;
   imageUpload: boolean;
   imageMaxSizeMb: number;
+  mediaEmbed: boolean;
+  mediaOptions: MediaEmbedOptions;
   locale?: string;
 }
 
@@ -59,6 +66,15 @@ const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
     "jw-image-inline": "글 안",
     "jw-image-block": "가운데 블록",
     "jw-image-rounded": "둥근 모서리",
+  },
+  media: {
+    "jw-media": "미디어",
+    "jw-media-16x9": "16:9",
+    "jw-media-9x16": "9:16",
+    "jw-media-youtube": "YouTube",
+    "jw-media-vimeo": "Vimeo",
+    "jw-media-mp4": "MP4",
+    "jw-media-source": "미디어 주소",
   },
 };
 let dialogSequence = 0;
@@ -519,6 +535,50 @@ function createImageDialog(
   return handle;
 }
 
+function createMediaDialog(
+  editor: Editor,
+  trigger: HTMLButtonElement,
+  allowed: MediaEmbedOptions,
+  locale: string,
+): DialogHandle {
+  const form = document.createElement("form");
+  form.className = "jwsoft-tiptap-dialog-form";
+  const url = document.createElement("input");
+  url.type = "url";
+  url.inputMode = "url";
+  url.placeholder = "https://youtube.com/… / vimeo.com/… / video.mp4";
+  const error = formError();
+  const apply = document.createElement("button");
+  apply.type = "submit";
+  apply.className = "jwsoft-tiptap-dialog-primary";
+  apply.textContent = editorText(locale, "동영상 삽입");
+  form.append(formField(editorText(locale, "동영상 URL"), url), error, apply);
+  const handle = createDialog({
+    title: editorText(locale, "동영상"),
+    trigger,
+    content: form,
+    locale,
+  });
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const media = normalizeMediaUrl(url.value, allowed);
+    if (!media) {
+      error.textContent = editorText(
+        locale,
+        "허용된 YouTube·Vimeo·MP4 URL을 입력하십시오.",
+      );
+      error.hidden = false;
+      url.focus();
+      return;
+    }
+    insertMediaEmbed(editor, media);
+    form.reset();
+    error.hidden = true;
+    handle.close();
+  });
+  return handle;
+}
+
 function installRovingKeyboard(toolbar: HTMLElement): void {
   toolbar.addEventListener("keydown", (event) => {
     if (!(event.target instanceof HTMLButtonElement)) return;
@@ -678,6 +738,10 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     });
     add(insert, table);
     add(insert, image);
+    const media = options.mediaEmbed
+      ? createButton({ label: t("동영상"), run: () => undefined })
+      : null;
+    if (media) add(insert, media);
     dialogs.push(
       createTableDialog(editor, table, locale),
       createImageDialog(
@@ -688,6 +752,11 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
         locale,
       ),
     );
+    if (media) {
+      dialogs.push(
+        createMediaDialog(editor, media, options.mediaOptions, locale),
+      );
+    }
   }
 
   if (profile === "full") {

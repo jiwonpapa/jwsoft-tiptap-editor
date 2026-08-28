@@ -42,6 +42,12 @@
       "input": "<img src=\"data:image/svg+xml;base64,PHN2Zz4=\">",
       "mustKeep": [],
       "mustRemove": ["data:image"]
+    },
+    {
+      "id": "raw-media-elements",
+      "input": "<iframe src=\"https://www.youtube.com/embed/dQw4w9WgXcQ\"></iframe><video src=\"https://example.com/x.mp4\"></video>",
+      "mustKeep": [],
+      "mustRemove": ["<iframe", "<video", "youtube.com", "example.com"]
     }
   ]
 }

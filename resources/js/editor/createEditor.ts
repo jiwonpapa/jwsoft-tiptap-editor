@@ -10,6 +10,7 @@ import {
 import StarterKit from "@tiptap/starter-kit";
 
 import { ClassTokenExtension } from "@/editor/classTokens";
+import { MediaEmbedExtension } from "@/editor/mediaEmbed";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
 import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
@@ -28,6 +29,7 @@ interface CreateEditorOptions {
   onPasteSanitized?: () => void;
   onImageFilesDropped?: (files: File[], position: number) => void;
   onImageFilesPasted?: (files: File[], position: number) => void;
+  onMediaUrlPasted?: (url: string) => boolean;
 }
 
 function imageFiles(files: FileList | null | undefined): File[] {
@@ -57,6 +59,7 @@ export function createEditor(options: CreateEditorOptions): Editor {
       TableKit.configure({ table: false }),
       PolicyTable.configure({ resizable: false, View: null }),
       ClassTokenExtension,
+      MediaEmbedExtension,
       Placeholder.configure({
         placeholder: options.placeholder,
       }),
@@ -83,6 +86,21 @@ export function createEditor(options: CreateEditorOptions): Editor {
         if (files.length && options.onImageFilesPasted) {
           event.preventDefault();
           options.onImageFilesPasted(files, view.state.selection.from);
+          return true;
+        }
+        const plainText =
+          event.clipboardData?.getData("text/plain").trim() ?? "";
+        const selection = view.state.selection;
+        if (
+          options.onMediaUrlPasted &&
+          plainText !== "" &&
+          !/\s/u.test(plainText) &&
+          selection.empty &&
+          selection.$from.parent.type.name === "paragraph" &&
+          selection.$from.parent.content.size === 0 &&
+          options.onMediaUrlPasted(plainText)
+        ) {
+          event.preventDefault();
           return true;
         }
         const source = event.clipboardData?.getData("text/html") ?? "";

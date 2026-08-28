@@ -1,6 +1,6 @@
 {
   "$schema": "./editor-policy.schema.json",
-  "policyVersion": "1.0.0",
+  "policyVersion": "1.1.0",
   "elements": {
     "p": { "attributes": ["class"] },
     "br": { "attributes": [] },
@@ -15,7 +15,7 @@
     "ul": { "attributes": ["class"] },
     "ol": { "attributes": ["class", "start"] },
     "li": { "attributes": [] },
-    "a": { "attributes": ["href", "title", "target", "rel"] },
+    "a": { "attributes": ["href", "title", "target", "rel", "class"] },
     "pre": { "attributes": ["class"] },
     "code": { "attributes": ["class"] },
     "hr": { "attributes": [] },
@@ -35,7 +35,8 @@
         "loading",
         "class"
       ]
-    }
+    },
+    "figure": { "attributes": ["class"] }
   },
   "globalAttributes": ["lang", "dir"],
   "classTokens": {
@@ -43,7 +44,16 @@
     "alignment": ["jw-align-left", "jw-align-center", "jw-align-right"],
     "spacing": ["jw-space-tight", "jw-space-normal", "jw-space-relaxed"],
     "table": ["jw-table", "jw-table-striped"],
-    "image": ["jw-image-inline", "jw-image-block", "jw-image-rounded"]
+    "image": ["jw-image-inline", "jw-image-block", "jw-image-rounded"],
+    "media": [
+      "jw-media",
+      "jw-media-16x9",
+      "jw-media-9x16",
+      "jw-media-youtube",
+      "jw-media-vimeo",
+      "jw-media-mp4",
+      "jw-media-source"
+    ]
   },
   "urls": {
     "linkSchemes": ["https", "mailto", "tel"],
