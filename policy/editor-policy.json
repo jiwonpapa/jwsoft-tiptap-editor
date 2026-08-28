@@ -1,0 +1,72 @@
+{
+  "$schema": "./editor-policy.schema.json",
+  "policyVersion": "1.0.0",
+  "elements": {
+    "p": { "attributes": ["class"] },
+    "br": { "attributes": [] },
+    "h2": { "attributes": ["class"] },
+    "h3": { "attributes": ["class"] },
+    "h4": { "attributes": ["class"] },
+    "strong": { "attributes": [] },
+    "em": { "attributes": [] },
+    "u": { "attributes": [] },
+    "s": { "attributes": [] },
+    "blockquote": { "attributes": ["class"] },
+    "ul": { "attributes": ["class"] },
+    "ol": { "attributes": ["class", "start"] },
+    "li": { "attributes": [] },
+    "a": { "attributes": ["href", "title", "target", "rel"] },
+    "pre": { "attributes": ["class"] },
+    "code": { "attributes": ["class"] },
+    "hr": { "attributes": [] },
+    "table": { "attributes": ["class"] },
+    "thead": { "attributes": [] },
+    "tbody": { "attributes": [] },
+    "tr": { "attributes": [] },
+    "th": { "attributes": ["colspan", "rowspan", "scope", "class"] },
+    "td": { "attributes": ["colspan", "rowspan", "class"] },
+    "img": {
+      "attributes": [
+        "src",
+        "alt",
+        "title",
+        "width",
+        "height",
+        "loading",
+        "class"
+      ]
+    }
+  },
+  "globalAttributes": ["lang", "dir"],
+  "classTokens": {
+    "textSize": ["jw-text-sm", "jw-text-base", "jw-text-lg", "jw-text-xl"],
+    "alignment": ["jw-align-left", "jw-align-center", "jw-align-right"],
+    "spacing": ["jw-space-tight", "jw-space-normal", "jw-space-relaxed"],
+    "table": ["jw-table", "jw-table-striped"],
+    "image": ["jw-image-inline", "jw-image-block", "jw-image-rounded"]
+  },
+  "urls": {
+    "linkSchemes": ["https", "mailto", "tel"],
+    "allowRelativeLinks": true,
+    "allowedLinkHosts": []
+  },
+  "media": {
+    "schemes": ["https"],
+    "allowRelative": true,
+    "allowedHosts": [],
+    "allowedMimeTypes": [
+      "image/jpeg",
+      "image/png",
+      "image/gif",
+      "image/webp",
+      "image/avif"
+    ]
+  },
+  "limits": {
+    "maxHtmlBytes": 1048576,
+    "maxTextCharacters": 500000,
+    "maxImageBytes": 10485760,
+    "maxImagePixels": 40000000,
+    "maxTableCells": 10000
+  }
+}

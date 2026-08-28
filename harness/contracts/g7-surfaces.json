@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "minimumG7Version": "7.0.9",
+  "items": [
+    {
+      "id": "board.post.create",
+      "owner": "sirsoft-board",
+      "kind": "editor",
+      "requirement": "게시글 작성, 이미지, 저장, 재편집"
+    },
+    {
+      "id": "board.post.update",
+      "owner": "sirsoft-board",
+      "kind": "editor",
+      "requirement": "레거시 HTML 무손실 재편집"
+    },
+    {
+      "id": "board.comment.regression",
+      "owner": "sirsoft-board",
+      "kind": "no-regression",
+      "requirement": "기본 HtmlEditor 경로를 훼손하지 않음"
+    },
+    {
+      "id": "ecommerce.product.create",
+      "owner": "sirsoft-ecommerce",
+      "kind": "editor",
+      "requirement": "상품 설명 작성과 이미지"
+    },
+    {
+      "id": "ecommerce.product.update",
+      "owner": "sirsoft-ecommerce",
+      "kind": "editor",
+      "requirement": "상품 설명 재편집"
+    },
+    {
+      "id": "page.content.create",
+      "owner": "sirsoft-page",
+      "kind": "editor",
+      "requirement": "페이지 콘텐츠 작성"
+    },
+    {
+      "id": "page.content.update",
+      "owner": "sirsoft-page",
+      "kind": "editor",
+      "requirement": "페이지 콘텐츠 재편집"
+    },
+    {
+      "id": "admin.settings",
+      "owner": "jwsoft-tiptap-editor",
+      "kind": "configuration",
+      "requirement": "정책과 업로드 설정의 권한 기반 관리"
+    },
+    {
+      "id": "public.html.render",
+      "owner": "g7-core",
+      "kind": "render",
+      "requirement": "정제 HTML과 jw class token CSS 렌더링"
+    }
+  ]
+}

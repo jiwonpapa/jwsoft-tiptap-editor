@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "source": "sirsoft-ckeditor5@gnuboard7-7.0.9",
+  "items": [
+    {
+      "id": "lifecycle.install",
+      "gate": "integration",
+      "requirement": "독립 ZIP 신규 설치"
+    },
+    {
+      "id": "lifecycle.update",
+      "gate": "integration",
+      "requirement": "기설치 버전 ZIP 업데이트"
+    },
+    {
+      "id": "lifecycle.rollback",
+      "gate": "integration",
+      "requirement": "실패 시 기존 편집기와 데이터 복구"
+    },
+    {
+      "id": "editor.create",
+      "gate": "browser",
+      "requirement": "빈 문서 편집과 저장"
+    },
+    {
+      "id": "editor.reedit",
+      "gate": "browser",
+      "requirement": "저장 HTML 재편집"
+    },
+    {
+      "id": "editor.legacy-html",
+      "gate": "browser",
+      "requirement": "기존 CKEditor HTML의 정의된 호환성"
+    },
+    {
+      "id": "editor.keyboard-a11y",
+      "gate": "browser",
+      "requirement": "키보드와 접근성 기본 동작"
+    },
+    {
+      "id": "image.upload",
+      "gate": "integration",
+      "requirement": "권한·MIME·크기·픽셀 검증 업로드"
+    },
+    {
+      "id": "image.serve",
+      "gate": "integration",
+      "requirement": "저장소 추상화를 통한 이미지 제공"
+    },
+    {
+      "id": "image.cleanup",
+      "gate": "integration",
+      "requirement": "고아 이미지 정리 정책"
+    },
+    {
+      "id": "security.sanitize",
+      "gate": "security",
+      "requirement": "서버 allowlist sanitizer"
+    },
+    {
+      "id": "security.url",
+      "gate": "security",
+      "requirement": "URL scheme/host 정책"
+    },
+    {
+      "id": "security.resource-limits",
+      "gate": "security",
+      "requirement": "HTML·텍스트·이미지·표 상한"
+    },
+    {
+      "id": "policy.class-tokens",
+      "gate": "unit",
+      "requirement": "style 대신 정의된 class token만 저장"
+    },
+    {
+      "id": "permissions.admin",
+      "gate": "integration",
+      "requirement": "설정·업로드 권한"
+    },
+    {
+      "id": "hooks.activity",
+      "gate": "integration",
+      "requirement": "G7 훅과 활동 로그 계약"
+    },
+    { "id": "i18n.ko-en", "gate": "browser", "requirement": "한국어·영어 UI" },
+    {
+      "id": "surfaces.board",
+      "gate": "browser",
+      "requirement": "게시판 작성·수정"
+    },
+    {
+      "id": "surfaces.ecommerce",
+      "gate": "browser",
+      "requirement": "상품 작성·수정"
+    },
+    {
+      "id": "surfaces.page",
+      "gate": "browser",
+      "requirement": "페이지 작성·수정"
+    },
+    {
+      "id": "performance.budget",
+      "gate": "performance",
+      "requirement": "번들 및 편집 시작 성능 예산"
+    },
+    {
+      "id": "supply-chain.self-hosted",
+      "gate": "static",
+      "requirement": "런타임 CDN과 이중 React 없음"
+    }
+  ]
+}

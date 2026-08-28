@@ -1,0 +1,49 @@
+{
+  "name": "@jwsoft/tiptap-editor",
+  "version": "0.1.0-alpha.1",
+  "description": "Core-free Tiptap editor plugin for Gnuboard 7",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "engines": {
+    "node": ">=20.19.0 <27",
+    "npm": ">=10"
+  },
+  "scripts": {
+    "build": "vite build",
+    "check": "npm run format:check && npm run typecheck && npm run validate && npm run test:unit",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "validate": "npm run validate:manifest && npm run validate:policy && npm run validate:docs && npm run validate:contracts",
+    "validate:manifest": "node scripts/validate-manifest.mjs",
+    "validate:policy": "node scripts/validate-policy.mjs",
+    "validate:docs": "node scripts/validate-docs.mjs",
+    "validate:contracts": "node scripts/validate-contracts.mjs",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.30.5",
+    "@tiptap/extension-image": "3.30.5",
+    "@tiptap/extension-link": "3.30.5",
+    "@tiptap/extension-placeholder": "3.30.5",
+    "@tiptap/extension-table": "3.30.5",
+    "@tiptap/extension-text-align": "3.30.5",
+    "@tiptap/extension-underline": "3.30.5",
+    "@tiptap/pm": "3.30.5",
+    "@tiptap/starter-kit": "3.30.5",
+    "dompurify": "3.4.14"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.62.1",
+    "@types/node": "20.19.43",
+    "ajv": "8.20.0",
+    "jsdom": "30.0.1",
+    "prettier": "3.9.6",
+    "typescript": "5.9.3",
+    "vite": "7.3.6",
+    "vitest": "4.1.11"
+  }
+}

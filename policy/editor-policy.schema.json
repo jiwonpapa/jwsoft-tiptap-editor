@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://jwsoft.dev/schemas/editor-policy.schema.json",
+  "title": "JWSoft Tiptap Editor Policy",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "policyVersion",
+    "elements",
+    "globalAttributes",
+    "classTokens",
+    "urls",
+    "media",
+    "limits"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "policyVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "elements": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attributes"],
+        "properties": {
+          "attributes": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": { "type": "string", "pattern": "^[a-z][a-z0-9:-]*$" }
+          }
+        }
+      }
+    },
+    "globalAttributes": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^[a-z][a-z0-9:-]*$" }
+    },
+    "classTokens": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "uniqueItems": true,
+        "items": {
+          "type": "string",
+          "pattern": "^jw-[a-z0-9]+(?:-[a-z0-9]+)*$"
+        }
+      }
+    },
+    "urls": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["linkSchemes", "allowRelativeLinks", "allowedLinkHosts"],
+      "properties": {
+        "linkSchemes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["https", "http", "mailto", "tel"] }
+        },
+        "allowRelativeLinks": { "type": "boolean" },
+        "allowedLinkHosts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "media": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schemes",
+        "allowRelative",
+        "allowedHosts",
+        "allowedMimeTypes"
+      ],
+      "properties": {
+        "schemes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "enum": ["https", "http"] }
+        },
+        "allowRelative": { "type": "boolean" },
+        "allowedHosts": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string" }
+        },
+        "allowedMimeTypes": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^image/" }
+        }
+      }
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "maxHtmlBytes",
+        "maxTextCharacters",
+        "maxImageBytes",
+        "maxImagePixels",
+        "maxTableCells"
+      ],
+      "properties": {
+        "maxHtmlBytes": { "type": "integer", "minimum": 1024 },
+        "maxTextCharacters": { "type": "integer", "minimum": 100 },
+        "maxImageBytes": { "type": "integer", "minimum": 1024 },
+        "maxImagePixels": { "type": "integer", "minimum": 10000 },
+        "maxTableCells": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,40 @@
+name: Release gate
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: [self-hosted, linux, g7-integration]
+    env:
+      G7_ROOT: ${{ vars.G7_INTEGRATION_ROOT }}
+      G7_BASE_URL: ${{ vars.G7_INTEGRATION_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.0
+          cache: npm
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          coverage: none
+      - run: npm ci
+      - run: composer install --no-interaction --prefer-dist
+      - run: make release-check
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-package
+          path: |
+            .build/*.zip
+            .build/SHA256SUMS
+      - name: Publish tagged release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" .build/*.zip .build/SHA256SUMS --verify-tag --generate-notes

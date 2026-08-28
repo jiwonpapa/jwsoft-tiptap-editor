@@ -1,0 +1,10 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "identifier": "jwsoft-tiptap-editor",
+  "version": "0.1.0-alpha.1",
+  "components": {
+    "basic": [],
+    "composite": [],
+    "layout": []
+  }
+}

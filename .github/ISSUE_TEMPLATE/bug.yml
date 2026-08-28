@@ -1,0 +1,31 @@
+name: 버그
+description: 재현 가능한 편집기 또는 G7 통합 문제
+title: "[Bug] "
+labels: [bug]
+body:
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 실제 결과
+      description: 무엇이 잘못되었는지 적어주십시오.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: 재현 절차
+      description: G7 화면, 역할, 입력 HTML, 브라우저를 포함해주십시오.
+    validations:
+      required: true
+  - type: input
+    id: versions
+    attributes:
+      label: 버전
+      placeholder: G7 7.0.9 / plugin 0.1.0 / Chrome 140
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: 증거
+      description: 오류 로그, 스크린샷, 최소 HTML을 첨부하십시오. 비밀값은 제거하십시오.

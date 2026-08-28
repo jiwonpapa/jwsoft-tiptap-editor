@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "id": "script-element",
+      "input": "<p>ok</p><script>alert(1)</script>",
+      "mustKeep": ["<p>ok</p>"],
+      "mustRemove": ["<script", "alert(1)"]
+    },
+    {
+      "id": "event-handler",
+      "input": "<img src=\"/x.jpg\" onerror=\"alert(1)\">",
+      "mustKeep": ["src=\"/x.jpg\""],
+      "mustRemove": ["onerror"]
+    },
+    {
+      "id": "javascript-url",
+      "input": "<a href=\"javascript:alert(1)\">x</a>",
+      "mustKeep": [">x</a>"],
+      "mustRemove": ["javascript:"]
+    },
+    {
+      "id": "inline-style",
+      "input": "<p style=\"position:fixed\" class=\"jw-align-center evil\">x</p>",
+      "mustKeep": ["jw-align-center"],
+      "mustRemove": ["style=", "evil"]
+    },
+    {
+      "id": "svg-payload",
+      "input": "<svg><a href=\"javascript:alert(1)\"><text>x</text></a></svg>",
+      "mustKeep": [],
+      "mustRemove": ["<svg", "javascript:"]
+    },
+    {
+      "id": "encoded-url",
+      "input": "<a href=\"jav&#x61;script:alert(1)\">x</a>",
+      "mustKeep": ["x"],
+      "mustRemove": ["javascript", "jav&#x61;script"]
+    },
+    {
+      "id": "data-image",
+      "input": "<img src=\"data:image/svg+xml;base64,PHN2Zz4=\">",
+      "mustKeep": [],
+      "mustRemove": ["data:image"]
+    }
+  ]
+}

@@ -1,0 +1,27 @@
+name: 기능 제안
+description: MVP 또는 이후 범위 제안
+title: "[Feature] "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: 해결할 문제
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: 제안
+    validations:
+      required: true
+  - type: dropdown
+    id: constitution
+    attributes:
+      label: 헌법 영향
+      options:
+        - 없음
+        - 검토 필요
+        - 헌법 개정 필요
+    validations:
+      required: true
