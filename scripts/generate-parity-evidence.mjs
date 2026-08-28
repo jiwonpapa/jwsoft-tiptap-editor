@@ -113,6 +113,7 @@ if (dirty)
   );
 const evidence = {
   schemaVersion: 1,
+  status: "pass",
   generatedAt: new Date().toISOString(),
   source: contract.source,
   g7Version: data.integration.g7Version,
