@@ -26,6 +26,12 @@ interface CreateEditorOptions {
   editable: boolean;
   onUpdate: (html: string) => void;
   onPasteSanitized?: () => void;
+  onImageFilesDropped?: (files: File[], position: number) => void;
+  onImageFilesPasted?: (files: File[], position: number) => void;
+}
+
+function imageFiles(files: FileList | null | undefined): File[] {
+  return [...(files ?? [])].filter((file) => file.type.startsWith("image/"));
 }
 
 export function createEditor(options: CreateEditorOptions): Editor {
@@ -62,7 +68,23 @@ export function createEditor(options: CreateEditorOptions): Editor {
         "aria-multiline": "true",
         "aria-label": "JWSoft Tiptap editor",
       },
+      handleDrop: (view, event) => {
+        const files = imageFiles(event.dataTransfer?.files);
+        if (!files.length || !options.onImageFilesDropped) return false;
+        event.preventDefault();
+        const position =
+          view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
+          view.state.selection.from;
+        options.onImageFilesDropped(files, position);
+        return true;
+      },
       handlePaste: (view, event) => {
+        const files = imageFiles(event.clipboardData?.files);
+        if (files.length && options.onImageFilesPasted) {
+          event.preventDefault();
+          options.onImageFilesPasted(files, view.state.selection.from);
+          return true;
+        }
         const source = event.clipboardData?.getData("text/html") ?? "";
         if (!source) return false;
         const paste = sanitizePastedHtml(source);

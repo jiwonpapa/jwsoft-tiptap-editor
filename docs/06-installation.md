@@ -26,6 +26,7 @@ php artisan plugin:install jwsoft-tiptap-editor --vendor-mode=bundled
 ```
 
 6. 관리자 `플러그인 → JWSoft Tiptap 에디터 → 설정`에서 **기존 콘텐츠 전환 위험 확인**을 켜고 저장합니다.
+   이미지 파일 드롭과 클립보드 업로드는 각각 `이미지 드래그·드롭 업로드`, `클립보드 이미지 업로드`에서 켜거나 끌 수 있습니다.
 7. 아래 순서로 편집기를 전환합니다.
 
 ```bash

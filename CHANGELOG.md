@@ -40,3 +40,4 @@
 - 전체 P0 미완료 시 stable을 차단하는 readiness gate와 별도 alpha release-candidate gate
 - CKEditor 비활성화 후 JWSoft 활성화를 보장하는 배포 순서 계약 검사
 - 기존 콘텐츠 전환 위험 설정의 명시적 확인 전 활성화 차단, 문서별 재경고와 CKEditor 복귀 안내
+- 설정 가능한 다중 이미지 드래그·드롭 및 클립보드 업로드

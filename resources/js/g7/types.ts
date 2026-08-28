@@ -55,6 +55,8 @@ export interface InitEditorParams {
   height?: number | string;
   toolbar?: string;
   imageUpload?: boolean | string;
+  dragDropImageUpload?: boolean | string;
+  pasteImageUpload?: boolean | string;
   imageMaxSizeMb?: number | string;
 }
 

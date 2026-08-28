@@ -105,7 +105,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -113,6 +113,8 @@ namespace {
     if (($settings['imageMaxSizeMb']['min'] ?? null) !== 1
         || ($settings['imageMaxSizeMb']['max'] ?? null) !== 10
         || ($settings['unusedImageCleanup']['default'] ?? null) !== false
+        || ($settings['dragDropImageUpload']['default'] ?? null) !== true
+        || ($settings['pasteImageUpload']['default'] ?? null) !== true
         || ($settings['legacyContentRiskAcknowledged']['default'] ?? null) !== false
         || ! str_contains((string) ($settings['legacyContentRiskAcknowledged']['hint']['ko'] ?? ''), '자동 변환되지 않습니다')) {
         throw new RuntimeException('Image size and fail-safe cleanup defaults mismatch.');
@@ -124,7 +126,9 @@ namespace {
         flags: JSON_THROW_ON_ERROR,
     );
     if (($settingsConfig['defaults']['legacyContentRiskAcknowledged'] ?? null) !== false
-        || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false) {
+        || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false
+        || ($settingsConfig['frontend_schema']['dragDropImageUpload']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true) {
         throw new RuntimeException('Transition acknowledgement must default off and stay server-side.');
     }
 

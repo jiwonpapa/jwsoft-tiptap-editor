@@ -99,4 +99,50 @@ describe("Tiptap policy schema", () => {
     editor.destroy();
     mount.remove();
   });
+
+  it("routes dropped and pasted image files to configured upload handlers", () => {
+    const mount = document.createElement("div");
+    document.body.appendChild(mount);
+    const onImageFilesDropped = vi.fn();
+    const onImageFilesPasted = vi.fn();
+    const editor = createEditor({
+      element: mount,
+      content: "<p></p>",
+      placeholder: "",
+      editable: true,
+      onUpdate: vi.fn(),
+      onImageFilesDropped,
+      onImageFilesPasted,
+    });
+    const image = new File(["proof"], "proof.png", { type: "image/png" });
+
+    const drop = new Event("drop", { bubbles: true, cancelable: true });
+    Object.defineProperty(document, "elementFromPoint", {
+      configurable: true,
+      value: () => editor.view.dom,
+    });
+    Object.defineProperty(drop, "dataTransfer", {
+      value: { files: [image], getData: () => "", types: ["Files"] },
+    });
+    editor.view.dom.dispatchEvent(drop);
+
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: { files: [image], getData: () => "" },
+    });
+    editor.view.dom.dispatchEvent(paste);
+
+    expect(onImageFilesDropped).toHaveBeenCalledWith(
+      [image],
+      expect.any(Number),
+    );
+    expect(onImageFilesPasted).toHaveBeenCalledWith(
+      [image],
+      expect.any(Number),
+    );
+    expect(drop.defaultPrevented).toBe(true);
+    expect(paste.defaultPrevented).toBe(true);
+    editor.destroy();
+    mount.remove();
+  });
 });

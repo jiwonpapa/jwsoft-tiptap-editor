@@ -39,6 +39,20 @@ class Plugin extends AbstractPlugin
                 'hint' => ['ko' => '에디터에서 서버 이미지 업로드를 허용합니다.', 'en' => 'Allow server image uploads from the editor.'],
                 'required' => false,
             ],
+            'dragDropImageUpload' => [
+                'type' => 'boolean',
+                'default' => true,
+                'label' => ['ko' => '이미지 드래그·드롭 업로드', 'en' => 'Drag-and-drop image upload'],
+                'hint' => ['ko' => '이미지 파일을 편집 위치에 놓으면 서버에 업로드한 뒤 삽입합니다.', 'en' => 'Upload and insert image files dropped at an editor position.'],
+                'required' => false,
+            ],
+            'pasteImageUpload' => [
+                'type' => 'boolean',
+                'default' => true,
+                'label' => ['ko' => '클립보드 이미지 업로드', 'en' => 'Clipboard image upload'],
+                'hint' => ['ko' => '클립보드의 이미지 파일을 서버에 업로드한 뒤 삽입합니다.', 'en' => 'Upload and insert image files from the clipboard.'],
+                'required' => false,
+            ],
             'imageMaxSizeMb' => [
                 'type' => 'integer',
                 'min' => 1,

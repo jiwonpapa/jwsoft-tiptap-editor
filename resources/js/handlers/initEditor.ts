@@ -11,6 +11,7 @@ import { createEditor } from "@/editor/createEditor";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
+import { uploadEditorImage } from "@/editor/imageUpload";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
   createEditorToolbar,
@@ -23,6 +24,7 @@ import {
   syncEditorValue,
 } from "@/editor/stateSync";
 import type { G7Action, InitEditorParams } from "@/g7/types";
+import type { Editor } from "@tiptap/core";
 import { analyzeLegacyHtml, sanitizeClientHtml } from "@/policy/runtimePolicy";
 
 const LOCALE_LABELS: Record<string, string> = {
@@ -87,6 +89,58 @@ function showPasteLoss(status: HTMLElement, locale: string): void {
   );
 }
 
+async function uploadImageFiles(options: {
+  editor: Editor;
+  files: File[];
+  position: number;
+  maxSizeMb: number;
+  locale: string;
+  status: HTMLElement;
+}): Promise<void> {
+  const files = options.files.slice(0, 20);
+  let position = options.position;
+  let completed = 0;
+  options.status.dataset.tone = "neutral";
+
+  try {
+    for (const file of files) {
+      options.status.textContent = editorText(
+        options.locale,
+        "이미지 {{current}}/{{total}} 업로드 중…",
+        { current: completed + 1, total: files.length },
+      );
+      const uploaded = await uploadEditorImage(
+        file,
+        options.maxSizeMb,
+        fetch,
+        options.locale,
+      );
+      options.editor.commands.insertContentAt(position, {
+        type: "image",
+        attrs: {
+          src: uploaded.url,
+          alt: uploaded.originalName,
+          jwClassTokens: "jw-image-block",
+        },
+      });
+      position += 1;
+      completed += 1;
+    }
+    options.status.dataset.tone = "success";
+    options.status.textContent = editorText(
+      options.locale,
+      "이미지 {{count}}개를 업로드해 삽입했습니다.",
+      { count: completed },
+    );
+  } catch (error) {
+    options.status.dataset.tone = "warning";
+    options.status.textContent =
+      error instanceof Error
+        ? error.message
+        : editorText(options.locale, "이미지 업로드에 실패했습니다.");
+  }
+}
+
 function renderLegacyWarning(options: {
   shell: HTMLElement;
   mount: HTMLElement;
@@ -148,6 +202,8 @@ function mountLocaleEditor(options: {
   multilingual: boolean;
   toolbar: ToolbarProfile;
   imageUpload: boolean;
+  dragDropImageUpload: boolean;
+  pasteImageUpload: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -156,7 +212,18 @@ function mountLocaleEditor(options: {
   options.mount.className = "jwsoft-tiptap-editor-frame";
   const editorMount = document.createElement("div");
   options.mount.appendChild(editorMount);
-  const editor = createEditor({
+  let editor: Editor;
+  const uploadAt = (files: File[], position: number): void => {
+    void uploadImageFiles({
+      editor,
+      files,
+      position,
+      maxSizeMb: options.imageMaxSizeMb,
+      locale: options.locale,
+      status: options.status,
+    });
+  };
+  editor = createEditor({
     element: editorMount,
     content: options.content,
     placeholder: options.placeholder,
@@ -171,6 +238,14 @@ function mountLocaleEditor(options: {
       });
     },
     onPasteSanitized: () => showPasteLoss(options.status, options.locale),
+    onImageFilesDropped:
+      options.editable && options.imageUpload && options.dragDropImageUpload
+        ? uploadAt
+        : undefined,
+    onImageFilesPasted:
+      options.editable && options.imageUpload && options.pasteImageUpload
+        ? uploadAt
+        : undefined,
   });
   editorRegistry.set(options.containerId, options.locale, editor);
 
@@ -227,6 +302,8 @@ function mountMultilingualEditors(options: {
   editable: boolean;
   toolbar: ToolbarProfile;
   imageUpload: boolean;
+  dragDropImageUpload: boolean;
+  pasteImageUpload: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
@@ -269,6 +346,8 @@ function mountMultilingualEditors(options: {
         multilingual: true,
         toolbar: options.toolbar,
         imageUpload: options.imageUpload,
+        dragDropImageUpload: options.dragDropImageUpload,
+        pasteImageUpload: options.pasteImageUpload,
         imageMaxSizeMb: options.imageMaxSizeMb,
         status: options.status,
       });
@@ -290,6 +369,8 @@ function mountMultilingualEditors(options: {
       multilingual: true,
       toolbar: options.toolbar,
       imageUpload: options.imageUpload,
+      dragDropImageUpload: options.dragDropImageUpload,
+      pasteImageUpload: options.pasteImageUpload,
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
@@ -333,6 +414,8 @@ export async function initEditorHandler(
   );
   const toolbar = normalizeToolbarProfile(params.toolbar);
   const imageUpload = booleanParam(params.imageUpload);
+  const dragDropImageUpload = booleanParam(params.dragDropImageUpload);
+  const pasteImageUpload = booleanParam(params.pasteImageUpload);
   const imageMaxSizeMb = safeImageMaxSize(params.imageMaxSizeMb);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
@@ -347,6 +430,8 @@ export async function initEditorHandler(
       editable,
       toolbar,
       imageUpload,
+      dragDropImageUpload,
+      pasteImageUpload,
       imageMaxSizeMb,
       status,
     });
@@ -366,6 +451,8 @@ export async function initEditorHandler(
     multilingual: false,
     toolbar,
     imageUpload,
+    dragDropImageUpload,
+    pasteImageUpload,
     imageMaxSizeMb,
     status,
   });

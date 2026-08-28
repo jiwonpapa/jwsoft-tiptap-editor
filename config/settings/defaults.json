@@ -6,6 +6,8 @@
   "defaults": {
     "legacyContentRiskAcknowledged": false,
     "imageUpload": true,
+    "dragDropImageUpload": true,
+    "pasteImageUpload": true,
     "imageMaxSizeMb": 2,
     "editorHeight": 400,
     "toolbar": "standard",
@@ -16,6 +18,8 @@
   "frontend_schema": {
     "legacyContentRiskAcknowledged": { "expose": false },
     "imageUpload": { "expose": true },
+    "dragDropImageUpload": { "expose": true },
+    "pasteImageUpload": { "expose": true },
     "imageMaxSizeMb": { "expose": true },
     "editorHeight": { "expose": true },
     "toolbar": { "expose": true },
