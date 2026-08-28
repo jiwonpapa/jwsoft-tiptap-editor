@@ -51,6 +51,10 @@ if ((string) $ckeditor->status !== $expectedCkeditorStatus) {
 if (! Schema::hasTable('jwsoft_tiptap_image_uploads')) {
     failLifecycleProbe('JWSoft image upload table is missing');
 }
+if (! Schema::hasTable('jwsoft_tiptap_media_uploads')
+    || ! Schema::hasTable('jwsoft_tiptap_media_upload_sessions')) {
+    failLifecycleProbe('JWSoft media upload tables are missing');
+}
 
 $records = [
     'page' => DB::table('pages')->where('id', $pageId)->value('content'),
@@ -69,6 +73,8 @@ echo json_encode([
     'ckeditor' => ['version' => (string) $ckeditor->version, 'status' => (string) $ckeditor->status],
     'permissions' => Permission::byExtension(ExtensionOwnerType::Plugin, 'jwsoft-tiptap-editor')->count(),
     'imageUploadRows' => DB::table('jwsoft_tiptap_image_uploads')->count(),
+    'mediaUploadRows' => DB::table('jwsoft_tiptap_media_uploads')->count(),
+    'mediaSessionRows' => DB::table('jwsoft_tiptap_media_upload_sessions')->count(),
     'records' => array_map(
         static fn (string $content): array => [
             'bytes' => strlen($content),

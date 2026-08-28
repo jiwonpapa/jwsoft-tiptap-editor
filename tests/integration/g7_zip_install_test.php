@@ -46,6 +46,8 @@ try {
     assertZipInstall(($result['identifier'] ?? null) === 'jwsoft-tiptap-editor', 'ZIP install identifier mismatch');
     assertZipInstall(($result['version'] ?? null) === $expectedVersion, 'ZIP install version mismatch');
     assertZipInstall(Schema::hasTable('jwsoft_tiptap_image_uploads'), 'image upload migration did not run');
+    assertZipInstall(Schema::hasTable('jwsoft_tiptap_media_uploads'), 'media upload migration did not run');
+    assertZipInstall(Schema::hasTable('jwsoft_tiptap_media_upload_sessions'), 'media session migration did not run');
 
     $record = DB::table('plugins')->where('identifier', 'jwsoft-tiptap-editor')->first();
     assertZipInstall($record !== null, 'installed plugin record missing');
