@@ -25,10 +25,17 @@ const remote = deploy.slice(remoteStart, remoteEnd);
 const deactivateCk = remote.indexOf(
   "plugin:deactivate sirsoft-ckeditor5 --no-interaction",
 );
+const verifyLegacyRisk = remote.indexOf("legacyContentRiskAcknowledged");
 const activateJw = remote.indexOf(
   "plugin:activate jwsoft-tiptap-editor --no-interaction",
 );
-if (deactivateCk === -1 || activateJw === -1 || deactivateCk > activateJw) {
+if (
+  verifyLegacyRisk === -1 ||
+  deactivateCk === -1 ||
+  activateJw === -1 ||
+  verifyLegacyRisk > deactivateCk ||
+  deactivateCk > activateJw
+) {
   throw new Error("배포는 CKEditor5 비활성화 후 JWSoft 활성화 순서여야 합니다");
 }
 

@@ -19,14 +19,22 @@
 2. ZIP을 임시 디렉터리에 풉니다.
 3. `plugin.json`이 ZIP 루트 또는 1단계 하위에 있는지 확인합니다.
 4. 플러그인을 `plugins/_pending/jwsoft-tiptap-editor`에 배치합니다.
-5. G7 루트에서 실행합니다.
+5. G7 루트에서 플러그인을 설치합니다.
 
 ```bash
 php artisan plugin:install jwsoft-tiptap-editor --vendor-mode=bundled
+```
+
+6. 관리자 `플러그인 → JWSoft Tiptap 에디터 → 설정`에서 **기존 콘텐츠 전환 위험 확인**을 켜고 저장합니다.
+7. 아래 순서로 편집기를 전환합니다.
+
+```bash
 php artisan plugin:deactivate sirsoft-ckeditor5
 php artisan plugin:activate jwsoft-tiptap-editor
 php artisan optimize:clear
 ```
+
+> 기존 CKEditor의 inline style·전용 class·HTML 구조는 JWSoft에서 편집·저장할 때 달라질 수 있으며 자동 변환되지 않습니다. 문제가 생기면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오. 설정 확인 전에는 JWSoft 활성화가 차단됩니다.
 
 CKEditor가 설치되지 않은 환경에서는 deactivate 실패를 무시하지 말고 설치 상태를 먼저 확인합니다. 배포 하네스는 `DEPLOY_MODE=install` 또는 `update`를 명시적으로 받으며 상태를 추측하지 않습니다.
 
@@ -45,6 +53,7 @@ php artisan optimize:clear
 
 ## 전환 확인
 
+- `legacyContentRiskAcknowledged=true` 저장과 활성화 경고 확인
 - 게시판 작성 화면에 JWSoft editor가 1개만 존재
 - 네트워크에 Tiptap/CKEditor CDN 요청 없음
 - 기존 글 열기·수정·저장·조회 성공
@@ -53,7 +62,7 @@ php artisan optimize:clear
 
 ## 롤백
 
-HTML이 저장 정본이므로 DB 형식 변환 없이 플러그인 전환이 가능해야 합니다.
+HTML이 저장 정본이므로 DB 형식 일괄 변환 없이 플러그인 전환이 가능해야 합니다. 다만 롤백은 이후 편집기 선택을 되돌릴 뿐, JWSoft로 이미 저장해 달라진 기존 HTML 원문을 복원하지 않습니다.
 
 ```bash
 php artisan plugin:deactivate jwsoft-tiptap-editor

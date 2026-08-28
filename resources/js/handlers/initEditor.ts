@@ -100,7 +100,7 @@ function renderLegacyWarning(options: {
   const message = document.createElement("div");
   message.textContent = editorText(
     options.locale,
-    "기존 HTML 중 지원하지 않는 태그·속성·서식이 있습니다. 변경 결과를 승인하기 전에는 저장이 차단됩니다.",
+    "기존 CKEditor 콘텐츠에 inline style·전용 class·지원하지 않는 HTML이 있습니다. 편집하거나 저장하면 서식이 달라질 수 있으며 자동 변환되지 않습니다. 원문을 유지하려면 읽기 전용을 선택하고, 전환 문제가 있으면 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오. 변경 결과를 확인하기 전에는 저장이 차단됩니다.",
   );
   warning.appendChild(message);
 
@@ -113,7 +113,7 @@ function renderLegacyWarning(options: {
   continueButton.dataset.primary = "true";
   continueButton.textContent = editorText(
     options.locale,
-    "변경 확인 후 편집 계속",
+    "위험 확인 후 편집 계속",
   );
   continueButton.addEventListener("click", () => {
     options.onContinue();

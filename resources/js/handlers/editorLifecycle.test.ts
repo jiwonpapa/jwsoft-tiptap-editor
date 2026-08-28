@@ -78,6 +78,16 @@ describe("G7 editor lifecycle", () => {
     expect(
       container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
     ).toContain("저장이 차단");
+    expect(
+      container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
+    ).toContain("자동 변환되지 않습니다");
+    expect(
+      container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
+    ).toContain("CKEditor를 다시 활성화");
+    expect(
+      container.querySelector<HTMLButtonElement>("[data-primary='true']")
+        ?.textContent,
+    ).toBe("위험 확인 후 편집 계속");
 
     container
       .querySelector<HTMLButtonElement>("[data-primary='true']")

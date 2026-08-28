@@ -49,9 +49,31 @@ namespace {
         return $GLOBALS['jwsoft_plugin_manager'];
     }
 
+    function plugin_setting(string $identifier, ?string $key = null, mixed $default = null): mixed
+    {
+        if ($identifier !== 'jwsoft-tiptap-editor' || $key === null) {
+            return $default;
+        }
+
+        return $GLOBALS['jwsoft_plugin_settings'][$key] ?? $default;
+    }
+
     require dirname(__DIR__, 2).'/plugin.php';
 
     $GLOBALS['jwsoft_plugin_manager'] = new FakePluginManager([]);
+    $GLOBALS['jwsoft_plugin_settings'] = [];
+    $plugin = new Plugin();
+    if ($plugin->activate() !== false) {
+        throw new RuntimeException('Plugin must reject activation before legacy content risk acknowledgement.');
+    }
+    $acknowledgementFailure = (string) $plugin->getLifecycleFailureReason();
+    foreach (['기존 콘텐츠 전환 위험 확인', '자동 변환되지 않습니다', 'CKEditor를 다시 활성화'] as $copy) {
+        if (! str_contains($acknowledgementFailure, $copy)) {
+            throw new RuntimeException("Transition acknowledgement failure must include: {$copy}");
+        }
+    }
+
+    $GLOBALS['jwsoft_plugin_settings']['legacyContentRiskAcknowledged'] = true;
     $plugin = new Plugin();
     if ($plugin->activate() !== true) {
         throw new RuntimeException('Plugin should activate without a conflicting editor.');
@@ -83,15 +105,27 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['imageUpload', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
     }
     if (($settings['imageMaxSizeMb']['min'] ?? null) !== 1
         || ($settings['imageMaxSizeMb']['max'] ?? null) !== 10
-        || ($settings['unusedImageCleanup']['default'] ?? null) !== false) {
+        || ($settings['unusedImageCleanup']['default'] ?? null) !== false
+        || ($settings['legacyContentRiskAcknowledged']['default'] ?? null) !== false
+        || ! str_contains((string) ($settings['legacyContentRiskAcknowledged']['hint']['ko'] ?? ''), '자동 변환되지 않습니다')) {
         throw new RuntimeException('Image size and fail-safe cleanup defaults mismatch.');
+    }
+
+    $settingsConfig = json_decode(
+        file_get_contents(dirname(__DIR__, 2).'/config/settings/defaults.json'),
+        true,
+        flags: JSON_THROW_ON_ERROR,
+    );
+    if (($settingsConfig['defaults']['legacyContentRiskAcknowledged'] ?? null) !== false
+        || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false) {
+        throw new RuntimeException('Transition acknowledgement must default off and stay server-side.');
     }
 
     $hooks = array_column($plugin->getHooks(), null, 'name');

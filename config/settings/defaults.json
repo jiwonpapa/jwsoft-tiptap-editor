@@ -4,6 +4,7 @@
     "description": "JWSoft Tiptap 에디터 환경설정"
   },
   "defaults": {
+    "legacyContentRiskAcknowledged": false,
     "imageUpload": true,
     "imageMaxSizeMb": 2,
     "editorHeight": 400,
@@ -13,6 +14,7 @@
     "unusedImageRetentionDays": 30
   },
   "frontend_schema": {
+    "legacyContentRiskAcknowledged": { "expose": false },
     "imageUpload": { "expose": true },
     "imageMaxSizeMb": { "expose": true },
     "editorHeight": { "expose": true },

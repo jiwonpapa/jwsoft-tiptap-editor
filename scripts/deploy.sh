@@ -95,6 +95,18 @@ else
   "$php_bin" artisan plugin:update jwsoft-tiptap-editor --zip="$artifact" --force --vendor-mode=bundled --no-interaction
 fi
 
+"$php_bin" -r '
+$g7Root = $argv[1];
+require $g7Root."/vendor/autoload.php";
+$app = require $g7Root."/bootstrap/app.php";
+$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+$acknowledged = plugin_setting("jwsoft-tiptap-editor", "legacyContentRiskAcknowledged", false);
+exit(in_array($acknowledged, [true, 1, "1"], true) ? 0 : 1);
+' "$g7_root" || {
+  echo '배포 중단: 관리자 플러그인 설정에서 기존 콘텐츠 전환 위험을 먼저 확인하십시오.' >&2
+  exit 1
+}
+
 "$php_bin" artisan plugin:deactivate sirsoft-ckeditor5 --no-interaction || true
 "$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction
 "$php_bin" artisan optimize:clear --no-interaction

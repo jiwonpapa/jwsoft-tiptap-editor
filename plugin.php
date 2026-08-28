@@ -13,6 +13,8 @@ use Throwable;
  */
 class Plugin extends AbstractPlugin
 {
+    private const LEGACY_CONTENT_RISK_SETTING = 'legacyContentRiskAcknowledged';
+
     private const CONFLICTING_PLUGINS = [
         'sirsoft-ckeditor5',
     ];
@@ -20,6 +22,16 @@ class Plugin extends AbstractPlugin
     public function getSettingsSchema(): array
     {
         return [
+            self::LEGACY_CONTENT_RISK_SETTING => [
+                'type' => 'boolean',
+                'default' => false,
+                'label' => ['ko' => '기존 콘텐츠 전환 위험 확인', 'en' => 'Acknowledge legacy content risk'],
+                'hint' => [
+                    'ko' => '기존 CKEditor의 inline style·전용 class·HTML 구조는 편집·저장 시 달라질 수 있고 자동 변환되지 않습니다. 문제가 생기면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오. 이 항목을 켜야 JWSoft를 활성화할 수 있습니다.',
+                    'en' => 'Legacy CKEditor inline styles, custom classes, and HTML structure may change during editing or saving and are not migrated automatically. If problems occur, deactivate JWSoft and reactivate CKEditor. You must enable this acknowledgement before activation.',
+                ],
+                'required' => false,
+            ],
             'imageUpload' => [
                 'type' => 'boolean',
                 'default' => true,
@@ -186,6 +198,18 @@ class Plugin extends AbstractPlugin
     public function activate(): bool
     {
         try {
+            if (! $this->hasLegacyContentRiskAcknowledgement()) {
+                return $this->failWith(
+                    '활성화 전 플러그인 설정에서 “기존 콘텐츠 전환 위험 확인”을 켜십시오. 기존 CKEditor inline style·전용 class·HTML 구조는 편집·저장 시 달라질 수 있고 자동 변환되지 않습니다. 전환 문제가 있으면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오.'
+                );
+            }
+        } catch (Throwable) {
+            return $this->failWith(
+                '기존 콘텐츠 전환 위험 확인 설정을 읽을 수 없어 안전하게 활성화를 중단했습니다.'
+            );
+        }
+
+        try {
             $activePlugins = app(PluginManagerInterface::class)->getActivePlugins();
 
             foreach ($activePlugins as $identifier => $plugin) {
@@ -251,6 +275,21 @@ class Plugin extends AbstractPlugin
             'description' => ['ko' => $ko, 'en' => $ko],
             'parameters' => $parameters,
         ];
+    }
+
+    private function hasLegacyContentRiskAcknowledgement(): bool
+    {
+        if (! function_exists('plugin_setting')) {
+            return false;
+        }
+
+        $value = plugin_setting(
+            'jwsoft-tiptap-editor',
+            self::LEGACY_CONTENT_RISK_SETTING,
+            false,
+        );
+
+        return in_array($value, [true, 1, '1'], true);
     }
 }
 

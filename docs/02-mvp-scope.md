@@ -28,7 +28,7 @@
 - 기존 extension point props 호환
 - 기존 이미지 업로드·serve·관리 기능 동등성
 - 설정, 권한, 메뉴, 훅, 저장소 드라이버
-- CKEditor 충돌 감지, 전환과 롤백
+- CKEditor 충돌 감지, 교체 전 명시적 위험 확인, 문서별 손실 재확인과 롤백 안내
 - GitHub/ZIP 업데이트와 upgrade step
 
 ## P1 — 1.1 후보
@@ -36,7 +36,6 @@
 - 검색·치환
 - 콘텐츠 템플릿
 - 사용자 역할별 toolbar/policy profile
-- legacy inline style → class token 자동 매핑 확대
 - 미사용 이미지 참조 스캔 확장
 
 ## P2 — 별도 사업 결정
@@ -45,6 +44,7 @@
 - 문서 import/export
 - AI 작성 기능
 - Tiptap Pro 또는 별도 협업 서버
+- legacy inline style 일괄 변환·자동 마이그레이션
 
 ## MVP 탈락 조건
 
