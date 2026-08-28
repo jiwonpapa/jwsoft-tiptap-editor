@@ -34,10 +34,14 @@ for file in plugin.php plugin.json components.json composer.json composer.lock C
   [ -f "$PROJECT_ROOT/$file" ] || fail "runtime 파일 누락: $file"
   rsync -a "$PROJECT_ROOT/$file" "$stage/$file"
 done
-for directory in dist policy resources src routes database lang; do
+for directory in config dist policy resources src routes database lang; do
   if [ -d "$PROJECT_ROOT/$directory" ]; then
     mkdir -p "$stage/$directory"
-    rsync -a "$PROJECT_ROOT/$directory/" "$stage/$directory/"
+    if [ "$directory" = "resources" ]; then
+      rsync -a --exclude='*.test.ts' "$PROJECT_ROOT/$directory/" "$stage/$directory/"
+    else
+      rsync -a "$PROJECT_ROOT/$directory/" "$stage/$directory/"
+    fi
   fi
 done
 

@@ -28,3 +28,9 @@
 - `jwsoft-tiptap-editor.image.*` 훅과 기존 `sirsoft-ckeditor5.image.*` 호환 별칭
 - 훅 변환 뒤 MIME·크기·픽셀 재검증과 DB 실패 시 물리 파일 회수
 - 에디터 인라인 업로드 상태 UI와 mock API Chromium 업로드 흐름
+- G7 식별자 기반 네임스페이스 호환 브리지와 실제 ZIP 설치 계약 검사
+- board·ecommerce·page 브라우저 동등성, legacy/security corpus, 성능 예산 증거 하네스
+- 한국어·영어 편집기 상태·툴바·대화상자 UI
+- ZIP 업데이트·CKEditor 전환·롤백 증거와 artifact provenance parity gate
+- G7 7.0.9 CLI 활성화 우회 경로의 CKEditor 자동 롤백과 활성 상태 기반 대칭 충돌 guard
+- 실제 인증 G7 한국어·영어 재편집 screenshot 및 route-to-editor 성능·단일 instance evidence

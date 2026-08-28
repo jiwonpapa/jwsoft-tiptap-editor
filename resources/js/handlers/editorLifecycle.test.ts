@@ -113,6 +113,30 @@ describe("G7 editor lifecycle", () => {
     expect(container.textContent).toContain("English");
   });
 
+  it("localizes editor status, toolbar, and dialogs in English", async () => {
+    window.G7Core = {
+      ...window.G7Core,
+      locale: { current: () => "en", supported: () => ["en", "ko"] },
+    };
+    const container = addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>English content</p>" } },
+      undefined,
+    );
+
+    expect(container.querySelector("[role='status']")?.textContent).toBe(
+      "Safe HTML storage policy applied",
+    );
+    expect(
+      container.querySelector("[role='toolbar']")?.getAttribute("aria-label"),
+    ).toBe("standard editor tools");
+    expect(
+      [...container.querySelectorAll<HTMLButtonElement>("button")].some(
+        (button) => button.textContent === "Bold",
+      ),
+    ).toBe(true);
+  });
+
   it("blocks initialization when CKEditor is loaded", async () => {
     const container = addContainer();
     window.__SirsoftCkeditor5 = {};

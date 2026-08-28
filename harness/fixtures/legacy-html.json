@@ -4,28 +4,38 @@
     {
       "id": "basic-formatting",
       "input": "<p><strong>굵게</strong>와 <em>기울임</em></p>",
-      "semanticText": "굵게와 기울임"
+      "semanticText": "굵게와 기울임",
+      "mustKeep": ["<strong>굵게</strong>", "<em>기울임</em>"]
     },
     {
       "id": "nested-list",
       "input": "<ol start=\"2\"><li>첫째<ul><li>하위</li></ul></li></ol>",
-      "semanticText": "첫째하위"
+      "semanticText": "첫째하위",
+      "mustKeep": ["<ol start=\"2\">", "<ul><li>하위</li></ul>"]
     },
     {
       "id": "table-span",
       "input": "<table><tbody><tr><th colspan=\"2\">제목</th></tr><tr><td>A</td><td>B</td></tr></tbody></table>",
-      "semanticText": "제목AB"
+      "semanticText": "제목AB",
+      "mustKeep": ["<table>", "colspan=\"2\"", "<td>A</td>"]
     },
     {
       "id": "linked-image",
       "input": "<p><a href=\"https://example.com\"><img src=\"/storage/editor/a.webp\" alt=\"예시\"></a></p>",
-      "semanticText": ""
+      "semanticText": "",
+      "mustKeep": [
+        "href=\"https://example.com\"",
+        "src=\"/storage/editor/a.webp\"",
+        "alt=\"예시\""
+      ]
     },
     {
       "id": "legacy-inline-style",
       "input": "<p style=\"text-align:center;font-size:18px\">가운데</p>",
       "semanticText": "가운데",
-      "migration": "known-loss-to-class-token"
+      "migration": "known-loss-to-class-token",
+      "mustKeep": ["<p>가운데</p>"],
+      "mustRemove": ["style="]
     }
   ]
 }

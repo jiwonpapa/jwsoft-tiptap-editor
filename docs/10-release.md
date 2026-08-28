@@ -10,7 +10,7 @@
 ## 품질
 
 - [ ] `make release-check`
-- [ ] npm/composer audit
+- [x] npm/composer audit
 - [ ] parity evidence 100%
 - [ ] legacy loss report 검증
 - [ ] staging install/update/rollback
@@ -23,6 +23,8 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [ ] 개발 fixture·비밀·node_modules 제외
 - [ ] SHA256SUMS
 - [ ] ZIP 재설치 검증
+
+MVP 5 개발 하네스에서는 npm/composer advisory 0건과 alpha ZIP 구성 검사를 통과했습니다. release 체크는 browser와 lifecycle 증거를 먼저 생성하고, clean commit에서 `make parity-evidence`, `make parity-gate` 순으로 실행합니다. 이 체크는 staging 검증을 대체하지 않습니다.
 
 ## 공개
 

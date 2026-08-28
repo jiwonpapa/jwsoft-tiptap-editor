@@ -253,3 +253,10 @@ class Plugin extends AbstractPlugin
         ];
     }
 }
+
+// G7은 세 개의 식별자 segment를 각각 namespace segment로 해석합니다.
+// 제품의 정본 namespace는 Plugins\Jwsoft\TiptapEditor이며, 이 얇은 진입점만
+// 현재 G7의 jwsoft-tiptap-editor 식별자 해석 계약을 연결합니다.
+namespace Plugins\Jwsoft\Tiptap\Editor;
+
+class Plugin extends \Plugins\Jwsoft\TiptapEditor\Plugin {}

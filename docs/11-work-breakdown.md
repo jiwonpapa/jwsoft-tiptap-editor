@@ -50,15 +50,17 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 - [x] cleanup scheduler와 hooks
 - [x] G7MediaBooster 소비 가능 hook contract
 
-4차 구현·단위·G7 클래스 통합 게이트는 통과했습니다. 전용 하네스의 DB가 실행되지 않아 실제 마이그레이션·인증 라우트·관리 화면 증거는 Epic 5와 parity evidence에서 확인합니다.
+4차 구현·단위·G7 클래스 통합 게이트에 이어 5차 전용 하네스에서 실제 마이그레이션·권한·인증 관리 화면을 확인했습니다.
 
 ## Epic 5 — 통합·전환
 
-- [ ] board/ecommerce/page E2E
-- [ ] legacy CKEditor HTML corpus
-- [ ] install/update/deactivate/rollback
-- [ ] performance/memory budget
-- [ ] parity evidence generator
+- [x] board/ecommerce/page E2E
+- [x] legacy CKEditor HTML corpus
+- [x] install/update/deactivate/rollback
+- [x] performance/instance budget
+- [x] parity evidence generator
+
+전용 G7 7.0.9에서 alpha.5 → alpha.6 ZIP 업데이트와 CKEditor 역전환·복구를 실행했고, 페이지·게시글·상품 HTML 해시가 전 과정에서 유지됨을 확인했습니다. 인증 브라우저 5회 표본은 route-to-editor p95 1,227ms, 동시 editor instance 1개였고 번들 gzip은 162,061 bytes였습니다. 이 결과는 MVP 5 계약 범위이며 stable 출시 승인은 아닙니다.
 
 ## Epic 6 — 출시
 

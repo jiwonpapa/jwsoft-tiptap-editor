@@ -10,6 +10,7 @@ import {
 import { createEditor } from "@/editor/createEditor";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
+import { editorText } from "@/editor/locale";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
   createEditorToolbar,
@@ -60,6 +61,7 @@ function createShell(
   container: HTMLElement,
   height: number,
   editable: boolean,
+  locale: string,
 ): { shell: HTMLElement; status: HTMLElement } {
   container.replaceChildren();
   container.style.setProperty("--jwsoft-tiptap-height", `${height}px`);
@@ -70,31 +72,36 @@ function createShell(
   notice.setAttribute("role", "status");
   notice.dataset.tone = "neutral";
   notice.textContent = editable
-    ? "안전한 HTML 저장 정책 적용"
-    : "이 편집기는 현재 읽기 전용입니다.";
+    ? editorText(locale, "안전한 HTML 저장 정책 적용")
+    : editorText(locale, "이 편집기는 현재 읽기 전용입니다.");
   shell.appendChild(notice);
   container.appendChild(shell);
   return { shell, status: notice };
 }
 
-function showPasteLoss(status: HTMLElement): void {
+function showPasteLoss(status: HTMLElement, locale: string): void {
   status.dataset.tone = "warning";
-  status.textContent =
-    "붙여넣기에서 지원하지 않는 서식을 제거했습니다. 필요하면 실행취소할 수 있습니다.";
+  status.textContent = editorText(
+    locale,
+    "붙여넣기에서 지원하지 않는 서식을 제거했습니다. 필요하면 실행취소할 수 있습니다.",
+  );
 }
 
 function renderLegacyWarning(options: {
   shell: HTMLElement;
   mount: HTMLElement;
   onContinue: () => void;
+  locale: string;
 }): void {
   const warning = document.createElement("div");
   warning.className = "jwsoft-tiptap-legacy-warning";
   warning.setAttribute("role", "alert");
 
   const message = document.createElement("div");
-  message.textContent =
-    "기존 HTML 중 지원하지 않는 태그·속성·서식이 있습니다. 변경 결과를 승인하기 전에는 저장이 차단됩니다.";
+  message.textContent = editorText(
+    options.locale,
+    "기존 HTML 중 지원하지 않는 태그·속성·서식이 있습니다. 변경 결과를 승인하기 전에는 저장이 차단됩니다.",
+  );
   warning.appendChild(message);
 
   const actions = document.createElement("div");
@@ -104,7 +111,10 @@ function renderLegacyWarning(options: {
   continueButton.type = "button";
   continueButton.className = "jwsoft-tiptap-legacy-action";
   continueButton.dataset.primary = "true";
-  continueButton.textContent = "변경 확인 후 편집 계속";
+  continueButton.textContent = editorText(
+    options.locale,
+    "변경 확인 후 편집 계속",
+  );
   continueButton.addEventListener("click", () => {
     options.onContinue();
     warning.remove();
@@ -113,11 +123,13 @@ function renderLegacyWarning(options: {
   const keepReadOnlyButton = document.createElement("button");
   keepReadOnlyButton.type = "button";
   keepReadOnlyButton.className = "jwsoft-tiptap-legacy-action";
-  keepReadOnlyButton.textContent = "읽기 전용 유지";
+  keepReadOnlyButton.textContent = editorText(options.locale, "읽기 전용 유지");
   keepReadOnlyButton.addEventListener("click", () => {
     keepReadOnlyButton.disabled = true;
-    message.textContent =
-      "읽기 전용으로 유지했습니다. 변경을 승인하기 전에는 저장이 차단됩니다.";
+    message.textContent = editorText(
+      options.locale,
+      "읽기 전용으로 유지했습니다. 변경을 승인하기 전에는 저장이 차단됩니다.",
+    );
   });
 
   actions.append(continueButton, keepReadOnlyButton);
@@ -158,7 +170,7 @@ function mountLocaleEditor(options: {
         multilingual: options.multilingual,
       });
     },
-    onPasteSanitized: () => showPasteLoss(options.status),
+    onPasteSanitized: () => showPasteLoss(options.status, options.locale),
   });
   editorRegistry.set(options.containerId, options.locale, editor);
 
@@ -169,6 +181,7 @@ function mountLocaleEditor(options: {
     profile: options.toolbar,
     imageUpload: options.imageUpload,
     imageMaxSizeMb: options.imageMaxSizeMb,
+    locale: options.locale,
   });
   options.mount.insertBefore(toolbar, editorMount);
 
@@ -187,6 +200,7 @@ function mountLocaleEditor(options: {
   renderLegacyWarning({
     shell: options.mount,
     mount: toolbar,
+    locale: options.locale,
     onContinue: () => {
       setEditorPolicyAcknowledgement(window.G7Core, true);
       syncEditorValue({
@@ -296,9 +310,13 @@ export async function initEditorHandler(
 
   injectEditorStyles();
   if (hasConflictingEditorRuntime()) {
+    const locale = currentLocale(window.G7Core);
     renderFailure(
       container,
-      "sirsoft-ckeditor5가 함께 로드되어 JWSoft Tiptap 에디터 시작을 차단했습니다.",
+      editorText(
+        locale,
+        "sirsoft-ckeditor5가 함께 로드되어 JWSoft Tiptap 에디터 시작을 차단했습니다.",
+      ),
     );
     return;
   }
@@ -306,10 +324,12 @@ export async function initEditorHandler(
   const readOnly = booleanParam(params.readOnly);
   const disabled = booleanParam(params.disabled);
   const editable = isEditorWriteEnabled(readOnly, disabled);
+  const locale = currentLocale(window.G7Core);
   const { shell, status } = createShell(
     container,
     safeHeight(params.height),
     editable,
+    locale,
   );
   const toolbar = normalizeToolbarProfile(params.toolbar);
   const imageUpload = booleanParam(params.imageUpload);
@@ -339,7 +359,7 @@ export async function initEditorHandler(
     containerId,
     mount,
     name,
-    locale: currentLocale(window.G7Core),
+    locale,
     content: resolveSingleContent(params, window.G7Core),
     placeholder: params.placeholder ?? "",
     editable,

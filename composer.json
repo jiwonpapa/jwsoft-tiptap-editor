@@ -9,6 +9,7 @@
   },
   "autoload": {
     "psr-4": {
+      "Plugins\\Jwsoft\\Tiptap\\Editor\\": "src/G7Namespace/",
       "Plugins\\Jwsoft\\TiptapEditor\\": [
         "src/",
         "./"

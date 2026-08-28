@@ -1,6 +1,6 @@
 # 설치 문서
 
-> 현재 alpha는 환경 scaffold이므로 운영 설치를 지원하지 않습니다. 아래 절차는 parity gate 통과 후 릴리스 패키지에 적용합니다.
+> 현재 alpha는 전용 G7 하네스 검증용이며 운영 설치를 지원하지 않습니다. 아래 절차는 parity gate와 staging gate 통과 후 릴리스 패키지에 적용합니다.
 
 ## 요구사항
 
@@ -28,6 +28,8 @@ php artisan optimize:clear
 ```
 
 CKEditor가 설치되지 않은 환경에서는 deactivate 실패를 무시하지 말고 설치 상태를 먼저 확인합니다. 배포 하네스는 `DEPLOY_MODE=install` 또는 `update`를 명시적으로 받으며 상태를 추측하지 않습니다.
+
+두 replace-mode editor의 동시 활성화는 차단됩니다. G7 7.0.9 관리자 경로는 활성화 전 차단하며, `plugin:activate` CLI가 사전 훅을 우회하는 경우에도 CKEditor 상태를 즉시 되돌리고 명령을 실패 처리합니다.
 
 ## 업데이트
 
@@ -58,4 +60,4 @@ php artisan plugin:activate sirsoft-ckeditor5
 php artisan optimize:clear
 ```
 
-롤백 후 편집·조회 smoke를 다시 실행합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.
+롤백 후 편집·조회 smoke를 다시 실행합니다. MVP 5 하네스에서는 페이지·게시글·상품 canonical HTML과 이미지 레코드 수가 업데이트·롤백·복구 전후 동일함을 해시로 검증합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.

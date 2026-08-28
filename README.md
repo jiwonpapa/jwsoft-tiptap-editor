@@ -2,7 +2,7 @@
 
 그누보드7의 `sirsoft-ckeditor5`를 코어 수정 없이 대체하기 위한 Tiptap v3 기반 WYSIWYG 편집기 플러그인입니다.
 
-> 현재 상태: **MVP 4차 이미지 하위 시스템 구현 단계**입니다. 기본 편집 기능과 게시판 canonical 저장 경로에 이미지 업로드·관리·미사용 정리·외부 최적화 훅을 연결했습니다. 실제 G7 DB 설치·인증 화면·브라우저 IME·전체 화면 parity가 남아 있어 아직 운영 설치 대상은 아닙니다.
+> 현재 상태: **MVP 5차 통합·전환 검증 단계 완료**입니다. 전용 G7 7.0.9에서 ZIP 업데이트, 게시판·상품·페이지 작성/재편집, CKEditor 전환·롤백, legacy/security corpus와 성능 예산 증거를 생성합니다. 실기기 IME, 전체 공개 화면, staging, 라이선스·NOTICE가 남아 있어 아직 운영 설치 대상은 아닙니다.
 
 ## 결론
 
@@ -53,6 +53,7 @@ make doctor            # 로컬 도구와 G7 테스트 호스트 확인
 make check             # 문서·manifest·policy·타입·단위 테스트
 make build             # IIFE 자산 빌드
 make integration-check # 전용 G7 테스트 호스트 계약 검사
+make parity-evidence   # 실제 브라우저·수명주기 결과를 통합 증거로 생성
 make parity-gate       # CKEditor 완전 대체 증거 검사
 make package           # 릴리스 ZIP 생성
 make deploy-plan ENV=staging

@@ -2,7 +2,7 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 단순 체크 표시가 아니라 `test-results/parity/evidence.json`의 성공 결과가 필요합니다.
 
-현재 MVP 4차는 기본 편집 기능에 이미지 업로드·StorageInterface·공개 서빙·관리자 삭제·미사용 정리·호환 훅까지 구현했습니다. 아래 체크는 실제 설치·DB·인증 브라우저 parity evidence가 생성될 때만 완료 처리합니다.
+현재 MVP 5차는 전용 G7 7.0.9에서 22개 MVP 계약의 실제 설치·DB·인증 브라우저 evidence를 생성합니다. 아래 전체 P0 체크리스트에는 실기기·공개 화면·staging 등 release 단계가 남아 있으므로 MVP evidence 통과를 stable 승인으로 해석하지 않습니다.
 
 ## A. 편집기 교체
 
@@ -65,16 +65,16 @@
 - [ ] source 설치, ZIP 최초 설치
 - [ ] ZIP/GitHub update와 upgrade step
 - [ ] activate/deactivate/uninstall
-- [ ] CKEditor 동시 활성화 차단
-- [ ] CKEditor → jwsoft 전환 smoke
-- [ ] jwsoft → CKEditor 롤백 smoke
-- [ ] legacy HTML 왕복과 손실 보고
+- [x] CKEditor 동시 활성화 차단
+- [x] CKEditor → jwsoft 전환 smoke
+- [x] jwsoft → CKEditor 롤백 smoke
+- [x] legacy HTML 왕복과 손실 보고
 
 ## H. 공급망과 배포
 
-- [ ] CDN 요청 0
-- [ ] npm/composer lock과 audit 통과
+- [x] CDN 요청 0
+- [x] npm/composer lock과 audit 통과
 - [ ] reproducible build 또는 산출물 checksum 동일성
-- [ ] package manifest·vendor·dist 포함
+- [x] package manifest·vendor·dist 포함
 - [ ] staging 배포와 smoke
 - [ ] production은 staging과 동일 checksum

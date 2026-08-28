@@ -30,9 +30,12 @@
 
 ## 성능 예산
 
-최종 수치는 기술 spike에서 측정 후 고정합니다. 최초 기준은 다음과 같습니다.
+MVP 5 전용 G7 7.0.9 Chromium 하네스의 초기 예산은 다음과 같이 고정합니다.
 
-- editor JS gzip 500KB 이하 목표
-- cold initialize p95 500ms 이하(개발 기준 장비)
+- editor JS gzip 500KiB 이하
+- 인증 G7 route 이동부터 단일 editor 준비까지 p95 2,500ms 이하
+- 화면별 활성 editor instance 1개
 - 100KB HTML load p95 1초 이하
 - 1MB 정책 상한 문서가 브라우저를 중단시키지 않음
+
+MVP 5 측정값은 gzip 162,061 bytes, route-to-editor p95 1,227ms, 최대 동시 instance 1개입니다. 100KB/1MB 문서와 장시간 메모리 누수 예산은 release 단계에서 별도로 측정합니다.

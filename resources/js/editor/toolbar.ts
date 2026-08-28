@@ -6,6 +6,7 @@ import {
 } from "@/editor/classTokens";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { uploadEditorImage } from "@/editor/imageUpload";
+import { editorText } from "@/editor/locale";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -16,6 +17,7 @@ interface ToolbarOptions {
   profile: ToolbarProfile;
   imageUpload: boolean;
   imageMaxSizeMb: number;
+  locale?: string;
 }
 
 interface ButtonOptions {
@@ -99,10 +101,10 @@ function createGroup(label: string): HTMLElement {
   return group;
 }
 
-function createBlockSelect(editor: Editor): HTMLSelectElement {
+function createBlockSelect(editor: Editor, locale: string): HTMLSelectElement {
   const select = document.createElement("select");
   select.className = "jwsoft-tiptap-select";
-  select.setAttribute("aria-label", "문단 종류");
+  select.setAttribute("aria-label", editorText(locale, "문단 종류"));
   const blocks = [
     ["paragraph", "본문"],
     ["heading-2", "제목 2"],
@@ -111,7 +113,7 @@ function createBlockSelect(editor: Editor): HTMLSelectElement {
     ["codeBlock", "코드 블록"],
   ] as const;
   for (const [value, label] of blocks) {
-    select.add(new Option(label, value));
+    select.add(new Option(editorText(locale, label), value));
   }
   select.addEventListener("change", () => {
     const chain = editor.chain().focus();
@@ -140,13 +142,19 @@ function createTokenSelect(
   editor: Editor,
   category: "textSize" | "alignment" | "spacing",
   label: string,
+  locale: string,
 ): HTMLSelectElement {
   const select = document.createElement("select");
   select.className = "jwsoft-tiptap-select";
-  select.setAttribute("aria-label", label);
-  select.add(new Option(label, ""));
+  select.setAttribute("aria-label", editorText(locale, label));
+  select.add(new Option(editorText(locale, label), ""));
   for (const token of EDITOR_POLICY.classTokens[category]) {
-    select.add(new Option(tokenLabels[category][token] ?? token, token));
+    select.add(
+      new Option(
+        editorText(locale, tokenLabels[category][token] ?? token),
+        token,
+      ),
+    );
   }
   select.addEventListener("change", () => {
     editor
@@ -168,6 +176,7 @@ function createDialog(options: {
   title: string;
   trigger: HTMLButtonElement;
   content: HTMLElement;
+  locale: string;
 }): DialogHandle {
   const dialog = document.createElement("section");
   dialogSequence += 1;
@@ -186,8 +195,8 @@ function createDialog(options: {
   const closeButton = document.createElement("button");
   closeButton.type = "button";
   closeButton.className = "jwsoft-tiptap-dialog-close";
-  closeButton.setAttribute("aria-label", "닫기");
-  closeButton.textContent = "닫기";
+  closeButton.setAttribute("aria-label", editorText(options.locale, "닫기"));
+  closeButton.textContent = editorText(options.locale, "닫기");
   header.append(heading, closeButton);
   dialog.append(header, options.content);
 
@@ -233,18 +242,22 @@ function formError(): HTMLElement {
 function createLinkDialog(
   editor: Editor,
   trigger: HTMLButtonElement,
+  locale: string,
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
   const href = document.createElement("input");
   href.type = "text";
   href.inputMode = "url";
-  href.placeholder = "https://example.com 또는 /경로";
+  href.placeholder =
+    locale === "en"
+      ? "https://example.com or /path"
+      : "https://example.com 또는 /경로";
   const title = document.createElement("input");
   title.type = "text";
   const blank = document.createElement("input");
   blank.type = "checkbox";
-  const blankLabel = formField("새 창에서 열기", blank);
+  const blankLabel = formField(editorText(locale, "새 창에서 열기"), blank);
   blankLabel.classList.add("jwsoft-tiptap-field-inline");
   const error = formError();
   const actions = document.createElement("div");
@@ -252,14 +265,14 @@ function createLinkDialog(
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
-  apply.textContent = "링크 적용";
+  apply.textContent = editorText(locale, "링크 적용");
   const remove = document.createElement("button");
   remove.type = "button";
-  remove.textContent = "링크 해제";
+  remove.textContent = editorText(locale, "링크 해제");
   actions.append(apply, remove);
   form.append(
-    formField("주소", href),
-    formField("설명", title),
+    formField(editorText(locale, "주소"), href),
+    formField(editorText(locale, "설명"), title),
     blankLabel,
     error,
     actions,
@@ -272,14 +285,21 @@ function createLinkDialog(
     blank.checked = attributes.target === "_blank";
     error.hidden = true;
   });
-  const handle = createDialog({ title: "링크", trigger, content: form });
+  const handle = createDialog({
+    title: editorText(locale, "링크"),
+    trigger,
+    content: form,
+    locale,
+  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const value = href.value.trim();
     if (!isAllowedEditorUrl(value)) {
-      error.textContent =
-        "https, mailto, tel 또는 상대 경로만 사용할 수 있습니다.";
+      error.textContent = editorText(
+        locale,
+        "https, mailto, tel 또는 상대 경로만 사용할 수 있습니다.",
+      );
       error.hidden = false;
       href.focus();
       return;
@@ -307,6 +327,7 @@ function createLinkDialog(
 function createTableDialog(
   editor: Editor,
   trigger: HTMLButtonElement,
+  locale: string,
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
@@ -324,9 +345,19 @@ function createTableDialog(
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
-  apply.textContent = "표 삽입";
-  form.append(formField("행", rows), formField("열", columns), error, apply);
-  const handle = createDialog({ title: "표 만들기", trigger, content: form });
+  apply.textContent = editorText(locale, "표 삽입");
+  form.append(
+    formField(editorText(locale, "행"), rows),
+    formField(editorText(locale, "열"), columns),
+    error,
+    apply,
+  );
+  const handle = createDialog({
+    title: editorText(locale, "표 만들기"),
+    trigger,
+    content: form,
+    locale,
+  });
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const rowCount = Number(rows.value);
@@ -339,7 +370,10 @@ function createTableDialog(
       rowCount > 20 ||
       columnCount > 20
     ) {
-      error.textContent = "행과 열은 각각 1~20 사이여야 합니다.";
+      error.textContent = editorText(
+        locale,
+        "행과 열은 각각 1~20 사이여야 합니다.",
+      );
       error.hidden = false;
       return;
     }
@@ -359,13 +393,17 @@ function createImageDialog(
   trigger: HTMLButtonElement,
   uploadEnabled: boolean,
   maxSizeMb: number,
+  locale: string,
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
   const src = document.createElement("input");
   src.type = "text";
   src.inputMode = "url";
-  src.placeholder = "https://example.com/image.webp 또는 /경로";
+  src.placeholder =
+    locale === "en"
+      ? "https://example.com/image.webp or /path"
+      : "https://example.com/image.webp 또는 /경로";
   const alt = document.createElement("input");
   alt.type = "text";
   const title = document.createElement("input");
@@ -375,7 +413,10 @@ function createImageDialog(
   file.accept = "image/jpeg,image/png,image/gif,image/webp,image/avif";
   const uploadHint = document.createElement("div");
   uploadHint.className = "jwsoft-tiptap-upload-hint";
-  uploadHint.textContent = `서버 업로드: 최대 ${maxSizeMb}MB · JPEG, PNG, GIF, WebP, AVIF`;
+  uploadHint.textContent =
+    locale === "en"
+      ? `Server upload: up to ${maxSizeMb} MB · JPEG, PNG, GIF, WebP, AVIF`
+      : `서버 업로드: 최대 ${maxSizeMb}MB · JPEG, PNG, GIF, WebP, AVIF`;
   const progress = document.createElement("div");
   progress.className = "jwsoft-tiptap-upload-status";
   progress.setAttribute("role", "status");
@@ -385,21 +426,29 @@ function createImageDialog(
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
-  apply.textContent = "이미지 삽입";
+  apply.textContent = editorText(locale, "이미지 삽입");
   if (uploadEnabled) {
-    form.append(formField("이미지 파일", file), uploadHint, progress);
+    form.append(
+      formField(editorText(locale, "이미지 파일"), file),
+      uploadHint,
+      progress,
+    );
   }
   form.append(
-    formField(uploadEnabled ? "또는 이미지 주소" : "이미지 주소", src),
-    formField("대체 텍스트", alt),
-    formField("설명", title),
+    formField(
+      editorText(locale, uploadEnabled ? "또는 이미지 주소" : "이미지 주소"),
+      src,
+    ),
+    formField(editorText(locale, "대체 텍스트"), alt),
+    formField(editorText(locale, "설명"), title),
     error,
     apply,
   );
   const handle = createDialog({
-    title: "이미지",
+    title: editorText(locale, "이미지"),
     trigger,
     content: form,
+    locale,
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -409,18 +458,29 @@ function createImageDialog(
     if (selected && uploadEnabled) {
       apply.disabled = true;
       file.disabled = true;
-      progress.textContent = "이미지를 업로드하는 중입니다…";
+      progress.textContent = editorText(
+        locale,
+        "이미지를 업로드하는 중입니다…",
+      );
       progress.hidden = false;
       try {
-        const uploaded = await uploadEditorImage(selected, maxSizeMb);
+        const uploaded = await uploadEditorImage(
+          selected,
+          maxSizeMb,
+          fetch,
+          locale,
+        );
         value = uploaded.url;
         if (!alt.value.trim()) alt.value = uploaded.originalName;
-        progress.textContent = "업로드 완료. 본문에 삽입합니다.";
+        progress.textContent = editorText(
+          locale,
+          "업로드 완료. 본문에 삽입합니다.",
+        );
       } catch (uploadError) {
         error.textContent =
           uploadError instanceof Error
             ? uploadError.message
-            : "이미지 업로드에 실패했습니다.";
+            : editorText(locale, "이미지 업로드에 실패했습니다.");
         error.hidden = false;
         progress.hidden = true;
         file.disabled = false;
@@ -429,7 +489,10 @@ function createImageDialog(
         return;
       }
     } else if (!isAllowedEditorUrl(value, true)) {
-      error.textContent = "https 또는 상대 경로 이미지만 사용할 수 있습니다.";
+      error.textContent = editorText(
+        locale,
+        "https 또는 상대 경로 이미지만 사용할 수 있습니다.",
+      );
       error.hidden = false;
       src.focus();
       return;
@@ -484,12 +547,14 @@ function installRovingKeyboard(toolbar: HTMLElement): void {
 
 export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   const { editor, profile } = options;
+  const locale = options.locale ?? "ko";
+  const t = (value: string) => editorText(locale, value);
   const region = document.createElement("div");
   region.className = "jwsoft-tiptap-toolbar-region";
   const toolbar = document.createElement("div");
   toolbar.className = "jwsoft-tiptap-toolbar";
   toolbar.setAttribute("role", "toolbar");
-  toolbar.setAttribute("aria-label", `${profile} 편집 도구`);
+  toolbar.setAttribute("aria-label", `${profile} ${t("편집 도구")}`);
   region.appendChild(toolbar);
   const controls: UpdatableControl[] = [];
   const dialogs: DialogHandle[] = [];
@@ -504,15 +569,15 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     return group;
   };
 
-  const block = addGroup("문단");
-  add(block, createBlockSelect(editor));
+  const block = addGroup(t("문단"));
+  add(block, createBlockSelect(editor, locale));
 
-  const inline = addGroup("글자 서식");
+  const inline = addGroup(t("글자 서식"));
   add(
     inline,
     createButton({
-      label: "굵게",
-      title: "굵게 (Ctrl/Command+B)",
+      label: t("굵게"),
+      title: t("굵게 (Ctrl/Command+B)"),
       run: () => void editor.chain().focus().toggleBold().run(),
       active: () => editor.isActive("bold"),
     }),
@@ -520,8 +585,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   add(
     inline,
     createButton({
-      label: "기울임",
-      title: "기울임 (Ctrl/Command+I)",
+      label: t("기울임"),
+      title: t("기울임 (Ctrl/Command+I)"),
       run: () => void editor.chain().focus().toggleItalic().run(),
       active: () => editor.isActive("italic"),
     }),
@@ -530,8 +595,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       inline,
       createButton({
-        label: "밑줄",
-        title: "밑줄 (Ctrl/Command+U)",
+        label: t("밑줄"),
+        title: t("밑줄 (Ctrl/Command+U)"),
         run: () => void editor.chain().focus().toggleUnderline().run(),
         active: () => editor.isActive("underline"),
       }),
@@ -539,7 +604,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       inline,
       createButton({
-        label: "취소선",
+        label: t("취소선"),
         run: () => void editor.chain().focus().toggleStrike().run(),
         active: () => editor.isActive("strike"),
       }),
@@ -547,7 +612,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       inline,
       createButton({
-        label: "코드",
+        label: t("코드"),
         run: () => void editor.chain().focus().toggleCode().run(),
         active: () => editor.isActive("code"),
       }),
@@ -555,11 +620,11 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   }
 
   if (profile !== "minimal") {
-    const structure = addGroup("구조");
+    const structure = addGroup(t("구조"));
     add(
       structure,
       createButton({
-        label: "인용",
+        label: t("인용"),
         run: () => void editor.chain().focus().toggleBlockquote().run(),
         active: () => editor.isActive("blockquote"),
       }),
@@ -567,8 +632,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       structure,
       createButton({
-        label: "목록",
-        title: "글머리 목록",
+        label: t("목록"),
+        title: t("글머리 목록"),
         run: () => void editor.chain().focus().toggleBulletList().run(),
         active: () => editor.isActive("bulletList"),
       }),
@@ -576,8 +641,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       structure,
       createButton({
-        label: "번호",
-        title: "번호 목록",
+        label: t("번호"),
+        title: t("번호 목록"),
         run: () => void editor.chain().focus().toggleOrderedList().run(),
         active: () => editor.isActive("orderedList"),
       }),
@@ -585,47 +650,48 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(
       structure,
       createButton({
-        label: "구분선",
+        label: t("구분선"),
         run: () => void editor.chain().focus().setHorizontalRule().run(),
       }),
     );
 
-    const layout = addGroup("문단 모양");
-    add(layout, createTokenSelect(editor, "textSize", "문단 크기"));
-    add(layout, createTokenSelect(editor, "alignment", "정렬"));
-    add(layout, createTokenSelect(editor, "spacing", "줄 간격"));
+    const layout = addGroup(t("문단 모양"));
+    add(layout, createTokenSelect(editor, "textSize", "문단 크기", locale));
+    add(layout, createTokenSelect(editor, "alignment", "정렬", locale));
+    add(layout, createTokenSelect(editor, "spacing", "줄 간격", locale));
   }
 
-  const insert = addGroup("삽입");
+  const insert = addGroup(t("삽입"));
   const link = createButton({
-    label: "링크",
+    label: t("링크"),
     run: () => undefined,
     active: () => editor.isActive("link"),
   });
   add(insert, link);
-  dialogs.push(createLinkDialog(editor, link));
+  dialogs.push(createLinkDialog(editor, link, locale));
 
   if (profile !== "minimal") {
-    const table = createButton({ label: "표", run: () => undefined });
+    const table = createButton({ label: t("표"), run: () => undefined });
     const image = createButton({
-      label: "이미지",
+      label: t("이미지"),
       run: () => undefined,
     });
     add(insert, table);
     add(insert, image);
     dialogs.push(
-      createTableDialog(editor, table),
+      createTableDialog(editor, table, locale),
       createImageDialog(
         editor,
         image,
         options.imageUpload,
         options.imageMaxSizeMb,
+        locale,
       ),
     );
   }
 
   if (profile === "full") {
-    const tableTools = addGroup("표 편집");
+    const tableTools = addGroup(t("표 편집"));
     for (const item of [
       [
         "행+",
@@ -656,7 +722,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       add(
         tableTools,
         createButton({
-          label: item[0],
+          label: t(item[0]),
           run: () => void item[1](),
           enabled: item[2],
         }),
@@ -664,12 +730,12 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     }
   }
 
-  const history = addGroup("기록");
+  const history = addGroup(t("기록"));
   add(
     history,
     createButton({
-      label: "실행취소",
-      title: "실행취소 (Ctrl/Command+Z)",
+      label: t("실행취소"),
+      title: t("실행취소 (Ctrl/Command+Z)"),
       run: () => void editor.chain().focus().undo().run(),
       enabled: () => editor.can().undo(),
     }),
@@ -677,8 +743,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   add(
     history,
     createButton({
-      label: "다시실행",
-      title: "다시실행 (Ctrl/Command+Shift+Z)",
+      label: t("다시실행"),
+      title: t("다시실행 (Ctrl/Command+Shift+Z)"),
       run: () => void editor.chain().focus().redo().run(),
       enabled: () => editor.can().redo(),
     }),

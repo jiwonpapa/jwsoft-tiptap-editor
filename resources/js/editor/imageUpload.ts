@@ -1,5 +1,6 @@
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
+import { editorText } from "@/editor/locale";
 
 const ENDPOINT = "/api/plugins/jwsoft-tiptap-editor/upload";
 
@@ -14,11 +15,18 @@ interface UploadPayload {
   data?: { download_url?: unknown; original_name?: unknown };
 }
 
-export function validateEditorImageFile(file: File, maxSizeMb: number): void {
+export function validateEditorImageFile(
+  file: File,
+  maxSizeMb: number,
+  locale: string = "ko",
+): void {
   const allowed = EDITOR_POLICY.media.allowedMimeTypes as readonly string[];
   if (!allowed.includes(file.type)) {
     throw new Error(
-      "JPEG, PNG, GIF, WebP, AVIF 이미지만 업로드할 수 있습니다.",
+      editorText(
+        locale,
+        "JPEG, PNG, GIF, WebP, AVIF 이미지만 업로드할 수 있습니다.",
+      ),
     );
   }
   const configured =
@@ -26,7 +34,9 @@ export function validateEditorImageFile(file: File, maxSizeMb: number): void {
   const maximum = Math.min(configured, EDITOR_POLICY.limits.maxImageBytes);
   if (file.size < 1 || file.size > maximum) {
     throw new Error(
-      `이미지는 ${Math.round(maximum / 1024 / 1024)}MB 이하여야 합니다.`,
+      locale === "en"
+        ? `Images must be ${Math.round(maximum / 1024 / 1024)} MB or smaller.`
+        : `이미지는 ${Math.round(maximum / 1024 / 1024)}MB 이하여야 합니다.`,
     );
   }
 }
@@ -44,8 +54,9 @@ export async function uploadEditorImage(
   file: File,
   maxSizeMb: number,
   request: typeof fetch = fetch,
+  locale: string = "ko",
 ): Promise<UploadedEditorImage> {
-  validateEditorImageFile(file, maxSizeMb);
+  validateEditorImageFile(file, maxSizeMb, locale);
   const form = new FormData();
   form.append("upload", file);
   const response = await request(ENDPOINT, {
@@ -68,7 +79,9 @@ export async function uploadEditorImage(
     typeof url !== "string" ||
     !isAllowedEditorUrl(url, true)
   ) {
-    throw new Error(payload?.message || "이미지 업로드에 실패했습니다.");
+    throw new Error(
+      payload?.message || editorText(locale, "이미지 업로드에 실패했습니다."),
+    );
   }
 
   return {
