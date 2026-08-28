@@ -43,12 +43,14 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 
 ## Epic 4 — 이미지 parity
 
-- [ ] upload model/migration/repository/service
-- [ ] StorageInterface·serve
-- [ ] settings·permission·menu
-- [ ] admin list/delete
-- [ ] cleanup scheduler와 hooks
-- [ ] G7MediaBooster 소비 가능 hook contract
+- [x] upload model/migration/repository/service
+- [x] StorageInterface·serve
+- [x] settings·permission·menu
+- [x] admin list/delete
+- [x] cleanup scheduler와 hooks
+- [x] G7MediaBooster 소비 가능 hook contract
+
+4차 구현·단위·G7 클래스 통합 게이트는 통과했습니다. 전용 하네스의 DB가 실행되지 않아 실제 마이그레이션·인증 라우트·관리 화면 증거는 Epic 5와 parity evidence에서 확인합니다.
 
 ## Epic 5 — 통합·전환
 

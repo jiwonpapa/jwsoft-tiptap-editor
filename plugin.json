@@ -5,11 +5,11 @@
     "ko": "JWSoft Tiptap 에디터",
     "en": "JWSoft Tiptap Editor"
   },
-  "version": "0.1.0-alpha.4",
+  "version": "0.1.0-alpha.5",
   "license": "UNLICENSED",
   "description": {
-    "ko": "그누보드7용 정책 기반 Tiptap WYSIWYG 에디터 플러그인입니다. 현재 기본 편집 기능과 게시판 canonical 저장 경로를 검증 중인 alpha 버전입니다.",
-    "en": "Policy-driven Tiptap WYSIWYG editor plugin for Gnuboard 7. This alpha validates core editing and the canonical board-content write path."
+    "ko": "그누보드7용 정책 기반 Tiptap WYSIWYG 에디터 플러그인입니다. 에디터 이미지 업로드·관리·미사용 정리까지 검증 중인 alpha 버전입니다.",
+    "en": "Policy-driven Tiptap WYSIWYG editor plugin for Gnuboard 7. This alpha validates editor image upload, management, and cleanup."
   },
   "g7_version": ">=7.0.9",
   "dependencies": {

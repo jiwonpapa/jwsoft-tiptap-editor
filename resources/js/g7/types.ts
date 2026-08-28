@@ -54,6 +54,8 @@ export interface InitEditorParams {
   disabled?: boolean | string;
   height?: number | string;
   toolbar?: string;
+  imageUpload?: boolean | string;
+  imageMaxSizeMb?: number | string;
 }
 
 export interface JWSoftTiptapRuntime {

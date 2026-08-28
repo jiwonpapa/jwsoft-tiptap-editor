@@ -9,14 +9,22 @@ const root = path.resolve(
 );
 const bundlePath = path.join(root, "dist/js/plugin.iife.js");
 
-async function mountEditor(page: Page, toolbar = "standard"): Promise<void> {
-  await page.setContent(`
-    <!doctype html>
-    <html lang="ko">
-      <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-      <body><main><div id="jwsoft-tiptap-content" class="jwsoft-tiptap-wrapper"></div></main></body>
-    </html>
-  `);
+async function mountEditor(
+  page: Page,
+  toolbar = "standard",
+  imageUpload = false,
+): Promise<void> {
+  await page.route("http://jwsoft.test/", (route) =>
+    route.fulfill({
+      contentType: "text/html",
+      body: `<!doctype html>
+        <html lang="ko">
+          <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+          <body><main><div id="jwsoft-tiptap-content" class="jwsoft-tiptap-wrapper"></div></main></body>
+        </html>`,
+    }),
+  );
+  await page.goto("http://jwsoft.test/");
   await page.evaluate(() => {
     const handlers: Record<string, (...args: unknown[]) => unknown> = {};
     const dispatcher = {
@@ -37,25 +45,30 @@ async function mountEditor(page: Page, toolbar = "standard"): Promise<void> {
     });
   });
   await page.addScriptTag({ path: bundlePath });
-  await page.evaluate(async (profile) => {
-    const runtime = window as typeof window & {
-      __e2eHandlers: Record<
-        string,
-        (action: Record<string, unknown>, context: unknown) => unknown
-      >;
-    };
-    await runtime.__e2eHandlers["jwsoft-tiptap-editor.initEditor"](
-      {
-        params: {
-          name: "content",
-          content: "<p>선택 영역 테스트</p>",
-          height: 280,
-          toolbar: profile,
+  await page.evaluate(
+    async ({ profile, withImageUpload }) => {
+      const runtime = window as typeof window & {
+        __e2eHandlers: Record<
+          string,
+          (action: Record<string, unknown>, context: unknown) => unknown
+        >;
+      };
+      await runtime.__e2eHandlers["jwsoft-tiptap-editor.initEditor"](
+        {
+          params: {
+            name: "content",
+            content: "<p>선택 영역 테스트</p>",
+            height: 280,
+            toolbar: profile,
+            imageUpload: withImageUpload,
+            imageMaxSizeMb: 2,
+          },
         },
-      },
-      undefined,
-    );
-  }, toolbar);
+        undefined,
+      );
+    },
+    { profile: toolbar, withImageUpload: imageUpload },
+  );
 }
 
 test("desktop toolbar keeps selection commands and keyboard focus usable", async ({
@@ -64,15 +77,21 @@ test("desktop toolbar keeps selection commands and keyboard focus usable", async
   test.skip(testInfo.project.name !== "chromium-desktop");
   await mountEditor(page);
   const editable = page.locator(".jwsoft-tiptap-editable");
-  await editable.click();
-  await page.keyboard.press("ControlOrMeta+A");
-  await page.getByRole("button", { name: /굵게/ }).click();
-  await expect(editable.locator("strong")).toHaveText("선택 영역 테스트");
-
   const bold = page.getByRole("button", { name: /굵게/ });
   await bold.focus();
+  await expect(bold).toBeFocused();
   await page.keyboard.press("ArrowRight");
-  await expect(page.getByRole("button", { name: /기울임/ })).toBeFocused();
+  const focused = await page.evaluate(() => ({
+    text: document.activeElement?.textContent,
+    tag: document.activeElement?.tagName,
+    disabled: (document.activeElement as HTMLButtonElement | null)?.disabled,
+  }));
+  expect(focused).toEqual({ text: "기울임", tag: "BUTTON", disabled: false });
+
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+  await bold.click();
+  await expect(editable.locator("strong")).toHaveText("선택 영역 테스트");
 
   await page.screenshot({
     path: testInfo.outputPath("editor-toolbar-desktop.png"),
@@ -99,8 +118,8 @@ test("mobile toolbar scrolls without widening the page and keeps dialogs visible
     .getByRole("button", { name: /굵게/ })
     .boundingBox();
   expect(boldBox?.height).toBeGreaterThanOrEqual(40);
-  await page.getByRole("button", { name: "이미지 URL" }).click();
-  const dialog = page.getByRole("dialog", { name: "이미지 URL" });
+  await page.getByRole("button", { name: "이미지" }).click();
+  const dialog = page.getByRole("dialog", { name: "이미지" });
   await expect(dialog).toBeVisible();
   const dialogBox = await dialog.boundingBox();
   expect(dialogBox?.x).toBeGreaterThanOrEqual(0);
@@ -112,4 +131,47 @@ test("mobile toolbar scrolls without widening the page and keeps dialogs visible
     path: testInfo.outputPath("editor-toolbar-mobile.png"),
     fullPage: true,
   });
+});
+
+test("inline image upload reports completion and inserts the canonical URL", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await page.route(
+    "http://jwsoft.test/api/plugins/jwsoft-tiptap-editor/upload",
+    async (route) => {
+      expect(route.request().method()).toBe("POST");
+      expect(route.request().postDataBuffer()?.length).toBeGreaterThan(0);
+      await route.fulfill({
+        status: 201,
+        contentType: "application/json",
+        body: JSON.stringify({
+          success: true,
+          message: "이미지를 업로드했습니다.",
+          data: {
+            download_url:
+              "/api/plugins/jwsoft-tiptap-editor/images/abcdef123456",
+            original_name: "proof.png",
+          },
+        }),
+      });
+    },
+  );
+  await mountEditor(page, "standard", true);
+  await page.getByRole("button", { name: "이미지" }).click();
+  const dialog = page.getByRole("dialog", { name: "이미지" });
+  await dialog.getByLabel("이미지 파일").setInputFiles({
+    name: "proof.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("browser-upload-proof"),
+  });
+  await dialog.getByLabel("대체 텍스트").fill("업로드 증빙");
+  await dialog.getByRole("button", { name: "이미지 삽입" }).click();
+
+  const image = page.locator(".jwsoft-tiptap-editable img");
+  await expect(image).toHaveAttribute(
+    "src",
+    "/api/plugins/jwsoft-tiptap-editor/images/abcdef123456",
+  );
+  await expect(image).toHaveAttribute("alt", "업로드 증빙");
 });

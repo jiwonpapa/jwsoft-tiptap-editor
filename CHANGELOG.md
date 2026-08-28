@@ -23,3 +23,8 @@
 - inline style 없이 정책 `jw-*` class token만 출력하는 문단 크기·정렬·줄 간격
 - 정책 URL 검증을 공유하는 링크·표·URL 이미지 대화상자와 표 편집 명령
 - 붙여넣기 HTML 선제 정제, 손실 안내와 실행취소 경로
+- G7 StorageInterface 기반 이미지 업로드·공개 서빙·업로드 레코드
+- 업로드 설정, 관리자 조회·단건·일괄 삭제, opt-in 미참조 이미지 정리
+- `jwsoft-tiptap-editor.image.*` 훅과 기존 `sirsoft-ckeditor5.image.*` 호환 별칭
+- 훅 변환 뒤 MIME·크기·픽셀 재검증과 DB 실패 시 물리 파일 회수
+- 에디터 인라인 업로드 상태 UI와 mock API Chromium 업로드 흐름

@@ -26,7 +26,7 @@
 - state submit과 API 저장
 - legacy HTML round-trip
 
-현재 `make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약과 실제 Illuminate Request 기반 게시판 HTML 미들웨어를 검사합니다. 설치·활성화·DB 저장·재조회는 아직 parity evidence가 아니므로 별도 단계로 유지합니다.
+현재 `make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약, 실제 Illuminate Request 기반 게시판 HTML 미들웨어, 이미지 업로드의 신·구 훅 발화·StorageInterface 저장·DB 실패 롤백·고아 레코드 정리를 검사합니다. 설치·활성화·DB 저장·재조회는 아직 parity evidence가 아니므로 별도 단계로 유지합니다.
 
 ### Browser E2E
 
@@ -36,7 +36,7 @@
 - 이미지와 표
 - 전환·롤백
 
-현재 3차의 독립 Chromium 검사는 데스크톱 선택 영역 서식·키보드 포커스와 Pixel 7 viewport의 툴바 스크롤·대화상자 폭을 검증합니다. G7 화면과 실제 한글 IME·Android/iOS 실기기는 parity 단계에서 별도 증거를 생성합니다.
+현재 4차의 독립 Chromium 검사는 데스크톱 선택 영역 서식·키보드 포커스·mock API 이미지 업로드 삽입과 Pixel 7 viewport의 툴바 스크롤·대화상자 폭을 검증합니다. G7 인증 화면과 실제 한글 IME·Android/iOS 실기기는 parity 단계에서 별도 증거를 생성합니다.
 
 ## 증거 파일
 

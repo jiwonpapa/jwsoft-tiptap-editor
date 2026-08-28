@@ -169,7 +169,7 @@ describe("G7 editor lifecycle", () => {
     );
     expect(
       minimal.querySelector("[role='toolbar']")?.textContent,
-    ).not.toContain("이미지 URL");
+    ).not.toContain("이미지");
 
     const full = addContainer("description");
     await initEditorHandler(
@@ -272,7 +272,7 @@ describe("G7 editor lifecycle", () => {
     );
     const imageTrigger = [
       ...imageContainer.querySelectorAll<HTMLButtonElement>("button"),
-    ].find((button) => button.textContent === "이미지 URL");
+    ].find((button) => button.textContent === "이미지");
     imageTrigger?.click();
     const imageDialog = imageContainer.querySelector<HTMLElement>(
       ".jwsoft-tiptap-dialog:not([hidden])",

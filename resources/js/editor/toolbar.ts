@@ -5,6 +5,7 @@ import {
   type ClassTokenCategory,
 } from "@/editor/classTokens";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
+import { uploadEditorImage } from "@/editor/imageUpload";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -13,6 +14,8 @@ export type ToolbarProfile = (typeof TOOLBAR_PROFILES)[number];
 interface ToolbarOptions {
   editor: Editor;
   profile: ToolbarProfile;
+  imageUpload: boolean;
+  imageMaxSizeMb: number;
 }
 
 interface ButtonOptions {
@@ -354,6 +357,8 @@ function createTableDialog(
 function createImageDialog(
   editor: Editor,
   trigger: HTMLButtonElement,
+  uploadEnabled: boolean,
+  maxSizeMb: number,
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
@@ -365,27 +370,65 @@ function createImageDialog(
   alt.type = "text";
   const title = document.createElement("input");
   title.type = "text";
+  const file = document.createElement("input");
+  file.type = "file";
+  file.accept = "image/jpeg,image/png,image/gif,image/webp,image/avif";
+  const uploadHint = document.createElement("div");
+  uploadHint.className = "jwsoft-tiptap-upload-hint";
+  uploadHint.textContent = `서버 업로드: 최대 ${maxSizeMb}MB · JPEG, PNG, GIF, WebP, AVIF`;
+  const progress = document.createElement("div");
+  progress.className = "jwsoft-tiptap-upload-status";
+  progress.setAttribute("role", "status");
+  progress.setAttribute("aria-live", "polite");
+  progress.hidden = true;
   const error = formError();
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = "이미지 삽입";
+  if (uploadEnabled) {
+    form.append(formField("이미지 파일", file), uploadHint, progress);
+  }
   form.append(
-    formField("이미지 주소", src),
+    formField(uploadEnabled ? "또는 이미지 주소" : "이미지 주소", src),
     formField("대체 텍스트", alt),
     formField("설명", title),
     error,
     apply,
   );
   const handle = createDialog({
-    title: "이미지 URL",
+    title: "이미지",
     trigger,
     content: form,
   });
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    const value = src.value.trim();
-    if (!isAllowedEditorUrl(value, true)) {
+    error.hidden = true;
+    let value = src.value.trim();
+    const selected = file.files?.[0];
+    if (selected && uploadEnabled) {
+      apply.disabled = true;
+      file.disabled = true;
+      progress.textContent = "이미지를 업로드하는 중입니다…";
+      progress.hidden = false;
+      try {
+        const uploaded = await uploadEditorImage(selected, maxSizeMb);
+        value = uploaded.url;
+        if (!alt.value.trim()) alt.value = uploaded.originalName;
+        progress.textContent = "업로드 완료. 본문에 삽입합니다.";
+      } catch (uploadError) {
+        error.textContent =
+          uploadError instanceof Error
+            ? uploadError.message
+            : "이미지 업로드에 실패했습니다.";
+        error.hidden = false;
+        progress.hidden = true;
+        file.disabled = false;
+        apply.disabled = false;
+        file.focus();
+        return;
+      }
+    } else if (!isAllowedEditorUrl(value, true)) {
       error.textContent = "https 또는 상대 경로 이미지만 사용할 수 있습니다.";
       error.hidden = false;
       src.focus();
@@ -404,6 +447,10 @@ function createImageDialog(
         },
       })
       .run();
+    form.reset();
+    progress.hidden = true;
+    file.disabled = false;
+    apply.disabled = false;
     handle.close();
   });
   return handle;
@@ -561,14 +608,19 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   if (profile !== "minimal") {
     const table = createButton({ label: "표", run: () => undefined });
     const image = createButton({
-      label: "이미지 URL",
+      label: "이미지",
       run: () => undefined,
     });
     add(insert, table);
     add(insert, image);
     dialogs.push(
       createTableDialog(editor, table),
-      createImageDialog(editor, image),
+      createImageDialog(
+        editor,
+        image,
+        options.imageUpload,
+        options.imageMaxSizeMb,
+      ),
     );
   }
 

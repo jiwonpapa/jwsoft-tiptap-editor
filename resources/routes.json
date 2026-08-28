@@ -1,4 +1,14 @@
 {
   "version": "1.0.0",
-  "routes": []
+  "routes": [
+    {
+      "path": "*/admin/plugins/jwsoft-tiptap-editor/uploads",
+      "layout": "tiptap_uploads",
+      "auth_required": true,
+      "meta": {
+        "title": "$t:jwsoft-tiptap-editor.admin.uploads.title",
+        "permission": "jwsoft-tiptap-editor.uploads.read"
+      }
+    }
+  ]
 }

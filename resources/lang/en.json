@@ -1,0 +1,57 @@
+{
+  "editor": {
+    "data_source": {
+      "uploads": "Uploaded images"
+    }
+  },
+  "admin": {
+    "uploads": {
+      "title": "Editor uploads",
+      "description": "Review uploaded files and their current reference state.",
+      "reference_notice": "Reference state is evaluated against registered content. Verify unused files before deletion.",
+      "incomplete_notice": "Inactive modules may make the reference scan incomplete. Automatic cleanup stops safely.",
+      "scan_limited_notice": "Reference filters inspect the latest {{count}} uploads.",
+      "empty": "No uploaded images.",
+      "refresh": "Refresh",
+      "settings": "Settings",
+      "delete": "Delete",
+      "delete_confirm": "This deletes the file and record and cannot be undone.",
+      "filter": {
+        "search": "Search filename or hash",
+        "all": "All",
+        "referenced": "In use",
+        "unreferenced": "Unused",
+        "apply": "Apply",
+        "clear": "Clear"
+      },
+      "column": {
+        "preview": "Preview",
+        "name": "File",
+        "size": "Size",
+        "uploader": "Uploader",
+        "created": "Uploaded",
+        "reference": "Reference",
+        "action": "Action"
+      }
+    }
+  },
+  "messages": {
+    "upload": {
+      "required": "Select an image file.",
+      "invalid": "Only JPEG, PNG, GIF, WebP, and AVIF images are allowed.",
+      "too_large": "Images must be {{max}} MB or smaller.",
+      "created": "Image uploaded.",
+      "rejected": "The image did not pass the upload policy.",
+      "failed": "Image upload failed."
+    },
+    "image": {
+      "not_found": "Image not found."
+    },
+    "uploads": {
+      "not_found": "Upload record not found.",
+      "deleted": "Image deleted.",
+      "bulk_deleted": "Deleted {{deleted}} images.",
+      "delete_failed": "The record was preserved because file deletion failed."
+    }
+  }
+}

@@ -37,12 +37,14 @@
 
 ## 이미지
 
-- extension과 실제 MIME 일치
-- 허용 MIME allowlist
-- 파일·픽셀·가로세로 상한
+- 요청 MIME과 실제 파일 MIME을 각각 검사하고 실제 MIME을 저장 정본으로 사용
+- 훅 변환 뒤 MIME·크기·픽셀 수를 서버에서 다시 검사
+- 파일·픽셀 상한
 - SVG 기본 금지
 - 임의 파일명 대신 content hash/안전 식별자
 - 사용 권한, quota, 저장소 오류는 fail closed
+- DB 기록 실패 시 이미 저장된 물리 파일 회수
+- 파일 삭제 실패 시 레코드를 보존해 재시도 가능하게 유지
 
 ## 업데이트
 
@@ -55,4 +57,4 @@
 
 `harness/fixtures/security-corpus.json`의 각 payload에 대해 editor load, paste, API direct submit, render를 모두 검사합니다. 브라우저에서 실행되지 않는 것만으로 통과하지 않으며 저장 HTML도 기대 정책과 일치해야 합니다.
 
-현재 MVP 2차에서는 PHP sanitizer, 브라우저 allowlist, G7 미들웨어 직접 제출을 자동 검사합니다. 실제 clipboard paste와 저장 후 브라우저 render 전수 증거는 후속 browser parity gate에 남겨 둡니다.
+현재 MVP 4차에서는 PHP sanitizer, 브라우저 allowlist, G7 미들웨어 직접 제출과 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. 실제 clipboard paste와 저장 후 브라우저 render 전수 증거는 후속 browser parity gate에 남겨 둡니다.

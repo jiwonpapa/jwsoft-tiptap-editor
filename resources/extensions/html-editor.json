@@ -21,8 +21,10 @@
               "placeholder": "{{extensionPointProps.placeholder ?? ''}}",
               "readOnly": "{{_computed.isReadOnly ?? extensionPointProps.readOnly ?? false}}",
               "disabled": "{{extensionPointProps.disabled ?? false}}",
-              "height": "{{extensionPointProps.height ?? 400}}",
-              "toolbar": "{{extensionPointProps.toolbar ?? 'standard'}}"
+              "imageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.imageUpload ?? false}}",
+              "imageMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.imageMaxSizeMb ?? 2}}",
+              "height": "{{extensionPointProps.height ?? _global.plugins['jwsoft-tiptap-editor']?.editorHeight ?? 400}}",
+              "toolbar": "{{extensionPointProps.toolbar ?? _global.plugins['jwsoft-tiptap-editor']?.toolbar ?? 'standard'}}"
             }
           }
         ],

@@ -82,5 +82,34 @@ namespace {
         throw new RuntimeException('Board HTML middleware targets must match G7 7.0.9 write routes exactly.');
     }
 
-    echo "[jwsoft] Plugin activation conflict test passed\n";
+    $settings = $plugin->getSettingsSchema();
+    foreach (['imageUpload', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+        if (! array_key_exists($setting, $settings)) {
+            throw new RuntimeException("Missing image setting: {$setting}");
+        }
+    }
+    if (($settings['imageMaxSizeMb']['min'] ?? null) !== 1
+        || ($settings['imageMaxSizeMb']['max'] ?? null) !== 10
+        || ($settings['unusedImageCleanup']['default'] ?? null) !== false) {
+        throw new RuntimeException('Image size and fail-safe cleanup defaults mismatch.');
+    }
+
+    $hooks = array_column($plugin->getHooks(), null, 'name');
+    foreach (['before_upload', 'after_upload', 'filter_upload_file', 'filter_reference_sources'] as $suffix) {
+        if (! isset($hooks["jwsoft-tiptap-editor.image.{$suffix}"])) {
+            throw new RuntimeException("Missing public image hook: {$suffix}");
+        }
+    }
+
+    $permissions = $plugin->getPermissions()['categories'][0]['permissions'] ?? [];
+    if (array_column($permissions, 'action') !== ['read', 'delete']) {
+        throw new RuntimeException('Upload management permissions must separate read and delete.');
+    }
+    if (($plugin->getAdminMenus()[0]['url'] ?? null) !== '/admin/plugins/jwsoft-tiptap-editor/uploads'
+        || ($plugin->getSchedules()[0]['enabled_config'] ?? null) !== 'jwsoft-tiptap-editor.unusedImageCleanup'
+        || $plugin->getDynamicTables() !== ['jwsoft_tiptap_image_uploads']) {
+        throw new RuntimeException('Image menu, schedule, or dynamic table contract mismatch.');
+    }
+
+    echo "[jwsoft] Plugin activation, settings, permission, hook, and schedule contracts passed\n";
 }

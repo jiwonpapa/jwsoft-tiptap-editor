@@ -1,0 +1,528 @@
+{
+  "version": "1.0.0",
+  "layout_name": "tiptap_uploads",
+  "permissions": ["jwsoft-tiptap-editor.uploads.read"],
+  "extends": "_admin_base",
+  "meta": {
+    "title": "$t:jwsoft-tiptap-editor.admin.uploads.title",
+    "description": "$t:jwsoft-tiptap-editor.admin.uploads.description"
+  },
+  "state": {
+    "filter": { "search": "", "referenced": "all" }
+  },
+  "data_sources": [
+    {
+      "id": "tiptapUploads",
+      "label_key": "$t:jwsoft-tiptap-editor.editor.data_source.uploads",
+      "type": "api",
+      "endpoint": "/api/plugins/jwsoft-tiptap-editor/admin/uploads",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_required": true,
+      "loading_strategy": "progressive",
+      "params": {
+        "page": "{{query.page || 1}}",
+        "per_page": "{{query.per_page || 20}}",
+        "search": "{{query.search}}",
+        "referenced": "{{query.referenced}}",
+        "sort_by": "{{query.sort_by}}",
+        "sort_order": "{{query.sort_order}}"
+      },
+      "fallback": {
+        "data": {
+          "data": [],
+          "pagination": {
+            "current_page": 1,
+            "last_page": 1,
+            "per_page": 20,
+            "total": 0
+          },
+          "meta": {
+            "scan_limited": false,
+            "scan_window": 500,
+            "reference_sources_incomplete": false
+          }
+        }
+      }
+    }
+  ],
+  "init_actions": [
+    {
+      "handler": "setState",
+      "params": {
+        "target": "local",
+        "filter": {
+          "search": "{{query.search || ''}}",
+          "referenced": "{{query.referenced || 'all'}}"
+        }
+      }
+    }
+  ],
+  "named_actions": {
+    "applyFilters": {
+      "handler": "navigate",
+      "params": {
+        "path": "/admin/plugins/jwsoft-tiptap-editor/uploads",
+        "replace": true,
+        "mergeQuery": true,
+        "query": {
+          "page": "",
+          "search": "{{_local.filter.search || ''}}",
+          "referenced": "{{_local.filter.referenced || 'all'}}"
+        },
+        "transition_overlay_target": "tiptap_uploads_grid__body"
+      }
+    }
+  },
+  "slots": {
+    "content": [
+      {
+        "id": "tiptap_uploads_content",
+        "type": "basic",
+        "name": "Div",
+        "props": { "className": "admin-page-content" },
+        "children": [
+          {
+            "id": "page_header",
+            "type": "composite",
+            "name": "PageHeader",
+            "props": {
+              "title": "$t:jwsoft-tiptap-editor.admin.uploads.title",
+              "description": "$t:jwsoft-tiptap-editor.admin.uploads.description",
+              "backPath": "/admin/plugins",
+              "backLabel": "$t:admin.plugins.back_to_list"
+            }
+          },
+          {
+            "id": "reference_notice",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "alert-info mb-4" },
+            "text": "$t:jwsoft-tiptap-editor.admin.uploads.reference_notice"
+          },
+          {
+            "id": "incomplete_notice",
+            "type": "basic",
+            "name": "Div",
+            "if": "{{tiptapUploads?.data?.meta?.reference_sources_incomplete === true}}",
+            "props": { "className": "alert-warning mb-4" },
+            "text": "$t:jwsoft-tiptap-editor.admin.uploads.incomplete_notice"
+          },
+          {
+            "id": "scan_notice",
+            "type": "basic",
+            "name": "Div",
+            "if": "{{tiptapUploads?.data?.meta?.scan_limited === true}}",
+            "props": { "className": "alert-warning mb-4" },
+            "text": "$t:jwsoft-tiptap-editor.admin.uploads.scan_limited_notice|count={{tiptapUploads?.data?.meta?.scan_window ?? 500}}"
+          },
+          {
+            "id": "filters",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mb-4" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "flex-center flex-wrap gap-2" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Input",
+                    "props": {
+                      "name": "search",
+                      "type": "search",
+                      "className": "input flex-1",
+                      "placeholder": "$t:jwsoft-tiptap-editor.admin.uploads.filter.search",
+                      "value": "{{_local.filter.search || ''}}"
+                    },
+                    "actions": [
+                      {
+                        "type": "change",
+                        "handler": "setState",
+                        "params": {
+                          "target": "local",
+                          "filter.search": "{{$event.target.value}}"
+                        }
+                      },
+                      {
+                        "type": "keydown",
+                        "key": "Enter",
+                        "actionRef": "applyFilters"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "composite",
+                    "name": "Select",
+                    "props": {
+                      "name": "referenced",
+                      "value": "{{_local.filter.referenced || 'all'}}",
+                      "options": [
+                        {
+                          "value": "all",
+                          "label": "$t:jwsoft-tiptap-editor.admin.uploads.filter.all"
+                        },
+                        {
+                          "value": "referenced",
+                          "label": "$t:jwsoft-tiptap-editor.admin.uploads.filter.referenced"
+                        },
+                        {
+                          "value": "unreferenced",
+                          "label": "$t:jwsoft-tiptap-editor.admin.uploads.filter.unreferenced"
+                        }
+                      ]
+                    },
+                    "actions": [
+                      {
+                        "type": "change",
+                        "handler": "setState",
+                        "params": {
+                          "target": "local",
+                          "filter.referenced": "{{$event.target.value}}"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Button",
+                    "props": {
+                      "type": "button",
+                      "className": "btn btn-primary"
+                    },
+                    "text": "$t:jwsoft-tiptap-editor.admin.uploads.filter.apply",
+                    "actions": [
+                      { "type": "click", "actionRef": "applyFilters" }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Button",
+                    "props": {
+                      "type": "button",
+                      "className": "btn btn-secondary"
+                    },
+                    "text": "$t:jwsoft-tiptap-editor.admin.uploads.refresh",
+                    "actions": [
+                      {
+                        "type": "click",
+                        "handler": "refetchDataSource",
+                        "params": { "dataSourceId": "tiptapUploads" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "bulk_bar",
+            "type": "basic",
+            "name": "Div",
+            "if": "{{(_global.selectedIds_tiptap_uploads?.length ?? 0) > 0}}",
+            "props": {
+              "className": "flex-between mb-4 p-3 bg-gray-100 dark:bg-gray-800 rounded-lg"
+            },
+            "children": [
+              {
+                "type": "basic",
+                "name": "Span",
+                "text": "{{_global.selectedIds_tiptap_uploads?.length ?? 0}}건 선택"
+              },
+              {
+                "type": "basic",
+                "name": "Button",
+                "props": { "type": "button", "className": "btn btn-danger" },
+                "text": "$t:jwsoft-tiptap-editor.admin.uploads.delete",
+                "actions": [
+                  {
+                    "type": "click",
+                    "handler": "openModal",
+                    "target": "bulk_delete_modal"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "tiptap_uploads_grid",
+            "type": "composite",
+            "name": "DataGrid",
+            "props": {
+              "data": "{{tiptapUploads?.data?.data ?? []}}",
+              "pagination": true,
+              "serverSidePagination": true,
+              "serverCurrentPage": "{{tiptapUploads?.data?.pagination?.current_page ?? 1}}",
+              "serverTotalPages": "{{tiptapUploads?.data?.pagination?.last_page ?? 1}}",
+              "pageSize": "{{+(query.per_page || 20)}}",
+              "sortable": true,
+              "sortField": "{{query.sort_by || 'created_at'}}",
+              "sortDirection": "{{query.sort_order || 'desc'}}",
+              "idField": "id",
+              "selectable": true,
+              "selectionScope": "page",
+              "selectedIds": "{{_global.selectedIds_tiptap_uploads || []}}",
+              "loading": "{{tiptapUploads?.loading}}",
+              "emptyText": "$t:jwsoft-tiptap-editor.admin.uploads.empty",
+              "rowActions": [
+                {
+                  "id": "delete",
+                  "label": "$t:jwsoft-tiptap-editor.admin.uploads.delete",
+                  "iconName": "trash",
+                  "variant": "danger"
+                }
+              ],
+              "columns": [
+                {
+                  "field": "preview",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.preview",
+                  "width": "80px",
+                  "cellChildren": [
+                    {
+                      "type": "basic",
+                      "name": "Img",
+                      "props": {
+                        "src": "{{row.download_url}}",
+                        "alt": "{{row.original_name ?? ''}}",
+                        "loading": "lazy",
+                        "className": "w-14 h-14 object-cover rounded-md border border-gray-200 dark:border-gray-700"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "field": "original_name",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.name",
+                  "sortable": true,
+                  "cellChildren": [
+                    {
+                      "type": "basic",
+                      "name": "Div",
+                      "children": [
+                        {
+                          "type": "basic",
+                          "name": "Span",
+                          "props": { "className": "block text-heading" },
+                          "text": "{{row.original_name}}"
+                        },
+                        {
+                          "type": "basic",
+                          "name": "Span",
+                          "props": {
+                            "className": "block text-tertiary font-mono"
+                          },
+                          "text": "{{row.hash}}"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "field": "file_size",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.size",
+                  "sortable": true,
+                  "width": "110px",
+                  "cellChildren": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "text": "{{Math.round((row.file_size ?? 0) / 1024).toLocaleString()}} KB"
+                    }
+                  ]
+                },
+                {
+                  "field": "uploader_name",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.uploader",
+                  "width": "130px"
+                },
+                {
+                  "field": "created_at",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.created",
+                  "sortable": true,
+                  "width": "180px"
+                },
+                {
+                  "field": "referenced",
+                  "header": "$t:jwsoft-tiptap-editor.admin.uploads.column.reference",
+                  "width": "100px",
+                  "cellChildren": [
+                    {
+                      "type": "basic",
+                      "name": "Span",
+                      "props": { "className": "badge badge-info" },
+                      "text": "{{row.referenced ? '$t:jwsoft-tiptap-editor.admin.uploads.filter.referenced' : '$t:jwsoft-tiptap-editor.admin.uploads.filter.unreferenced'}}"
+                    }
+                  ]
+                }
+              ]
+            },
+            "events": [
+              {
+                "event": "onSelectionChange",
+                "type": "action",
+                "handler": "setState",
+                "params": {
+                  "target": "global",
+                  "selectedIds_tiptap_uploads": "{{$args[0]}}"
+                }
+              },
+              {
+                "event": "onRowAction",
+                "type": "action",
+                "handler": "switch",
+                "cases": {
+                  "delete": {
+                    "handler": "setState",
+                    "params": {
+                      "target": "global",
+                      "modal_data": "{{$args[1]}}"
+                    },
+                    "onSuccess": [
+                      { "handler": "openModal", "target": "delete_modal" }
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "modals": [
+    {
+      "id": "delete_modal",
+      "type": "composite",
+      "name": "Modal",
+      "props": {
+        "title": "$t:jwsoft-tiptap-editor.admin.uploads.delete",
+        "size": "sm"
+      },
+      "children": [
+        {
+          "type": "basic",
+          "name": "P",
+          "props": { "className": "py-2" },
+          "text": "$t:jwsoft-tiptap-editor.admin.uploads.delete_confirm"
+        },
+        {
+          "type": "basic",
+          "name": "Div",
+          "props": { "className": "modal-footer-buttons" },
+          "children": [
+            {
+              "type": "basic",
+              "name": "Button",
+              "props": { "type": "button", "className": "btn btn-secondary" },
+              "text": "$t:common.cancel",
+              "actions": [{ "type": "click", "handler": "closeModal" }]
+            },
+            {
+              "type": "basic",
+              "name": "Button",
+              "props": { "type": "button", "className": "btn btn-danger" },
+              "text": "$t:common.delete",
+              "actions": [
+                {
+                  "type": "click",
+                  "handler": "apiCall",
+                  "auth_required": true,
+                  "target": "/api/plugins/jwsoft-tiptap-editor/admin/uploads/{{_global.modal_data.id}}",
+                  "params": { "method": "DELETE" },
+                  "onSuccess": [
+                    {
+                      "handler": "refetchDataSource",
+                      "params": { "dataSourceId": "tiptapUploads" }
+                    },
+                    {
+                      "handler": "toast",
+                      "params": {
+                        "type": "success",
+                        "message": "{{response.message}}"
+                      }
+                    },
+                    { "handler": "closeModal" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "bulk_delete_modal",
+      "type": "composite",
+      "name": "Modal",
+      "props": {
+        "title": "$t:jwsoft-tiptap-editor.admin.uploads.delete",
+        "size": "sm"
+      },
+      "children": [
+        {
+          "type": "basic",
+          "name": "P",
+          "props": { "className": "py-2" },
+          "text": "$t:jwsoft-tiptap-editor.admin.uploads.delete_confirm"
+        },
+        {
+          "type": "basic",
+          "name": "Div",
+          "props": { "className": "modal-footer-buttons" },
+          "children": [
+            {
+              "type": "basic",
+              "name": "Button",
+              "props": { "type": "button", "className": "btn btn-secondary" },
+              "text": "$t:common.cancel",
+              "actions": [{ "type": "click", "handler": "closeModal" }]
+            },
+            {
+              "type": "basic",
+              "name": "Button",
+              "props": { "type": "button", "className": "btn btn-danger" },
+              "text": "$t:common.delete",
+              "actions": [
+                {
+                  "type": "click",
+                  "handler": "apiCall",
+                  "auth_required": true,
+                  "target": "/api/plugins/jwsoft-tiptap-editor/admin/uploads/bulk-delete",
+                  "params": {
+                    "method": "POST",
+                    "body": {
+                      "ids": "{{_global.selectedIds_tiptap_uploads ?? []}}"
+                    }
+                  },
+                  "onSuccess": [
+                    {
+                      "handler": "setState",
+                      "params": {
+                        "target": "global",
+                        "selectedIds_tiptap_uploads": []
+                      }
+                    },
+                    {
+                      "handler": "refetchDataSource",
+                      "params": { "dataSourceId": "tiptapUploads" }
+                    },
+                    {
+                      "handler": "toast",
+                      "params": {
+                        "type": "success",
+                        "message": "{{response.message}}"
+                      }
+                    },
+                    { "handler": "closeModal" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

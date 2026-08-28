@@ -43,7 +43,9 @@ G7 7.0.9 게시판의 사용자·관리자 `store/update` 라우트는 플러그
 
 ### 5. Image subsystem
 
-G7 StorageInterface를 사용합니다. 업로드 레코드, serve, 참조 스캔, 관리자 조회·삭제, 미사용 정리를 `sirsoft-ckeditor5`와 동등하게 제공합니다. 실제 이미지 최적화는 G7MediaBooster 같은 외부 훅 소비자가 담당할 수 있습니다.
+G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve, 참조 스캔, 관리자 단건·일괄 삭제, opt-in 미사용 정리를 `sirsoft-ckeditor5`와 동등한 계약으로 제공합니다. 저장 후 DB 기록 실패 시 물리 파일을 즉시 회수하고, 참조 소스가 불완전하면 실제 자동 삭제를 중단합니다.
+
+공개 훅은 `jwsoft-tiptap-editor.image.*`를 정본으로 사용합니다. 교체 시 기존 게시판·페이지·쇼핑몰 및 이미지 최적화 소비자가 끊기지 않도록 `sirsoft-ckeditor5.image.*` 이름도 호환 별칭으로 순차 발화합니다. 외부 소비자는 중복 처리를 피하기 위해 새 이름과 별칭 중 하나만 구독합니다.
 
 ## 저장 형식
 

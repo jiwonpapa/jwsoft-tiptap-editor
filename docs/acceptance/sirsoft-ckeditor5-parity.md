@@ -2,7 +2,7 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 단순 체크 표시가 아니라 `test-results/parity/evidence.json`의 성공 결과가 필요합니다.
 
-현재 MVP 3차는 기본 툴바와 class-token 서식, 링크·표·URL 이미지, 붙여넣기 정제까지 구현했습니다. 아래 체크는 실제 설치·DB·브라우저 parity evidence가 생성될 때만 완료 처리합니다.
+현재 MVP 4차는 기본 편집 기능에 이미지 업로드·StorageInterface·공개 서빙·관리자 삭제·미사용 정리·호환 훅까지 구현했습니다. 아래 체크는 실제 설치·DB·인증 브라우저 parity evidence가 생성될 때만 완료 처리합니다.
 
 ## A. 편집기 교체
 

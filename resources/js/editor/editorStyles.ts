@@ -36,6 +36,8 @@ const editorCss = `
 .jwsoft-tiptap-dialog-actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
 .jwsoft-tiptap-dialog-primary { border-color: #2563eb !important; background: #2563eb !important; color: #fff !important; }
 .jwsoft-tiptap-dialog-error { grid-column: 1 / -1; color: #b91c1c; font-size: 0.75rem; }
+.jwsoft-tiptap-upload-hint { grid-column: 1 / -1; color: #6b7280; font-size: 0.6875rem; line-height: 1rem; }
+.jwsoft-tiptap-upload-status { grid-column: 1 / -1; border-left: 3px solid #2563eb; padding: 0.375rem 0.5rem; background: #eff6ff; color: #1e40af; font-size: 0.75rem; }
 .jwsoft-tiptap-editable { min-height: var(--jwsoft-tiptap-height, 400px); padding: 1rem; outline: none; line-height: 1.7; }
 .jwsoft-tiptap-editable[contenteditable="false"] { background: #f9fafb; cursor: not-allowed; }
 .jwsoft-tiptap-editable p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: #9ca3af; pointer-events: none; }
@@ -67,6 +69,8 @@ html.dark .jwsoft-tiptap-tool:hover, html.dark .jwsoft-tiptap-select:hover { bac
 html.dark .jwsoft-tiptap-tool[aria-pressed="true"] { border-color: #1d4ed8; background: #172554; color: #bfdbfe; }
 html.dark .jwsoft-tiptap-dialog-header, html.dark .jwsoft-tiptap-field { color: #d1d5db; }
 html.dark .jwsoft-tiptap-dialog input, html.dark .jwsoft-tiptap-dialog button { border-color: #4b5563; background: #111827; color: #f3f4f6; }
+html.dark .jwsoft-tiptap-upload-hint { color: #9ca3af; }
+html.dark .jwsoft-tiptap-upload-status { border-color: #60a5fa; background: #172554; color: #bfdbfe; }
 html.dark .jwsoft-tiptap-editable { color: #f3f4f6; }
 html.dark .jwsoft-tiptap-editable[contenteditable="false"] { background: #111827; }
 html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937; color: #d1d5db; }

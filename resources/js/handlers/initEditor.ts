@@ -41,6 +41,12 @@ function safeHeight(value: unknown): number {
   return Math.min(1200, Math.max(160, Math.round(parsed)));
 }
 
+function safeImageMaxSize(value: unknown): number {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) return 2;
+  return Math.min(10, Math.max(1, Math.floor(parsed)));
+}
+
 function renderFailure(container: HTMLElement, message: string): void {
   container.replaceChildren();
   const alert = document.createElement("div");
@@ -129,6 +135,8 @@ function mountLocaleEditor(options: {
   editable: boolean;
   multilingual: boolean;
   toolbar: ToolbarProfile;
+  imageUpload: boolean;
+  imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
   if (editorRegistry.has(options.containerId, options.locale)) return;
@@ -156,7 +164,12 @@ function mountLocaleEditor(options: {
 
   if (!options.editable) return;
 
-  const toolbar = createEditorToolbar({ editor, profile: options.toolbar });
+  const toolbar = createEditorToolbar({
+    editor,
+    profile: options.toolbar,
+    imageUpload: options.imageUpload,
+    imageMaxSizeMb: options.imageMaxSizeMb,
+  });
   options.mount.insertBefore(toolbar, editorMount);
 
   ensureHtmlMode(core, options.name);
@@ -199,6 +212,8 @@ function mountMultilingualEditors(options: {
   placeholder: string;
   editable: boolean;
   toolbar: ToolbarProfile;
+  imageUpload: boolean;
+  imageMaxSizeMb: number;
   status: HTMLElement;
 }): void {
   const core = window.G7Core;
@@ -239,6 +254,8 @@ function mountMultilingualEditors(options: {
         editable: options.editable,
         multilingual: true,
         toolbar: options.toolbar,
+        imageUpload: options.imageUpload,
+        imageMaxSizeMb: options.imageMaxSizeMb,
         status: options.status,
       });
     });
@@ -258,6 +275,8 @@ function mountMultilingualEditors(options: {
       editable: options.editable,
       multilingual: true,
       toolbar: options.toolbar,
+      imageUpload: options.imageUpload,
+      imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
   }
@@ -293,6 +312,8 @@ export async function initEditorHandler(
     editable,
   );
   const toolbar = normalizeToolbarProfile(params.toolbar);
+  const imageUpload = booleanParam(params.imageUpload);
+  const imageMaxSizeMb = safeImageMaxSize(params.imageMaxSizeMb);
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
 
@@ -305,6 +326,8 @@ export async function initEditorHandler(
       placeholder: params.placeholder ?? "",
       editable,
       toolbar,
+      imageUpload,
+      imageMaxSizeMb,
       status,
     });
     return;
@@ -322,6 +345,8 @@ export async function initEditorHandler(
     editable,
     multilingual: false,
     toolbar,
+    imageUpload,
+    imageMaxSizeMb,
     status,
   });
 }
