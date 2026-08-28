@@ -25,3 +25,7 @@ jobs:
       - run: composer install --no-interaction --prefer-dist
       - run: make check
       - run: make build
+      - name: Verify committed GitHub install assets
+        run: |
+          git diff --exit-code -- dist/js/plugin.iife.js
+          npm run validate:github-source

@@ -1,0 +1,50 @@
+{
+  "schema_version": "1.0",
+  "generated_at": "2026-08-28T14:42:44.000Z",
+  "generator": "jwsoft-tiptap-editor scripts/build-vendor-bundle.mjs",
+  "target": "plugin:jwsoft-tiptap-editor",
+  "composer_json_sha256": "b5928ac283002ed6059fb5f6b62a83a53802e2cc1c3bbe3930584f217efc6ba0",
+  "composer_lock_sha256": "5df2f46082ef6839e65149619d52d82a0a1ef9f6d7e3e4db596edcd1e537897f",
+  "zip_sha256": "e9aa5a007aa2e405258c44da86ab30abd859514b7912864ffefa98419a622f91",
+  "zip_size": 251979,
+  "package_count": 7,
+  "php_requirement": "^8.2",
+  "g7_version": ">=7.0.9",
+  "packages": [
+    {
+      "name": "league/uri",
+      "version": "7.8.1",
+      "reference": "08cf38e3924d4f56238125547b5720496fac8fd4"
+    },
+    {
+      "name": "league/uri-interfaces",
+      "version": "7.8.1",
+      "reference": "85d5c77c5d6d3af6c54db4a78246364908f3c928"
+    },
+    {
+      "name": "masterminds/html5",
+      "version": "2.11.0",
+      "reference": "a1e7a2f88ee13635d86fc61cfbdf2306a76ddfc7"
+    },
+    {
+      "name": "psr/http-factory",
+      "version": "1.1.0",
+      "reference": "2b4765fddfe3b508ac62f829e852b1501d3f6e8a"
+    },
+    {
+      "name": "psr/http-message",
+      "version": "2.0",
+      "reference": "402d35bcb92c70c026d1a6a9883f06b2ead23d71"
+    },
+    {
+      "name": "symfony/deprecation-contracts",
+      "version": "v3.7.1",
+      "reference": "f3202fa1b5097b0af062dc978b32ecf63404e31d"
+    },
+    {
+      "name": "symfony/html-sanitizer",
+      "version": "v7.4.14",
+      "reference": "c328df69f5b6f44a0d031d757903d955bebb23b3"
+    }
+  ]
+}

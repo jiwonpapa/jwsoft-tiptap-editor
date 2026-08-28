@@ -2,6 +2,18 @@
 
 > 현재 alpha는 전용 G7 하네스 검증용이며 운영 설치를 지원하지 않습니다. 아래 절차는 parity gate와 staging gate 통과 후 릴리스 패키지에 적용합니다.
 
+## GitHub 온라인 설치 — 개발·staging 전용
+
+G7 관리자 `플러그인 → 플러그인 설치 → GitHub에서 설치`에서 아래 공개 저장소 URL을 입력합니다.
+
+```text
+https://github.com/jiwonpapa/jwsoft-tiptap-editor
+```
+
+G7은 공개 GitHub의 최신 릴리스 또는 `main` 아카이브를 내려받습니다. 이 저장소는 온라인 설치에 필요한 `dist/js/plugin.iife.js`, `vendor-bundle.zip`, `vendor-bundle.json`을 함께 제공합니다. 공개 열람은 오픈소스 허가가 아니며 사용·복제·배포에는 별도 서면 계약이 필요합니다.
+
+현재 `alpha` 온라인 설치는 개발·staging 검증 전용입니다. stable·운영 설치 승인으로 해석하지 않습니다.
+
 ## 요구사항
 
 - G7 7.0.9 이상

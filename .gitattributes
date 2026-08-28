@@ -5,4 +5,4 @@
 *.gif binary
 *.webp binary
 *.zip binary
-
+dist/js/plugin.iife.js binary

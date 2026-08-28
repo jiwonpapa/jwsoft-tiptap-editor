@@ -33,9 +33,9 @@ if (plugin.assets?.js?.output !== "dist/js/plugin.iife.js")
 if (plugin.github_url !== "https://github.com/jiwonpapa/jwsoft-tiptap-editor")
   fail("GitHub URL이 제품 저장소와 다릅니다.");
 if (npmManifest.private !== true || npmManifest.license !== "UNLICENSED")
-  fail("공개 결정 전 npm 패키지는 private/UNLICENSED여야 합니다.");
+  fail("npm 레지스트리 배포 금지를 위해 private/UNLICENSED여야 합니다.");
 if (composer.license !== "proprietary")
-  fail("공개 결정 전 Composer 라이선스는 proprietary여야 합니다.");
+  fail("Composer 라이선스는 proprietary여야 합니다.");
 if (plugin.license !== "Proprietary")
   fail("플러그인 제품 라이선스는 Proprietary여야 합니다.");
 

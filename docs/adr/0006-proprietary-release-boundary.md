@@ -1,11 +1,13 @@
 # ADR-0006: Proprietary 출시 경계
 
-- 상태: 승인
+- 상태: ADR-0010으로 대체됨
 - 날짜: 2026-08-28
 
 ## 결정
 
 제품 코드는 Proprietary로 유지하고 승인된 비공개 배포만 허용합니다. NPM 패키지는 `private: true`와 `UNLICENSED`, Composer는 `proprietary`, 플러그인 manifest는 `Proprietary`를 사용합니다. 공개 저장소 전환이나 재배포 허용은 별도 라이선스 ADR과 사용자 승인이 필요합니다.
+
+공개 저장소 전환 결정은 [ADR-0010](0010-public-github-install-source.md)을 따릅니다.
 
 ## 이유
 

@@ -32,5 +32,6 @@ MVP 6 개발 하네스에서는 `alpha.7` ZIP을 같은 commit epoch로 두 번 
 
 - [x] 제품 라이선스 결정: Proprietary
 - [x] Tiptap·ProseMirror·DOMPurify·Symfony NOTICE와 원문 라이선스 포함
-- [ ] GitHub visibility 승인
-- [ ] 태그·GitHub release·설치 문서
+- [x] GitHub visibility 승인 및 public 전환
+- [x] 공개 `main` GitHub 온라인 설치 원본·설치 문서
+- [ ] stable 태그·GitHub release

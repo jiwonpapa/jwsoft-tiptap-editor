@@ -5,7 +5,9 @@
 !/deploy/environments/*.env.example
 /.harness/
 /.build/
-/dist/
+/dist/*
+!/dist/js/
+!/dist/js/plugin.iife.js
 /node_modules/
 /vendor/
 /coverage/
@@ -15,6 +17,7 @@
 /.DS_Store
 *.log
 *.zip
+!/vendor-bundle.zip
 *.pem
 *.key
 *.crt

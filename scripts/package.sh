@@ -59,6 +59,11 @@ find "$stage/vendor" -exec touch -t 198001010000 {} +
 node "$PROJECT_ROOT/scripts/build-vendor-bundle.mjs" "$stage"
 rm -rf "$stage/vendor"
 
+# G7의 GitHub 설치는 release asset이 아니라 release/main source archive를
+# 내려받으므로 공개 저장소에도 자체 실행 가능한 런타임 번들을 동기화한다.
+cp "$stage/vendor-bundle.zip" "$PROJECT_ROOT/vendor-bundle.zip"
+cp "$stage/vendor-bundle.json" "$PROJECT_ROOT/vendor-bundle.json"
+
 find "$stage" -exec touch -t 198001010000 {} +
 (cd "$build_root" && find jwsoft-tiptap-editor -type f -o -type l | LC_ALL=C sort | zip -X -q "$artifact" -@)
 
@@ -70,6 +75,11 @@ if unzip -l "$artifact" | grep -E '(^|/)(\.env|node_modules|vendor|tests|harness
 fi
 [ "$(unzip -p "$artifact" jwsoft-tiptap-editor/vendor-bundle.zip | sha256_file /dev/stdin)" = "$(node -p "require('$stage/vendor-bundle.json').zip_sha256")" ] \
   || fail "artifact 내부 vendor bundle checksum이 다릅니다."
+[ "$(sha256_file "$PROJECT_ROOT/vendor-bundle.zip")" = "$(node -p "require('$PROJECT_ROOT/vendor-bundle.json').zip_sha256")" ] \
+  || fail "GitHub 설치용 vendor bundle checksum이 다릅니다."
+[ -s "$PROJECT_ROOT/dist/js/plugin.iife.js" ] \
+  || fail "GitHub 설치용 dist/js/plugin.iife.js가 없습니다."
+node "$PROJECT_ROOT/scripts/validate-github-source.mjs"
 
 info "artifact: $artifact"
 info "sha256: $checksum"
