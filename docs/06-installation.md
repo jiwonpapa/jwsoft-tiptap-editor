@@ -58,6 +58,8 @@ CKEditor가 설치되지 않은 환경에서는 deactivate 실패를 무시하�
 
 ## 업데이트
 
+G7의 GitHub 업데이트는 `main`을 임의 버전으로 사용하지 않고, GitHub의 최신 릴리스 버전과 동일한 태그 source archive를 받습니다. 따라서 온라인 업데이트는 검증된 `vVERSION` 태그·GitHub Release가 있을 때만 진행합니다. 태그가 없으면 아래 checksum을 확인한 ZIP 업데이트를 사용합니다.
+
 ```bash
 php artisan plugin:update jwsoft-tiptap-editor \
   --zip=/absolute/path/jwsoft-tiptap-editor-VERSION.zip \
