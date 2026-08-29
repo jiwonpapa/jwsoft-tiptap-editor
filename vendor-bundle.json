@@ -1,11 +1,11 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-08-28T23:29:56.000Z",
+  "generated_at": "2026-08-29T11:10:41.000Z",
   "generator": "jwsoft-tiptap-editor scripts/build-vendor-bundle.mjs",
   "target": "plugin:jwsoft-tiptap-editor",
   "composer_json_sha256": "b5928ac283002ed6059fb5f6b62a83a53802e2cc1c3bbe3930584f217efc6ba0",
   "composer_lock_sha256": "5df2f46082ef6839e65149619d52d82a0a1ef9f6d7e3e4db596edcd1e537897f",
-  "zip_sha256": "c3d53100df03023367a9f288c7becab69f55d8b7367f89640726fd2932e7bb58",
+  "zip_sha256": "81689dd4ee1768b7c53134bb26edcb99b4830d45d8d12f3c9f2d73e5d7ec2099",
   "zip_size": 251979,
   "package_count": 7,
   "php_requirement": "^8.2",
