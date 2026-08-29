@@ -13,6 +13,14 @@ use Plugins\Jwsoft\TiptapEditor\Support\ImageHookContract;
 class ImageReferenceScanService
 {
     private const CORE_SOURCES = [
+        // G7 official html_editor replacement surfaces.
+        ['table' => 'board_posts', 'columns' => ['content']],
+        ['table' => 'ecommerce_products', 'columns' => ['description']],
+        ['table' => 'ecommerce_product_common_infos', 'columns' => ['content']],
+        ['table' => 'pages', 'columns' => ['content']],
+
+        // Core direct HtmlEditor fallback surfaces. These are scanned for safe
+        // image administration without forcing their editor UI replacement.
         ['table' => 'notification_templates', 'columns' => ['body']],
         ['table' => 'mail_templates', 'columns' => ['body']],
         ['table' => 'identity_message_templates', 'columns' => ['body']],

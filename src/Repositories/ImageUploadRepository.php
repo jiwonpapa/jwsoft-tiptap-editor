@@ -53,7 +53,7 @@ class ImageUploadRepository implements ImageUploadRepositoryInterface
             ->limit($limit)->get(self::COLUMNS);
     }
 
-    public function paginateForAdmin(array $filters, int $perPage): LengthAwarePaginator
+    public function paginateForAdmin(array $filters, int $perPage, int $page): LengthAwarePaginator
     {
         $sort = $this->resolveSortSpec(
             $filters,
@@ -68,7 +68,7 @@ class ImageUploadRepository implements ImageUploadRepositoryInterface
             $query->orderBy('id', $sort['direction']);
         }
 
-        return $query->paginate($perPage, self::COLUMNS);
+        return $query->paginate($perPage, self::COLUMNS, 'page', max(1, $page));
     }
 
     public function findScanWindow(array $filters, int $limit): Collection

@@ -23,7 +23,7 @@ class ImageUploadAdminService
             return $this->paginateByReference($filters, $perPage, $page, $state === 'referenced');
         }
 
-        $paginator = $this->repository->paginateForAdmin($filters, $perPage);
+        $paginator = $this->repository->paginateForAdmin($filters, $perPage, $page);
         $items = collect($paginator->items());
         $this->attachReferences($items);
 
@@ -52,12 +52,43 @@ class ImageUploadAdminService
         return $this->cleanup->deleteUpload($upload);
     }
 
-    /** @return array{deleted:int, failed:int} */
+    /**
+     * @return array{
+     *     requested:int,
+     *     deleted:int,
+     *     failed:int,
+     *     missing:int,
+     *     failed_ids:list<int>,
+     *     missing_ids:list<int>
+     * }
+     */
     public function bulkDelete(array $ids): array
     {
-        $result = ['deleted' => 0, 'failed' => 0];
-        foreach ($this->repository->findManyByIds($ids) as $upload) {
-            $this->cleanup->deleteUpload($upload) ? $result['deleted']++ : $result['failed']++;
+        $requestedIds = array_values(array_unique(array_map('intval', $ids)));
+        $uploads = $this->repository->findManyByIds($requestedIds);
+        $foundIds = $uploads->mapWithKeys(
+            fn (JwsoftTiptapImageUpload $upload): array => [(int) $upload->id => true],
+        )->all();
+        $missingIds = array_values(array_filter(
+            $requestedIds,
+            fn (int $id): bool => ! isset($foundIds[$id]),
+        ));
+        $result = [
+            'requested' => count($requestedIds),
+            'deleted' => 0,
+            'failed' => count($missingIds),
+            'missing' => count($missingIds),
+            'failed_ids' => $missingIds,
+            'missing_ids' => $missingIds,
+        ];
+
+        foreach ($uploads as $upload) {
+            if ($this->cleanup->deleteUpload($upload)) {
+                $result['deleted']++;
+            } else {
+                $result['failed']++;
+                $result['failed_ids'][] = (int) $upload->id;
+            }
         }
 
         return $result;

@@ -2,19 +2,26 @@
 
 use App\Contracts\Extension\StorageInterface;
 use App\Extension\HookManager;
+use App\Repositories\ModuleRepository;
+use App\Rules\ValidLayoutStructure;
+use App\Rules\WhitelistedEndpoint;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
-use App\Rules\ValidLayoutStructure;
-use App\Rules\WhitelistedEndpoint;
+use Illuminate\Support\Facades\Route;
 use Plugins\Jwsoft\TiptapEditor\Models\JwsoftTiptapImageUpload;
 use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\ImageUploadRepositoryInterface;
+use Plugins\Jwsoft\TiptapEditor\Repositories\ImageReferenceSourceRepository;
+use Plugins\Jwsoft\TiptapEditor\Repositories\ImageUploadRepository;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageCleanupService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageReferenceScanService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageServeService;
+use Plugins\Jwsoft\TiptapEditor\Services\ImageUploadAdminService;
 use Plugins\Jwsoft\TiptapEditor\Services\ImageUploadService;
 use Plugins\Jwsoft\TiptapEditor\Support\ImageHookContract;
 use Symfony\Component\HttpFoundation\StreamedResponse;
@@ -48,6 +55,36 @@ $layoutErrors = [];
     $layoutErrors[] = $message;
 });
 assertImageSubsystem($layoutErrors === [], 'admin upload layout failed G7 structure or endpoint validation');
+
+$router = new Router($container['events'], $container);
+$container->instance('router', $router);
+Route::prefix('api/plugins/jwsoft-tiptap-editor')
+    ->name('api.plugins.jwsoft-tiptap-editor.')
+    ->middleware('api')
+    ->group($projectRoot.'/src/routes/api.php');
+
+$adminRoutes = [];
+foreach ($router->getRoutes() as $route) {
+    if (str_contains($route->uri(), 'jwsoft-tiptap-editor/admin/uploads')) {
+        $adminRoutes[$route->uri().'|'.implode(',', $route->methods())] = $route;
+    }
+}
+$expectedAdminRoutes = [
+    'api/plugins/jwsoft-tiptap-editor/admin/uploads|GET,HEAD' => 'jwsoft-tiptap-editor.uploads.read',
+    'api/plugins/jwsoft-tiptap-editor/admin/uploads/bulk-delete|POST' => 'jwsoft-tiptap-editor.uploads.delete',
+    'api/plugins/jwsoft-tiptap-editor/admin/uploads/{id}|DELETE' => 'jwsoft-tiptap-editor.uploads.delete',
+];
+assertImageSubsystem(count($adminRoutes) === count($expectedAdminRoutes), 'admin upload route count mismatch');
+foreach ($expectedAdminRoutes as $key => $permission) {
+    $middleware = isset($adminRoutes[$key]) ? $adminRoutes[$key]->middleware() : [];
+    assertImageSubsystem(isset($adminRoutes[$key]), "missing admin upload route: {$key}");
+    assertImageSubsystem(in_array('api', $middleware, true), "admin route is missing api middleware: {$key}");
+    assertImageSubsystem(in_array('auth:sanctum', $middleware, true), "admin route is missing auth middleware: {$key}");
+    assertImageSubsystem(
+        in_array('permission:admin,'.$permission, $middleware, true),
+        "admin route is missing permission middleware: {$key}",
+    );
+}
 
 final class TestImageStorage implements StorageInterface
 {
@@ -127,7 +164,7 @@ final class TestImageRepository implements ImageUploadRepositoryInterface
         return true;
     }
     public function findOlderThan(Carbon $threshold, int $limit): Collection { return new Collection(array_values($this->records)); }
-    public function paginateForAdmin(array $filters, int $perPage): LengthAwarePaginator { throw new LogicException('unused'); }
+    public function paginateForAdmin(array $filters, int $perPage, int $page): LengthAwarePaginator { throw new LogicException('unused'); }
     public function findScanWindow(array $filters, int $limit): Collection { return new Collection(array_values($this->records)); }
     public function findManyByIds(array $ids): Collection { return new Collection(array_values($this->records)); }
 }
@@ -227,7 +264,110 @@ $cleanup = new ImageCleanupService($preservedRepository, $scanner, $undeletableS
 assertImageSubsystem(! $cleanup->deleteUpload($preserved), 'physical delete failure must fail closed');
 assertImageSubsystem(! $preservedRepository->deleted, 'record must be preserved when physical delete fails');
 
+$capsule = new Capsule($container);
+$capsule->addConnection([
+    'driver' => 'sqlite',
+    'database' => ':memory:',
+    'prefix' => '',
+]);
+$capsule->setEventDispatcher($container['events']);
+$capsule->setAsGlobal();
+$capsule->bootEloquent();
+$container->instance('db', $capsule->getDatabaseManager());
+$container->instance('db.schema', $capsule->schema());
+
+$schema = $capsule->schema();
+$schema->create('users', function ($table): void {
+    $table->id();
+    $table->string('name');
+});
+$schema->create('jwsoft_tiptap_image_uploads', function ($table): void {
+    $table->id();
+    $table->string('hash', 12)->unique();
+    $table->string('original_name');
+    $table->string('file_path');
+    $table->string('storage_disk');
+    $table->unsignedBigInteger('file_size');
+    $table->string('mime_type');
+    $table->unsignedBigInteger('uploaded_by')->nullable();
+    $table->timestamps();
+});
+foreach ([
+    'board_posts' => 'content',
+    'ecommerce_products' => 'description',
+    'ecommerce_product_common_infos' => 'content',
+    'pages' => 'content',
+] as $table => $column) {
+    $schema->create($table, function ($blueprint) use ($column): void {
+        $blueprint->id();
+        $blueprint->text($column)->nullable();
+    });
+}
+
+$moduleRepository = new class extends ModuleRepository {
+    public function getAll(): Collection
+    {
+        return new Collection();
+    }
+};
+$sourceRepository = new ImageReferenceSourceRepository();
+$adminScanner = new ImageReferenceScanService($sourceRepository, $moduleRepository);
+$sourceTables = array_column($adminScanner->getReferenceSources(), 'table');
+foreach (['board_posts', 'ecommerce_products', 'ecommerce_product_common_infos', 'pages'] as $table) {
+    assertImageSubsystem(in_array($table, $sourceTables, true), "official editor reference source missing: {$table}");
+}
+
+$databaseRepository = new ImageUploadRepository(new JwsoftTiptapImageUpload());
+$databaseStorage = new TestImageStorage();
+$adminRecords = [];
+foreach ([
+    ['hash' => '111111111111', 'name' => 'referenced.png'],
+    ['hash' => '222222222222', 'name' => 'single.png'],
+    ['hash' => '333333333333', 'name' => 'bulk.png'],
+] as $fixture) {
+    $adminRecords[] = $databaseRepository->create([
+        'hash' => $fixture['hash'],
+        'original_name' => $fixture['name'],
+        'file_path' => 'images/admin/'.$fixture['hash'].'.png',
+        'storage_disk' => 'test-public',
+        'file_size' => 10,
+        'mime_type' => 'image/png',
+        'uploaded_by' => null,
+    ]);
+    $databaseStorage->files['images/admin/'.$fixture['hash'].'.png'] = 'image';
+}
+$capsule->table('pages')->insert([
+    'content' => json_encode(['ko' => '<img src="/api/plugins/jwsoft-tiptap-editor/images/111111111111">'], JSON_THROW_ON_ERROR),
+]);
+
+$adminService = new ImageUploadAdminService(
+    $databaseRepository,
+    $adminScanner,
+    new ImageCleanupService($databaseRepository, $adminScanner, $databaseStorage),
+);
+$pageTwo = $adminService->paginate([], 1, 2);
+assertImageSubsystem($pageTwo['pagination']['current_page'] === 2, 'admin pagination must honor the requested page');
+assertImageSubsystem($pageTwo['items']->count() === 1, 'admin pagination page size mismatch');
+$referencedOnly = $adminService->paginate(['referenced' => 'referenced'], 20, 1);
+assertImageSubsystem($referencedOnly['pagination']['total'] === 1, 'reference filter must find the official page source');
+assertImageSubsystem((string) $referencedOnly['items']->first()?->hash === '111111111111', 'reference filter returned wrong upload');
+
+$single = $adminService->find((int) $adminRecords[1]->id);
+assertImageSubsystem($single !== null && $adminService->delete($single), 'single admin deletion failed');
+assertImageSubsystem($databaseRepository->findById((int) $adminRecords[1]->id) === null, 'single deletion record survived');
+assertImageSubsystem(! isset($databaseStorage->files['images/admin/222222222222.png']), 'single deletion file survived');
+
+$bulk = $adminService->bulkDelete([(int) $adminRecords[2]->id, 999999]);
+assertImageSubsystem($bulk['requested'] === 2, 'bulk deletion requested count mismatch');
+assertImageSubsystem($bulk['deleted'] === 1, 'bulk deletion deleted count mismatch');
+assertImageSubsystem($bulk['failed'] === 1 && $bulk['missing'] === 1, 'bulk deletion must report a raced missing record');
+assertImageSubsystem($bulk['failed_ids'] === [999999], 'bulk deletion failed ids mismatch');
+assertImageSubsystem($bulk['missing_ids'] === [999999], 'bulk deletion missing ids mismatch');
+assertImageSubsystem($databaseRepository->findById((int) $adminRecords[2]->id) === null, 'bulk deletion record survived');
+assertImageSubsystem(! isset($databaseStorage->files['images/admin/333333333333.png']), 'bulk deletion file survived');
+assertImageSubsystem($databaseRepository->findById((int) $adminRecords[0]->id) !== null, 'unselected upload was deleted');
+
 HookManager::resetAll();
 @unlink($temp);
 @unlink($invalidTemp);
-echo "[jwsoft] G7 image upload, compatibility hooks, rollback, and orphan cleanup passed\n";
+echo "[jwsoft] G7 image upload, admin routes/list/delete, reference scan, rollback, and orphan cleanup passed\n";

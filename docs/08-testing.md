@@ -28,7 +28,7 @@
 - state submit과 API 저장
 - legacy HTML round-trip
 
-`make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약, 모든 `html_editor` 교체 저장 route 11개 존재, Illuminate Request 기반 문자열·다국어 map HTML 정제와 직접 우회 요청 차단, 이미지 업로드의 신·구 훅 발화·StorageInterface 저장·DB 실패 롤백·고아 레코드 정리, MP4 청크 해시·멱등 재시도·조립·서빙·만료 정리, 링크 미리보기 provider·metadata·redirect·SSRF gate를 검사합니다. 별도 lifecycle 하네스는 실제 ZIP 업데이트, 동시 활성화 차단, CKEditor 롤백·JWSoft 복구와 페이지·게시글·상품 DB 해시 보존을 기록합니다.
+`make integration-check`는 전용 G7 7.0.9+의 플러그인 명령 계약, 모든 `html_editor` 교체 저장 route 11개 존재, Illuminate Request 기반 문자열·다국어 map HTML 정제와 직접 우회 요청 차단, 이미지 업로드의 신·구 훅 발화·StorageInterface 저장·DB 실패 롤백·고아 레코드 정리를 검사합니다. 관리자 이미지 검사는 G7 layout 구조, 인증·조회/삭제 권한 route, 실제 SQLite 목록 pagination·공식 편집 화면 참조 판정·단건/일괄 파일 및 레코드 삭제·경합으로 사라진 ID 보고까지 포함합니다. MP4 청크 해시·멱등 재시도·조립·서빙·만료 정리와 링크 미리보기 provider·metadata·redirect·SSRF gate도 같은 단계에서 검사합니다. 별도 lifecycle 하네스는 실제 ZIP 업데이트, 동시 활성화 차단, CKEditor 롤백·JWSoft 복구와 페이지·게시글·상품 DB 해시 보존을 기록합니다.
 
 ### Browser E2E
 

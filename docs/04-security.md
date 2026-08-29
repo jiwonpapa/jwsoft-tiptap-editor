@@ -92,4 +92,4 @@
 
 `harness/fixtures/security-corpus.json`의 각 payload에 대해 editor load, paste, API direct submit, render를 모두 검사합니다. 브라우저에서 실행되지 않는 것만으로 통과하지 않으며 저장 HTML도 기대 정책과 일치해야 합니다.
 
-현재 `alpha.17`은 PHP sanitizer, 브라우저 allowlist, G7의 모든 `html_editor` 교체 저장 route 11개 존재와 직접 제출, 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. Chromium의 신뢰된 loopback origin에서 실제 Clipboard API와 붙여넣기 단축키를 사용해 style·이벤트 속성·script 제거, 손실 경고, undo/redo를 증명하며 최종 저장 정본은 계속 서버 sanitizer가 결정합니다.
+현재 `alpha.18`은 PHP sanitizer, 브라우저 allowlist, G7의 모든 `html_editor` 교체 저장 route 11개 존재와 직접 제출, 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리, 인증·권한이 분리된 관리자 이미지 목록·단건·일괄 삭제 route를 자동 검사합니다. 관리자 참조 판정은 게시판·상품 설명·상품 공통정보·페이지와 G7 core 템플릿 소스를 검사하고, 파일 삭제가 실패하면 DB 기록을 보존합니다. Chromium의 신뢰된 loopback origin에서 실제 Clipboard API와 붙여넣기 단축키를 사용해 style·이벤트 속성·script 제거, 손실 경고, undo/redo를 증명하며 최종 저장 정본은 계속 서버 sanitizer가 결정합니다.

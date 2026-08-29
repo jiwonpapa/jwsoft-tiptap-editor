@@ -1,6 +1,6 @@
 {
   "name": "@jwsoft/tiptap-editor",
-  "version": "0.1.0-alpha.17",
+  "version": "0.1.0-alpha.18",
   "description": "Core-free Tiptap editor plugin for Gnuboard 7",
   "private": true,
   "type": "module",
