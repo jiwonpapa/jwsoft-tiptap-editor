@@ -121,6 +121,7 @@ final class EditorSanitizer
             $this->normalizeClass($element, $allowedClassTokens);
             $this->normalizeAttributes($element, $policy);
             if ($element->tagName === 'figure') {
+                $this->normalizeImageFigure($element, $policy);
                 $this->normalizeMediaFigure($element);
                 $this->normalizeCardFigure($element);
             }
@@ -245,6 +246,50 @@ final class EditorSanitizer
             $element->removeAttribute('rel');
         } else {
             $element->setAttribute('rel', implode(' ', $rel));
+        }
+    }
+
+    /** @param array<string, mixed> $policy */
+    private function normalizeImageFigure(DOMElement $element, array $policy): void
+    {
+        $classes = preg_split('/\s+/u', trim($element->getAttribute('class'))) ?: [];
+        if (! in_array('jw-image', $classes, true)) {
+            return;
+        }
+
+        $alignments = array_values(array_intersect($classes, [
+            'jw-image-align-left', 'jw-image-align-center', 'jw-image-align-right',
+        ]));
+        $sizes = array_values(array_intersect($classes, [
+            'jw-image-size-25', 'jw-image-size-50', 'jw-image-size-75', 'jw-image-size-100',
+        ]));
+        $children = [];
+        foreach ($element->childNodes as $child) {
+            if ($child instanceof DOMElement) {
+                $children[] = $child;
+            }
+        }
+        $image = $children[0] ?? null;
+        $caption = $children[1] ?? null;
+        $valid = count($alignments) === 1
+            && count($sizes) === 1
+            && count($children) <= 2
+            && $image instanceof DOMElement
+            && $image->tagName === 'img'
+            && $this->isAllowedUrl($image->getAttribute('src'), $policy['media'], true)
+            && ($caption === null || $caption->tagName === 'figcaption');
+        if ($valid) {
+            return;
+        }
+
+        $classes = array_values(array_filter(
+            $classes,
+            static fn (string $class): bool => ! str_starts_with($class, 'jw-image'),
+        ));
+        if ($classes === []) {
+            $element->removeAttribute('class');
+        } else {
+            $element->setAttribute('class', implode(' ', $classes));
         }
     }
 

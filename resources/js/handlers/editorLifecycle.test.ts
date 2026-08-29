@@ -440,8 +440,17 @@ describe("G7 editor lifecycle", () => {
     if (imageInputs) {
       imageInputs[0].value = "/assets/example.webp";
       imageInputs[1].value = "예시 이미지";
-      imageInputs[2].value = "설명";
+      imageInputs[2].value = "이미지 제목";
+      imageInputs[3].value = "이미지 캡션";
     }
+    const alignment = imageDialog?.querySelector<HTMLSelectElement>(
+      "select[aria-label='이미지 정렬']",
+    );
+    const size = imageDialog?.querySelector<HTMLSelectElement>(
+      "select[aria-label='이미지 크기']",
+    );
+    if (alignment) alignment.value = "right";
+    if (size) size.value = "50";
     imageDialog
       ?.querySelector("form")
       ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
@@ -450,11 +459,45 @@ describe("G7 editor lifecycle", () => {
       ?.getHTML();
     const wrapper = document.createElement("div");
     wrapper.innerHTML = imageHtml ?? "";
+    const figure = wrapper.querySelector("figure");
     const image = wrapper.querySelector("img");
+    expect(figure?.className).toBe(
+      "jw-image jw-image-align-right jw-image-size-50",
+    );
     expect(image?.getAttribute("src")).toBe("/assets/example.webp");
     expect(image?.getAttribute("alt")).toBe("예시 이미지");
-    expect(image?.className).toBe("jw-image-block");
+    expect(wrapper.querySelector("figcaption")?.textContent).toBe(
+      "이미지 캡션",
+    );
     expect(imageHtml).not.toContain("style=");
+
+    const imageEditor = editorRegistry.get(
+      editorContainerId("image_content"),
+      "ko",
+    );
+    let imagePosition = -1;
+    imageEditor?.state.doc.descendants((node, position) => {
+      if (node.type.name === "image") imagePosition = position;
+    });
+    imageEditor?.commands.setNodeSelection(imagePosition);
+    imageTrigger?.click();
+    expect(
+      imageDialog?.querySelector<HTMLButtonElement>("button[type='submit']")
+        ?.textContent,
+    ).toBe("이미지 적용");
+    const editInputs = imageDialog?.querySelectorAll<HTMLInputElement>("input");
+    if (editInputs) editInputs[3].value = "수정 캡션";
+    if (alignment) alignment.value = "left";
+    if (size) size.value = "25";
+    imageDialog
+      ?.querySelector("form")
+      ?.dispatchEvent(new Event("submit", { bubbles: true, cancelable: true }));
+    const updatedHtml = imageEditor?.getHTML() ?? "";
+    expect(updatedHtml).toContain(
+      '<figure class="jw-image jw-image-align-left jw-image-size-25">',
+    );
+    expect(updatedHtml).toContain("<figcaption>수정 캡션</figcaption>");
+    expect(updatedHtml).not.toContain("style=");
   });
 
   it("moves toolbar focus with arrow keys and closes dialogs with Escape", async () => {

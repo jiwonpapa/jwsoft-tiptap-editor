@@ -2,7 +2,7 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 각 체크 항목의 `p0` ID는 `harness/contracts/stable-readiness.json`과 연결되며, 단순 체크 표시만으로 완료 처리되지 않습니다.
 
-현재 공개 `alpha.12`는 전용 G7 7.0.9에서 22개 release-candidate 계약과 재현 가능한 ZIP을 검증했고, 개발 중인 `alpha.14`는 화면 이동 instance 수명주기와 구조 편집 동등성을 독립 Chromium에서 검증합니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 기능·현재 버전 브라우저·실기기·staging·production 증거가 남은 stable 차단 항목입니다.
+현재 공개 `alpha.12`는 전용 G7 7.0.9에서 22개 release-candidate 계약과 재현 가능한 ZIP을 검증했고, 개발 중인 `alpha.15`는 instance 수명주기·구조 편집·반응형 이미지 배치를 독립 Chromium에서 검증합니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 기능·현재 버전 브라우저·실기기·staging·production 증거가 남은 stable 차단 항목입니다.
 
 ## A. 편집기 교체
 
@@ -19,7 +19,7 @@
 - [x] 제목, 문단, bold, italic, underline, strike <!-- p0:editor.text-formatting -->
 - [x] 링크, 인용, 목록, 정렬, 들여쓰기 동등 동작 <!-- p0:editor.indentation -->
 - [x] 표 생성·편집 <!-- p0:editor.table -->
-- [ ] 이미지 업로드·caption·정렬·크기 <!-- p0:editor.image-layout -->
+- [x] 이미지 업로드·caption·정렬·크기 <!-- p0:editor.image-layout -->
 - [x] code block, 원문 HTML 편집 금지 정책, horizontal rule <!-- p0:editor.source-policy -->
 - [ ] undo/redo, 붙여넣기, 실제 한글 IME <!-- p0:editor.ime -->
 

@@ -37,6 +37,40 @@ describe("Tiptap policy schema", () => {
     mount.remove();
   });
 
+  it("preserves legacy images and round-trips policy image figures", () => {
+    const { editor, mount } = mountEditor(
+      '<img src="/legacy.webp" alt="기존"><figure class="jw-image jw-image-align-center jw-image-size-75"><img src="/new.webp" alt="신규"><figcaption>대표 이미지</figcaption></figure>',
+    );
+
+    expect(editor.getHTML()).toContain(
+      '<img src="/legacy.webp" alt="기존"><figure class="jw-image jw-image-align-center jw-image-size-75">',
+    );
+    expect(editor.getHTML()).toContain("<figcaption>대표 이미지</figcaption>");
+    expect(editor.getHTML()).not.toContain("style=");
+    editor.destroy();
+    mount.remove();
+  });
+
+  it("escapes image captions stored as node attributes", () => {
+    const { editor, mount } = mountEditor("<p></p>");
+    editor.commands.insertContent({
+      type: "image",
+      attrs: {
+        src: "/safe.webp",
+        alt: "안전",
+        caption: "<script>alert(1)</script>",
+        jwClassTokens: "jw-image jw-image-align-center jw-image-size-100",
+      },
+    });
+
+    expect(editor.getHTML()).toContain(
+      "<figcaption>&lt;script&gt;alert(1)&lt;/script&gt;</figcaption>",
+    );
+    expect(editor.getHTML()).not.toContain("<script>");
+    editor.destroy();
+    mount.remove();
+  });
+
   it("writes only declared class tokens and preserves token categories", () => {
     const { editor, mount } = mountEditor("<p>문단</p>");
     editor.commands.setTextSelection(2);

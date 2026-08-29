@@ -54,6 +54,12 @@
       "input": "<figure class=\"jw-card jw-card-instagram\"><a class=\"jw-card-link\" href=\"https://evil.example/post\"><strong>Spoof</strong><script>alert(1)</script></a></figure>",
       "mustKeep": ["<strong>Spoof</strong>"],
       "mustRemove": ["jw-card", "<script", "alert(1)"]
+    },
+    {
+      "id": "spoofed-image-figure",
+      "input": "<figure class=\"jw-image jw-image-align-center jw-image-size-100\"><a href=\"https://example.com\">not an image</a></figure>",
+      "mustKeep": ["not an image"],
+      "mustRemove": ["jw-image"]
     }
   ]
 }

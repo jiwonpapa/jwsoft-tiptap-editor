@@ -241,12 +241,48 @@ function normalizeCardFigures(root: DocumentFragment): void {
   }
 }
 
+function normalizeImageFigures(root: DocumentFragment): void {
+  const alignments = [
+    "jw-image-align-left",
+    "jw-image-align-center",
+    "jw-image-align-right",
+  ];
+  const sizes = [
+    "jw-image-size-25",
+    "jw-image-size-50",
+    "jw-image-size-75",
+    "jw-image-size-100",
+  ];
+  for (const figure of root.querySelectorAll<HTMLElement>("figure.jw-image")) {
+    const children = [...figure.children];
+    const image = children[0];
+    const caption = children[1];
+    const valid =
+      alignments.filter((token) => figure.classList.contains(token)).length ===
+        1 &&
+      sizes.filter((token) => figure.classList.contains(token)).length === 1 &&
+      children.length <= 2 &&
+      image instanceof HTMLImageElement &&
+      isAllowedEditorUrl(image.getAttribute("src") ?? "", true) &&
+      (!caption || caption.tagName.toLowerCase() === "figcaption");
+    if (valid) continue;
+
+    const classes = [...figure.classList].filter(
+      (token) => !token.startsWith("jw-image"),
+    );
+    if (classes.length) figure.setAttribute("class", classes.join(" "));
+    else figure.removeAttribute("class");
+    normalizeElement(figure);
+  }
+}
+
 function normalizeFragment(html: string): string {
   const template = document.createElement("template");
   template.innerHTML = html;
   for (const element of [...template.content.querySelectorAll("*")]) {
     normalizeElement(element);
   }
+  normalizeImageFigures(template.content);
   normalizeCardFigures(template.content);
   return template.innerHTML;
 }

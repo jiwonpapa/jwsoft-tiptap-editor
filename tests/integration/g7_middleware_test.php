@@ -26,12 +26,12 @@ $next = static fn (Request $request): Response => new Response((string) $request
 
 $request = Request::create('/api/modules/sirsoft-board/boards/free/posts', 'POST', [
     'content_mode' => 'html',
-    'content' => '<p class="evil jw-align-center jw-indent-2" onclick="bad()">안녕</p>',
+    'content' => '<p class="evil jw-align-center jw-indent-2" onclick="bad()">안녕</p><figure class="jw-image jw-image-align-center jw-image-size-50"><img src="/storage/editor/a.webp" alt="예시"><figcaption>캡션</figcaption></figure>',
     'jwsoft_editor_policy_ack' => EditorPolicy::SHA256,
 ]);
 $response = $middleware->handle($request, $next);
 assertG7Middleware($response->getStatusCode() === 200, 'acknowledged HTML write must pass');
-assertG7Middleware($response->getContent() === '<p class="jw-align-center jw-indent-2">안녕</p>', 'middleware must pass canonical HTML');
+assertG7Middleware($response->getContent() === '<p class="jw-align-center jw-indent-2">안녕</p><figure class="jw-image jw-image-align-center jw-image-size-50"><img alt="예시" src="/storage/editor/a.webp"><figcaption>캡션</figcaption></figure>', 'middleware must pass canonical HTML');
 
 $unacknowledged = Request::create('/api/modules/sirsoft-board/boards/free/posts', 'POST', [
     'content_mode' => 'html',

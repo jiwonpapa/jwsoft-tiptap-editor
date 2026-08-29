@@ -229,7 +229,9 @@ test("link quote lists alignment and indentation use policy-safe controls", asyn
   await linkDialog.getByRole("button", { name: "링크 적용" }).click();
   await expect(editable.locator("a")).toHaveCount(2);
 
-  await page.getByLabel("정렬").selectOption("jw-align-center");
+  await page
+    .getByLabel("정렬", { exact: true })
+    .selectOption("jw-align-center");
   await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
   const alignedIndentedParagraphs = editable.locator(
     "p.jw-align-center.jw-indent-1",
@@ -333,7 +335,7 @@ test("mobile toolbar scrolls without widening the page and keeps dialogs visible
   });
 });
 
-test("inline image upload reports completion and inserts the canonical URL", async ({
+test("image upload supports caption alignment size and responsive output", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium-desktop");
@@ -357,6 +359,17 @@ test("inline image upload reports completion and inserts the canonical URL", asy
       });
     },
   );
+  await page.route(
+    "http://jwsoft.test/api/plugins/jwsoft-tiptap-editor/images/abcdef123456",
+    (route) =>
+      route.fulfill({
+        contentType: "image/png",
+        body: Buffer.from(
+          "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+          "base64",
+        ),
+      }),
+  );
   await mountEditor(page, "standard", true);
   await page.getByRole("button", { name: "이미지" }).click();
   const dialog = page.getByRole("dialog", { name: "이미지" });
@@ -366,14 +379,70 @@ test("inline image upload reports completion and inserts the canonical URL", asy
     buffer: Buffer.from("browser-upload-proof"),
   });
   await dialog.getByLabel("대체 텍스트").fill("업로드 증빙");
+  await dialog.getByLabel("캡션").fill("초기 캡션");
   await dialog.getByRole("button", { name: "이미지 삽입" }).click();
 
+  const figure = page.locator(".jwsoft-tiptap-editable figure.jw-image");
   const image = page.locator(".jwsoft-tiptap-editable img");
   await expect(image).toHaveAttribute(
     "src",
     "/api/plugins/jwsoft-tiptap-editor/images/abcdef123456",
   );
   await expect(image).toHaveAttribute("alt", "업로드 증빙");
+  await expect(figure.locator("figcaption")).toHaveText("초기 캡션");
+
+  await figure.click();
+  await page.getByRole("button", { name: "이미지", exact: true }).click();
+  await expect(
+    dialog.getByRole("button", { name: "이미지 적용" }),
+  ).toBeVisible();
+  await dialog.getByLabel("캡션").fill("업로드 캡션");
+  await dialog.getByLabel("이미지 정렬").selectOption("right");
+  await dialog.getByLabel("이미지 크기").selectOption("50");
+  await dialog.getByRole("button", { name: "이미지 적용" }).click();
+
+  await expect(figure).toHaveClass(
+    /jw-image jw-image-align-right jw-image-size-50/,
+  );
+  await expect(figure.locator("figcaption")).toHaveText("업로드 캡션");
+  const desktop = await figure.evaluate((element) => ({
+    figureWidth: element.getBoundingClientRect().width,
+    editorWidth:
+      element.closest(".jwsoft-tiptap-editable")?.getBoundingClientRect()
+        .width ?? 0,
+  }));
+  expect(desktop.figureWidth).toBeGreaterThan(0);
+  expect(desktop.figureWidth).toBeLessThanOrEqual(desktop.editorWidth);
+
+  await page.setViewportSize({ width: 412, height: 915 });
+  const mobile = await figure.evaluate((element) => ({
+    figureWidth: element.getBoundingClientRect().width,
+    editorWidth:
+      element.closest(".jwsoft-tiptap-editable")?.getBoundingClientRect()
+        .width ?? 0,
+    pageWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(mobile.figureWidth).toBeLessThanOrEqual(mobile.editorWidth);
+  expect(mobile.pageWidth).toBeLessThanOrEqual(mobile.viewportWidth);
+  await expect(page.locator(".jwsoft-tiptap-editable [style]")).toHaveCount(0);
+
+  await page.screenshot({
+    path: testInfo.outputPath("editor-image-layout-mobile.png"),
+    fullPage: true,
+  });
+  recordBrowserEvidence("editor-image-layout.json", testInfo.project.name, {
+    uploadInserted: true,
+    canonicalUrl: await image.getAttribute("src"),
+    caption: await figure.locator("figcaption").textContent(),
+    alignmentToken: "jw-image-align-right",
+    sizeToken: "jw-image-size-50",
+    desktop,
+    mobile,
+    inlineStyleCount: await page
+      .locator(".jwsoft-tiptap-editable [style]")
+      .count(),
+  });
 });
 
 test("media URL creates safe canonical HTML and a click-to-load responsive player", async ({

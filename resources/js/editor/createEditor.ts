@@ -1,5 +1,4 @@
 import { Editor } from "@tiptap/core";
-import Image from "@tiptap/extension-image";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Table, TableKit } from "@tiptap/extension-table";
 import {
@@ -10,6 +9,7 @@ import {
 import StarterKit from "@tiptap/starter-kit";
 
 import { ClassTokenExtension } from "@/editor/classTokens";
+import { PolicyImage } from "@/editor/imageNode";
 import { MediaEmbedExtension } from "@/editor/mediaEmbed";
 import { SmartCardExtension } from "@/editor/smartCard";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
@@ -56,7 +56,7 @@ export function createEditor(options: CreateEditorOptions): Editor {
           },
         },
       }),
-      Image.configure({ allowBase64: false }),
+      PolicyImage.configure({ allowBase64: false }),
       TableKit.configure({ table: false }),
       PolicyTable.configure({ resizable: false, View: null }),
       ClassTokenExtension,

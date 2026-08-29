@@ -47,6 +47,16 @@ $link = $sanitizer->sanitize(
 );
 assertEditorPolicy($link->canonicalHtml === '<p class="jw-align-center jw-indent-2"><a href="https://example.com" rel="noopener noreferrer ugc" target="_blank">링크</a></p>', 'class token and _blank rel normalization failed');
 
+$imageFigure = $sanitizer->sanitize(
+    '<figure class="jw-image jw-image-size-50 jw-image-align-right"><img src="/storage/editor/a.webp" alt="예시"><figcaption>오른쪽 이미지</figcaption></figure>',
+);
+assertEditorPolicy($imageFigure->canonicalHtml === '<figure class="jw-image jw-image-align-right jw-image-size-50"><img alt="예시" src="/storage/editor/a.webp"><figcaption>오른쪽 이미지</figcaption></figure>', 'policy image figure normalization failed');
+
+$invalidImageFigure = $sanitizer->sanitize(
+    '<figure class="jw-image jw-image-align-center jw-image-size-100"><a href="https://example.com">이미지 아님</a></figure>',
+);
+assertEditorPolicy(! str_contains($invalidImageFigure->canonicalHtml, 'jw-image'), 'invalid image figure classes must be removed');
+
 $media = $sanitizer->sanitize(
     '<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">YouTube</a></figure>',
 );

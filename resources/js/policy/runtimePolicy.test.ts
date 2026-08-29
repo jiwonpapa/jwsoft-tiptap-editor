@@ -25,6 +25,16 @@ describe("browser policy defense", () => {
     );
   });
 
+  it("keeps only structurally valid canonical image figures", () => {
+    expect(
+      sanitizeClientHtml(
+        '<figure class="jw-image jw-image-align-right jw-image-size-50"><img src="/image.png"><figcaption>캡션</figcaption></figure>',
+      ),
+    ).toBe(
+      '<figure class="jw-image jw-image-align-right jw-image-size-50"><img src="/image.png"><figcaption>캡션</figcaption></figure>',
+    );
+  });
+
   it("detects policy removal before an existing document becomes writable", () => {
     const analysis = analyzeLegacyHtml(
       '<p style="text-align:center">기존</p>',

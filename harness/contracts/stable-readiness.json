@@ -69,6 +69,17 @@
       "artifacts": ["test-results/parity/unit.json"]
     },
     {
+      "id": "editor.image-layout",
+      "gate": "unit-browser-integration-security",
+      "requirement": "이미지 업로드 caption 정렬 반응형 크기",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/editor-image-layout.json",
+        "test-results/parity/integration.json",
+        "test-results/parity/corpus.json"
+      ]
+    },
+    {
       "id": "editor.source-policy",
       "gate": "unit-security",
       "requirement": "code block과 원문 편집 금지 정책과 horizontal rule",

@@ -12,6 +12,7 @@ import { editorRegistry } from "@/editor/editorRegistry";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
 import { uploadEditorImage } from "@/editor/imageUpload";
+import { DEFAULT_IMAGE_CLASS_TOKENS } from "@/editor/imageNode";
 import {
   insertMediaEmbed,
   normalizeMediaUrl,
@@ -136,7 +137,7 @@ async function uploadImageFiles(options: {
         attrs: {
           src: uploaded.url,
           alt: uploaded.originalName,
-          jwClassTokens: "jw-image-block",
+          jwClassTokens: DEFAULT_IMAGE_CLASS_TOKENS,
         },
       });
       position += 1;

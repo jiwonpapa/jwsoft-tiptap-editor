@@ -35,7 +35,8 @@
             "th",
             "td",
             "img",
-            "figure"
+            "figure",
+            "figcaption"
           ],
           "ALLOWED_ATTR": [
             "alt",

@@ -45,6 +45,8 @@ G7 7.0.9 게시판의 사용자·관리자 `store/update` 라우트는 플러그
 
 툴바 선택, 편집기 드롭, 클립보드 파일 입력은 모두 동일한 인증·MIME·크기 검증 업로드 API를 사용합니다. `dragDropImageUpload`와 `pasteImageUpload`는 입력 경로만 제어하며 서버 검증을 우회하지 않습니다.
 
+새 이미지 배치의 저장 정본은 `figure.jw-image > img + figcaption?`입니다. 정렬과 25·50·75·100% 크기는 정책 class token으로만 표현하고 출력 CSS가 `max-width: 100%`를 강제합니다. 기존 단독 `img`는 조용히 변환하지 않고 그대로 왕복하며, 사용자가 이미지 편집을 적용할 때만 새 figure 구조로 전환합니다.
+
 G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve, 참조 스캔, 관리자 단건·일괄 삭제, opt-in 미사용 정리를 `sirsoft-ckeditor5`와 동등한 계약으로 제공합니다. 저장 후 DB 기록 실패 시 물리 파일을 즉시 회수하고, 참조 소스가 불완전하면 실제 자동 삭제를 중단합니다.
 
 공개 훅은 `jwsoft-tiptap-editor.image.*`를 정본으로 사용합니다. 교체 시 기존 게시판·페이지·쇼핑몰 및 이미지 최적화 소비자가 끊기지 않도록 `sirsoft-ckeditor5.image.*` 이름도 호환 별칭으로 순차 발화합니다. 외부 소비자는 중복 처리를 피하기 위해 새 이름과 별칭 중 하나만 구독합니다.

@@ -36,6 +36,16 @@
       "migration": "known-loss-to-class-token",
       "mustKeep": ["<p>가운데</p>"],
       "mustRemove": ["style="]
+    },
+    {
+      "id": "policy-image-figure",
+      "input": "<figure class=\"jw-image jw-image-align-center jw-image-size-75\"><img src=\"/storage/editor/a.webp\" alt=\"예시\"><figcaption>대표 이미지</figcaption></figure>",
+      "semanticText": "대표 이미지",
+      "mustKeep": [
+        "jw-image-align-center",
+        "jw-image-size-75",
+        "<figcaption>대표 이미지</figcaption>"
+      ]
     }
   ]
 }

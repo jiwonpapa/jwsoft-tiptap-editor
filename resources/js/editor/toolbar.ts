@@ -6,6 +6,12 @@ import {
 } from "@/editor/classTokens";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { uploadEditorImage } from "@/editor/imageUpload";
+import {
+  DEFAULT_IMAGE_CLASS_TOKENS,
+  imageClassTokens,
+  type ImageAlignment,
+  type ImageSize,
+} from "@/editor/imageNode";
 import { editorText } from "@/editor/locale";
 import {
   insertMediaEmbed,
@@ -74,6 +80,14 @@ const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
     "jw-table-striped": "줄무늬 표",
   },
   image: {
+    "jw-image": "이미지",
+    "jw-image-align-left": "왼쪽",
+    "jw-image-align-center": "가운데",
+    "jw-image-align-right": "오른쪽",
+    "jw-image-size-25": "너비 25%",
+    "jw-image-size-50": "너비 50%",
+    "jw-image-size-75": "너비 75%",
+    "jw-image-size-100": "너비 100%",
     "jw-image-inline": "글 안",
     "jw-image-block": "가운데 블록",
     "jw-image-rounded": "둥근 모서리",
@@ -297,7 +311,10 @@ function createDialog(options: {
   return { element: dialog, trigger: options.trigger, close };
 }
 
-function formField(labelText: string, input: HTMLInputElement): HTMLElement {
+function formField(
+  labelText: string,
+  input: HTMLInputElement | HTMLSelectElement,
+): HTMLElement {
   const label = document.createElement("label");
   label.className = "jwsoft-tiptap-field";
   const text = document.createElement("span");
@@ -483,6 +500,22 @@ function createImageDialog(
   alt.type = "text";
   const title = document.createElement("input");
   title.type = "text";
+  const caption = document.createElement("input");
+  caption.type = "text";
+  const alignment = document.createElement("select");
+  alignment.setAttribute("aria-label", editorText(locale, "이미지 정렬"));
+  for (const [value, label] of [
+    ["left", "왼쪽"],
+    ["center", "가운데"],
+    ["right", "오른쪽"],
+  ] as const) {
+    alignment.add(new Option(editorText(locale, label), value));
+  }
+  const size = document.createElement("select");
+  size.setAttribute("aria-label", editorText(locale, "이미지 크기"));
+  for (const value of ["25", "50", "75", "100"] as const) {
+    size.add(new Option(`${value}%`, value));
+  }
   const file = document.createElement("input");
   file.type = "file";
   file.accept = "image/jpeg,image/png,image/gif,image/webp,image/avif";
@@ -515,7 +548,10 @@ function createImageDialog(
       src,
     ),
     formField(editorText(locale, "대체 텍스트"), alt),
-    formField(editorText(locale, "설명"), title),
+    formField(editorText(locale, "제목"), title),
+    formField(editorText(locale, "캡션"), caption),
+    formField(editorText(locale, "이미지 정렬"), alignment),
+    formField(editorText(locale, "이미지 크기"), size),
     error,
     apply,
   );
@@ -524,6 +560,34 @@ function createImageDialog(
     trigger,
     content: form,
     locale,
+  });
+  let editingSelectedImage = false;
+  trigger.addEventListener("click", () => {
+    editingSelectedImage = editor.isActive("image");
+    const attributes = editingSelectedImage
+      ? editor.getAttributes("image")
+      : {};
+    src.value = typeof attributes.src === "string" ? attributes.src : "";
+    alt.value = typeof attributes.alt === "string" ? attributes.alt : "";
+    title.value = typeof attributes.title === "string" ? attributes.title : "";
+    caption.value =
+      typeof attributes.caption === "string" ? attributes.caption : "";
+    const tokens =
+      typeof attributes.jwClassTokens === "string"
+        ? attributes.jwClassTokens
+        : "";
+    alignment.value =
+      (["left", "center", "right"] as const).find((value) =>
+        tokens.includes(`jw-image-align-${value}`),
+      ) ?? "center";
+    size.value =
+      (["25", "50", "75", "100"] as const).find((value) =>
+        tokens.includes(`jw-image-size-${value}`),
+      ) ?? "100";
+    apply.textContent = editorText(
+      locale,
+      editingSelectedImage ? "이미지 적용" : "이미지 삽입",
+    );
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -572,19 +636,29 @@ function createImageDialog(
       src.focus();
       return;
     }
-    editor
-      .chain()
-      .focus()
-      .insertContent({
-        type: "image",
-        attrs: {
-          src: value,
-          alt: alt.value.trim(),
-          title: title.value.trim() || null,
-          jwClassTokens: "jw-image-block",
-        },
-      })
-      .run();
+    const current = editingSelectedImage
+      ? editor.getAttributes("image").jwClassTokens
+      : DEFAULT_IMAGE_CLASS_TOKENS;
+    const attributes = {
+      src: value,
+      alt: alt.value.trim(),
+      title: title.value.trim() || null,
+      caption: caption.value.trim(),
+      jwClassTokens: imageClassTokens(
+        alignment.value as ImageAlignment,
+        size.value as ImageSize,
+        current,
+      ),
+    };
+    if (editingSelectedImage) {
+      editor.chain().focus().updateAttributes("image", attributes).run();
+    } else {
+      editor
+        .chain()
+        .focus()
+        .insertContent({ type: "image", attrs: attributes })
+        .run();
+    }
     form.reset();
     progress.hidden = true;
     file.disabled = false;

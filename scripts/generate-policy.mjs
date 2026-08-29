@@ -52,7 +52,17 @@ const tokenCss = `
 .jw-table-striped tbody tr:nth-child(odd) { background: rgb(249 250 251); }
 .jw-image-inline { display: inline-block; }
 .jw-image-block { display: block; margin-inline: auto; }
-.jw-image-rounded { border-radius: 0.5rem; }
+.jw-image { display: block; max-width: 100%; margin-block: 1rem; }
+.jw-image > img { display: block; width: 100%; max-width: 100%; height: auto; }
+.jw-image > figcaption { margin-top: 0.5rem; color: #6b7280; font-size: 0.875rem; line-height: 1.5; text-align: center; overflow-wrap: anywhere; }
+.jw-image-align-left { margin-inline: 0 auto; }
+.jw-image-align-center { margin-inline: auto; }
+.jw-image-align-right { margin-inline: auto 0; }
+.jw-image-size-25 { width: 25%; }
+.jw-image-size-50 { width: 50%; }
+.jw-image-size-75 { width: 75%; }
+.jw-image-size-100 { width: 100%; }
+.jw-image-rounded, .jw-image-rounded > img { border-radius: 0.5rem; }
 .jw-media { position: relative; width: min(100%, 60rem); margin: 1rem auto; overflow: hidden; border-radius: 0.625rem; background: #111827; color: #fff; }
 .jw-media-16x9 { aspect-ratio: 16 / 9; }
 .jw-media-9x16 { width: min(100%, 26rem); aspect-ratio: 9 / 16; }

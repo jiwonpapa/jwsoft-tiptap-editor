@@ -44,6 +44,8 @@
 
 ## 이미지
 
+- caption·정렬·크기 저장은 `figure > img + figcaption?`와 allowlist class token만 허용
+- 서버는 image figure의 직접 자식, 이미지 URL, 정렬 token 1개, 크기 token 1개를 다시 검사
 - 요청 MIME과 실제 파일 MIME을 각각 검사하고 실제 MIME을 저장 정본으로 사용
 - 훅 변환 뒤 MIME·크기·픽셀 수를 서버에서 다시 검사
 - 파일·픽셀 상한
