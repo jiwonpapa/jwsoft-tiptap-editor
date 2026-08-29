@@ -26,12 +26,12 @@ $next = static fn (Request $request): Response => new Response((string) $request
 
 $request = Request::create('/api/modules/sirsoft-board/boards/free/posts', 'POST', [
     'content_mode' => 'html',
-    'content' => '<p class="evil jw-align-center" onclick="bad()">안녕</p>',
+    'content' => '<p class="evil jw-align-center jw-indent-2" onclick="bad()">안녕</p>',
     'jwsoft_editor_policy_ack' => EditorPolicy::SHA256,
 ]);
 $response = $middleware->handle($request, $next);
 assertG7Middleware($response->getStatusCode() === 200, 'acknowledged HTML write must pass');
-assertG7Middleware($response->getContent() === '<p class="jw-align-center">안녕</p>', 'middleware must pass canonical HTML');
+assertG7Middleware($response->getContent() === '<p class="jw-align-center jw-indent-2">안녕</p>', 'middleware must pass canonical HTML');
 
 $unacknowledged = Request::create('/api/modules/sirsoft-board/boards/free/posts', 'POST', [
     'content_mode' => 'html',

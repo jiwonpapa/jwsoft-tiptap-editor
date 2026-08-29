@@ -53,6 +53,16 @@
       "artifacts": ["test-results/parity/unit.json"]
     },
     {
+      "id": "editor.indentation",
+      "gate": "unit-browser-integration",
+      "requirement": "링크 인용 목록 정렬 들여쓰기",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/editor-indentation.json",
+        "test-results/parity/integration.json"
+      ]
+    },
+    {
       "id": "editor.table",
       "gate": "unit",
       "requirement": "표 생성과 편집",

@@ -22,6 +22,7 @@ const ATTRIBUTE_NODE_TYPES = [
 const EDITABLE_NODE_TYPES: Record<ClassTokenCategory, readonly string[]> = {
   textSize: ["paragraph", "heading", "codeBlock"],
   alignment: ["paragraph", "heading", "codeBlock"],
+  indentation: ["paragraph", "heading", "blockquote", "codeBlock"],
   spacing: ["paragraph", "heading", "codeBlock"],
   table: ["table"],
   image: ["image"],

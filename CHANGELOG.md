@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 정책 `1.3.0`의 4단계 들여쓰기 class token과 들여쓰기/내어쓰기 도구를 추가하고 목록에서는 중첩 list 구조를 사용
 - DOM에서 분리된 editor를 자동 파기하고 BFCache를 보존하는 pagehide 정리를 추가해 화면 이동 100회에도 동시 instance를 1개 이하로 유지
 - 런타임 build metadata가 plugin manifest 버전을 단일 정본으로 사용해 설치 버전과 실행 버전의 불일치를 방지
 - 다국어 탭 전환 시 이전 locale 인스턴스를 정리하고 편집 내용을 보존해 동시 Tiptap 인스턴스를 1개로 제한

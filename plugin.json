@@ -5,7 +5,7 @@
     "ko": "JWSoft Tiptap 에디터",
     "en": "JWSoft Tiptap Editor"
   },
-  "version": "0.1.0-alpha.13",
+  "version": "0.1.0-alpha.14",
   "license": "Proprietary",
   "description": {
     "ko": "그누보드7용 정책 기반 Tiptap WYSIWYG 에디터 플러그인입니다. 라이선스·NOTICE·재현 패키지 출시 준비를 검증하는 alpha 버전입니다.",

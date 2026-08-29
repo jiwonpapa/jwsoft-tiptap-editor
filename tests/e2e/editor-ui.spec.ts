@@ -11,6 +11,38 @@ const root = path.resolve(
 );
 const bundlePath = path.join(root, "dist/js/plugin.iife.js");
 
+function recordBrowserEvidence(
+  file: string,
+  browser: string,
+  result: Record<string, unknown>,
+): void {
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
+  ) as { version: string };
+  const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim();
+  const evidenceDirectory = path.join(root, "test-results/parity/browser");
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  fs.writeFileSync(
+    path.join(evidenceDirectory, file),
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        status: "pass",
+        observedAt: new Date().toISOString(),
+        browser,
+        pluginVersion: manifest.version,
+        sourceCommit,
+        ...result,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+}
+
 async function mountEditor(
   page: Page,
   toolbar = "standard",
@@ -18,6 +50,7 @@ async function mountEditor(
   mediaEmbed = false,
   videoUpload = false,
   smartCards = false,
+  content = "<p>선택 영역 테스트</p>",
 ): Promise<void> {
   await page.route("http://jwsoft.test/", (route) =>
     route.fulfill({
@@ -57,6 +90,7 @@ async function mountEditor(
       withMediaEmbed,
       withVideoUpload,
       withSmartCards,
+      initialContent,
     }) => {
       const runtime = window as typeof window & {
         __e2eHandlers: Record<
@@ -68,7 +102,7 @@ async function mountEditor(
         {
           params: {
             name: "content",
-            content: "<p>선택 영역 테스트</p>",
+            content: initialContent,
             height: 280,
             toolbar: profile,
             imageUpload: withImageUpload,
@@ -93,6 +127,7 @@ async function mountEditor(
       withMediaEmbed: mediaEmbed,
       withVideoUpload: videoUpload,
       withSmartCards: smartCards,
+      initialContent: content,
     },
   );
 }
@@ -164,31 +199,76 @@ test("100 route replacements leave no detached editor instances", async ({
   expect(result.maxInstances).toBe(1);
   expect(result.finalInstances).toBe(0);
 
-  const manifest = JSON.parse(
-    fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
-  ) as { version: string };
-  const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
-    cwd: root,
-    encoding: "utf8",
-  }).trim();
-  const evidenceDirectory = path.join(root, "test-results/parity/browser");
-  fs.mkdirSync(evidenceDirectory, { recursive: true });
-  fs.writeFileSync(
-    path.join(evidenceDirectory, "instance-lifecycle.json"),
-    `${JSON.stringify(
-      {
-        schemaVersion: 1,
-        status: "pass",
-        observedAt: new Date().toISOString(),
-        browser: testInfo.project.name,
-        pluginVersion: manifest.version,
-        sourceCommit,
-        ...result,
-      },
-      null,
-      2,
-    )}\n`,
+  recordBrowserEvidence(
+    "instance-lifecycle.json",
+    testInfo.project.name,
+    result,
   );
+});
+
+test("link quote lists alignment and indentation use policy-safe controls", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    "<p>첫째 링크</p><p>둘째 링크</p>",
+  );
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+
+  await page.getByRole("button", { name: "링크", exact: true }).click();
+  const linkDialog = page.getByRole("dialog", { name: "링크" });
+  await linkDialog.getByLabel("주소").fill("https://example.com/proof");
+  await linkDialog.getByRole("button", { name: "링크 적용" }).click();
+  await expect(editable.locator("a")).toHaveCount(2);
+
+  await page.getByLabel("정렬").selectOption("jw-align-center");
+  await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
+  const alignedIndentedParagraphs = editable.locator(
+    "p.jw-align-center.jw-indent-1",
+  );
+  await expect(alignedIndentedParagraphs).toHaveCount(2);
+  const alignedIndentedCount = await alignedIndentedParagraphs.count();
+  await page.getByRole("button", { name: "내어쓰기", exact: true }).click();
+  await expect(editable.locator("p.jw-indent-1")).toHaveCount(0);
+  await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
+
+  await page.getByRole("button", { name: "인용", exact: true }).click();
+  await expect(editable.locator("blockquote")).toHaveCount(1);
+  const blockquoteAppliedCount = await editable.locator("blockquote").count();
+  await page.getByRole("button", { name: "글머리 목록", exact: true }).click();
+  await expect(editable.locator("ul")).toHaveCount(1);
+  const bulletListAppliedCount = await editable.locator("ul").count();
+  await page.getByRole("button", { name: "글머리 목록", exact: true }).click();
+  await page.getByRole("button", { name: "번호 목록", exact: true }).click();
+  await expect(editable.locator("ol")).toHaveCount(1);
+
+  await editable.locator("li").nth(1).click();
+  await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
+  await expect(editable.locator("ol")).toHaveCount(2);
+  const nestedOrderedListCount = await editable.locator("ol").count();
+  await page.getByRole("button", { name: "내어쓰기", exact: true }).click();
+  await expect(editable.locator("ol")).toHaveCount(1);
+  await expect(editable.locator("[style]")).toHaveCount(0);
+
+  recordBrowserEvidence("editor-indentation.json", testInfo.project.name, {
+    linkCount: await editable.locator("a").count(),
+    blockquoteAppliedCount,
+    bulletListAppliedCount,
+    orderedListCount: await editable.locator("ol").count(),
+    alignedIndentedCount,
+    indentationToken: "jw-indent-1",
+    nestedOrderedListCount,
+    listIndentationRoundTrip: true,
+    inlineStyleCount: await editable.locator("[style]").count(),
+  });
 });
 
 test("desktop toolbar keeps selection commands and keyboard focus usable", async ({

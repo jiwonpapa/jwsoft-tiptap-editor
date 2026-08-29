@@ -58,6 +58,12 @@ const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
     "jw-align-center": "가운데",
     "jw-align-right": "오른쪽",
   },
+  indentation: {
+    "jw-indent-1": "들여쓰기 1단계",
+    "jw-indent-2": "들여쓰기 2단계",
+    "jw-indent-3": "들여쓰기 3단계",
+    "jw-indent-4": "들여쓰기 4단계",
+  },
   spacing: {
     "jw-space-tight": "좁게",
     "jw-space-normal": "기본",
@@ -202,6 +208,43 @@ function createTokenSelect(
     },
   });
   return select;
+}
+
+function nextIndentationToken(
+  editor: Editor,
+  direction: 1 | -1,
+): string | null | undefined {
+  const tokens = EDITOR_POLICY.classTokens.indentation;
+  const current = activeClassToken(editor, "indentation");
+  const currentIndex = current
+    ? (tokens as readonly string[]).indexOf(current)
+    : -1;
+  const nextIndex = currentIndex + direction;
+  if (nextIndex < -1 || nextIndex >= tokens.length) return undefined;
+  return nextIndex === -1 ? null : tokens[nextIndex];
+}
+
+function canChangeIndentation(editor: Editor, direction: 1 | -1): boolean {
+  if (editor.isActive("listItem")) {
+    return direction === 1
+      ? editor.can().sinkListItem("listItem")
+      : editor.can().liftListItem("listItem");
+  }
+  const token = nextIndentationToken(editor, direction);
+  return (
+    token !== undefined && editor.can().setClassToken("indentation", token)
+  );
+}
+
+function changeIndentation(editor: Editor, direction: 1 | -1): boolean {
+  if (editor.isActive("listItem")) {
+    return direction === 1
+      ? editor.chain().focus().sinkListItem("listItem").run()
+      : editor.chain().focus().liftListItem("listItem").run();
+  }
+  const token = nextIndentationToken(editor, direction);
+  if (token === undefined) return false;
+  return editor.chain().focus().setClassToken("indentation", token).run();
 }
 
 function createDialog(options: {
@@ -862,6 +905,22 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     add(layout, createTokenSelect(editor, "textSize", "문단 크기", locale));
     add(layout, createTokenSelect(editor, "alignment", "정렬", locale));
     add(layout, createTokenSelect(editor, "spacing", "줄 간격", locale));
+    add(
+      layout,
+      createButton({
+        label: t("내어쓰기"),
+        run: () => void changeIndentation(editor, -1),
+        enabled: () => canChangeIndentation(editor, -1),
+      }),
+    );
+    add(
+      layout,
+      createButton({
+        label: t("들여쓰기"),
+        run: () => void changeIndentation(editor, 1),
+        enabled: () => canChangeIndentation(editor, 1),
+      }),
+    );
   }
 
   const insert = addGroup(t("삽입"));

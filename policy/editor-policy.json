@@ -1,6 +1,6 @@
 {
   "$schema": "./editor-policy.schema.json",
-  "policyVersion": "1.2.0",
+  "policyVersion": "1.3.0",
   "elements": {
     "p": { "attributes": ["class"] },
     "br": { "attributes": [] },
@@ -42,6 +42,7 @@
   "classTokens": {
     "textSize": ["jw-text-sm", "jw-text-base", "jw-text-lg", "jw-text-xl"],
     "alignment": ["jw-align-left", "jw-align-center", "jw-align-right"],
+    "indentation": ["jw-indent-1", "jw-indent-2", "jw-indent-3", "jw-indent-4"],
     "spacing": ["jw-space-tight", "jw-space-normal", "jw-space-relaxed"],
     "table": ["jw-table", "jw-table-striped"],
     "image": ["jw-image-inline", "jw-image-block", "jw-image-rounded"],

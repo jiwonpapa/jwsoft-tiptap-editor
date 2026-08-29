@@ -41,6 +41,10 @@ const tokenCss = `
 .jw-align-left { text-align: left; }
 .jw-align-center { text-align: center; }
 .jw-align-right { text-align: right; }
+.jw-indent-1 { margin-inline-start: 2rem; }
+.jw-indent-2 { margin-inline-start: 4rem; }
+.jw-indent-3 { margin-inline-start: 6rem; }
+.jw-indent-4 { margin-inline-start: 8rem; }
 .jw-space-tight { line-height: 1.35; }
 .jw-space-normal { line-height: 1.7; }
 .jw-space-relaxed { line-height: 2; }

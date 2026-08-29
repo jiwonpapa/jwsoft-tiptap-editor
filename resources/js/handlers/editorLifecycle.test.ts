@@ -261,6 +261,55 @@ describe("G7 editor lifecycle", () => {
     );
   });
 
+  it("indents policy blocks and nests list items from toolbar controls", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      {
+        params: {
+          name: "content",
+          content: "<p>첫째</p><p>둘째</p>",
+        },
+      },
+      undefined,
+    );
+    const editor = editorRegistry.get(editorContainerId("content"), "ko");
+    const button = (label: string) =>
+      [...container.querySelectorAll<HTMLButtonElement>("button")].find(
+        (candidate) => candidate.textContent === label,
+      );
+
+    editor?.commands.setTextSelection(2);
+    expect(button("내어쓰기")?.disabled).toBe(true);
+    button("들여쓰기")?.click();
+    expect(editor?.getHTML()).toBe(
+      '<p class="jw-indent-1">첫째</p><p>둘째</p>',
+    );
+    button("들여쓰기")?.click();
+    button("들여쓰기")?.click();
+    button("들여쓰기")?.click();
+    expect(editor?.getHTML()).toContain('class="jw-indent-4"');
+    expect(button("들여쓰기")?.disabled).toBe(true);
+    button("내어쓰기")?.click();
+    expect(editor?.getHTML()).toContain('class="jw-indent-3"');
+
+    editor?.commands.setContent(
+      "<ul><li><p>첫째</p></li><li><p>둘째</p></li></ul>",
+    );
+    let secondItemPosition = 0;
+    editor?.state.doc.descendants((node, position) => {
+      if (node.isText && node.text === "둘째") secondItemPosition = position;
+    });
+    editor?.commands.setTextSelection(secondItemPosition + 1);
+    button("들여쓰기")?.click();
+    expect(editor?.getHTML()).toBe(
+      "<ul><li><p>첫째</p><ul><li><p>둘째</p></li></ul></li></ul><p></p>",
+    );
+    button("내어쓰기")?.click();
+    expect(editor?.getHTML()).toBe(
+      "<ul><li><p>첫째</p></li><li><p>둘째</p></li></ul><p></p>",
+    );
+  });
+
   it("supports minimal/full profiles and omits editing controls in read-only mode", async () => {
     const minimal = addContainer("summary");
     await initEditorHandler(

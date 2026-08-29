@@ -43,9 +43,9 @@ foreach ($fixture['cases'] as $case) {
 }
 
 $link = $sanitizer->sanitize(
-    '<p class="evil jw-align-center"><a href="https://example.com" target="_blank" rel="opener ugc">링크</a></p>',
+    '<p class="evil jw-align-center jw-indent-2"><a href="https://example.com" target="_blank" rel="opener ugc">링크</a></p>',
 );
-assertEditorPolicy($link->canonicalHtml === '<p class="jw-align-center"><a href="https://example.com" rel="noopener noreferrer ugc" target="_blank">링크</a></p>', 'class token and _blank rel normalization failed');
+assertEditorPolicy($link->canonicalHtml === '<p class="jw-align-center jw-indent-2"><a href="https://example.com" rel="noopener noreferrer ugc" target="_blank">링크</a></p>', 'class token and _blank rel normalization failed');
 
 $media = $sanitizer->sanitize(
     '<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">YouTube</a></figure>',

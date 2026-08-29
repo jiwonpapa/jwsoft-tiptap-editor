@@ -107,6 +107,8 @@ const ENGLISH_COPY: Record<string, string> = {
   "문단 크기": "Text size",
   정렬: "Alignment",
   "줄 간격": "Line spacing",
+  내어쓰기: "Outdent",
+  들여쓰기: "Indent",
   삽입: "Insert",
   표: "Table",
   "표 편집": "Table editing",
