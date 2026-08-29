@@ -232,6 +232,7 @@ function mountLocaleEditor(options: {
 }): void {
   if (editorRegistry.has(options.containerId, options.locale)) return;
   const core = window.G7Core;
+  options.mount.replaceChildren();
   options.mount.className = "jwsoft-tiptap-editor-frame";
   const editorMount = document.createElement("div");
   options.mount.appendChild(editorMount);
@@ -396,63 +397,18 @@ function mountMultilingualEditors(options: {
   tabs.className = "jwsoft-tiptap-locale-tabs";
   tabs.setAttribute("role", "tablist");
   const mounts = new Map<string, HTMLElement>();
+  const contentByLocale = new Map(Object.entries(options.content));
+  let activeLocale = initialLocale;
 
-  for (const locale of locales) {
-    const button = document.createElement("button");
-    button.type = "button";
-    button.className = "jwsoft-tiptap-locale-tab";
-    button.setAttribute("role", "tab");
-    button.setAttribute("aria-selected", String(locale === initialLocale));
-    button.textContent = LOCALE_LABELS[locale] ?? locale.toUpperCase();
-    tabs.appendChild(button);
-
-    const mount = document.createElement("div");
-    mount.hidden = locale !== initialLocale;
-    mounts.set(locale, mount);
-
-    button.addEventListener("click", () => {
-      for (const tab of tabs.querySelectorAll<HTMLButtonElement>("button")) {
-        tab.setAttribute("aria-selected", String(tab === button));
-      }
-      for (const [candidate, candidateMount] of mounts) {
-        candidateMount.hidden = candidate !== locale;
-      }
-      mountLocaleEditor({
-        containerId: options.containerId,
-        mount,
-        name: options.name,
-        locale,
-        content: options.content[locale] ?? "",
-        placeholder: options.placeholder,
-        editable: options.editable,
-        multilingual: true,
-        toolbar: options.toolbar,
-        imageUpload: options.imageUpload,
-        dragDropImageUpload: options.dragDropImageUpload,
-        pasteImageUpload: options.pasteImageUpload,
-        mediaEmbed: options.mediaEmbed,
-        autoEmbedUrls: options.autoEmbedUrls,
-        mediaOptions: options.mediaOptions,
-        videoUpload: options.videoUpload,
-        videoMaxSizeMb: options.videoMaxSizeMb,
-        smartCards: options.smartCards,
-        autoSmartCards: options.autoSmartCards,
-        imageMaxSizeMb: options.imageMaxSizeMb,
-        status: options.status,
-      });
-    });
-  }
-
-  options.shell.appendChild(tabs);
-  for (const mount of mounts.values()) options.shell.appendChild(mount);
-  const initialMount = mounts.get(initialLocale);
-  if (initialMount) {
+  const mountEditor = (locale: string): void => {
+    const mount = mounts.get(locale);
+    if (!mount) return;
     mountLocaleEditor({
       containerId: options.containerId,
-      mount: initialMount,
+      mount,
       name: options.name,
-      locale: initialLocale,
-      content: options.content[initialLocale] ?? "",
+      locale,
+      content: contentByLocale.get(locale) ?? "",
       placeholder: options.placeholder,
       editable: options.editable,
       multilingual: true,
@@ -470,7 +426,53 @@ function mountMultilingualEditors(options: {
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
     });
+  };
+
+  for (const locale of locales) {
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "jwsoft-tiptap-locale-tab";
+    button.setAttribute("role", "tab");
+    button.setAttribute("aria-selected", String(locale === initialLocale));
+    button.textContent = LOCALE_LABELS[locale] ?? locale.toUpperCase();
+    tabs.appendChild(button);
+
+    const mount = document.createElement("div");
+    mount.hidden = locale !== initialLocale;
+    mounts.set(locale, mount);
+
+    button.addEventListener("click", () => {
+      if (locale === activeLocale) return;
+      const previousEditor = editorRegistry.get(
+        options.containerId,
+        activeLocale,
+      );
+      if (previousEditor) {
+        const value = sanitizeClientHtml(previousEditor.getHTML());
+        contentByLocale.set(activeLocale, value);
+        syncEditorValue({
+          core: window.G7Core,
+          name: options.name,
+          locale: activeLocale,
+          value,
+          multilingual: true,
+        });
+        editorRegistry.destroyLocale(options.containerId, activeLocale);
+      }
+      for (const tab of tabs.querySelectorAll<HTMLButtonElement>("button")) {
+        tab.setAttribute("aria-selected", String(tab === button));
+      }
+      for (const [candidate, candidateMount] of mounts) {
+        candidateMount.hidden = candidate !== locale;
+      }
+      activeLocale = locale;
+      mountEditor(locale);
+    });
   }
+
+  options.shell.appendChild(tabs);
+  for (const mount of mounts.values()) options.shell.appendChild(mount);
+  mountEditor(initialLocale);
 }
 
 export async function initEditorHandler(

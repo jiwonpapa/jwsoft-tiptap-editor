@@ -30,6 +30,15 @@ class EditorRegistry {
     this.#instances.set(containerId, locales);
   }
 
+  destroyLocale(containerId: string, locale: string): void {
+    const locales = this.#instances.get(containerId);
+    const editor = locales?.get(locale);
+    if (!locales || !editor) return;
+    editor.destroy();
+    locales.delete(locale);
+    if (locales.size === 0) this.#instances.delete(containerId);
+  }
+
   destroy(containerId: string): void {
     const locales = this.#instances.get(containerId);
     if (!locales) return;

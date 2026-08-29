@@ -102,7 +102,7 @@ describe("G7 editor lifecycle", () => {
     );
   });
 
-  it("mounts multilingual content lazily by locale", async () => {
+  it("keeps one multilingual editor instance while switching locales", async () => {
     const container = addContainer();
     await initEditorHandler(
       {
@@ -118,9 +118,18 @@ describe("G7 editor lifecycle", () => {
     expect(editorRegistry.size).toBe(1);
     const tabs = container.querySelectorAll<HTMLButtonElement>("[role='tab']");
     expect(tabs).toHaveLength(2);
+    editorRegistry
+      .get(editorContainerId("content"), "ko")
+      ?.commands.setContent("<p>수정한 한국어</p>");
     tabs[1].click();
-    expect(editorRegistry.size).toBe(2);
+    expect(editorRegistry.size).toBe(1);
+    expect(
+      editorRegistry.get(editorContainerId("content"), "ko"),
+    ).toBeUndefined();
     expect(container.textContent).toContain("English");
+    tabs[0].click();
+    expect(editorRegistry.size).toBe(1);
+    expect(container.textContent).toContain("수정한 한국어");
   });
 
   it("localizes editor status, toolbar, and dialogs in English", async () => {
