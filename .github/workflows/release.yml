@@ -26,9 +26,29 @@ jobs:
           coverage: none
       - run: npm ci
       - run: composer install --no-interaction --prefer-dist
-      - run: make release-check
-      - name: Publish tagged release
-        if: startsWith(github.ref, 'refs/tags/')
+      - name: Alpha release candidate gate
+        if: contains(github.ref_name, '-')
+        run: |
+          make check
+          make build
+          make integration-check
+          make reproducible-package
+          make license-evidence
+      - name: Stable release gate
+        if: ${{ !contains(github.ref_name, '-') }}
+        run: make release-check
+      - name: Publish alpha tagged release
+        if: startsWith(github.ref, 'refs/tags/') && contains(github.ref_name, '-')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          gh release create "${GITHUB_REF_NAME}"
+          .build/*.zip .build/SHA256SUMS
+          --verify-tag
+          --title "${GITHUB_REF_NAME} (development validation)"
+          --notes "G7 7.0.9 개발·staging 검증용 alpha 릴리스입니다. stable 및 운영 설치 승인이 아닙니다."
+      - name: Publish stable tagged release
+        if: startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-')
         env:
           GH_TOKEN: ${{ github.token }}
         run: gh release create "${GITHUB_REF_NAME}" .build/*.zip .build/SHA256SUMS --verify-tag --generate-notes

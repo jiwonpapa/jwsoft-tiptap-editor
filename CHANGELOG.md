@@ -11,6 +11,7 @@
 - 실제 G7 board·ecommerce·page의 create/re-edit 전 경로를 현재 버전 screenshot·접근성·성능·단일 instance 증거로 기록
 - 412px 모바일 다크 테마에서 페이지 가로 넘침 없이 툴바 스크롤과 단일 editor instance를 검증
 - G7 GitHub 최초 설치의 `main` 폴백과 태그 기반 온라인 업데이트 경계를 설치·테스트 문서에 분리
+- GitHub Release workflow에서 alpha 출시 후보 게이트와 stable 전수 게이트를 분리해 alpha 태그에 stable 승인을 오표기하지 않도록 개선
 - 공개 GitHub `main` 최초 설치·이전 ZIP에서 온라인 업데이트·데이터 보존 uninstall·CKEditor 롤백을 전용 G7에서 검증하는 수명주기 gate 추가
 - stable P0 62개에 고유 evidence ID를 부여하고 unit·G7 통합 산출물과 대조하는 fail-closed readiness gate로 교체
 - G7 통합 증거에 MP4와 SSRF 방어형 링크 미리보기 검사를 포함
