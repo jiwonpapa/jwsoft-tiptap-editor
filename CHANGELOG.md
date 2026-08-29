@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 공개 GitHub `main` 최초 설치·이전 ZIP에서 온라인 업데이트·데이터 보존 uninstall·CKEditor 롤백을 전용 G7에서 검증하는 수명주기 gate 추가
 - stable P0 62개에 고유 evidence ID를 부여하고 unit·G7 통합 산출물과 대조하는 fail-closed readiness gate로 교체
 - G7 통합 증거에 MP4와 SSRF 방어형 링크 미리보기 검사를 포함
 - 의존성 입력이 같으면 `vendor-bundle.json` 생성 시각을 보존해 패키징 후 Git 트리가 불필요하게 변경되지 않도록 개선

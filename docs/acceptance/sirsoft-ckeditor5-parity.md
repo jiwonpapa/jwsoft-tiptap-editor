@@ -79,9 +79,9 @@
 
 ## G. 수명주기
 
-- [ ] source 설치, ZIP 최초 설치 <!-- p0:lifecycle.install-sources -->
-- [ ] ZIP/GitHub update와 upgrade step <!-- p0:lifecycle.github-update -->
-- [ ] activate/deactivate/uninstall <!-- p0:lifecycle.uninstall -->
+- [x] source 설치, ZIP 최초 설치 <!-- p0:lifecycle.install-sources -->
+- [x] ZIP/GitHub update와 upgrade step <!-- p0:lifecycle.github-update -->
+- [x] activate/deactivate/uninstall <!-- p0:lifecycle.uninstall -->
 - [x] CKEditor 동시 활성화 차단 <!-- p0:lifecycle.conflict -->
 - [x] CKEditor → jwsoft 전환 smoke <!-- p0:lifecycle.switch-to-jwsoft -->
 - [x] jwsoft → CKEditor 롤백 smoke <!-- p0:lifecycle.rollback-to-ckeditor -->

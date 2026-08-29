@@ -239,6 +239,24 @@
       ]
     },
     {
+      "id": "lifecycle.install-sources",
+      "gate": "github-lifecycle",
+      "requirement": "공개 GitHub source와 ZIP 최초 설치",
+      "artifacts": ["test-results/parity/github-lifecycle/evidence.json"]
+    },
+    {
+      "id": "lifecycle.github-update",
+      "gate": "github-lifecycle",
+      "requirement": "ZIP에서 공개 GitHub main 업데이트",
+      "artifacts": ["test-results/parity/github-lifecycle/evidence.json"]
+    },
+    {
+      "id": "lifecycle.uninstall",
+      "gate": "github-lifecycle",
+      "requirement": "activate deactivate와 데이터 보존 uninstall",
+      "artifacts": ["test-results/parity/github-lifecycle/evidence.json"]
+    },
+    {
       "id": "lifecycle.conflict",
       "gate": "lifecycle",
       "requirement": "CKEditor 동시 활성화 차단",
