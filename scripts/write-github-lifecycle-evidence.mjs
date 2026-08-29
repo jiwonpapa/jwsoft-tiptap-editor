@@ -8,9 +8,13 @@ const root = path.resolve(import.meta.dirname, "..");
 const [
   remoteCommit,
   previousArtifact,
+  currentArtifact,
+  zipInstallFile,
   githubInstallFile,
   baselineFile,
   uninstalledFile,
+  secondUninstalledFile,
+  zipActiveFile,
   githubActiveFile,
   previousFile,
   updatedFile,
@@ -20,9 +24,13 @@ const [
 if (
   !remoteCommit ||
   !previousArtifact ||
+  !currentArtifact ||
+  !zipInstallFile ||
   !githubInstallFile ||
   !baselineFile ||
   !uninstalledFile ||
+  !secondUninstalledFile ||
+  !zipActiveFile ||
   !githubActiveFile ||
   !previousFile ||
   !updatedFile ||
@@ -57,9 +65,12 @@ if (previous.version === pkg.version) {
   throw new Error("이전 ZIP과 현재 버전이 같습니다.");
 }
 
+const zipInstall = read(zipInstallFile);
 const githubInstall = read(githubInstallFile);
 const baseline = read(baselineFile);
 const uninstalled = read(uninstalledFile);
+const secondUninstalled = read(secondUninstalledFile);
+const zipActive = read(zipActiveFile);
 const githubActive = read(githubActiveFile);
 const previousState = read(previousFile);
 const updated = read(updatedFile);
@@ -72,23 +83,37 @@ if (
 ) {
   throw new Error("공개 GitHub 최초 설치 결과가 올바르지 않습니다.");
 }
-for (const [file, checksum] of Object.entries(
-  githubInstall.runtimeHashes ?? {},
-)) {
-  if (hash(path.join(root, file)) !== checksum) {
-    throw new Error(`공개 GitHub runtime checksum 불일치: ${file}`);
+if (
+  zipInstall.action !== "install-zip" ||
+  zipInstall.version !== pkg.version ||
+  zipInstall.status !== "inactive"
+) {
+  throw new Error("현재 ZIP 최초 설치 결과가 올바르지 않습니다.");
+}
+for (const install of [zipInstall, githubInstall]) {
+  for (const [file, checksum] of Object.entries(install.runtimeHashes ?? {})) {
+    if (hash(path.join(root, file)) !== checksum) {
+      throw new Error(`설치 runtime checksum 불일치: ${file}`);
+    }
+  }
+  if (Object.keys(install.runtimeHashes ?? {}).length < 5) {
+    throw new Error("설치 runtime checksum 증거가 부족합니다.");
   }
 }
-if (Object.keys(githubInstall.runtimeHashes ?? {}).length < 5) {
-  throw new Error("공개 GitHub runtime checksum 증거가 부족합니다.");
-}
-if (uninstalled.pluginInstalled !== false || baseline.records === undefined) {
+if (
+  uninstalled.pluginInstalled !== false ||
+  secondUninstalled.pluginInstalled !== false ||
+  baseline.records === undefined
+) {
   throw new Error("무데이터 삭제 uninstall 증거가 올바르지 않습니다.");
 }
-if (JSON.stringify(baseline.records) !== JSON.stringify(uninstalled.records)) {
+if (
+  JSON.stringify(baseline.records) !== JSON.stringify(uninstalled.records) ||
+  JSON.stringify(baseline.records) !== JSON.stringify(secondUninstalled.records)
+) {
   throw new Error("uninstall 과정에서 콘텐츠 해시가 변경되었습니다.");
 }
-for (const state of [githubActive, updated, restored]) {
+for (const state of [zipActive, githubActive, updated, restored]) {
   if (
     state.jwsoft?.version !== pkg.version ||
     state.jwsoft?.status !== "active"
@@ -113,10 +138,6 @@ if (
   throw new Error("CKEditor rollback 상태가 올바르지 않습니다.");
 }
 
-const artifact = path.join(
-  root,
-  `.build/jwsoft-tiptap-editor-${pkg.version}.zip`,
-);
 const evidence = {
   schemaVersion: 1,
   status: "pass",
@@ -124,8 +145,9 @@ const evidence = {
   branch: "main",
   remoteCommit,
   install: {
-    source: "github",
+    sources: ["zip", "github"],
     version: pkg.version,
+    zipArtifactSha256: hash(currentArtifact),
     runtimeHashes: githubInstall.runtimeHashes,
   },
   update: {
@@ -147,7 +169,7 @@ const evidence = {
     editor: "jwsoft-tiptap-editor",
     version: pkg.version,
   },
-  artifactSha256: fs.existsSync(artifact) ? hash(artifact) : null,
+  artifactSha256: hash(currentArtifact),
 };
 const output = path.join(
   root,

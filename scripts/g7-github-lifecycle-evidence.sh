@@ -21,7 +21,9 @@ grep -q '^APP_ENV=local$' "$g7_root/.env" || fail "local G7 하네스만 허용�
 [ -f "$previous_artifact" ] || fail "이전 ZIP이 없습니다: $previous_artifact"
 
 current_version="$(node -p "require('$PROJECT_ROOT/package.json').version")"
+current_artifact="$PROJECT_ROOT/.build/jwsoft-tiptap-editor-$current_version.zip"
 previous_version="$(unzip -p "$previous_artifact" jwsoft-tiptap-editor/plugin.json | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>process.stdout.write(JSON.parse(s).version))")"
+[ -f "$current_artifact" ] || fail "현재 ZIP이 없습니다: $current_artifact"
 [ "$previous_version" != "$current_version" ] || fail "이전/현재 버전이 같습니다."
 remote_commit="$(git ls-remote "$github_url.git" refs/heads/main | awk '{print $1}')"
 [ -n "$remote_commit" ] || fail "공개 GitHub main commit을 확인할 수 없습니다."
@@ -42,19 +44,23 @@ php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence
 jq -e '.pluginInstalled == false' "$evidence_dir/uninstalled.json" >/dev/null \
   || fail "uninstall 후 plugin record가 남았습니다."
 
-php "$action" "$g7_root" install-github "$github_url" > "$evidence_dir/github-install.json"
-php "$action" "$g7_root" acknowledge > "$evidence_dir/acknowledged.json"
+php "$action" "$g7_root" install-zip "$current_artifact" > "$evidence_dir/zip-install.json"
+php "$action" "$g7_root" acknowledge > "$evidence_dir/zip-acknowledged.json"
 (cd "$g7_root" && php artisan plugin:activate jwsoft-tiptap-editor --no-interaction)
-php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/github-active.json"
+php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/zip-active.json"
 
 (cd "$g7_root" && php artisan plugin:deactivate jwsoft-tiptap-editor --no-interaction)
 (cd "$g7_root" && php artisan plugin:uninstall jwsoft-tiptap-editor --force --no-interaction) || true
 php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence_dir/second-uninstalled.json"
 jq -e '.pluginInstalled == false' "$evidence_dir/second-uninstalled.json" >/dev/null \
   || fail "두 번째 uninstall 후 plugin record가 남았습니다."
-php "$action" "$g7_root" install-zip "$previous_artifact" > "$evidence_dir/previous-install.json"
-php "$action" "$g7_root" acknowledge > "$evidence_dir/previous-acknowledged.json"
+php "$action" "$g7_root" install-github "$github_url" > "$evidence_dir/github-install.json"
+php "$action" "$g7_root" acknowledge > "$evidence_dir/github-acknowledged.json"
 (cd "$g7_root" && php artisan plugin:activate jwsoft-tiptap-editor --no-interaction)
+php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/github-active.json"
+
+(cd "$g7_root" && php artisan plugin:update jwsoft-tiptap-editor \
+  --zip="$previous_artifact" --force --vendor-mode=bundled --layout-strategy=overwrite --no-interaction)
 php "$lifecycle_probe" "$g7_root" "$previous_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/previous.json"
 
 (cd "$g7_root" && php artisan plugin:update jwsoft-tiptap-editor \
@@ -71,8 +77,10 @@ php "$lifecycle_probe" "$g7_root" "$current_version" inactive active "$page_id" 
 php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/restored.json"
 
 node "$PROJECT_ROOT/scripts/write-github-lifecycle-evidence.mjs" \
-  "$remote_commit" "$previous_artifact" \
-  "$evidence_dir/github-install.json" "$evidence_dir/baseline.json" \
-  "$evidence_dir/uninstalled.json" "$evidence_dir/github-active.json" \
-  "$evidence_dir/previous.json" "$evidence_dir/updated.json" \
-  "$evidence_dir/rollback.json" "$evidence_dir/restored.json"
+  "$remote_commit" "$previous_artifact" "$current_artifact" \
+  "$evidence_dir/zip-install.json" "$evidence_dir/github-install.json" \
+  "$evidence_dir/baseline.json" "$evidence_dir/uninstalled.json" \
+  "$evidence_dir/second-uninstalled.json" "$evidence_dir/zip-active.json" \
+  "$evidence_dir/github-active.json" "$evidence_dir/previous.json" \
+  "$evidence_dir/updated.json" "$evidence_dir/rollback.json" \
+  "$evidence_dir/restored.json"
