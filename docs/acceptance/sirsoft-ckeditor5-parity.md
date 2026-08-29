@@ -74,7 +74,7 @@
 - [ ] 관리자 게시판 create/edit/show <!-- p0:surfaces.admin-board -->
 - [ ] 쇼핑몰 상품 description create/edit/show <!-- p0:surfaces.ecommerce -->
 - [ ] 페이지 create/edit/show <!-- p0:surfaces.page -->
-- [ ] 모바일·다크모드·다국어 <!-- p0:surfaces.mobile-dark-i18n -->
+- [x] 모바일·다크모드·다국어 <!-- p0:surfaces.mobile-dark-i18n -->
 - [ ] direct HtmlEditor fallback 화면 무회귀 <!-- p0:surfaces.fallback -->
 
 ## G. 수명주기

@@ -12,7 +12,9 @@ const requiredScreenshots = [
   "ecommerce-reedit.png",
   "ecommerce-en.png",
   "ecommerce-ko.png",
+  "page-create.png",
   "page-reedit.png",
+  "mobile-dark-board-create.png",
 ];
 const args = Object.fromEntries(
   process.argv.slice(2).map((argument) => {
@@ -30,6 +32,12 @@ const requiredArgs = [
   "editor-label",
   "toolbar-label",
   "tabbable",
+  "mobile-width",
+  "mobile-height",
+  "mobile-theme",
+  "mobile-toolbar-client-width",
+  "mobile-toolbar-scroll-width",
+  "mobile-body-scroll-width",
   "plugin-version",
   "source-commit",
   "observed-at",
@@ -79,6 +87,23 @@ if (args["editor-label"] !== "JWSoft Tiptap editor") {
 if (args["toolbar-label"] !== "standard editor tools") {
   throw new Error("English toolbar accessible label mismatch");
 }
+const mobileWidth = positiveInteger("mobile-width");
+const mobileHeight = positiveInteger("mobile-height");
+const mobileToolbarClientWidth = positiveInteger("mobile-toolbar-client-width");
+const mobileToolbarScrollWidth = positiveInteger("mobile-toolbar-scroll-width");
+const mobileBodyScrollWidth = positiveInteger("mobile-body-scroll-width");
+if (mobileWidth > 480 || mobileHeight < 600) {
+  throw new Error("mobile viewport evidence is outside the supported range");
+}
+if (args["mobile-theme"] !== "dark") {
+  throw new Error("mobile dark theme evidence is required");
+}
+if (mobileToolbarScrollWidth <= mobileToolbarClientWidth) {
+  throw new Error("mobile toolbar must provide horizontal overflow");
+}
+if (mobileBodyScrollWidth > mobileWidth) {
+  throw new Error("mobile page must not overflow the viewport horizontally");
+}
 if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(args["plugin-version"])) {
   throw new Error("plugin-version must be a semantic version");
 }
@@ -116,6 +141,14 @@ const evidence = {
     tabbableToolbarButtons: positiveInteger("tabbable"),
   },
   locales: ["ko", "en"],
+  responsive: {
+    viewport: { width: mobileWidth, height: mobileHeight },
+    theme: args["mobile-theme"],
+    toolbarClientWidth: mobileToolbarClientWidth,
+    toolbarScrollWidth: mobileToolbarScrollWidth,
+    bodyScrollWidth: mobileBodyScrollWidth,
+    editorInstances: 1,
+  },
   performance: { readyMs, instances },
   screenshots,
 };

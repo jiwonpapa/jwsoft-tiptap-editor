@@ -239,6 +239,12 @@
       ]
     },
     {
+      "id": "surfaces.mobile-dark-i18n",
+      "gate": "browser",
+      "requirement": "모바일 다크모드 한국어 영어 편집 화면",
+      "artifacts": ["test-results/parity/browser/evidence.json"]
+    },
+    {
       "id": "lifecycle.install-sources",
       "gate": "github-lifecycle",
       "requirement": "공개 GitHub source와 ZIP 최초 설치",
