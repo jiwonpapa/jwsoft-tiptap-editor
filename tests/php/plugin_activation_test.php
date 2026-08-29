@@ -97,11 +97,18 @@ namespace {
         'api.modules.sirsoft-board.boards.posts.update',
         'api.modules.sirsoft-board.admin.board.posts.store',
         'api.modules.sirsoft-board.admin.board.posts.update',
+        'api.modules.sirsoft-ecommerce.admin.products.store',
+        'api.modules.sirsoft-ecommerce.admin.products.update',
+        'api.modules.sirsoft-ecommerce.admin.products.update-by-code',
+        'api.modules.sirsoft-ecommerce.admin.product-common-infos.store',
+        'api.modules.sirsoft-ecommerce.admin.product-common-infos.update',
+        'api.modules.sirsoft-page.admin.pages.store',
+        'api.modules.sirsoft-page.admin.pages.update',
     ];
     if (($middleware[0]['groups'] ?? []) !== ['api']
         || ($middleware[0]['timing'] ?? null) !== 'after_core'
         || $targets !== $expectedTargets) {
-        throw new RuntimeException('Board HTML middleware targets must match G7 7.0.9 write routes exactly.');
+        throw new RuntimeException('Editor HTML middleware targets must match G7 7.0.9 write routes exactly.');
     }
 
     $settings = $plugin->getSettingsSchema();

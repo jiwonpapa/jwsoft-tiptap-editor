@@ -2,7 +2,7 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 각 체크 항목의 `p0` ID는 `harness/contracts/stable-readiness.json`과 연결되며, 단순 체크 표시만으로 완료 처리되지 않습니다.
 
-현재 공개 `alpha.12`는 전용 G7 7.0.9에서 22개 release-candidate 계약과 재현 가능한 ZIP을 검증했고, 개발 중인 `alpha.16`은 instance 수명주기·구조 편집·반응형 이미지 배치와 브라우저 입력 계층의 한글 composition·붙여넣기·undo/redo를 독립 Chromium에서 검증합니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 기능·현재 버전 브라우저·실기기·staging·production 증거가 남은 stable 차단 항목입니다.
+현재 공개 `alpha.12`는 전용 G7 7.0.9에서 22개 release-candidate 계약과 재현 가능한 ZIP을 검증했고, 개발 중인 `alpha.17`은 instance 수명주기·구조 편집·반응형 이미지 배치·브라우저 입력 계층과 G7의 모든 `html_editor` 교체 저장 endpoint 서버 정제를 검증합니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 기능·현재 버전 브라우저·실기기·staging·production 증거가 남은 stable 차단 항목입니다.
 
 ## A. 편집기 교체
 
@@ -25,7 +25,7 @@
 
 ## C. 정책과 보안
 
-- [ ] 서버 sanitizer가 모든 저장 endpoint에 적용 <!-- p0:security.server-endpoints -->
+- [x] 서버 sanitizer가 모든 저장 endpoint에 적용 <!-- p0:security.server-endpoints -->
 - [x] `style`, 이벤트 속성, 미등록 class 저장 0 <!-- p0:security.attributes -->
 - [x] 위험 URL·SVG·form·script·임의 iframe 차단 <!-- p0:security.dangerous-content -->
 - [x] DOMPurify 생성 allowlist 출력 <!-- p0:security.client-allowlist -->

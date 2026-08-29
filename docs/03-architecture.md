@@ -41,7 +41,7 @@ Tiptap core와 custom node/mark를 소유합니다. 일반 TextStyle을 통한 i
 
 플러그인 서비스가 입력 길이 검사, HTML parse, element/attribute/class/URL/media 정제, canonical serialize를 수행합니다. controller가 직접 sanitizer나 model을 호출하지 않습니다.
 
-G7 7.0.9 게시판의 사용자·관리자 `store/update` 라우트는 플러그인 self-gate 미들웨어가 감쌉니다. HTML 수정 요청은 `content_mode=html`을 명시해야 하며, 정책 파일과 codegen checksum이 다르면 저장하지 않습니다. 정제로 HTML이 바뀌는 요청은 현재 정책 hash에 대한 브라우저 확인값이 있어야 통과합니다.
+G7 7.0.9 게시판 사용자·관리자 `store/update`, 상품 설명 `store/update/update-by-code`, 상품 공통정보 `store/update`, 페이지 `store/update` 라우트는 플러그인 미들웨어가 감쌉니다. 이는 G7 번들 모듈의 모든 `html_editor` 교체 저장 경로입니다. 게시판 단일 문자열과 상품·페이지 다국어 map의 각 HTML 값을 서버에서 정제합니다. HTML 저장 요청은 대응하는 `content_mode=html` 또는 `description_mode=html`을 명시해야 하며, 정책 파일과 codegen checksum이 다르면 저장하지 않습니다. 정제로 HTML이 바뀌는 요청은 현재 정책 hash에 대한 브라우저 확인값이 있어야 통과합니다.
 
 ### 5. Image subsystem
 

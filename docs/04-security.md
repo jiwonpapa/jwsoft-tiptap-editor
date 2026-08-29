@@ -13,11 +13,12 @@
 5. DOMPurify allowlist: 출력 방어심층
 6. CSP: 잔존 실행 벡터 억제
 
-## 게시판 저장 게이트
+## 편집 콘텐츠 저장 게이트
 
-- 적용 라우트: 사용자 게시글 `store/update`, 관리자 게시글 `store/update`
-- `content_mode=html`인 본문은 FormRequest보다 앞에서 canonical HTML로 교체
-- HTML 수정인데 `content_mode`가 없으면 `content_mode_required`로 422
+- 적용 라우트: 사용자·관리자 게시글 `store/update`, 상품 설명 `store/update/update-by-code`, 상품 공통정보 `store/update`, 페이지 `store/update`
+- 게시판 문자열과 상품·페이지 다국어 map은 FormRequest보다 앞에서 각 locale별 canonical HTML로 교체
+- 편집 콘텐츠 저장인데 대응하는 `content_mode` 또는 `description_mode`가 없으면 422. 특히 DB 기본값이 HTML인 페이지 생성도 mode 생략 우회를 허용하지 않음
+- 중첩 배열·비문자열 HTML 값은 `invalid_html_content` 또는 `invalid_html_description`으로 422
 - 정제로 내용이 바뀌는데 편집기 정책 확인값이 없으면 `canonical_confirmation_required`로 422
 - 정책 파일 누락·checksum 불일치는 `editor_policy_unavailable`로 503
 
@@ -91,4 +92,4 @@
 
 `harness/fixtures/security-corpus.json`의 각 payload에 대해 editor load, paste, API direct submit, render를 모두 검사합니다. 브라우저에서 실행되지 않는 것만으로 통과하지 않으며 저장 HTML도 기대 정책과 일치해야 합니다.
 
-현재 `alpha.16`은 PHP sanitizer, 브라우저 allowlist, G7 미들웨어 직접 제출과 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. Chromium의 신뢰된 loopback origin에서 실제 Clipboard API와 붙여넣기 단축키를 사용해 style·이벤트 속성·script 제거, 손실 경고, undo/redo를 증명하며 최종 저장 정본은 계속 서버 sanitizer가 결정합니다.
+현재 `alpha.17`은 PHP sanitizer, 브라우저 allowlist, G7의 모든 `html_editor` 교체 저장 route 11개 존재와 직접 제출, 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. Chromium의 신뢰된 loopback origin에서 실제 Clipboard API와 붙여넣기 단축키를 사용해 style·이벤트 속성·script 제거, 손실 경고, undo/redo를 증명하며 최종 저장 정본은 계속 서버 sanitizer가 결정합니다.

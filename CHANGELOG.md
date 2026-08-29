@@ -6,6 +6,7 @@
 
 ### Changed
 
+- G7 7.0.9의 모든 `html_editor` 교체 저장 endpoint 11개를 공통 서버 sanitizer로 보호하고 다국어 HTML map도 locale별 canonical 정제
 - Chromium 입력 계층의 실제 한글 composition, 브라우저 Clipboard API 정제 붙여넣기, 툴바·단축키 undo/redo와 최종 G7 상태 동기화를 하나의 브라우저 증거로 검증
 - 정책 `1.4.0` image figure에 caption·좌/중앙/우 정렬·25/50/75/100% 반응형 크기 편집을 추가하고 기존 단독 이미지는 무변환 왕복
 - 정책 `1.3.0`의 4단계 들여쓰기 class token과 들여쓰기/내어쓰기 도구를 추가하고 목록에서는 중첩 list 구조를 사용
@@ -34,7 +35,7 @@
 - 단일·다국어 content, read-only·disabled·height, G7 debounce state sync 계약
 - CKEditor 동시 활성화 서버·브라우저 이중 차단과 adapter 단계 read-only gate
 - `editor-policy.json`에서 TypeScript·PHP·DOMPurify·token CSS를 생성하는 checksum codegen
-- Symfony 기반 canonical HTML sanitizer와 G7 7.0.9 게시판 사용자·관리자 저장 미들웨어
+- Symfony 기반 canonical HTML sanitizer와 G7 7.0.9 게시판·상품·페이지 전체 편집 저장 미들웨어
 - 위험 태그·속성·URL·임의 class 제거, 문서·표 상한, 정책 오류 fail-closed 응답
 - legacy HTML 손실 사전 경고와 사용자 확인 전 저장 차단
 - 출력 `HtmlContent` DOMPurify allowlist와 브라우저 보안 corpus

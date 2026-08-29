@@ -19,7 +19,7 @@
 - [x] CKEditor 충돌 detector
 - [x] extension contract와 adapter unit tests
 
-Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니다. 전용 G7 7.0.9+ 호스트의 integration evidence가 생성되기 전에는 parity 완료로 판정하지 않습니다.
+Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결된 뒤 write gate를 열었습니다. 전용 G7 7.0.9+ 호스트의 integration evidence가 생성되기 전에는 parity 완료로 판정하지 않습니다.
 
 ## Epic 2 — Tiptap core
 
@@ -36,7 +36,7 @@ Epic 3의 게시판 저장 sanitizer가 연결된 뒤 write gate를 열었습니
 
 - [x] policy codegen과 checksum gate
 - [x] Symfony sanitizer service와 canonical response
-- [x] G7 게시판 사용자·관리자 create/update 미들웨어
+- [x] G7 게시판·상품·페이지 전체 편집 create/update 미들웨어
 - [ ] 쇼핑몰·페이지를 포함한 모든 content write path 적용 확인
 - [x] PHP·브라우저·G7 직접 제출 security corpus
 - [ ] clipboard paste·저장 후 render security corpus

@@ -310,7 +310,7 @@ class Plugin extends AbstractPlugin
     }
 
     /**
-     * G7 7.0.9 게시글 HTML 저장 경로에 서버 canonical sanitizer를 연결합니다.
+     * G7 7.0.9 편집기 HTML 저장 경로에 서버 canonical sanitizer를 연결합니다.
      *
      * @return array<int, array{class: class-string, groups: array<int, string>, timing: string, targets: array<int, string>}>
      */
@@ -318,7 +318,7 @@ class Plugin extends AbstractPlugin
     {
         return [
             [
-                'class' => Http\Middleware\CanonicalizeBoardPostHtml::class,
+                'class' => Http\Middleware\CanonicalizeEditorHtml::class,
                 'groups' => ['api'],
                 'timing' => 'after_core',
                 'targets' => [
@@ -326,6 +326,13 @@ class Plugin extends AbstractPlugin
                     'api.modules.sirsoft-board.boards.posts.update',
                     'api.modules.sirsoft-board.admin.board.posts.store',
                     'api.modules.sirsoft-board.admin.board.posts.update',
+                    'api.modules.sirsoft-ecommerce.admin.products.store',
+                    'api.modules.sirsoft-ecommerce.admin.products.update',
+                    'api.modules.sirsoft-ecommerce.admin.products.update-by-code',
+                    'api.modules.sirsoft-ecommerce.admin.product-common-infos.store',
+                    'api.modules.sirsoft-ecommerce.admin.product-common-infos.update',
+                    'api.modules.sirsoft-page.admin.pages.store',
+                    'api.modules.sirsoft-page.admin.pages.update',
                 ],
             ],
         ];
