@@ -1,7 +1,7 @@
 <?php
 
-use AppServices\PluginService;
-use AppServices\PluginSettingsService;
+use App\Services\PluginService;
+use App\Services\PluginSettingsService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;

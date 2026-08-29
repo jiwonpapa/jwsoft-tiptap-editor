@@ -3,6 +3,9 @@
 set -Eeuo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
+require_command git
+require_command jq
+
 [ "$#" -eq 5 ] || fail "사용법: $0 G7_ROOT PREVIOUS_ZIP PAGE_ID POST_ID PRODUCT_ID"
 g7_root="$(cd "$1" && pwd)"
 previous_artifact="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
@@ -34,8 +37,10 @@ lifecycle_probe="$PROJECT_ROOT/tests/integration/g7_lifecycle_probe.php"
 php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence_dir/baseline.json"
 
 (cd "$g7_root" && php artisan plugin:deactivate jwsoft-tiptap-editor --no-interaction)
-(cd "$g7_root" && php artisan plugin:uninstall jwsoft-tiptap-editor --force --no-interaction)
+(cd "$g7_root" && php artisan plugin:uninstall jwsoft-tiptap-editor --force --no-interaction) || true
 php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence_dir/uninstalled.json"
+jq -e '.pluginInstalled == false' "$evidence_dir/uninstalled.json" >/dev/null \
+  || fail "uninstall 후 plugin record가 남았습니다."
 
 php "$action" "$g7_root" install-github "$github_url" > "$evidence_dir/github-install.json"
 php "$action" "$g7_root" acknowledge > "$evidence_dir/acknowledged.json"
@@ -43,7 +48,10 @@ php "$action" "$g7_root" acknowledge > "$evidence_dir/acknowledged.json"
 php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/github-active.json"
 
 (cd "$g7_root" && php artisan plugin:deactivate jwsoft-tiptap-editor --no-interaction)
-(cd "$g7_root" && php artisan plugin:uninstall jwsoft-tiptap-editor --force --no-interaction)
+(cd "$g7_root" && php artisan plugin:uninstall jwsoft-tiptap-editor --force --no-interaction) || true
+php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence_dir/second-uninstalled.json"
+jq -e '.pluginInstalled == false' "$evidence_dir/second-uninstalled.json" >/dev/null \
+  || fail "두 번째 uninstall 후 plugin record가 남았습니다."
 php "$action" "$g7_root" install-zip "$previous_artifact" > "$evidence_dir/previous-install.json"
 php "$action" "$g7_root" acknowledge > "$evidence_dir/previous-acknowledged.json"
 (cd "$g7_root" && php artisan plugin:activate jwsoft-tiptap-editor --no-interaction)
