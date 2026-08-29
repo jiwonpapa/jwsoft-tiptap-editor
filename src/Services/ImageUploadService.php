@@ -54,7 +54,6 @@ class ImageUploadService
             if (! $this->storage->delete('images', $path)) {
                 Log::error('JWSoft Tiptap 업로드 레코드 실패 후 파일 회수 실패', [
                     'disk' => $this->storage->getDisk(),
-                    'file_path' => 'images/'.$path,
                 ]);
             }
             throw $exception;

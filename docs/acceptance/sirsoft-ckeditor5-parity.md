@@ -65,8 +65,8 @@
 - [x] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정 <!-- p0:settings.editor-media -->
 - [x] public asset disk 설정 <!-- p0:settings.asset-disk -->
 - [x] cleanup 설정 <!-- p0:settings.cleanup -->
-- [ ] 관리자 메뉴와 read/delete 권한 <!-- p0:settings.admin-permissions -->
-- [ ] 활동 로그·오류 로그에 비밀·본문 원문 노출 없음 <!-- p0:settings.safe-logging -->
+- [x] 관리자 메뉴와 read/delete 권한 <!-- p0:settings.admin-permissions -->
+- [x] 활동 로그·오류 로그에 비밀·본문 원문 노출 없음 <!-- p0:settings.safe-logging -->
 
 ## F. 대상 화면
 

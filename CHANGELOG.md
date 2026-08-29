@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 관리자 설정·업로드 메뉴의 G7 권한 계약을 고정하고 오류 로그에서 업로드 세션 토큰과 내부 파일 경로를 제거
 - 관리자 이미지 목록이 요청 page를 정확히 적용하고 게시글·상품 설명·상품 공통정보·페이지의 참조를 판정하며 단건·일괄 삭제의 파일·DB 결과와 경합 누락 ID를 통합 검증
 - G7 7.0.9의 모든 `html_editor` 교체 저장 endpoint 11개를 공통 서버 sanitizer로 보호하고 다국어 HTML map도 locale별 canonical 정제
 - Chromium 입력 계층의 실제 한글 composition, 브라우저 Clipboard API 정제 붙여넣기, 툴바·단축키 undo/redo와 최종 G7 상태 동기화를 하나의 브라우저 증거로 검증

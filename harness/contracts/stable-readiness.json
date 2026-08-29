@@ -288,6 +288,18 @@
       "artifacts": ["test-results/parity/integration.json"]
     },
     {
+      "id": "settings.admin-permissions",
+      "gate": "integration",
+      "requirement": "관리자 메뉴와 read delete 권한 분리",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "settings.safe-logging",
+      "gate": "integration",
+      "requirement": "활동 로그와 오류 로그의 비밀 본문 원문 차단",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
       "id": "surfaces.mobile-dark-i18n",
       "gate": "browser",
       "requirement": "모바일 다크모드 한국어 영어 편집 화면",

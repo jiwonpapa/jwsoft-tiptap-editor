@@ -172,7 +172,9 @@ class MediaUploadService
         if ($this->storage->deleteDirectory('media-temp', $this->sessionDirectory($token))) {
             $this->repository->deleteSession($session);
         } else {
-            Log::warning('JWSoft Tiptap 완료된 MP4 임시 청크 정리 실패', ['token' => $token]);
+            Log::warning('JWSoft Tiptap 완료된 MP4 임시 청크 정리 실패', [
+                'session_id' => (int) $session->id,
+            ]);
         }
 
         return $record;
