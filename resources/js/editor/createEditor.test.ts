@@ -134,6 +134,31 @@ describe("Tiptap policy schema", () => {
     mount.remove();
   });
 
+  it("keeps a sanitized paste reversible through undo and redo", () => {
+    const { editor, mount } = mountEditor("<p>한글 입력</p>");
+    editor.commands.setTextSelection(editor.state.doc.content.size - 1);
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: {
+        files: [],
+        getData: (type: string) =>
+          type === "text/html"
+            ? '<strong style="color:red">붙여넣기</strong>'
+            : "붙여넣기",
+      },
+    });
+    editor.view.dom.dispatchEvent(event);
+
+    expect(editor.getHTML()).toBe("<p>한글 입력<strong>붙여넣기</strong></p>");
+    expect(editor.commands.undo()).toBe(true);
+    expect(editor.getHTML()).toBe("<p>한글 입력</p>");
+    expect(editor.commands.redo()).toBe(true);
+    expect(editor.getHTML()).toBe("<p>한글 입력<strong>붙여넣기</strong></p>");
+    expect(editor.getHTML()).not.toContain("style=");
+    editor.destroy();
+    mount.remove();
+  });
+
   it("routes dropped and pasted image files to configured upload handlers", () => {
     const mount = document.createElement("div");
     document.body.appendChild(mount);

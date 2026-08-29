@@ -89,6 +89,16 @@
       ]
     },
     {
+      "id": "editor.ime",
+      "gate": "unit-browser-security",
+      "requirement": "undo redo clipboard paste 실제 한글 IME",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/editor-ime.json",
+        "test-results/parity/corpus.json"
+      ]
+    },
+    {
       "id": "security.server-endpoints",
       "gate": "integration",
       "requirement": "서버 sanitizer 저장 endpoint 적용",

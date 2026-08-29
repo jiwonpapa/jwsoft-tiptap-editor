@@ -6,6 +6,7 @@
 
 ### Changed
 
+- Chromium 입력 계층의 실제 한글 composition, 브라우저 Clipboard API 정제 붙여넣기, 툴바·단축키 undo/redo와 최종 G7 상태 동기화를 하나의 브라우저 증거로 검증
 - 정책 `1.4.0` image figure에 caption·좌/중앙/우 정렬·25/50/75/100% 반응형 크기 편집을 추가하고 기존 단독 이미지는 무변환 왕복
 - 정책 `1.3.0`의 4단계 들여쓰기 class token과 들여쓰기/내어쓰기 도구를 추가하고 목록에서는 중첩 list 구조를 사용
 - DOM에서 분리된 editor를 자동 파기하고 BFCache를 보존하는 pagehide 정리를 추가해 화면 이동 100회에도 동시 instance를 1개 이하로 유지

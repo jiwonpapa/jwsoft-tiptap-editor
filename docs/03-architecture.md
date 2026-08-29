@@ -24,6 +24,8 @@ G7 layout extension point
 
 Tiptap core와 custom node/mark를 소유합니다. 일반 TextStyle을 통한 inline style 출력을 사용하지 않습니다. 모든 스타일 명령은 token enum을 받습니다.
 
+한글 조합은 ProseMirror의 브라우저 composition 경로를 그대로 사용하고, 편집 중 상태 반영은 같은 `jwsoft-tiptap-sync-{name}` debounce key로 합쳐집니다. 붙여넣기 HTML은 schema 적용 전에 정책 정제를 거치며 정제 결과도 하나의 history transaction이므로 툴바와 표준 단축키에서 실행취소·다시실행할 수 있습니다.
+
 ### 3. Policy
 
 `policy/editor-policy.json`이 허용 HTML의 유일한 데이터 원본입니다. 빌드 과정이 다음 파생물을 생성하도록 구현합니다.

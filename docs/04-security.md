@@ -91,4 +91,4 @@
 
 `harness/fixtures/security-corpus.json`의 각 payload에 대해 editor load, paste, API direct submit, render를 모두 검사합니다. 브라우저에서 실행되지 않는 것만으로 통과하지 않으며 저장 HTML도 기대 정책과 일치해야 합니다.
 
-현재 MVP 4차에서는 PHP sanitizer, 브라우저 allowlist, G7 미들웨어 직접 제출과 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. 실제 clipboard paste와 저장 후 브라우저 render 전수 증거는 후속 browser parity gate에 남겨 둡니다.
+현재 `alpha.16`은 PHP sanitizer, 브라우저 allowlist, G7 미들웨어 직접 제출과 이미지 훅·실제 MIME·저장 롤백·고아 레코드 정리를 자동 검사합니다. Chromium의 신뢰된 loopback origin에서 실제 Clipboard API와 붙여넣기 단축키를 사용해 style·이벤트 속성·script 제거, 손실 경고, undo/redo를 증명하며 최종 저장 정본은 계속 서버 sanitizer가 결정합니다.
