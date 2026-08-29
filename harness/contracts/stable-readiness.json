@@ -270,6 +270,12 @@
       ]
     },
     {
+      "id": "settings.editor-media",
+      "gate": "integration",
+      "requirement": "에디터 미디어 설정 UI 저장 검증 런타임 적용",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
       "id": "surfaces.mobile-dark-i18n",
       "gate": "browser",
       "requirement": "모바일 다크모드 한국어 영어 편집 화면",

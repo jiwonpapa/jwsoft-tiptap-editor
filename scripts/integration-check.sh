@@ -34,6 +34,7 @@ printf '%s' "$install_help" | grep -q -- '--vendor-mode' || fail "plugin:install
 printf '%s' "$update_help" | grep -q -- '--zip' || fail "plugin:update --zip 계약이 없습니다."
 
 php "$PROJECT_ROOT/tests/integration/g7_middleware_test.php" "$G7_ROOT" "$PROJECT_ROOT"
+php "$PROJECT_ROOT/tests/integration/g7_settings_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 php "$PROJECT_ROOT/tests/integration/g7_image_subsystem_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 php "$PROJECT_ROOT/tests/integration/g7_media_subsystem_test.php" "$G7_ROOT" "$PROJECT_ROOT"
 php "$PROJECT_ROOT/tests/integration/g7_link_preview_test.php" "$G7_ROOT" "$PROJECT_ROOT"

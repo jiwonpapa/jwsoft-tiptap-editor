@@ -1,7 +1,68 @@
 {
   "editor": {
     "data_source": {
-      "uploads": "업로드 이미지 목록"
+      "uploads": "업로드 이미지 목록",
+      "settings": "에디터 설정"
+    }
+  },
+  "settings": {
+    "title": "JWSoft Tiptap 에디터 설정",
+    "description": "에디터, 업로드, 미디어 및 링크 카드 기능을 설정합니다.",
+    "legacy_warning": "기존 CKEditor의 inline style·전용 class·HTML 구조는 자동 변환되지 않습니다. 전환 위험을 확인한 경우에만 활성화하십시오.",
+    "media_privacy_notice": "외부 플레이어 즉시 로드는 페이지 표시와 함께 외부 제공자에 연결합니다. 개인정보 보호를 위해 클릭 후 로드를 권장합니다.",
+    "sections": {
+      "editor": "에디터",
+      "images": "이미지 업로드",
+      "media": "동영상",
+      "smart_cards": "SNS·링크 스마트카드"
+    },
+    "fields": {
+      "toolbar": {
+        "label": "툴바 유형",
+        "hint": "용도에 맞는 도구 구성을 선택합니다.",
+        "minimal": "최소",
+        "standard": "표준",
+        "full": "전체"
+      },
+      "editor_height": {
+        "label": "에디터 높이 (px)",
+        "hint": "200~2000px 사이로 지정합니다."
+      },
+      "image_upload": {
+        "label": "이미지 업로드",
+        "hint": "에디터에서 서버 이미지 업로드를 허용합니다."
+      },
+      "drag_drop_image_upload": {
+        "label": "드래그·드롭 업로드",
+        "hint": "이미지를 놓은 위치에 업로드하여 삽입합니다."
+      },
+      "paste_image_upload": {
+        "label": "클립보드 이미지 업로드",
+        "hint": "붙여넣은 이미지를 서버에 업로드합니다."
+      },
+      "image_max_size": {
+        "label": "이미지 최대 크기 (MB)",
+        "hint": "파일당 1~10MB로 제한합니다."
+      },
+      "media_embed": { "label": "동영상 플레이어 삽입" },
+      "auto_embed_urls": { "label": "동영상 URL 자동 변환" },
+      "youtube_embed": { "label": "YouTube 허용" },
+      "vimeo_embed": { "label": "Vimeo 허용" },
+      "mp4_embed": { "label": "MP4 URL 허용" },
+      "video_upload": { "label": "MP4 파일 업로드" },
+      "video_max_size": { "label": "동영상 최대 크기 (MB)" },
+      "video_chunk_size": { "label": "동영상 청크 크기 (MB)" },
+      "media_autoplay": { "label": "동영상 자동재생 허용" },
+      "external_media_load_mode": {
+        "label": "외부 플레이어 로드",
+        "click": "클릭 후 로드 (권장)",
+        "immediate": "즉시 로드"
+      },
+      "smart_cards": { "label": "링크 스마트카드" },
+      "auto_smart_cards": { "label": "URL 스마트카드 자동 변환" },
+      "social_cards": { "label": "SNS 링크 카드" },
+      "generic_link_cards": { "label": "일반 HTTPS 링크 카드" },
+      "smart_card_images": { "label": "대표 이미지 표시" }
     }
   },
   "admin": {

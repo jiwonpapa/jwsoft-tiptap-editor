@@ -1,0 +1,841 @@
+{
+  "version": "1.0.0",
+  "layout_name": "plugin_settings",
+  "permissions": ["core.plugins.update"],
+  "extends": "_admin_base",
+  "meta": {
+    "title": "$t:jwsoft-tiptap-editor.settings.title",
+    "description": "$t:jwsoft-tiptap-editor.settings.description"
+  },
+  "data_sources": [
+    {
+      "id": "settings",
+      "label_key": "$t:jwsoft-tiptap-editor.editor.data_source.settings",
+      "type": "api",
+      "endpoint": "/api/admin/plugins/{{route.identifier}}/settings",
+      "method": "GET",
+      "auto_fetch": true,
+      "auth_required": true,
+      "initLocal": "form",
+      "refetchOnMount": true
+    }
+  ],
+  "slots": {
+    "content": [
+      {
+        "id": "plugin_settings_content",
+        "type": "basic",
+        "name": "Div",
+        "dataKey": "form",
+        "trackChanges": true,
+        "props": { "className": "admin-page-content-responsive" },
+        "children": [
+          {
+            "id": "page_header",
+            "type": "composite",
+            "name": "PageHeader",
+            "props": {
+              "title": "$t:jwsoft-tiptap-editor.settings.title",
+              "description": "$t:jwsoft-tiptap-editor.settings.description",
+              "backPath": "/admin/plugins",
+              "backLabel": "$t:admin.plugins.back_to_list"
+            }
+          },
+          {
+            "id": "legacy_warning",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "alert-warning" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "P",
+                "props": { "className": "text-warning-soft" },
+                "text": "$t:jwsoft-tiptap-editor.settings.legacy_warning"
+              },
+              {
+                "id": "field_legacy_acknowledgement",
+                "type": "composite",
+                "name": "Toggle",
+                "props": { "name": "legacyContentRiskAcknowledged" }
+              }
+            ]
+          },
+          {
+            "id": "validation_error",
+            "type": "basic",
+            "name": "Div",
+            "if": "{{_local.errors}}",
+            "props": { "className": "alert-danger mt-4" },
+            "text": "$t:admin.plugins.settings.validation_error"
+          },
+          {
+            "id": "section_editor",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mt-6 space-y-6" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "H3",
+                "props": { "className": "text-lg font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.sections.editor"
+              },
+              {
+                "id": "field_toolbar",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.toolbar.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.toolbar.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Select",
+                        "props": {
+                          "name": "toolbar",
+                          "className": "w-full",
+                          "options": [
+                            {
+                              "value": "minimal",
+                              "label": "$t:jwsoft-tiptap-editor.settings.fields.toolbar.minimal"
+                            },
+                            {
+                              "value": "standard",
+                              "label": "$t:jwsoft-tiptap-editor.settings.fields.toolbar.standard"
+                            },
+                            {
+                              "value": "full",
+                              "label": "$t:jwsoft-tiptap-editor.settings.fields.toolbar.full"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_editor_height",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.editor_height.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.editor_height.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Input",
+                        "props": {
+                          "type": "number",
+                          "name": "editorHeight",
+                          "min": 200,
+                          "max": 2000,
+                          "className": "input w-full"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "section_images",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mt-4 space-y-6" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "H3",
+                "props": { "className": "text-lg font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.sections.images"
+              },
+              {
+                "id": "field_image_upload",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_upload.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_upload.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "imageUpload" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_drag_drop_image_upload",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.drag_drop_image_upload.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.drag_drop_image_upload.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "dragDropImageUpload" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_paste_image_upload",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.paste_image_upload.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.paste_image_upload.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "pasteImageUpload" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_image_max_size",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_max_size.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_max_size.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Input",
+                        "props": {
+                          "type": "number",
+                          "name": "imageMaxSizeMb",
+                          "min": 1,
+                          "max": 10,
+                          "className": "input w-full"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "section_media",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mt-4 space-y-6" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "H3",
+                "props": { "className": "text-lg font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.sections.media"
+              },
+              {
+                "id": "media_privacy_notice",
+                "type": "basic",
+                "name": "P",
+                "props": { "className": "alert-info" },
+                "text": "$t:jwsoft-tiptap-editor.settings.media_privacy_notice"
+              },
+              {
+                "id": "media_toggles",
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                  "className": "grid grid-cols-1 md:grid-cols-2 gap-4"
+                },
+                "children": [
+                  {
+                    "id": "field_media_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.media_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "mediaEmbed" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_auto_embed_urls",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.auto_embed_urls.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "autoEmbedUrls" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_youtube_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.youtube_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "youtubeEmbed" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_vimeo_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.vimeo_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "vimeoEmbed" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_mp4_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.mp4_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "mp4Embed" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_video_upload",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.video_upload.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "videoUpload" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_media_autoplay",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.media_autoplay.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "mediaAutoplay" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "media_numbers",
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                  "className": "grid grid-cols-1 md:grid-cols-3 gap-4"
+                },
+                "children": [
+                  {
+                    "id": "field_video_max_size",
+                    "type": "basic",
+                    "name": "Div",
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.video_max_size.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "Input",
+                        "props": {
+                          "type": "number",
+                          "name": "videoMaxSizeMb",
+                          "min": 1,
+                          "max": 500,
+                          "className": "input w-full"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_video_chunk_size",
+                    "type": "basic",
+                    "name": "Div",
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.video_chunk_size.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "Input",
+                        "props": {
+                          "type": "number",
+                          "name": "videoChunkSizeMb",
+                          "min": 1,
+                          "max": 10,
+                          "className": "input w-full"
+                        }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_external_media_load_mode",
+                    "type": "basic",
+                    "name": "Div",
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.external_media_load_mode.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Select",
+                        "props": {
+                          "name": "externalMediaLoadMode",
+                          "className": "w-full",
+                          "options": [
+                            {
+                              "value": "click",
+                              "label": "$t:jwsoft-tiptap-editor.settings.fields.external_media_load_mode.click"
+                            },
+                            {
+                              "value": "immediate",
+                              "label": "$t:jwsoft-tiptap-editor.settings.fields.external_media_load_mode.immediate"
+                            }
+                          ]
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "section_smart_cards",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mt-4 space-y-6" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "H3",
+                "props": { "className": "text-lg font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.sections.smart_cards"
+              },
+              {
+                "type": "basic",
+                "name": "Div",
+                "props": {
+                  "className": "grid grid-cols-1 md:grid-cols-2 gap-4"
+                },
+                "children": [
+                  {
+                    "id": "field_smart_cards",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.smart_cards.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "smartCards" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_auto_smart_cards",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.auto_smart_cards.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "autoSmartCards" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_social_cards",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.social_cards.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "socialCards" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_generic_link_cards",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.generic_link_cards.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "genericLinkCards" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_smart_card_images",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.smart_card_images.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "smartCardImages" }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "id": "footer_buttons",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "sticky-footer-buttons" },
+            "children": [
+              {
+                "id": "cancel_button",
+                "type": "basic",
+                "name": "Button",
+                "props": { "type": "button", "className": "btn btn-secondary" },
+                "text": "$t:common.cancel",
+                "actions": [
+                  {
+                    "type": "click",
+                    "handler": "navigate",
+                    "params": { "path": "/admin/plugins" }
+                  }
+                ]
+              },
+              {
+                "id": "save_button",
+                "type": "basic",
+                "name": "Button",
+                "props": {
+                  "type": "button",
+                  "disabled": "{{!_local.hasChanges || _local.isSaving}}",
+                  "className": "btn btn-primary"
+                },
+                "text": "$t:common.save",
+                "actions": [
+                  {
+                    "type": "click",
+                    "handler": "sequence",
+                    "actions": [
+                      {
+                        "handler": "setState",
+                        "params": {
+                          "target": "local",
+                          "isSaving": true,
+                          "errors": null
+                        }
+                      },
+                      {
+                        "handler": "apiCall",
+                        "auth_required": true,
+                        "target": "/api/admin/plugins/{{route.identifier}}/settings",
+                        "params": {
+                          "method": "PUT",
+                          "body": "{{_local.form}}"
+                        },
+                        "onSuccess": [
+                          {
+                            "handler": "setState",
+                            "params": {
+                              "target": "local",
+                              "isSaving": false,
+                              "hasChanges": false
+                            }
+                          },
+                          {
+                            "handler": "setState",
+                            "params": {
+                              "target": "global",
+                              "plugins": "{{Object.assign({}, _global.plugins ?? {}, { 'jwsoft-tiptap-editor': _local.form })}}"
+                            }
+                          },
+                          {
+                            "handler": "toast",
+                            "params": {
+                              "type": "success",
+                              "message": "$t:admin.plugins.settings.save_success"
+                            }
+                          },
+                          {
+                            "handler": "refetchDataSource",
+                            "params": { "dataSourceId": "settings" }
+                          }
+                        ],
+                        "onError": [
+                          {
+                            "handler": "setState",
+                            "params": {
+                              "target": "local",
+                              "isSaving": false,
+                              "errors": "{{error.errors}}"
+                            }
+                          },
+                          {
+                            "handler": "toast",
+                            "params": {
+                              "type": "error",
+                              "message": "{{error.message ?? '$t:admin.plugins.settings.save_error'}}"
+                            }
+                          }
+                        ]
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

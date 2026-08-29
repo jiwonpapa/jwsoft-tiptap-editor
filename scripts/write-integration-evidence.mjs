@@ -9,6 +9,7 @@ if (!g7Version) throw new Error("G7 version argument is required");
 
 const tests = [
   "tests/integration/g7_middleware_test.php",
+  "tests/integration/g7_settings_test.php",
   "tests/integration/g7_image_subsystem_test.php",
   "tests/integration/g7_media_subsystem_test.php",
   "tests/integration/g7_link_preview_test.php",

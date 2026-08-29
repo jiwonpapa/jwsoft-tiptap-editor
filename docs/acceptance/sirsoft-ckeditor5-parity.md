@@ -62,7 +62,7 @@
 
 ## E. G7 관리 기능
 
-- [ ] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정 <!-- p0:settings.editor-media -->
+- [x] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정 <!-- p0:settings.editor-media -->
 - [ ] public asset disk 설정 <!-- p0:settings.asset-disk -->
 - [ ] cleanup 설정 <!-- p0:settings.cleanup -->
 - [ ] 관리자 메뉴와 read/delete 권한 <!-- p0:settings.admin-permissions -->
