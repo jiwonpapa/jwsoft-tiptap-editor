@@ -1,0 +1,296 @@
+{
+  "schemaVersion": 1,
+  "items": [
+    {
+      "id": "editor.extensions.html",
+      "gate": "unit",
+      "requirement": "html_editor replace extension 제공",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "content.extensions.html",
+      "gate": "unit",
+      "requirement": "html_content replace extension 제공",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.bindings",
+      "gate": "unit",
+      "requirement": "G7 편집기 binding 호환",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.multilingual",
+      "gate": "unit",
+      "requirement": "단일 문자열과 다국어 map 호환",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.instance-lifecycle",
+      "gate": "unit-browser",
+      "requirement": "mount와 unmount instance 수명주기",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/evidence.json"
+      ]
+    },
+    {
+      "id": "editor.state-sync",
+      "gate": "unit",
+      "requirement": "G7 debounce와 최신 상태 동기화",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.toolbar-profiles",
+      "gate": "unit",
+      "requirement": "minimal standard full toolbar profile",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.text-formatting",
+      "gate": "unit",
+      "requirement": "제목 문단과 inline mark",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.table",
+      "gate": "unit",
+      "requirement": "표 생성과 편집",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "editor.source-policy",
+      "gate": "unit-security",
+      "requirement": "code block과 원문 편집 금지 정책과 horizontal rule",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/corpus.json"
+      ]
+    },
+    {
+      "id": "security.server-endpoints",
+      "gate": "integration",
+      "requirement": "서버 sanitizer 저장 endpoint 적용",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "security.attributes",
+      "gate": "security",
+      "requirement": "style 이벤트 속성 미등록 class 제거",
+      "artifacts": ["test-results/parity/corpus.json"]
+    },
+    {
+      "id": "security.dangerous-content",
+      "gate": "security",
+      "requirement": "위험 URL SVG form script iframe 차단",
+      "artifacts": ["test-results/parity/corpus.json"]
+    },
+    {
+      "id": "security.client-allowlist",
+      "gate": "unit-security",
+      "requirement": "DOMPurify 생성 allowlist 출력",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "security.corpus",
+      "gate": "security",
+      "requirement": "security corpus 전체 통과",
+      "artifacts": ["test-results/parity/corpus.json"]
+    },
+    {
+      "id": "security.fail-closed",
+      "gate": "unit-integration",
+      "requirement": "정책 오류 fail closed",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/integration.json"
+      ]
+    },
+    {
+      "id": "image.validation",
+      "gate": "integration",
+      "requirement": "이미지 인증 권한 크기 MIME 검증",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.storage",
+      "gate": "integration",
+      "requirement": "StorageInterface 이미지 저장",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.serve",
+      "gate": "integration",
+      "requirement": "이미지 serve와 cache header",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.records",
+      "gate": "integration-lifecycle",
+      "requirement": "업로드 레코드와 참조 상태",
+      "artifacts": [
+        "test-results/parity/integration.json",
+        "test-results/parity/lifecycle/evidence.json"
+      ]
+    },
+    {
+      "id": "image.admin",
+      "gate": "integration",
+      "requirement": "관리자 이미지 목록과 삭제",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.cleanup",
+      "gate": "integration",
+      "requirement": "미사용 이미지 opt-in cleanup",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.hooks",
+      "gate": "integration",
+      "requirement": "이미지 신구 호환 훅",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "image.failure-orphans",
+      "gate": "unit-integration",
+      "requirement": "외부 이미지 업로드 실패와 고아 파일 처리",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/integration.json"
+      ]
+    },
+    {
+      "id": "media.providers",
+      "gate": "unit",
+      "requirement": "YouTube Vimeo MP4 provider allowlist",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "media.canonical",
+      "gate": "unit-security",
+      "requirement": "저장 HTML의 실행 미디어 태그 제거",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/corpus.json"
+      ]
+    },
+    {
+      "id": "media.player",
+      "gate": "unit",
+      "requirement": "클릭 후 로드 반응형 autoplay opt-in player",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "media.settings",
+      "gate": "unit",
+      "requirement": "provider 설정 OFF와 기존 canonical node 보존",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "media.chunk-upload",
+      "gate": "unit-integration",
+      "requirement": "MP4 청크 해시 재시도 재개 서버 재검증",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/integration.json"
+      ]
+    },
+    {
+      "id": "media.cleanup",
+      "gate": "integration",
+      "requirement": "중단 업로드 만료와 완성 파일 serve",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "cards.providers",
+      "gate": "integration",
+      "requirement": "SNS와 일반 HTTPS provider 분류",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "cards.insert",
+      "gate": "unit",
+      "requirement": "자동 변환 수동 삽입 실패 URL 보존",
+      "artifacts": ["test-results/parity/unit.json"]
+    },
+    {
+      "id": "cards.ssrf",
+      "gate": "integration",
+      "requirement": "DNS redirect 공개 IP와 연결 IP 고정",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "cards.canonical",
+      "gate": "unit-security",
+      "requirement": "canonical card 저장과 실행 embed 제거",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/corpus.json"
+      ]
+    },
+    {
+      "id": "cards.settings",
+      "gate": "unit-integration",
+      "requirement": "스마트카드 설정 OFF와 canonical card 보존",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/integration.json"
+      ]
+    },
+    {
+      "id": "lifecycle.conflict",
+      "gate": "lifecycle",
+      "requirement": "CKEditor 동시 활성화 차단",
+      "artifacts": ["test-results/parity/lifecycle/evidence.json"]
+    },
+    {
+      "id": "lifecycle.switch-to-jwsoft",
+      "gate": "lifecycle",
+      "requirement": "CKEditor에서 JWSoft 전환",
+      "artifacts": ["test-results/parity/lifecycle/evidence.json"]
+    },
+    {
+      "id": "lifecycle.rollback-to-ckeditor",
+      "gate": "lifecycle",
+      "requirement": "JWSoft에서 CKEditor 롤백",
+      "artifacts": ["test-results/parity/lifecycle/evidence.json"]
+    },
+    {
+      "id": "lifecycle.legacy-roundtrip",
+      "gate": "security-lifecycle",
+      "requirement": "legacy HTML 왕복과 손실 보고",
+      "artifacts": [
+        "test-results/parity/corpus.json",
+        "test-results/parity/lifecycle/evidence.json"
+      ]
+    },
+    {
+      "id": "supply-chain.no-cdn",
+      "gate": "supply-chain",
+      "requirement": "런타임 CDN 요청 없음",
+      "artifacts": ["test-results/parity/supply-chain.json"]
+    },
+    {
+      "id": "supply-chain.locks-audit",
+      "gate": "license-supply-chain",
+      "requirement": "npm composer lock과 audit",
+      "artifacts": [
+        "test-results/release/license.json",
+        "test-results/parity/supply-chain.json"
+      ]
+    },
+    {
+      "id": "supply-chain.reproducible",
+      "gate": "reproducibility",
+      "requirement": "재현 가능한 패키지 checksum",
+      "artifacts": ["test-results/release/reproducibility.json"]
+    },
+    {
+      "id": "supply-chain.package",
+      "gate": "supply-chain",
+      "requirement": "package manifest vendor dist 포함",
+      "artifacts": ["test-results/parity/supply-chain.json"]
+    }
+  ]
+}

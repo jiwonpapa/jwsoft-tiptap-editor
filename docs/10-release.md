@@ -26,7 +26,7 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [x] 동일 commit 2회 ZIP checksum 일치
 - [x] 전용 G7 ZIP 업데이트·롤백·복구 검증
 
-MVP 6 개발 하네스에서는 `alpha.7` ZIP을 같은 commit epoch로 두 번 생성해 checksum 일치를 확인하고, `alpha.6 → alpha.7 → CKEditor → alpha.7` 생명주기와 콘텐츠 해시 보존을 검증합니다. UI 브라우저 증거는 5차 `alpha.6` 관측임을 provenance에 유지하며 6차의 새 브라우저 실행으로 승격하지 않습니다. `make release-candidate-check`는 현재 MVP 후보 게이트이며 실제 staging을 대체하지 않습니다. `make release-check`는 전체 P0 체크리스트가 남아 있는 동안 의도적으로 실패합니다.
+현재 개발 하네스에서는 `alpha.12` ZIP을 같은 commit epoch로 두 번 생성해 checksum 일치를 확인하고, `alpha.11 → alpha.12 → CKEditor → alpha.12` 생명주기와 콘텐츠 해시 보존을 검증합니다. UI 브라우저 증거는 `alpha.6` 관측임을 provenance에 유지하며 현재 버전의 새 브라우저 실행으로 승격하지 않습니다. `make release-candidate-check`는 22개 후보 계약을 검사하며 실제 staging을 대체하지 않습니다. `make release-check`는 P0 62개 중 자동화 증거가 연결된 항목과 남은 차단 항목을 분리해 보고하고, 미완료가 있는 동안 의도적으로 실패합니다.
 
 ## 공개
 

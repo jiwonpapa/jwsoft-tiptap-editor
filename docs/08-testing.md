@@ -51,6 +51,8 @@
 - 브라우저·viewport
 - 실패 시 screenshot/trace 경로
 
+`test-results/parity/unit.json`은 Vitest 기본 출력과 함께 생성되는 구조화 결과이며 전체 테스트 수와 assertion 상태를 보존합니다. `test-results/parity/integration.json`은 미들웨어·이미지·MP4·링크 미리보기 G7 통합 검사의 파일 checksum을 모두 기록합니다. stable readiness는 체크 표시만 신뢰하지 않고 각 완료 항목의 `p0` ID와 `harness/contracts/stable-readiness.json`의 증거 경로를 대조합니다.
+
 `test-results/release/reproducibility.json`은 같은 source commit epoch에서 ZIP을 두 번 생성한 checksum 일치를 기록합니다. `test-results/release/license.json`은 제품 라이선스, lockfile의 런타임 라이선스, ZIP 안의 NOTICE·원문 라이선스를 검사합니다. 두 파일은 로컬 증거이며 staging 승인 기록이 아닙니다.
 
 수동 체크만으로 evidence를 만들면 안 됩니다. 실제 브라우저 화면은 Playwright CLI screenshot의 SHA256, 레코드 ID, 관측 플러그인 버전과 source commit을 함께 기록합니다. 출시 후보의 패키지 버전과 브라우저 관측 버전이 다르면 통합 증거에 두 경계를 각각 남기며, 새 브라우저 검증으로 오해하지 않습니다.
