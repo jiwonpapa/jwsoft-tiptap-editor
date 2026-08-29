@@ -1,4 +1,6 @@
+import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 import { expect, type Page, test } from "@playwright/test";
@@ -94,6 +96,100 @@ async function mountEditor(
     },
   );
 }
+
+test("100 route replacements leave no detached editor instances", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await mountEditor(page);
+
+  const result = await page.evaluate(async () => {
+    const runtime = window as typeof window & {
+      __e2eHandlers: Record<
+        string,
+        (action: Record<string, unknown>, context: unknown) => unknown
+      >;
+      __JWSoftTiptapEditor: { getInstanceCount: () => number };
+    };
+    const nextTask = () =>
+      new Promise<void>((resolve) => window.setTimeout(resolve, 0));
+    const detachedCounts: number[] = [];
+    const mountedCounts: number[] = [];
+    let maxInstances = runtime.__JWSoftTiptapEditor.getInstanceCount();
+
+    for (let route = 0; route < 100; route += 1) {
+      document.getElementById("jwsoft-tiptap-content")?.remove();
+      await nextTask();
+      const detachedCount = runtime.__JWSoftTiptapEditor.getInstanceCount();
+      detachedCounts.push(detachedCount);
+      if (detachedCount !== 0) {
+        throw new Error(`route ${route + 1}: detached instance remained`);
+      }
+
+      const container = document.createElement("div");
+      container.id = "jwsoft-tiptap-content";
+      container.className = "jwsoft-tiptap-wrapper";
+      document.querySelector("main")?.appendChild(container);
+      await runtime.__e2eHandlers["jwsoft-tiptap-editor.initEditor"](
+        {
+          params: {
+            name: "content",
+            content: `<p>화면 ${route + 1}</p>`,
+            toolbar: "standard",
+          },
+        },
+        undefined,
+      );
+      const mountedCount = runtime.__JWSoftTiptapEditor.getInstanceCount();
+      mountedCounts.push(mountedCount);
+      maxInstances = Math.max(maxInstances, mountedCount);
+      if (mountedCount !== 1) {
+        throw new Error(`route ${route + 1}: expected one mounted instance`);
+      }
+    }
+
+    document.getElementById("jwsoft-tiptap-content")?.remove();
+    await nextTask();
+    return {
+      navigationCount: 100,
+      detachedCounts,
+      mountedCounts,
+      maxInstances,
+      finalInstances: runtime.__JWSoftTiptapEditor.getInstanceCount(),
+    };
+  });
+
+  expect(result.detachedCounts.every((count) => count === 0)).toBe(true);
+  expect(result.mountedCounts.every((count) => count === 1)).toBe(true);
+  expect(result.maxInstances).toBe(1);
+  expect(result.finalInstances).toBe(0);
+
+  const manifest = JSON.parse(
+    fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
+  ) as { version: string };
+  const sourceCommit = execFileSync("git", ["rev-parse", "HEAD"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim();
+  const evidenceDirectory = path.join(root, "test-results/parity/browser");
+  fs.mkdirSync(evidenceDirectory, { recursive: true });
+  fs.writeFileSync(
+    path.join(evidenceDirectory, "instance-lifecycle.json"),
+    `${JSON.stringify(
+      {
+        schemaVersion: 1,
+        status: "pass",
+        observedAt: new Date().toISOString(),
+        browser: testInfo.project.name,
+        pluginVersion: manifest.version,
+        sourceCommit,
+        ...result,
+      },
+      null,
+      2,
+    )}\n`,
+  );
+});
 
 test("desktop toolbar keeps selection commands and keyboard focus usable", async ({
   page,

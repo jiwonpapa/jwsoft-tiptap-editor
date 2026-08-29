@@ -6,6 +6,7 @@ import {
   startHandlerRegistration,
 } from "@/integration/registerHandlers";
 import { editorRegistry } from "@/editor/editorRegistry";
+import { startEditorLifecycleCleanup } from "@/editor/editorLifecycle";
 import type { HandlerMap } from "@/g7/types";
 import pluginManifest from "../../plugin.json";
 
@@ -23,6 +24,7 @@ export const handlerMap: HandlerMap = {
 };
 
 export function initPlugin(): void {
+  startEditorLifecycleCleanup();
   startHandlerRegistration(handlerMap);
 }
 

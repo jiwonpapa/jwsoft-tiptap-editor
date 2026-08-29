@@ -53,6 +53,20 @@ class EditorRegistry {
       this.destroy(containerId);
     }
   }
+
+  destroyDisconnected(): number {
+    let destroyed = 0;
+    for (const [containerId, locales] of this.#instances) {
+      for (const [locale, editor] of locales) {
+        if (!editor.isDestroyed && editor.view.dom.isConnected) continue;
+        if (!editor.isDestroyed) editor.destroy();
+        locales.delete(locale);
+        destroyed += 1;
+      }
+      if (locales.size === 0) this.#instances.delete(containerId);
+    }
+    return destroyed;
+  }
 }
 
 export const editorRegistry = new EditorRegistry();

@@ -31,7 +31,7 @@
       "requirement": "mount와 unmount instance 수명주기",
       "artifacts": [
         "test-results/parity/unit.json",
-        "test-results/parity/browser/evidence.json"
+        "test-results/parity/browser/instance-lifecycle.json"
       ]
     },
     {

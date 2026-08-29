@@ -1,5 +1,9 @@
 import { editorContainerId } from "@/editor/content";
 import { editorRegistry } from "@/editor/editorRegistry";
+import {
+  startEditorLifecycleCleanup,
+  stopEditorLifecycleCleanup,
+} from "@/editor/editorLifecycle";
 import { destroyEditorHandler } from "@/handlers/destroyEditor";
 import { initEditorHandler } from "@/handlers/initEditor";
 
@@ -22,6 +26,7 @@ describe("G7 editor lifecycle", () => {
   });
 
   afterEach(() => {
+    stopEditorLifecycleCleanup();
     editorRegistry.destroyAll();
   });
 
@@ -59,6 +64,67 @@ describe("G7 editor lifecycle", () => {
     await destroyEditorHandler({ params: { name: "content" } }, undefined);
     expect(editorRegistry.size).toBe(0);
     expect(container.childElementCount).toBe(0);
+  });
+
+  it("destroys detached route editors without leaking instances", async () => {
+    startEditorLifecycleCleanup();
+
+    for (let route = 0; route < 100; route += 1) {
+      const container = addContainer();
+      await initEditorHandler(
+        {
+          params: {
+            name: "content",
+            content: `<p>화면 ${route + 1}</p>`,
+          },
+        },
+        undefined,
+      );
+      expect(editorRegistry.size).toBe(1);
+
+      container.remove();
+      await Promise.resolve();
+      expect(editorRegistry.size).toBe(0);
+    }
+  }, 10_000);
+
+  it("keeps an editor that is synchronously reparented", async () => {
+    startEditorLifecycleCleanup();
+    const firstParent = document.createElement("section");
+    const secondParent = document.createElement("section");
+    document.body.append(firstParent, secondParent);
+    const container = document.createElement("div");
+    container.id = editorContainerId("content");
+    firstParent.appendChild(container);
+
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>이동</p>" } },
+      undefined,
+    );
+    secondParent.appendChild(container);
+    await Promise.resolve();
+
+    expect(editorRegistry.size).toBe(1);
+    expect(container.querySelector(".tiptap")?.textContent).toBe("이동");
+  });
+
+  it("destroys all editors on non-persisted pagehide only", async () => {
+    startEditorLifecycleCleanup();
+    addContainer();
+    await initEditorHandler(
+      { params: { name: "content", content: "<p>본문</p>" } },
+      undefined,
+    );
+
+    window.dispatchEvent(
+      new PageTransitionEvent("pagehide", { persisted: true }),
+    );
+    expect(editorRegistry.size).toBe(1);
+
+    window.dispatchEvent(
+      new PageTransitionEvent("pagehide", { persisted: false }),
+    );
+    expect(editorRegistry.size).toBe(0);
   });
 
   it("keeps lossy legacy HTML read-only until the user acknowledges it", async () => {
