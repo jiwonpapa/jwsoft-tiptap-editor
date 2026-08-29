@@ -7,11 +7,12 @@ import {
 } from "@/integration/registerHandlers";
 import { editorRegistry } from "@/editor/editorRegistry";
 import type { HandlerMap } from "@/g7/types";
+import pluginManifest from "../../plugin.json";
 
 export const JWSoftTiptapEditorBuild = Object.freeze({
   identifier: "jwsoft-tiptap-editor",
   stage: "integration-parity-alpha",
-  version: "0.1.0-alpha.10",
+  version: pluginManifest.version,
   writeEnabled: true,
 });
 

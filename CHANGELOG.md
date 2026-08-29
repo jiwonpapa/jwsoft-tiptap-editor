@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 런타임 build metadata가 plugin manifest 버전을 단일 정본으로 사용해 설치 버전과 실행 버전의 불일치를 방지
 - 공개 GitHub `main` 최초 설치·이전 ZIP에서 온라인 업데이트·데이터 보존 uninstall·CKEditor 롤백을 전용 G7에서 검증하는 수명주기 gate 추가
 - stable P0 62개에 고유 evidence ID를 부여하고 unit·G7 통합 산출물과 대조하는 fail-closed readiness gate로 교체
 - G7 통합 증거에 MP4와 SSRF 방어형 링크 미리보기 검사를 포함

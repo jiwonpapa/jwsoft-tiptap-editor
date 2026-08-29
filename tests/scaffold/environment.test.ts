@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { JWSoftTiptapEditorBuild } from "@/index";
 import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
@@ -28,6 +29,7 @@ describe("environment scaffold", () => {
     expect(components.identifier).toBe(plugin.identifier);
     expect(components.version).toBe(plugin.version);
     expect(pkg.version).toBe(plugin.version);
+    expect(JWSoftTiptapEditorBuild.version).toBe(plugin.version);
   });
 
   it("does not declare a runtime CDN host", () => {
