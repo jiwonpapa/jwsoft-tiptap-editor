@@ -4,7 +4,9 @@ use App\Extension\PluginManager;
 use App\Http\Requests\Admin\UpdatePluginSettingsRequest;
 use App\Rules\ValidLayoutStructure;
 use App\Rules\WhitelistedEndpoint;
+use App\Services\PluginSettingsService;
 use Illuminate\Container\Container;
+use Illuminate\Config\Repository as ConfigRepository;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Support\Facades\Facade;
 use Plugins\Jwsoft\TiptapEditor\Plugin;
@@ -92,6 +94,9 @@ $editorMediaSettings = [
     'socialCards',
     'genericLinkCards',
     'smartCardImages',
+    'public_asset_disk',
+    'unusedImageCleanup',
+    'unusedImageRetentionDays',
 ];
 sort($editorMediaSettings);
 $controlNames = array_values(array_unique($controlNames));
@@ -129,6 +134,60 @@ assertSettingsContract(in_array('min:1', $rules['imageMaxSizeMb'], true), 'image
 assertSettingsContract(in_array('max:10', $rules['imageMaxSizeMb'], true), 'imageMaxSizeMb maximum validation missing');
 assertSettingsContract(in_array('in:standard,minimal,full', $rules['toolbar'], true), 'toolbar enum validation mismatch');
 assertSettingsContract(in_array('in:click,immediate', $rules['externalMediaLoadMode'], true), 'external media load mode validation mismatch');
+assertSettingsContract(count(array_filter($rules['public_asset_disk'], 'is_callable')) === 1, 'public asset disk must use the G7 driver allowlist validator');
+assertSettingsContract(in_array('min:1', $rules['unusedImageRetentionDays'], true), 'cleanup retention minimum validation missing');
+assertSettingsContract(in_array('max:3650', $rules['unusedImageRetentionDays'], true), 'cleanup retention maximum validation missing');
+
+$layoutSource = file_get_contents($layoutPath);
+assertSettingsContract(is_string($layoutSource), 'settings layout source is unreadable');
+assertSettingsContract(str_contains($layoutSource, 'available_public_asset_disks'), 'public asset disk selector does not use the G7 catalog');
+assertSettingsContract(str_contains($layoutSource, '/admin/plugins/jwsoft-tiptap-editor/uploads'), 'cleanup settings do not link to upload review');
+
+$settingValues = ['public_asset_disk' => ''];
+$settingsService = new class($settingValues) extends PluginSettingsService {
+    /** @var array<string, mixed> */
+    private array $values;
+
+    /** @param array<string, mixed> $values */
+    public function __construct(array &$values)
+    {
+        $this->values = &$values;
+    }
+
+    public function get(string $identifier, ?string $key = null, mixed $default = null): mixed
+    {
+        if ($identifier !== 'jwsoft-tiptap-editor') {
+            return $default;
+        }
+
+        return $key === null ? $this->values : ($this->values[$key] ?? $default);
+    }
+};
+$container->instance(PluginSettingsService::class, $settingsService);
+$container->instance('config', new ConfigRepository([
+    'app' => ['translatable_locales' => ['ko', 'en']],
+    'core' => ['storage' => ['public_asset_disk' => 'public']],
+    'filesystems' => ['disks' => [
+        'plugins' => ['driver' => 'local'],
+        'public' => ['driver' => 'local'],
+        's3' => ['driver' => 's3'],
+    ]],
+]));
+
+assertSettingsContract($plugin->getStorageDiskFor('settings') === 'plugins', 'settings storage must never recurse through the public asset override');
+assertSettingsContract($plugin->getStorageDiskFor('images') === 'public', 'empty image override must follow the G7 public asset disk');
+assertSettingsContract($plugin->getStorageDiskFor('media') === 'public', 'empty media override must follow the G7 public asset disk');
+$settingValues['public_asset_disk'] = 's3';
+assertSettingsContract($plugin->getStorageDiskFor('images') === 's3', 'image storage override was not applied');
+assertSettingsContract($plugin->getStorageDiskFor('media') === 's3', 'media storage override was not applied');
+$settingValues['public_asset_disk'] = 'none';
+assertSettingsContract($plugin->getStorageDiskFor('images') === 'plugins', 'none override must preserve streamed plugin storage');
+$settingValues['public_asset_disk'] = 'orphan-driver';
+assertSettingsContract($plugin->getStorageDiskFor('media') === 'plugins', 'orphaned public disk must fail safe to plugin storage');
+
+$cleanupSchedule = $plugin->getSchedules()[0] ?? [];
+assertSettingsContract(($cleanupSchedule['enabled_config'] ?? null) === 'jwsoft-tiptap-editor.unusedImageCleanup', 'cleanup schedule does not consume the enable setting');
+assertSettingsContract(($cleanupSchedule['schedule'] ?? null) === 'daily', 'cleanup schedule must run daily when enabled');
 
 $defaults = json_decode(file_get_contents($projectRoot.'/config/settings/defaults.json'), true, flags: JSON_THROW_ON_ERROR);
 $editorExtension = file_get_contents($projectRoot.'/resources/extensions/html-editor.json');
@@ -164,4 +223,4 @@ foreach (['legacyContentRiskAcknowledged', 'videoChunkSizeMb', 'socialCards', 'g
     assertSettingsContract(($defaults['frontend_schema'][$serverOnly]['expose'] ?? true) === false, "server-only setting leaked to public frontend: {$serverOnly}");
 }
 
-echo "[jwsoft] G7 editor/media settings UI, validation, and runtime bindings passed\n";
+echo "[jwsoft] G7 editor/media/storage/cleanup settings UI, validation, and runtime bindings passed\n";

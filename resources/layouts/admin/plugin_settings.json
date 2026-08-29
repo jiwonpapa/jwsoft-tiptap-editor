@@ -732,6 +732,179 @@
             ]
           },
           {
+            "id": "section_storage_cleanup",
+            "type": "basic",
+            "name": "Div",
+            "props": { "className": "admin-card mt-4 space-y-6" },
+            "children": [
+              {
+                "type": "basic",
+                "name": "H3",
+                "props": { "className": "text-lg font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.sections.storage_cleanup"
+              },
+              {
+                "id": "field_public_asset_disk",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.public_asset_disk.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.public_asset_disk.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Select",
+                        "props": {
+                          "name": "public_asset_disk",
+                          "className": "w-full",
+                          "options": "{{[{value: '', label: $t('jwsoft-tiptap-editor.settings.fields.public_asset_disk.follow_core')}].concat((_local.form?.available_public_asset_disks ?? []).map(d => ({value: d.id, label: $localized(d.label)})))}}"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_unused_image_cleanup",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.unused_image_cleanup.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.unused_image_cleanup.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "unusedImageCleanup" }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "field_unused_image_retention_days",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.unused_image_retention_days.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.unused_image_retention_days.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Input",
+                        "props": {
+                          "type": "number",
+                          "name": "unusedImageRetentionDays",
+                          "min": 1,
+                          "max": 3650,
+                          "className": "input w-full"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "id": "cleanup_notice",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "alert-warning" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "P",
+                    "text": "$t:jwsoft-tiptap-editor.settings.cleanup_notice"
+                  },
+                  {
+                    "id": "open_uploads_button",
+                    "type": "basic",
+                    "name": "Button",
+                    "props": {
+                      "type": "button",
+                      "className": "btn btn-secondary mt-3"
+                    },
+                    "text": "$t:jwsoft-tiptap-editor.settings.open_uploads",
+                    "actions": [
+                      {
+                        "type": "click",
+                        "handler": "navigate",
+                        "params": {
+                          "path": "/admin/plugins/jwsoft-tiptap-editor/uploads"
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            ]
+          },
+          {
             "id": "footer_buttons",
             "type": "basic",
             "name": "Div",

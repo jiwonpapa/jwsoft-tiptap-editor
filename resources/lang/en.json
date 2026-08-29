@@ -10,11 +10,14 @@
     "description": "Configure editor, upload, media, and link card behavior.",
     "legacy_warning": "Legacy CKEditor inline styles, custom classes, and HTML structures are not migrated automatically. Activate only after acknowledging the transition risk.",
     "media_privacy_notice": "Immediate external player loading contacts the provider when the page renders. Click-to-load is recommended for privacy.",
+    "cleanup_notice": "Cleanup checks registered content references before deletion and stops when reference sources are incomplete. Review candidates in the uploads screen first.",
+    "open_uploads": "Manage uploaded images",
     "sections": {
       "editor": "Editor",
       "images": "Image uploads",
       "media": "Video",
-      "smart_cards": "Social and link cards"
+      "smart_cards": "Social and link cards",
+      "storage_cleanup": "Public asset storage and cleanup"
     },
     "fields": {
       "toolbar": {
@@ -62,7 +65,20 @@
       "auto_smart_cards": { "label": "Auto-convert URLs to cards" },
       "social_cards": { "label": "Social link cards" },
       "generic_link_cards": { "label": "Generic HTTPS link cards" },
-      "smart_card_images": { "label": "Show preview images" }
+      "smart_card_images": { "label": "Show preview images" },
+      "public_asset_disk": {
+        "label": "Public asset disk",
+        "hint": "Leave empty to follow the G7 public asset disk. Unavailable disks are rejected.",
+        "follow_core": "Follow G7 global setting"
+      },
+      "unused_image_cleanup": {
+        "label": "Clean unused images automatically",
+        "hint": "Off by default. When enabled, old unreferenced images are pruned daily."
+      },
+      "unused_image_retention_days": {
+        "label": "Unused image retention (days)",
+        "hint": "Set a value from 1 to 3650 days."
+      }
     }
   },
   "admin": {

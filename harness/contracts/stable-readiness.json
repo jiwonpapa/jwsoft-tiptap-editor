@@ -276,6 +276,18 @@
       "artifacts": ["test-results/parity/integration.json"]
     },
     {
+      "id": "settings.asset-disk",
+      "gate": "integration",
+      "requirement": "G7 허용 목록 기반 공개 자산 디스크 설정과 안전 폴백",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
+      "id": "settings.cleanup",
+      "gate": "integration",
+      "requirement": "미사용 이미지 정리 설정과 스케줄 fail-safe",
+      "artifacts": ["test-results/parity/integration.json"]
+    },
+    {
       "id": "surfaces.mobile-dark-i18n",
       "gate": "browser",
       "requirement": "모바일 다크모드 한국어 영어 편집 화면",
