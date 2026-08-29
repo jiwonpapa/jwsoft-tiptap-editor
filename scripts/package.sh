@@ -56,7 +56,8 @@ node "$PROJECT_ROOT/scripts/copy-runtime-licenses.mjs" "$stage"
 
 find "$stage/vendor" -exec touch -t 198001010000 {} +
 (cd "$stage" && find vendor -type f -o -type l | LC_ALL=C sort | zip -X -q vendor-bundle.zip -@)
-node "$PROJECT_ROOT/scripts/build-vendor-bundle.mjs" "$stage"
+node "$PROJECT_ROOT/scripts/build-vendor-bundle.mjs" \
+  "$stage" "$PROJECT_ROOT/vendor-bundle.json"
 rm -rf "$stage/vendor"
 
 # G7의 GitHub 설치는 release asset이 아니라 release/main source archive를

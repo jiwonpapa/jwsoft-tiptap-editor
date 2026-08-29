@@ -4,6 +4,9 @@ import path from "node:path";
 import process from "node:process";
 
 const stage = path.resolve(process.argv[2] ?? "");
+const previousManifestPath = process.argv[3]
+  ? path.resolve(process.argv[3])
+  : null;
 const required = ["composer.json", "composer.lock", "vendor-bundle.zip"];
 for (const file of required) {
   if (!fs.existsSync(path.join(stage, file))) {
@@ -26,9 +29,8 @@ const packages = (composerLock.packages ?? []).map((pkg) => ({
 }));
 const epoch = Number(process.env.SOURCE_DATE_EPOCH ?? 315532800);
 const zipPath = path.join(stage, "vendor-bundle.zip");
-const manifest = {
+const metadata = {
   schema_version: "1.0",
-  generated_at: new Date(epoch * 1000).toISOString(),
   generator: "jwsoft-tiptap-editor scripts/build-vendor-bundle.mjs",
   target: "plugin:jwsoft-tiptap-editor",
   composer_json_sha256: hash(path.join(stage, "composer.json")),
@@ -39,6 +41,24 @@ const manifest = {
   php_requirement: composerJson.require?.php ?? null,
   g7_version: ">=7.0.9",
   packages,
+};
+let generatedAt = new Date(epoch * 1000).toISOString();
+if (previousManifestPath && fs.existsSync(previousManifestPath)) {
+  const previous = JSON.parse(fs.readFileSync(previousManifestPath, "utf8"));
+  const { generated_at: previousGeneratedAt, ...previousMetadata } = previous;
+  if (
+    typeof previousGeneratedAt === "string" &&
+    !Number.isNaN(Date.parse(previousGeneratedAt)) &&
+    JSON.stringify(previousMetadata) === JSON.stringify(metadata)
+  ) {
+    generatedAt = previousGeneratedAt;
+  }
+}
+const { schema_version: schemaVersion, ...manifestMetadata } = metadata;
+const manifest = {
+  schema_version: schemaVersion,
+  generated_at: generatedAt,
+  ...manifestMetadata,
 };
 
 fs.writeFileSync(

@@ -18,6 +18,7 @@ check:
 	php tests/php/plugin_double_load_test.php
 	php tests/php/editor_sanitizer_test.php
 	php tests/php/parity_corpus_test.php
+	node scripts/vendor-bundle-manifest-test.mjs
 	find src tests/php tests/integration -name '*.php' -print0 | xargs -0 -n1 php -l
 	./scripts/check-shell.sh
 
