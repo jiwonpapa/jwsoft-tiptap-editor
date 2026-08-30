@@ -408,6 +408,18 @@
       "gate": "supply-chain",
       "requirement": "package manifest vendor dist 포함",
       "artifacts": ["test-results/parity/supply-chain.json"]
+    },
+    {
+      "id": "deploy.staging",
+      "gate": "deploy",
+      "requirement": "staging 배포와 smoke",
+      "artifacts": ["test-results/deploy/staging.json"]
+    },
+    {
+      "id": "deploy.production-checksum",
+      "gate": "deploy",
+      "requirement": "production은 staging과 동일 checksum",
+      "artifacts": ["test-results/deploy/production.json"]
     }
   ]
 }

@@ -52,4 +52,6 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 
 하네스는 DB 전체 백업을 자동으로 만들지 않습니다. 이 플러그인은 기존 HTML 필드를 유지하며 G7 plugin update의 파일 백업·복원을 사용합니다. 적용 실패 시 하네스는 jwsoft를 비활성화하고 CKEditor 재활성화를 시도합니다. DB migration이 추가되는 릴리스는 별도 migration/backup ADR과 운영 승인 없이는 배포할 수 없습니다.
 
+staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact checksum과 대상·smoke URL의 SHA-256 지문만 기록합니다. production 계획·적용은 이 staging 증거와 `APPROVED_STAGING_SHA256`가 현재 artifact에 모두 일치해야 하며, 성공 후 `production.json`을 기록합니다. 원격 호스트·경로·URL 원문과 비밀값은 증거에 저장하지 않습니다.
+
 `alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다. 실제 `deploy/environments/staging.env`·`production.env`, 대상 정보와 배포 승인이 없으므로 원격 staging 또는 production 적용 증거로 해석하지 않습니다.

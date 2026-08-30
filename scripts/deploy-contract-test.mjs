@@ -15,6 +15,19 @@ requireText(
 );
 requireText("APPROVED_STAGING_SHA256", "approved staging checksum");
 requireText('[ "$action" = "--apply" ]', "explicit apply gate");
+requireText(
+  'deploy-evidence.mjs" verify-production',
+  "production staging evidence verification",
+);
+requireText('deploy-evidence.mjs" record', "deploy smoke evidence record");
+
+const smokeIndex = deploy.indexOf(
+  'curl --fail --silent --show-error --location --max-time 20 "$SMOKE_URL"',
+);
+const recordIndex = deploy.indexOf('deploy-evidence.mjs" record');
+if (smokeIndex === -1 || recordIndex === -1 || smokeIndex > recordIndex) {
+  throw new Error("deploy evidence는 smoke 통과 후에만 기록해야 합니다");
+}
 
 const remoteStart = deploy.indexOf("<<'REMOTE'");
 const remoteEnd = deploy.indexOf("\nREMOTE", remoteStart);
