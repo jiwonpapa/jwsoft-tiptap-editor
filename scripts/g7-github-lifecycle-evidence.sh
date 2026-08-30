@@ -45,7 +45,6 @@ jq -e '.pluginInstalled == false' "$evidence_dir/uninstalled.json" >/dev/null \
   || fail "uninstall 후 plugin record가 남았습니다."
 
 php "$action" "$g7_root" install-zip "$current_artifact" > "$evidence_dir/zip-install.json"
-php "$action" "$g7_root" acknowledge > "$evidence_dir/zip-acknowledged.json"
 (cd "$g7_root" && php artisan plugin:activate jwsoft-tiptap-editor --no-interaction)
 php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/zip-active.json"
 
@@ -55,7 +54,6 @@ php "$content_probe" "$g7_root" "$page_id" "$post_id" "$product_id" > "$evidence
 jq -e '.pluginInstalled == false' "$evidence_dir/second-uninstalled.json" >/dev/null \
   || fail "두 번째 uninstall 후 plugin record가 남았습니다."
 php "$action" "$g7_root" install-github "$github_url" > "$evidence_dir/github-install.json"
-php "$action" "$g7_root" acknowledge > "$evidence_dir/github-acknowledged.json"
 (cd "$g7_root" && php artisan plugin:activate jwsoft-tiptap-editor --no-interaction)
 php "$lifecycle_probe" "$g7_root" "$current_version" active inactive "$page_id" "$post_id" "$product_id" > "$evidence_dir/github-active.json"
 

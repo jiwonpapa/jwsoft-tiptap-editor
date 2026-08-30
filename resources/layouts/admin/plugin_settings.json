@@ -12,7 +12,7 @@
       "id": "settings",
       "label_key": "$t:jwsoft-tiptap-editor.editor.data_source.settings",
       "type": "api",
-      "endpoint": "/api/admin/plugins/{{route.identifier}}/settings",
+      "endpoint": "/api/admin/plugins/jwsoft-tiptap-editor/settings",
       "method": "GET",
       "auto_fetch": true,
       "auth_required": true,
@@ -49,15 +49,15 @@
             "children": [
               {
                 "type": "basic",
+                "name": "H3",
+                "props": { "className": "font-semibold" },
+                "text": "$t:jwsoft-tiptap-editor.settings.legacy_warning_title"
+              },
+              {
+                "type": "basic",
                 "name": "P",
                 "props": { "className": "text-warning-soft" },
                 "text": "$t:jwsoft-tiptap-editor.settings.legacy_warning"
-              },
-              {
-                "id": "field_legacy_acknowledgement",
-                "type": "composite",
-                "name": "Toggle",
-                "props": { "name": "legacyContentRiskAcknowledged" }
               }
             ]
           },
@@ -950,7 +950,7 @@
                       {
                         "handler": "apiCall",
                         "auth_required": true,
-                        "target": "/api/admin/plugins/{{route.identifier}}/settings",
+                        "target": "/api/admin/plugins/jwsoft-tiptap-editor/settings",
                         "params": {
                           "method": "PUT",
                           "body": "{{_local.form}}"

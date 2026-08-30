@@ -78,11 +78,13 @@ expected_checksum="$5"
 
 cd "$g7_root"
 rollback() {
+  local failure_status=$?
   set +e
   "$php_bin" artisan plugin:deactivate jwsoft-tiptap-editor --no-interaction
   "$php_bin" artisan plugin:activate sirsoft-ckeditor5 --no-interaction
   "$php_bin" artisan optimize:clear --no-interaction
   echo '배포 실패: sirsoft-ckeditor5 활성화를 시도했습니다.' >&2
+  exit "$failure_status"
 }
 
 if command -v sha256sum >/dev/null 2>&1; then
@@ -108,17 +110,7 @@ else
   "$php_bin" artisan plugin:update jwsoft-tiptap-editor --zip="$artifact" --force --vendor-mode=bundled --no-interaction
 fi
 
-"$php_bin" -r '
-$g7Root = $argv[1];
-require $g7Root."/vendor/autoload.php";
-$app = require $g7Root."/bootstrap/app.php";
-$app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
-$acknowledged = plugin_setting("jwsoft-tiptap-editor", "legacyContentRiskAcknowledged", false);
-exit(in_array($acknowledged, [true, 1, "1"], true) ? 0 : 1);
-' "$g7_root" || {
-  echo '설치는 완료됐지만 활성화는 보류했습니다. 관리자 플러그인 설정에서 기존 콘텐츠 전환 위험을 먼저 확인하십시오. 기존 에디터는 유지합니다.' >&2
-  exit 42
-}
+echo '에디터 전환: CKEditor를 비활성화한 뒤 JWSoft를 활성화합니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 변경되지 않습니다. 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.'
 
 "$php_bin" artisan plugin:deactivate sirsoft-ckeditor5 --no-interaction || true
 "$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction

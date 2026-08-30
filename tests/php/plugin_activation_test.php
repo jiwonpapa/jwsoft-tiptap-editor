@@ -63,20 +63,14 @@ namespace {
     $GLOBALS['jwsoft_plugin_manager'] = new FakePluginManager([]);
     $GLOBALS['jwsoft_plugin_settings'] = [];
     $plugin = new Plugin();
-    if ($plugin->activate() !== false) {
-        throw new RuntimeException('Plugin must reject activation before legacy content risk acknowledgement.');
-    }
-    $acknowledgementFailure = (string) $plugin->getLifecycleFailureReason();
-    foreach (['기존 콘텐츠 전환 위험 확인', '자동 변환되지 않습니다', 'CKEditor를 다시 활성화'] as $copy) {
-        if (! str_contains($acknowledgementFailure, $copy)) {
-            throw new RuntimeException("Transition acknowledgement failure must include: {$copy}");
-        }
+    if ($plugin->activate() !== true) {
+        throw new RuntimeException('First activation must not require inaccessible inactive-plugin settings.');
     }
 
-    $GLOBALS['jwsoft_plugin_settings']['legacyContentRiskAcknowledged'] = true;
+    $GLOBALS['jwsoft_plugin_settings']['legacyContentRiskAcknowledged'] = false;
     $plugin = new Plugin();
     if ($plugin->activate() !== true) {
-        throw new RuntimeException('Plugin should activate without a conflicting editor.');
+        throw new RuntimeException('The retired acknowledgement setting must not block upgrades.');
     }
 
     $GLOBALS['jwsoft_plugin_manager'] = new FakePluginManager([
@@ -86,8 +80,10 @@ namespace {
     if ($plugin->activate() !== false) {
         throw new RuntimeException('Plugin must reject activation with sirsoft-ckeditor5 active.');
     }
-    if (! str_contains((string) $plugin->getLifecycleFailureReason(), '먼저 비활성화')) {
-        throw new RuntimeException('Conflict rejection must include an operator-facing reason.');
+    foreach (['현재 CKEditor', '하나만 활성화', '관리자 → 플러그인', '먼저 비활성화', '활성화를 다시', '자동으로 꺼지지', '저장된 본문은 변경되지'] as $copy) {
+        if (! str_contains((string) $plugin->getLifecycleFailureReason(), $copy)) {
+            throw new RuntimeException("Conflict rejection must include an actionable reason: {$copy}");
+        }
     }
 
     $middleware = $plugin->getMiddleware();
@@ -112,7 +108,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['legacyContentRiskAcknowledged', 'imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -134,8 +130,7 @@ namespace {
         || ($settings['socialCards']['default'] ?? null) !== true
         || ($settings['genericLinkCards']['default'] ?? null) !== true
         || ($settings['smartCardImages']['default'] ?? null) !== false
-        || ($settings['legacyContentRiskAcknowledged']['default'] ?? null) !== false
-        || ! str_contains((string) ($settings['legacyContentRiskAcknowledged']['hint']['ko'] ?? ''), '자동 변환되지 않습니다')) {
+        || array_key_exists('legacyContentRiskAcknowledged', $settings)) {
         throw new RuntimeException('Image size and fail-safe cleanup defaults mismatch.');
     }
 
@@ -144,15 +139,22 @@ namespace {
         true,
         flags: JSON_THROW_ON_ERROR,
     );
-    if (($settingsConfig['defaults']['legacyContentRiskAcknowledged'] ?? null) !== false
-        || ($settingsConfig['frontend_schema']['legacyContentRiskAcknowledged']['expose'] ?? null) !== false
+    if (array_key_exists('legacyContentRiskAcknowledged', $settingsConfig['defaults'])
+        || array_key_exists('legacyContentRiskAcknowledged', $settingsConfig['frontend_schema'])
         || ($settingsConfig['frontend_schema']['dragDropImageUpload']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true
         || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false
         || ($settingsConfig['defaults']['smartCards'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['smartCardImages']['expose'] ?? null) !== false) {
-        throw new RuntimeException('Transition acknowledgement must default off and stay server-side.');
+        throw new RuntimeException('Retired activation acknowledgement must be absent; feature defaults must stay fail-safe.');
+    }
+
+    $copy = json_decode(file_get_contents(dirname(__DIR__, 2).'/resources/lang/ko.json'), true, flags: JSON_THROW_ON_ERROR);
+    foreach (['설치·활성화·조회만으로', '저장된 본문은 바뀌지 않습니다', '수정한 뒤 저장할 때', '새 글 작성에는', '이미 저장한 변경'] as $text) {
+        if (! str_contains($copy['settings']['legacy_warning'], $text)) {
+            throw new RuntimeException("Legacy warning scope missing: {$text}");
+        }
     }
 
     $hooks = array_column($plugin->getHooks(), null, 'name');

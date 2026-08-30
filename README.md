@@ -22,7 +22,7 @@ G7 관리자 `플러그인 → 플러그인 설치 → GitHub에서 설치`에 �
 https://github.com/jiwonpapa/jwsoft-tiptap-editor
 ```
 
-현재 `alpha`는 개발·staging 검증용입니다. 설치 후 기존 콘텐츠 전환 위험을 확인하고 CKEditor를 비활성화한 다음 JWSoft를 활성화해야 합니다.
+현재 `alpha`는 개발·staging 검증용입니다. CKEditor가 활성화되어 있으면 관리자 플러그인 목록에서 먼저 비활성화한 다음 JWSoft를 활성화합니다. 활성화 후 설정을 열 수 있으며 선행 확인 스위치는 필요하지 않습니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않습니다. 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있으며 해당 편집 화면에서 별도로 안내합니다.
 
 공개 개발 릴리스: [v0.1.0-alpha.18](https://github.com/jiwonpapa/jwsoft-tiptap-editor/releases/tag/v0.1.0-alpha.18)
 

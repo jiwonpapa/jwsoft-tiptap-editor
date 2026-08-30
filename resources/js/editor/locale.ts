@@ -4,8 +4,8 @@ const ENGLISH_COPY: Record<string, string> = {
   "이 편집기는 현재 읽기 전용입니다.": "This editor is read-only.",
   "붙여넣기에서 지원하지 않는 서식을 제거했습니다. 필요하면 실행취소할 수 있습니다.":
     "Unsupported pasted formatting was removed. You can undo if needed.",
-  "기존 CKEditor 콘텐츠에 inline style·전용 class·지원하지 않는 HTML이 있습니다. 편집하거나 저장하면 서식이 달라질 수 있으며 자동 변환되지 않습니다. 원문을 유지하려면 읽기 전용을 선택하고, 전환 문제가 있으면 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오. 변경 결과를 확인하기 전에는 저장이 차단됩니다.":
-    "Legacy CKEditor content contains inline styles, custom classes, or unsupported HTML. Formatting may change during editing or saving and is not migrated automatically. Keep the document read-only to preserve the original, or deactivate JWSoft and reactivate CKEditor if the transition causes problems. Saving is blocked until you review the changes.",
+  "이 글에 inline style·전용 class·지원하지 않는 HTML 서식이 있습니다. 설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다. 이 글을 JWSoft에서 수정 후 저장할 때 서식이 달라질 수 있으며 자동 변환되지 않습니다. 확인 전에는 편집·저장이 차단됩니다. 원문을 유지하려면 읽기 전용을 선택하십시오. 문제가 있으면 저장하지 말고 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.":
+    "This document contains inline styles, custom classes, or unsupported HTML. Installing, activating, or viewing does not rewrite the stored original. Formatting may change when this document is edited and saved with JWSoft; it is not migrated automatically. Editing and saving are blocked until acknowledged. Keep read-only to preserve the original. If problems occur, do not save; deactivate JWSoft and reactivate CKEditor.",
   "위험 확인 후 편집 계속": "Acknowledge risk and continue",
   "읽기 전용 유지": "Keep read-only",
   "읽기 전용으로 유지했습니다. 변경을 승인하기 전에는 저장이 차단됩니다.":

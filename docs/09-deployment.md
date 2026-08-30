@@ -15,7 +15,7 @@
 - 기존 JWSoft pending 경로는 삭제·덮어쓰지 않습니다. 최초 설치는 새 임시 디렉터리에 압축을 풀고 정확한 플러그인 루트를 이동합니다.
 - staging에 사용한 artifact checksum만 production에 허용합니다.
 - CKEditor 비활성화가 실패해 실제 활성 상태가 남아 있으면 JWSoft 활성화 guard가 배포를 중단합니다.
-- 원격 적용 전 관리자 설정에서 `legacyContentRiskAcknowledged=true`를 명시적으로 저장해야 합니다. 하네스가 이 확인을 대신하거나 기존 HTML을 자동 변환하지 않습니다.
+- `--apply`로 승인된 배포만 CKEditor 비활성화 → JWSoft 활성화를 수행합니다. 선행 위험 확인 설정은 요구하지 않으며 전환 직전에 안내합니다. 설치·활성화·조회는 기존 본문을 쓰지 않고, 기존 글 수정 후 저장 시에만 정제 HTML이 저장됩니다.
 
 ## 환경 파일
 
@@ -25,7 +25,7 @@ cp deploy/environments/staging.env.example deploy/environments/staging.env
 
 실제 `.env` 파일은 gitignore 대상입니다.
 
-최초 설치 후 전환 위험 확인 설정이 꺼져 있으면 종료 코드 42로 활성화를 보류하고 기존 에디터를 유지합니다. 이 상태는 배포 smoke 통과로 기록하지 않습니다. 관리자가 확인 설정을 저장한 뒤 `DEPLOY_MODE=update`로 다시 적용하면 전환을 진행합니다.
+이전 alpha.18에서 전환 위험 확인 설정 때문에 설치만 완료된 대상은 `DEPLOY_MODE=update`로 적용합니다. 새 버전은 접근할 수 없는 비활성 플러그인 설정을 활성화 조건으로 요구하지 않습니다. 관리자에서 직접 활성화할 때는 기존 에디터를 자동으로 비활성화하지 않습니다.
 
 ## 계획 확인
 
@@ -53,7 +53,7 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 3. artifact upload
 4. remote checksum 검증 후 rollback trap 활성화
 5. install 또는 update
-6. 기존 콘텐츠 전환 위험 확인 설정 검증
+6. 기존 글 수정 후 저장 시의 서식 변경 가능성과 에디터 전환 순서 안내
 7. CKEditor 비활성화
 8. jwsoft 활성화
 9. cache clear
@@ -65,4 +65,4 @@ staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact che
 
 `alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다.
 
-2026-08-30 승인된 원격 staging G7 7.0.9에 공개 ZIP과 동일 checksum으로 최초 설치했습니다. 원격 entrypoint·manifest·JS·vendor bundle checksum, 필수 테이블 3개, health·관리자 shell HTTP 200, 기존 본문 70,011건의 해시 및 코어 변경 상태 보존을 확인했습니다. 전환 위험 확인 설정이 false여서 JWSoft는 inactive, CKEditor는 active를 유지합니다. 설치 결과는 로컬 `test-results/deploy/staging-install.json`에 별도 기록하며 활성 editor smoke나 production 배포 증거가 아닙니다. 전체 stable readiness는 계속 60/62입니다.
+2026-08-30 alpha.18 최초 설치 시점에는 승인된 원격 staging G7 7.0.9에 공개 ZIP과 동일 checksum으로 설치했습니다. 원격 entrypoint·manifest·JS·vendor bundle checksum, 필수 테이블 3개, health·관리자 shell HTTP 200, 기존 본문 70,011건의 해시 및 코어 변경 상태 보존을 확인했습니다. 당시 선행 확인 설정이 false여서 JWSoft inactive, CKEditor active로 보류했습니다. 이 과거 설치 결과는 로컬 `test-results/deploy/staging-install.json`에 별도 기록하며 활성 editor smoke나 production 배포 증거가 아닙니다.

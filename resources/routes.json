@@ -2,6 +2,15 @@
   "version": "1.0.0",
   "routes": [
     {
+      "path": "*/admin/plugins/jwsoft-tiptap-editor/settings",
+      "layout": "plugin_settings",
+      "auth_required": true,
+      "meta": {
+        "title": "$t:jwsoft-tiptap-editor.settings.title",
+        "permission": "core.plugins.update"
+      }
+    },
+    {
       "path": "*/admin/plugins/jwsoft-tiptap-editor/uploads",
       "layout": "tiptap_uploads",
       "auth_required": true,

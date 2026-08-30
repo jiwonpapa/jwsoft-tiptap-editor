@@ -17,8 +17,6 @@ if (class_exists(Plugin::class, false)) {
 
 class Plugin extends AbstractPlugin
 {
-    private const LEGACY_CONTENT_RISK_SETTING = 'legacyContentRiskAcknowledged';
-
     private const CONFLICTING_PLUGINS = [
         'sirsoft-ckeditor5',
     ];
@@ -26,16 +24,6 @@ class Plugin extends AbstractPlugin
     public function getSettingsSchema(): array
     {
         return [
-            self::LEGACY_CONTENT_RISK_SETTING => [
-                'type' => 'boolean',
-                'default' => false,
-                'label' => ['ko' => '기존 콘텐츠 전환 위험 확인', 'en' => 'Acknowledge legacy content risk'],
-                'hint' => [
-                    'ko' => '기존 CKEditor의 inline style·전용 class·HTML 구조는 편집·저장 시 달라질 수 있고 자동 변환되지 않습니다. 문제가 생기면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오. 이 항목을 켜야 JWSoft를 활성화할 수 있습니다.',
-                    'en' => 'Legacy CKEditor inline styles, custom classes, and HTML structure may change during editing or saving and are not migrated automatically. If problems occur, deactivate JWSoft and reactivate CKEditor. You must enable this acknowledgement before activation.',
-                ],
-                'required' => false,
-            ],
             'imageUpload' => [
                 'type' => 'boolean',
                 'default' => true,
@@ -345,18 +333,6 @@ class Plugin extends AbstractPlugin
     public function activate(): bool
     {
         try {
-            if (! $this->hasLegacyContentRiskAcknowledgement()) {
-                return $this->failWith(
-                    '활성화 전 플러그인 설정에서 “기존 콘텐츠 전환 위험 확인”을 켜십시오. 기존 CKEditor inline style·전용 class·HTML 구조는 편집·저장 시 달라질 수 있고 자동 변환되지 않습니다. 전환 문제가 있으면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오.'
-                );
-            }
-        } catch (Throwable) {
-            return $this->failWith(
-                '기존 콘텐츠 전환 위험 확인 설정을 읽을 수 없어 안전하게 활성화를 중단했습니다.'
-            );
-        }
-
-        try {
             $activePlugins = app(PluginManagerInterface::class)->getActivePlugins();
 
             foreach ($activePlugins as $identifier => $plugin) {
@@ -366,7 +342,7 @@ class Plugin extends AbstractPlugin
 
                 if (in_array($activeIdentifier, self::CONFLICTING_PLUGINS, true)) {
                     return $this->failWith(
-                        'sirsoft-ckeditor5를 먼저 비활성화한 뒤 JWSoft Tiptap 에디터를 활성화하십시오.'
+                        '현재 CKEditor (sirsoft-ckeditor5)가 활성화되어 있습니다. 에디터는 하나만 활성화할 수 있습니다. 관리자 → 플러그인에서 CKEditor를 먼저 비활성화한 뒤 JWSoft Tiptap 에디터의 활성화를 다시 누르십시오. 기존 에디터는 자동으로 꺼지지 않았습니다. 전환에 실패하면 CKEditor를 다시 활성화하십시오. 설치·활성화만으로 기존 글의 저장된 본문은 변경되지 않습니다.'
                     );
                 }
             }
@@ -424,20 +400,6 @@ class Plugin extends AbstractPlugin
         ];
     }
 
-    private function hasLegacyContentRiskAcknowledgement(): bool
-    {
-        if (! function_exists('plugin_setting')) {
-            return false;
-        }
-
-        $value = plugin_setting(
-            'jwsoft-tiptap-editor',
-            self::LEGACY_CONTENT_RISK_SETTING,
-            false,
-        );
-
-        return in_array($value, [true, 1, '1'], true);
-    }
 }
 
 // G7은 세 개의 식별자 segment를 각각 namespace segment로 해석합니다.

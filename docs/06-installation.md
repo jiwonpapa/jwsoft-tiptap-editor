@@ -37,12 +37,13 @@ G7은 공개 GitHub의 최신 릴리스 또는 `main` 아카이브를 내려받�
 php artisan plugin:install jwsoft-tiptap-editor --vendor-mode=bundled
 ```
 
-6. 관리자 `플러그인 → JWSoft Tiptap 에디터 → 설정`에서 **기존 콘텐츠 전환 위험 확인**을 켜고 저장합니다.
+6. 관리자 `플러그인` 목록에서 CKEditor가 활성화되어 있으면 **CKEditor 비활성화 → JWSoft 활성화** 순서로 전환합니다. 동시 활성화를 시도하면 현재 에디터와 이 절차를 안내하며, 기존 에디터를 자동으로 끄지 않습니다. JWSoft 활성화에 실패하면 CKEditor를 다시 활성화하십시오.
+7. 활성화 후 `플러그인 → JWSoft Tiptap 에디터 → 설정`을 엽니다. 활성화 전 별도의 위험 확인 스위치는 필요하지 않습니다.
    이미지 파일 드롭과 클립보드 업로드는 각각 `이미지 드래그·드롭 업로드`, `클립보드 이미지 업로드`에서 켜거나 끌 수 있습니다.
    동영상은 `동영상 플레이어 삽입`을 먼저 켠 뒤 YouTube·Vimeo·MP4 제공자와 URL 자동 변환을 선택합니다. 외부 로드는 기본 `클릭 후`, 자동재생은 기본 꺼짐입니다.
    MP4 파일 업로드가 필요하면 `동영상 파일 업로드`를 별도로 켜고 최대 용량과 1~10MB 청크 크기를 정합니다. PHP `upload_max_filesize`와 `post_max_size`는 선택한 청크 크기보다 커야 합니다.
    URL 카드는 `링크 스마트카드`를 켠 뒤 자동 변환, SNS, 일반 링크, 대표 이미지를 각각 선택합니다. 대표 이미지는 개인정보·외부 요청을 줄이기 위해 기본 꺼짐입니다.
-7. 아래 순서로 편집기를 전환합니다.
+   CLI에서 전환할 때도 같은 순서입니다.
 
 ```bash
 php artisan plugin:deactivate sirsoft-ckeditor5
@@ -50,7 +51,7 @@ php artisan plugin:activate jwsoft-tiptap-editor
 php artisan optimize:clear
 ```
 
-> 기존 CKEditor의 inline style·전용 class·HTML 구조는 JWSoft에서 편집·저장할 때 달라질 수 있으며 자동 변환되지 않습니다. 문제가 생기면 JWSoft를 비활성화하고 CKEditor를 다시 활성화하십시오. 설정 확인 전에는 JWSoft 활성화가 차단됩니다.
+> 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않습니다. **기존 글을 JWSoft에서 수정한 뒤 저장할 때** inline style·전용 class·지원하지 않는 HTML 서식이 달라질 수 있으며 자동 변환되지 않습니다. 해당 글 편집 시 별도 경고가 표시되고 확인 전에는 저장이 차단됩니다. 빈 새 글에는 전환 경고가 없으며 붙여넣기 정제 안내는 별도입니다. 문제가 있으면 저장하지 말고 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.
 
 CKEditor가 설치되지 않은 환경에서는 deactivate 실패를 무시하지 말고 설치 상태를 먼저 확인합니다. 배포 하네스는 `DEPLOY_MODE=install` 또는 `update`를 명시적으로 받으며 상태를 추측하지 않습니다.
 
@@ -71,7 +72,9 @@ php artisan optimize:clear
 
 ## 전환 확인
 
-- `legacyContentRiskAcknowledged=true` 저장과 활성화 경고 확인
+- CKEditor 활성 상태에서 JWSoft 활성화 차단 및 현재 에디터·전환 순서 안내
+- CKEditor 비활성화 후 선행 설정 없이 JWSoft 활성화, 설정 화면 진입·저장 성공
+- 설정 안내와 기존 글 편집 경고에 수정 후 저장 시에만 원문 변경 가능함을 명시
 - 게시판 작성 화면에 JWSoft editor가 1개만 존재
 - 네트워크에 Tiptap/CKEditor CDN 요청 없음
 - 기존 글 열기·수정·저장·조회 성공

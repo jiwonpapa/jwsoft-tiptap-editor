@@ -151,6 +151,16 @@ describe("G7 editor lifecycle", () => {
       container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
     ).toContain("CKEditor를 다시 활성화");
     expect(
+      container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
+    ).toContain("설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다");
+    expect(
+      container.querySelector(".jwsoft-tiptap-legacy-warning")?.textContent,
+    ).toContain("수정 후 저장할 때");
+    expect(window.G7Core?.state?.setLocal).not.toHaveBeenCalledWith(
+      expect.objectContaining({ "form.content": expect.anything() }),
+      expect.anything(),
+    );
+    expect(
       container.querySelector<HTMLButtonElement>("[data-primary='true']")
         ?.textContent,
     ).toBe("위험 확인 후 편집 계속");
@@ -166,6 +176,42 @@ describe("G7 editor lifecycle", () => {
       }),
       { render: false, selfManaged: true },
     );
+  });
+
+  it.each(["", "<p>안전한 기존 본문</p>"])(
+    "does not show a legacy warning for blank or compatible content: %s",
+    async (content) => {
+      const container = addContainer();
+      await initEditorHandler(
+        { params: { name: "content", content } },
+        undefined,
+      );
+      expect(
+        container.querySelector(".jwsoft-tiptap-legacy-warning"),
+      ).toBeNull();
+      expect(
+        container.querySelector(".tiptap")?.getAttribute("contenteditable"),
+      ).toBe("true");
+    },
+  );
+
+  it("does not ask for transition acknowledgement when only viewing legacy content", async () => {
+    const container = addContainer();
+    await initEditorHandler(
+      {
+        params: {
+          name: "content",
+          content: '<p style="color:red">조회</p>',
+          readOnly: true,
+        },
+      },
+      undefined,
+    );
+    expect(container.querySelector(".jwsoft-tiptap-legacy-warning")).toBeNull();
+    expect(
+      container.querySelector(".tiptap")?.getAttribute("contenteditable"),
+    ).toBe("false");
+    expect(window.G7Core?.state?.setLocal).not.toHaveBeenCalled();
   });
 
   it("keeps one multilingual editor instance while switching locales", async () => {

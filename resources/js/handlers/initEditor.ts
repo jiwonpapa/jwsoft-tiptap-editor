@@ -171,7 +171,7 @@ function renderLegacyWarning(options: {
   const message = document.createElement("div");
   message.textContent = editorText(
     options.locale,
-    "기존 CKEditor 콘텐츠에 inline style·전용 class·지원하지 않는 HTML이 있습니다. 편집하거나 저장하면 서식이 달라질 수 있으며 자동 변환되지 않습니다. 원문을 유지하려면 읽기 전용을 선택하고, 전환 문제가 있으면 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오. 변경 결과를 확인하기 전에는 저장이 차단됩니다.",
+    "이 글에 inline style·전용 class·지원하지 않는 HTML 서식이 있습니다. 설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다. 이 글을 JWSoft에서 수정 후 저장할 때 서식이 달라질 수 있으며 자동 변환되지 않습니다. 확인 전에는 편집·저장이 차단됩니다. 원문을 유지하려면 읽기 전용을 선택하십시오. 문제가 있으면 저장하지 말고 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.",
   );
   warning.appendChild(message);
 

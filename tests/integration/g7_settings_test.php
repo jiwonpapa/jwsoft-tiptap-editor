@@ -64,7 +64,7 @@ foreach ($components as $component) {
         $controlNames[] = $name;
     }
     if (($component['handler'] ?? null) === 'apiCall'
-        && ($component['target'] ?? null) === '/api/admin/plugins/{{route.identifier}}/settings'
+        && ($component['target'] ?? null) === '/api/admin/plugins/jwsoft-tiptap-editor/settings'
         && ($component['params']['method'] ?? null) === 'PUT'
         && ($component['auth_required'] ?? null) === true) {
         $putTargetFound = true;
@@ -72,7 +72,6 @@ foreach ($components as $component) {
 }
 
 $editorMediaSettings = [
-    'legacyContentRiskAcknowledged',
     'toolbar',
     'editorHeight',
     'imageUpload',
@@ -103,6 +102,13 @@ $controlNames = array_values(array_unique($controlNames));
 sort($controlNames);
 assertSettingsContract($controlNames === $editorMediaSettings, 'settings layout controls do not match the editor/media schema surface');
 assertSettingsContract($putTargetFound, 'settings layout is missing authenticated PUT save action');
+
+$routes = json_decode(file_get_contents($projectRoot.'/resources/routes.json'), true, flags: JSON_THROW_ON_ERROR);
+$settingsRoute = array_values(array_filter($routes['routes'], fn (array $route): bool => $route['path'] === '*/admin/plugins/jwsoft-tiptap-editor/settings'));
+assertSettingsContract(count($settingsRoute) === 1, 'settings page must have an explicit plugin-owned route');
+assertSettingsContract($settingsRoute[0]['layout'] === 'plugin_settings' && $settingsRoute[0]['auth_required'] === true && $settingsRoute[0]['meta']['permission'] === 'core.plugins.update', 'settings route must preserve authentication and permission');
+assertSettingsContract($layout['data_sources'][0]['endpoint'] === '/api/admin/plugins/jwsoft-tiptap-editor/settings', 'fixed settings route must not depend on a missing route.identifier parameter');
+assertSettingsContract(! str_contains(file_get_contents($layoutPath), 'legacyContentRiskAcknowledged'), 'settings must not contain the retired activation toggle');
 
 $plugin = new Plugin();
 $managerReflection = new ReflectionClass(PluginManager::class);
@@ -219,7 +225,7 @@ foreach (['mediaAutoplay', 'externalMediaLoadMode'] as $setting) {
     assertSettingsContract(($defaults['frontend_schema'][$setting]['expose'] ?? false) === true, "frontend schema does not expose content setting: {$setting}");
     assertSettingsContract(str_contains($contentExtension, "?.{$setting} ??"), "html_content does not bind frontend setting: {$setting}");
 }
-foreach (['legacyContentRiskAcknowledged', 'videoChunkSizeMb', 'socialCards', 'genericLinkCards', 'smartCardImages'] as $serverOnly) {
+foreach (['videoChunkSizeMb', 'socialCards', 'genericLinkCards', 'smartCardImages'] as $serverOnly) {
     assertSettingsContract(($defaults['frontend_schema'][$serverOnly]['expose'] ?? true) === false, "server-only setting leaked to public frontend: {$serverOnly}");
 }
 

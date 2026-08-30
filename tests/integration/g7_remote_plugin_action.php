@@ -1,7 +1,6 @@
 <?php
 
 use App\Services\PluginService;
-use App\Services\PluginSettingsService;
 use Illuminate\Contracts\Console\Kernel;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
@@ -35,16 +34,6 @@ if ($action === 'install-github') {
     $app->make(PluginService::class)->installFromZipFile(
         new UploadedFile($zip, basename($zip), 'application/zip', null, true),
     );
-} elseif ($action === 'acknowledge') {
-    $reason = null;
-    $saved = $app->make(PluginSettingsService::class)->save(
-        'jwsoft-tiptap-editor',
-        ['legacyContentRiskAcknowledged' => true],
-        $reason,
-    );
-    if (! $saved) {
-        failRemotePluginAction('전환 위험 확인 설정 저장 실패: '.($reason ?? 'unknown'));
-    }
 } else {
     failRemotePluginAction('지원하지 않는 action입니다.');
 }

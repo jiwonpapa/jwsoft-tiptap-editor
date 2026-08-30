@@ -35,9 +35,6 @@ try {
     `#!/usr/bin/env bash
 set -eu
 printf '%s\\n' "$*" >> "$JW_TEST_COMMAND_LOG"
-if [ "$1" = "-r" ]; then
-  exit "$JW_TEST_ACK_EXIT"
-fi
 if [ "$2" = "plugin:install" ]; then
   test -f plugins/_pending/jwsoft-tiptap-editor/plugin.json
   mv plugins/_pending/jwsoft-tiptap-editor plugins/jwsoft-tiptap-editor
@@ -45,10 +42,13 @@ fi
 if [ "$2" = "plugin:list" ]; then
   echo jwsoft-tiptap-editor
 fi
+if [ "$2" = "plugin:activate" ] && [ "$3" = "jwsoft-tiptap-editor" ]; then
+  exit "$JW_TEST_ACTIVATE_EXIT"
+fi
 `,
     { mode: 0o755 },
   );
-  const run = (mode, digest, acknowledged = true) => {
+  const run = (mode, digest, activationSucceeds = true) => {
     fs.writeFileSync(commandLog, "");
     return spawnSync("bash", ["-s", "--", app, php, mode, archive, digest], {
       input: remote,
@@ -56,7 +56,7 @@ fi
       env: {
         ...process.env,
         JW_TEST_COMMAND_LOG: commandLog,
-        JW_TEST_ACK_EXIT: acknowledged ? "0" : "1",
+        JW_TEST_ACTIVATE_EXIT: activationSucceeds ? "0" : "1",
       },
     });
   };
@@ -79,15 +79,15 @@ fi
   assert.equal(fs.readFileSync(commandLog, "utf8"), "");
   fs.rmSync(pending, { recursive: true });
 
-  result = run("install", checksum, false);
-  assert.equal(result.status, 42, result.stderr);
-  assert.match(result.stderr, /활성화는 보류/);
+  result = run("install", checksum);
+  assert.equal(result.status, 0, result.stderr);
+  assert.match(result.stdout, /수정 후 저장할 때/);
   assert.ok(
     fs.existsSync(path.join(app, "plugins/jwsoft-tiptap-editor/plugin.json")),
   );
-  assert.doesNotMatch(
+  assert.match(
     fs.readFileSync(commandLog, "utf8"),
-    /plugin:deactivate|plugin:activate/,
+    /plugin:activate jwsoft-tiptap-editor/,
   );
 
   result = run("update", checksum);
@@ -97,7 +97,18 @@ fi
     commands.indexOf("plugin:deactivate sirsoft-ckeditor5") <
       commands.indexOf("plugin:activate jwsoft-tiptap-editor"),
   );
-  console.log("[jwsoft] remote deployment transaction tests passed: 4 cases");
+  result = run("update", checksum, false);
+  assert.notEqual(result.status, 0);
+  const failedCommands = fs.readFileSync(commandLog, "utf8");
+  assert.ok(
+    failedCommands.indexOf("plugin:deactivate jwsoft-tiptap-editor") >
+      failedCommands.indexOf("plugin:activate jwsoft-tiptap-editor"),
+  );
+  assert.ok(
+    failedCommands.indexOf("plugin:activate sirsoft-ckeditor5") >
+      failedCommands.indexOf("plugin:deactivate jwsoft-tiptap-editor"),
+  );
+  console.log("[jwsoft] remote deployment transaction tests passed: 5 cases");
 } finally {
   fs.rmSync(fixture, { recursive: true, force: true });
 }
