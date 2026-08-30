@@ -55,16 +55,23 @@ export async function uploadEditorImage(
   maxSizeMb: number,
   request: typeof fetch = fetch,
   locale: string = "ko",
+  options: {
+    signal?: AbortSignal;
+    onProgress?: (percent: number) => void;
+  } = {},
 ): Promise<UploadedEditorImage> {
   validateEditorImageFile(file, maxSizeMb, locale);
   const form = new FormData();
   form.append("upload", file);
-  const response = await request(ENDPOINT, {
-    method: "POST",
-    credentials: "same-origin",
-    headers: { Accept: "application/json", ...authorizationHeaders() },
-    body: form,
-  });
+  const response = options.onProgress
+    ? await uploadWithProgress(form, options)
+    : await request(ENDPOINT, {
+        method: "POST",
+        credentials: "same-origin",
+        headers: { Accept: "application/json", ...authorizationHeaders() },
+        body: form,
+        ...(options.signal ? { signal: options.signal } : {}),
+      });
 
   let payload: UploadPayload | null = null;
   try {
@@ -91,4 +98,45 @@ export async function uploadEditorImage(
         ? payload.data.original_name
         : file.name,
   };
+}
+
+function uploadWithProgress(
+  form: FormData,
+  options: {
+    signal?: AbortSignal;
+    onProgress?: (percent: number) => void;
+  },
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const abort = () => xhr.abort();
+    const cleanup = () => options.signal?.removeEventListener("abort", abort);
+    if (options.signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+    xhr.open("POST", ENDPOINT);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    for (const [name, value] of Object.entries(authorizationHeaders()))
+      xhr.setRequestHeader(name, value);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable)
+        options.onProgress?.(Math.round((event.loaded / event.total) * 100));
+    };
+    xhr.onload = () => {
+      cleanup();
+      resolve(new Response(xhr.responseText, { status: xhr.status }));
+    };
+    xhr.onerror = () => {
+      cleanup();
+      reject(new Error("Network error"));
+    };
+    xhr.onabort = () => {
+      cleanup();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    options.signal?.addEventListener("abort", abort, { once: true });
+    xhr.send(form);
+  });
 }

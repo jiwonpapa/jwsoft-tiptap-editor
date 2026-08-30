@@ -42,6 +42,7 @@ DOMPurify declares `MPL-2.0 OR Apache-2.0`; this distribution uses the Apache-2.
 | `@types/trusted-types@2.0.7`               | `MIT`                     |
 | `dompurify@3.4.14`                         | `(MPL-2.0 OR Apache-2.0)` |
 | `linkifyjs@4.3.3`                          | `MIT`                     |
+| `lucide@1.37.0`                            | `ISC`                     |
 | `orderedmap@2.1.1`                         | `MIT`                     |
 | `prosemirror-changeset@2.4.2`              | `MIT`                     |
 | `prosemirror-commands@1.7.2`               | `MIT`                     |

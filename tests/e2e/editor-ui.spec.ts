@@ -492,7 +492,7 @@ test("desktop toolbar keeps selection commands and keyboard focus usable", async
   });
 });
 
-test("mobile toolbar scrolls without widening the page and keeps dialogs visible", async ({
+test("mobile toolbar uses overflow menus and a non-reflowing modal", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium-mobile");
@@ -504,16 +504,28 @@ test("mobile toolbar scrolls without widening the page and keeps dialogs visible
     pageWidth: document.documentElement.scrollWidth,
     viewportWidth: window.innerWidth,
   }));
-  expect(metrics.scrollWidth).toBeGreaterThan(metrics.clientWidth);
+  expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.clientWidth);
   expect(metrics.pageWidth).toBeLessThanOrEqual(metrics.viewportWidth);
 
   const boldBox = await page
     .getByRole("button", { name: /굵게/ })
     .boundingBox();
-  expect(boldBox?.height).toBeGreaterThanOrEqual(40);
+  expect(boldBox?.height).toBeGreaterThanOrEqual(44);
+  const editorTop = await page
+    .locator(".jwsoft-tiptap-editable")
+    .evaluate((element) => element.getBoundingClientRect().top);
   await page.getByRole("button", { name: "이미지" }).click();
   const dialog = page.getByRole("dialog", { name: "이미지" });
   await expect(dialog).toBeVisible();
+  await expect(dialog).toHaveAttribute("aria-modal", "true");
+  await expect
+    .poll(() => dialog.evaluate((element) => getComputedStyle(element).opacity))
+    .toBe("1");
+  expect(
+    await page
+      .locator(".jwsoft-tiptap-editable")
+      .evaluate((element) => element.getBoundingClientRect().top),
+  ).toBe(editorTop);
   const dialogBox = await dialog.boundingBox();
   expect(dialogBox?.x).toBeGreaterThanOrEqual(0);
   expect((dialogBox?.x ?? 0) + (dialogBox?.width ?? 0)).toBeLessThanOrEqual(
@@ -569,6 +581,7 @@ test("image upload supports caption alignment size and responsive output", async
     mimeType: "image/png",
     buffer: Buffer.from("browser-upload-proof"),
   });
+  await dialog.locator("summary").click();
   await dialog.getByLabel("대체 텍스트").fill("업로드 증빙");
   await dialog.getByLabel("캡션").fill("초기 캡션");
   await dialog.getByRole("button", { name: "이미지 삽입" }).click();

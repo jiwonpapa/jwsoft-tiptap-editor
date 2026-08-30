@@ -228,7 +228,9 @@ describe("G7 editor lifecycle", () => {
     );
 
     expect(editorRegistry.size).toBe(1);
-    const tabs = container.querySelectorAll<HTMLButtonElement>("[role='tab']");
+    const tabs = container.querySelectorAll<HTMLButtonElement>(
+      ".jwsoft-tiptap-locale-tab",
+    );
     expect(tabs).toHaveLength(2);
     editorRegistry
       .get(editorContainerId("content"), "ko")
@@ -255,9 +257,7 @@ describe("G7 editor lifecycle", () => {
       undefined,
     );
 
-    expect(container.querySelector("[role='status']")?.textContent).toBe(
-      "Safe HTML storage policy applied",
-    );
+    expect(container.querySelector("[role='status']")?.textContent).toBe("");
     expect(
       container.querySelector("[role='toolbar']")?.getAttribute("aria-label"),
     ).toBe("standard editor tools");
@@ -386,7 +386,7 @@ describe("G7 editor lifecycle", () => {
       },
       undefined,
     );
-    expect(full.querySelector("[role='toolbar']")?.textContent).toContain(
+    expect(full.querySelector(".jwsoft-tiptap-popover")?.textContent).toContain(
       "표 삭제",
     );
 
@@ -417,7 +417,7 @@ describe("G7 editor lifecycle", () => {
     ].find((button) => button.textContent === "링크");
     trigger?.click();
     const dialog = container.querySelector<HTMLElement>(
-      ".jwsoft-tiptap-dialog:not([hidden])",
+      ".jwsoft-tiptap-dialog[open]",
     );
     expect(dialog).not.toBeNull();
     const inputs = dialog?.querySelectorAll<HTMLInputElement>("input");
@@ -448,7 +448,7 @@ describe("G7 editor lifecycle", () => {
     ].find((button) => button.textContent === "표");
     tableTrigger?.click();
     const tableDialog = tableContainer.querySelector<HTMLElement>(
-      ".jwsoft-tiptap-dialog:not([hidden])",
+      ".jwsoft-tiptap-dialog[open]",
     );
     const tableInputs = tableDialog?.querySelectorAll<HTMLInputElement>(
       "input[type='number']",
@@ -479,15 +479,15 @@ describe("G7 editor lifecycle", () => {
     ].find((button) => button.textContent === "이미지");
     imageTrigger?.click();
     const imageDialog = imageContainer.querySelector<HTMLElement>(
-      ".jwsoft-tiptap-dialog:not([hidden])",
+      ".jwsoft-tiptap-dialog[open]",
     );
     const imageInputs =
       imageDialog?.querySelectorAll<HTMLInputElement>("input");
     if (imageInputs) {
       imageInputs[0].value = "/assets/example.webp";
       imageInputs[1].value = "예시 이미지";
-      imageInputs[2].value = "이미지 제목";
-      imageInputs[3].value = "이미지 캡션";
+      imageInputs[2].value = "이미지 캡션";
+      imageInputs[3].value = "이미지 제목";
     }
     const alignment = imageDialog?.querySelector<HTMLSelectElement>(
       "select[aria-label='이미지 정렬']",
@@ -532,7 +532,7 @@ describe("G7 editor lifecycle", () => {
         ?.textContent,
     ).toBe("이미지 적용");
     const editInputs = imageDialog?.querySelectorAll<HTMLInputElement>("input");
-    if (editInputs) editInputs[3].value = "수정 캡션";
+    if (editInputs) editInputs[2].value = "수정 캡션";
     if (alignment) alignment.value = "left";
     if (size) size.value = "25";
     imageDialog
@@ -566,12 +566,10 @@ describe("G7 editor lifecycle", () => {
     const link = buttons.find((button) => button.textContent === "링크");
     link?.click();
     const dialog = container.querySelector<HTMLElement>(
-      ".jwsoft-tiptap-dialog:not([hidden])",
+      ".jwsoft-tiptap-dialog[open]",
     );
-    dialog?.dispatchEvent(
-      new KeyboardEvent("keydown", { key: "Escape", bubbles: true }),
-    );
-    expect(dialog?.hidden).toBe(true);
+    dialog?.dispatchEvent(new Event("cancel", { cancelable: true }));
+    expect((dialog as HTMLDialogElement)?.open).toBe(false);
     expect(document.activeElement).toBe(link);
   });
 

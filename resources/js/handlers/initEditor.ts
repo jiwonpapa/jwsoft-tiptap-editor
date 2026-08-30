@@ -91,7 +91,7 @@ function createShell(
   notice.setAttribute("role", "status");
   notice.dataset.tone = "neutral";
   notice.textContent = editable
-    ? editorText(locale, "안전한 HTML 저장 정책 적용")
+    ? ""
     : editorText(locale, "이 편집기는 현재 읽기 전용입니다.");
   shell.appendChild(notice);
   container.appendChild(shell);

@@ -8,6 +8,7 @@ export default defineConfig({
   test: {
     globals: true,
     environment: "jsdom",
+    setupFiles: ["tests/dom-setup.ts"],
     include: ["tests/scaffold/**/*.test.ts", "resources/js/**/*.test.ts"],
     coverage: {
       reporter: ["text", "json-summary"],

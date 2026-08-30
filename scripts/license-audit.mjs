@@ -40,6 +40,7 @@ const runtimeNpm = Object.entries(npmLock.packages)
   }));
 const allowedNpmLicenses = new Set([
   "MIT",
+  "ISC",
   "Apache-2.0",
   "(MPL-2.0 OR Apache-2.0)",
 ]);

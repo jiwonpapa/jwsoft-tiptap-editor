@@ -79,6 +79,98 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
   .jwsoft-tiptap-editable { padding: 0.875rem; }
   .jwsoft-tiptap-dialog { padding: 0.625rem; }
 }
+.jwsoft-sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.jwsoft-icon { display: block; flex: 0 0 auto; pointer-events: none; }
+.jwsoft-tiptap-shell { --jw-surface: #fff; --jw-muted: #f7f8fa; --jw-border: #e5e7eb; --jw-ink: #20242b; --jw-subtle: #687080; --jw-accent: #2563eb; background: var(--jw-surface); border-color: var(--jw-border); border-radius: 12px; box-shadow: 0 2px 8px #15243b04; overflow: visible; }
+.jwsoft-tiptap-status:empty { display: none; }
+.jwsoft-tiptap-toolbar-region { border-radius: 12px 12px 0 0; background: var(--jw-surface); border-color: var(--jw-border); }
+.jwsoft-tiptap-toolbar { padding: 7px; gap: 5px; align-items: center; overflow: visible; flex-wrap: wrap; }
+.jwsoft-tiptap-tool-group { padding: 0 6px 0 0; gap: 2px; align-items: center; border-color: var(--jw-border); }
+.jwsoft-tiptap-tool, .jwsoft-tiptap-select { color: var(--jw-ink); background: transparent; height: 36px; min-height: 36px; font-size: 13px; border-radius: 6px; }
+.jwsoft-tiptap-tool { position: relative; display: inline-flex; justify-content: center; align-items: center; gap: 6px; min-width: 36px; padding: 7px; transition: background .12s, color .12s; }
+.jwsoft-tiptap-tool:hover, .jwsoft-tiptap-select:hover { background: var(--jw-muted); color: var(--jw-ink); }
+.jwsoft-tiptap-tool[aria-pressed=true], .jwsoft-tiptap-tool[aria-expanded=true] { border-color: transparent; background: #eff4ff; color: #1d4ed8; }
+.jwsoft-tiptap-tool:disabled { color: #a3a9b3; opacity: .55; }
+.jwsoft-tiptap-tool[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; pointer-events: none; z-index: 30; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #20242b; color: #fff; font: 12px/1.4 system-ui; border-radius: 5px; padding: 6px 9px; white-space: nowrap; box-shadow: 0 3px 12px #0002; }
+.jwsoft-tiptap-editable { padding: 28px 32px; color: var(--jw-ink); font-size: 16px; line-height: 1.75; overflow-wrap: anywhere; caret-color: #2563eb; }
+.jwsoft-tiptap-editable > :first-child { margin-top: 0; }
+.jwsoft-tiptap-editable p { margin-block: .55em; }
+.jwsoft-tiptap-editable h2, .jwsoft-tiptap-editable h3, .jwsoft-tiptap-editable h4 { line-height: 1.3; letter-spacing: -.02em; margin: 1.4em 0 .5em; font-weight: 650; }
+.jwsoft-tiptap-editable h2 { font-size: 1.65em; }
+.jwsoft-tiptap-editable h3 { font-size: 1.35em; }
+.jwsoft-tiptap-editable h4 { font-size: 1.15em; }
+.jwsoft-tiptap-editable blockquote { border-inline-start: 3px solid #cbd5e1; margin: 1em 0; padding: .25em 1.1em; color: #606978; }
+.jwsoft-tiptap-popover { position: fixed; inset: auto; margin: 0; box-sizing: border-box; width: max-content; max-width: calc(100vw - 16px); max-height: calc(100dvh - 24px); overflow: auto; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; color: #20242b; box-shadow: 0 10px 40px #14223a24; z-index: 1000; }
+.jwsoft-tiptap-popover:popover-open { display: flex; flex-direction: column; gap: 8px; animation: jwsoft-reveal .13s ease-out; }
+.jwsoft-tiptap-popover .jwsoft-tiptap-tool-group { border: 0; padding: 5px 0; flex-wrap: wrap; max-width: 330px; }
+.jwsoft-tiptap-popover .jwsoft-tiptap-tool-group + .jwsoft-tiptap-tool-group { border-top: 1px solid #edf0f4; }
+.jwsoft-tiptap-dialog { box-sizing: border-box; position: fixed; inset: 0; margin: auto; padding: 0; width: min(640px, calc(100vw - 32px)); max-height: min(820px, calc(100dvh - 48px)); overflow: auto; border: 1px solid #e5e7eb; border-radius: 16px; background: #fff; color: #20242b; box-shadow: 0 24px 80px #0f172a40; font-family: inherit; }
+.jwsoft-tiptap-dialog[open] { display: block; animation: jwsoft-reveal .16s ease-out; }
+.jwsoft-tiptap-dialog::backdrop { background: #0f172a66; backdrop-filter: blur(3px); }
+.jwsoft-dialog-compact { width: min(420px, calc(100vw - 32px)); }
+.jwsoft-tiptap-dialog-header { position: sticky; top: 0; z-index: 2; margin: 0; padding: 18px 22px; border-bottom: 1px solid #edf0f4; background: inherit; }
+.jwsoft-tiptap-dialog-header h2 { margin: 0; font-size: 17px; font-weight: 650; letter-spacing: -.02em; color: inherit; }
+.jwsoft-tiptap-dialog-close { display: grid; place-items: center; width: 34px; height: 34px; min-height: 34px; padding: 0; background: transparent; border: 0; color: #667080; }
+.jwsoft-tiptap-dialog-close:hover { background: #f1f4f8; }
+.jwsoft-tiptap-dialog-form { display: grid; grid-template-columns: 1fr; padding: 22px; gap: 18px; }
+.jwsoft-tiptap-field { gap: 7px; color: #475569; font-size: 12px; }
+.jwsoft-tiptap-field input:not([type=checkbox]), .jwsoft-tiptap-field select { box-sizing: border-box; width: 100%; height: 40px; min-height: 40px; border: 1px solid #d8dee7; border-radius: 7px; background: #fff; padding: 8px 11px; color: #20242b; font: inherit; font-size: 14px; outline-offset: 2px; }
+.jwsoft-tiptap-field-inline { flex-direction: row; align-self: start; gap: 8px; }
+.jwsoft-tiptap-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; grid-column: 1 / -1; padding-top: 14px; border-top: 1px solid #edf0f4; }
+.jwsoft-tiptap-dialog-actions button, .jwsoft-tiptap-dialog-form > button { min-height: 40px; padding: 9px 16px; border-radius: 7px; font-size: 13px; font-weight: 550; }
+.jwsoft-tiptap-dialog-primary { box-shadow: 0 1px 2px #1e40af20; }
+.jwsoft-tiptap-dialog-primary:disabled { opacity: .5; cursor: wait; }
+.jwsoft-dialog-tabs { display: flex; gap: 4px; padding: 4px; border-radius: 9px; background: #f1f4f8; }
+.jwsoft-dialog-tabs button { flex: 1; border: 0; padding: 9px 12px; border-radius: 6px; background: transparent; color: #647084; font-size: 13px; cursor: pointer; }
+.jwsoft-dialog-tabs button[aria-selected=true] { background: #fff; color: #20242b; box-shadow: 0 1px 3px #0f172a12; font-weight: 600; }
+.jwsoft-upload-workspace, .jwsoft-image-url-panel { min-width: 0; }
+.jwsoft-image-form [hidden], .jwsoft-tiptap-popover [hidden], .jwsoft-tiptap-toolbar [hidden] { display: none !important; }
+.jwsoft-upload-dropzone { width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 10px; padding: 34px 18px; border: 1.5px dashed #c8d1df; border-radius: 10px; background: #fafbfe; color: #556174; cursor: pointer; transition: background .15s, border-color .15s; }
+.jwsoft-upload-dropzone .jwsoft-icon { width: 30px; height: 30px; color: #74829a; }
+.jwsoft-upload-dropzone strong { font-size: 14px; font-weight: 550; color: #334155; }
+.jwsoft-upload-dropzone span { font-size: 11px; color: #7b8595; text-align: center; }
+.jwsoft-upload-dropzone:hover, .jwsoft-upload-dropzone[data-dragging=true] { background: #eff5ff; border-color: #2563eb; }
+.jwsoft-upload-list { display: grid; gap: 8px; margin-top: 12px; }
+.jwsoft-upload-list:empty { margin: 0; }
+.jwsoft-upload-item { display: flex; align-items: center; gap: 12px; border: 1px solid #e5e9f0; border-radius: 9px; padding: 10px; }
+.jwsoft-upload-item > img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+.jwsoft-upload-item > div { flex: 1; min-width: 0; }
+.jwsoft-upload-item strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 550; }
+.jwsoft-upload-item span { display: block; margin-top: 4px; font-size: 11px; color: #7b8595; }
+.jwsoft-upload-item[data-state=error] { border-color: #fca5a5; }
+.jwsoft-upload-item[data-state=error] span { color: #b91c1c; }
+.jwsoft-upload-item progress { display: block; width: 100%; height: 5px; margin-top: 7px; accent-color: #2563eb; }
+.jwsoft-upload-item > button { display: grid; place-items: center; min-width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: #64748b; cursor: pointer; }
+.jwsoft-upload-item > button:hover { background: #f1f5f9; }
+.jwsoft-image-preview { display: block; width: 100%; max-height: 240px; object-fit: contain; margin-top: 14px; border-radius: 8px; background: #f8fafc; }
+.jwsoft-image-details { padding-top: 5px; }
+.jwsoft-image-details summary { cursor: pointer; font-size: 12px; color: #596579; padding: 6px 0; }
+.jwsoft-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+html.dark .jwsoft-tiptap-shell { --jw-surface: #171a20; --jw-muted: #252a33; --jw-border: #343b47; --jw-ink: #e5e9ef; --jw-subtle: #a2acba; }
+html.dark .jwsoft-tiptap-dialog, html.dark .jwsoft-tiptap-popover { background: #1b2028; color: #e5e9ef; border-color: #394150; }
+html.dark .jwsoft-tiptap-dialog-header { color: #e5e9ef; border-color: #394150; }
+html.dark .jwsoft-tiptap-field { color: #b9c2d0; }
+html.dark .jwsoft-tiptap-field input:not([type=checkbox]), html.dark .jwsoft-tiptap-field select { background: #242b35; color: #e5e9ef; border-color: #414b5b; }
+html.dark .jwsoft-dialog-tabs, html.dark .jwsoft-upload-dropzone { background: #252c36; }
+html.dark .jwsoft-dialog-tabs button[aria-selected=true] { background: #3a4351; color: #fff; }
+html.dark .jwsoft-upload-dropzone strong { color: #d1d9e5; }
+html.dark .jwsoft-upload-item { border-color: #414b5b; }
+@keyframes jwsoft-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+@media (max-width: 640px) {
+  .jwsoft-tiptap-toolbar { gap: 3px; padding: 5px; }
+  .jwsoft-tiptap-tool-group { gap: 0; padding-right: 3px; }
+  .jwsoft-tiptap-tool, .jwsoft-tiptap-select { height: 44px; min-height: 44px; }
+  .jwsoft-tiptap-tool { min-width: 40px; }
+  .jwsoft-tiptap-select { max-width: 84px; }
+  .jwsoft-tiptap-editable { padding: 20px 16px; }
+  .jwsoft-tiptap-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 24px); border-radius: 12px; }
+  .jwsoft-tiptap-dialog-header { padding: 14px 16px; }
+  .jwsoft-tiptap-dialog-form { padding: 16px; gap: 16px; }
+  .jwsoft-tiptap-dialog-actions button, .jwsoft-tiptap-dialog-close, .jwsoft-upload-item > button { min-height: 44px; }
+  .jwsoft-detail-grid { gap: 12px; }
+  .jwsoft-tiptap-tool[data-tooltip]:hover::after { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .jwsoft-tiptap-dialog[open], .jwsoft-tiptap-popover:popover-open { animation: none; } .jwsoft-tiptap-tool, .jwsoft-upload-dropzone { transition: none; } }
 ${EDITOR_TOKEN_CSS}
 `;
 

@@ -5,7 +5,10 @@ import {
   type ClassTokenCategory,
 } from "@/editor/classTokens";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
-import { uploadEditorImage } from "@/editor/imageUpload";
+import { createDialog, type DialogHandle } from "@/editor/dialog";
+import { editorIcon, iconForLabel } from "@/editor/icons";
+import { createImageUploadQueue } from "@/editor/imageUploadQueue";
+import { createPopover } from "@/editor/popover";
 import {
   DEFAULT_IMAGE_CLASS_TOKENS,
   imageClassTokens,
@@ -44,12 +47,6 @@ interface ButtonOptions {
   run: () => void;
   active?: () => boolean;
   enabled?: () => boolean;
-}
-
-interface DialogHandle {
-  element: HTMLElement;
-  trigger: HTMLButtonElement;
-  close: (restoreFocus?: boolean) => void;
 }
 
 const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
@@ -113,7 +110,6 @@ const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
     "jw-card-image": "카드 이미지",
   },
 };
-let dialogSequence = 0;
 
 export function normalizeToolbarProfile(value: unknown): ToolbarProfile {
   return TOOLBAR_PROFILES.includes(value as ToolbarProfile)
@@ -125,7 +121,15 @@ function createButton(options: ButtonOptions): HTMLButtonElement {
   const button = document.createElement("button");
   button.type = "button";
   button.className = "jwsoft-tiptap-tool";
-  button.textContent = options.label;
+  const icon = iconForLabel(options.label);
+  if (icon) {
+    button.append(editorIcon(icon));
+    const label = document.createElement("span");
+    label.className = "jwsoft-sr-only";
+    label.textContent = options.label;
+    button.append(label);
+  } else button.textContent = options.label;
+  button.dataset.tooltip = options.title ?? options.label;
   button.title = options.title ?? options.label;
   button.setAttribute("aria-label", options.title ?? options.label);
   if (options.active) button.setAttribute("aria-pressed", "false");
@@ -261,56 +265,6 @@ function changeIndentation(editor: Editor, direction: 1 | -1): boolean {
   return editor.chain().focus().setClassToken("indentation", token).run();
 }
 
-function createDialog(options: {
-  title: string;
-  trigger: HTMLButtonElement;
-  content: HTMLElement;
-  locale: string;
-}): DialogHandle {
-  const dialog = document.createElement("section");
-  dialogSequence += 1;
-  const headingId = `jwsoft-dialog-${dialogSequence}`;
-  dialog.className = "jwsoft-tiptap-dialog";
-  dialog.hidden = true;
-  dialog.setAttribute("role", "dialog");
-  dialog.setAttribute("aria-modal", "false");
-  dialog.setAttribute("aria-labelledby", headingId);
-
-  const header = document.createElement("header");
-  header.className = "jwsoft-tiptap-dialog-header";
-  const heading = document.createElement("strong");
-  heading.id = headingId;
-  heading.textContent = options.title;
-  const closeButton = document.createElement("button");
-  closeButton.type = "button";
-  closeButton.className = "jwsoft-tiptap-dialog-close";
-  closeButton.setAttribute("aria-label", editorText(options.locale, "닫기"));
-  closeButton.textContent = editorText(options.locale, "닫기");
-  header.append(heading, closeButton);
-  dialog.append(header, options.content);
-
-  const close = (restoreFocus = true) => {
-    dialog.hidden = true;
-    options.trigger.setAttribute("aria-expanded", "false");
-    if (restoreFocus) options.trigger.focus();
-  };
-  const open = () => {
-    dialog.hidden = false;
-    options.trigger.setAttribute("aria-expanded", "true");
-    dialog.querySelector<HTMLElement>("input, button, select")?.focus();
-  };
-  closeButton.addEventListener("click", () => close());
-  dialog.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") return;
-    event.preventDefault();
-    close();
-  });
-  options.trigger.setAttribute("aria-haspopup", "dialog");
-  options.trigger.setAttribute("aria-expanded", "false");
-  options.trigger.addEventListener("click", open);
-  return { element: dialog, trigger: options.trigger, close };
-}
-
 function formField(
   labelText: string,
   input: HTMLInputElement | HTMLSelectElement,
@@ -378,6 +332,7 @@ function createLinkDialog(
     error.hidden = true;
   });
   const handle = createDialog({
+    editor,
     title: editorText(locale, "링크"),
     trigger,
     content: form,
@@ -386,6 +341,7 @@ function createLinkDialog(
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
+    event.stopPropagation();
     const value = href.value.trim();
     if (!isAllowedEditorUrl(value)) {
       error.textContent = editorText(
@@ -445,6 +401,7 @@ function createTableDialog(
     apply,
   );
   const handle = createDialog({
+    editor,
     title: editorText(locale, "표 만들기"),
     trigger,
     content: form,
@@ -487,15 +444,43 @@ function createImageDialog(
   maxSizeMb: number,
   locale: string,
 ): DialogHandle {
+  const en = locale === "en";
   const form = document.createElement("form");
-  form.className = "jwsoft-tiptap-dialog-form";
+  form.className = "jwsoft-tiptap-dialog-form jwsoft-image-form";
+  const tabs = document.createElement("div");
+  tabs.className = "jwsoft-dialog-tabs";
+  tabs.setAttribute("role", "tablist");
+  const fileTab = document.createElement("button");
+  fileTab.type = "button";
+  fileTab.setAttribute("role", "tab");
+  fileTab.textContent = en ? "Upload" : "파일 업로드";
+  const urlTab = document.createElement("button");
+  urlTab.type = "button";
+  urlTab.setAttribute("role", "tab");
+  urlTab.textContent = en ? "From URL" : "주소로 삽입";
+  if (uploadEnabled) tabs.append(fileTab);
+  tabs.append(urlTab);
+  const urlPanel = document.createElement("div");
+  urlPanel.className = "jwsoft-image-url-panel";
   const src = document.createElement("input");
   src.type = "text";
   src.inputMode = "url";
-  src.placeholder =
-    locale === "en"
-      ? "https://example.com/image.webp or /path"
-      : "https://example.com/image.webp 또는 /경로";
+  src.placeholder = "https://example.com/image.webp";
+  const preview = document.createElement("img");
+  preview.className = "jwsoft-image-preview";
+  preview.alt = en ? "Image preview" : "이미지 미리보기";
+  preview.hidden = true;
+  src.addEventListener("change", () => {
+    preview.hidden = !isAllowedEditorUrl(src.value.trim(), true);
+    if (!preview.hidden) preview.src = src.value.trim();
+  });
+  urlPanel.append(
+    formField(
+      editorText(locale, uploadEnabled ? "또는 이미지 주소" : "이미지 주소"),
+      src,
+    ),
+    preview,
+  );
   const alt = document.createElement("input");
   alt.type = "text";
   const title = document.createElement("input");
@@ -508,126 +493,127 @@ function createImageDialog(
     ["left", "왼쪽"],
     ["center", "가운데"],
     ["right", "오른쪽"],
-  ] as const) {
+  ])
     alignment.add(new Option(editorText(locale, label), value));
-  }
   const size = document.createElement("select");
   size.setAttribute("aria-label", editorText(locale, "이미지 크기"));
-  for (const value of ["25", "50", "75", "100"] as const) {
-    size.add(new Option(`${value}%`, value));
-  }
-  const file = document.createElement("input");
-  file.type = "file";
-  file.accept = "image/jpeg,image/png,image/gif,image/webp,image/avif";
-  const uploadHint = document.createElement("div");
-  uploadHint.className = "jwsoft-tiptap-upload-hint";
-  uploadHint.textContent =
-    locale === "en"
-      ? `Server upload: up to ${maxSizeMb} MB · JPEG, PNG, GIF, WebP, AVIF`
-      : `서버 업로드: 최대 ${maxSizeMb}MB · JPEG, PNG, GIF, WebP, AVIF`;
-  const progress = document.createElement("div");
-  progress.className = "jwsoft-tiptap-upload-status";
-  progress.setAttribute("role", "status");
-  progress.setAttribute("aria-live", "polite");
-  progress.hidden = true;
+  for (const value of ["25", "50", "75", "100"])
+    size.add(new Option(value + "%", value));
+  alignment.value = "center";
+  size.value = "100";
+  const details = document.createElement("details");
+  details.className = "jwsoft-image-details";
+  const summary = document.createElement("summary");
+  summary.textContent = en ? "Description & layout" : "이미지 설명 · 배치";
+  const fields = document.createElement("div");
+  fields.className = "jwsoft-detail-grid";
+  fields.append(
+    formField(editorText(locale, "대체 텍스트"), alt),
+    formField(editorText(locale, "캡션"), caption),
+    formField(editorText(locale, "제목"), title),
+    formField(editorText(locale, "이미지 정렬"), alignment),
+    formField(editorText(locale, "이미지 크기"), size),
+  );
+  details.append(summary, fields);
   const error = formError();
+  const actions = document.createElement("div");
+  actions.className = "jwsoft-tiptap-dialog-actions";
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.textContent = en ? "Cancel" : "취소";
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = editorText(locale, "이미지 삽입");
-  if (uploadEnabled) {
-    form.append(
-      formField(editorText(locale, "이미지 파일"), file),
-      uploadHint,
-      progress,
-    );
-  }
-  form.append(
-    formField(
-      editorText(locale, uploadEnabled ? "또는 이미지 주소" : "이미지 주소"),
-      src,
-    ),
-    formField(editorText(locale, "대체 텍스트"), alt),
-    formField(editorText(locale, "제목"), title),
-    formField(editorText(locale, "캡션"), caption),
-    formField(editorText(locale, "이미지 정렬"), alignment),
-    formField(editorText(locale, "이미지 크기"), size),
-    error,
-    apply,
-  );
+  actions.append(cancel, apply);
+  const queue = createImageUploadQueue({
+    maxSizeMb,
+    locale,
+    onChange: () => {
+      apply.disabled = queue.busy;
+    },
+  });
+  let mode: "file" | "url" = uploadEnabled ? "file" : "url";
+  const selectMode = (value: "file" | "url") => {
+    mode = value;
+    queue.element.hidden = mode !== "file";
+    urlPanel.hidden = mode !== "url";
+    fileTab.setAttribute("aria-selected", String(mode === "file"));
+    urlTab.setAttribute("aria-selected", String(mode === "url"));
+    if (mode === "url") src.focus();
+  };
+  fileTab.addEventListener("click", () => selectMode("file"));
+  urlTab.addEventListener("click", () => selectMode("url"));
+  form.append(tabs);
+  if (uploadEnabled) form.append(queue.element);
+  form.append(urlPanel, details, error, actions);
   const handle = createDialog({
+    editor,
     title: editorText(locale, "이미지"),
     trigger,
     content: form,
     locale,
   });
-  let editingSelectedImage = false;
+  cancel.addEventListener("click", () => handle.close());
+  handle.onClose(() => queue.cancel());
+  editor.on("destroy", () => queue.destroy());
+  let editing = false;
   trigger.addEventListener("click", () => {
-    editingSelectedImage = editor.isActive("image");
-    const attributes = editingSelectedImage
-      ? editor.getAttributes("image")
-      : {};
+    editing = editor.isActive("image");
+    const attributes = editing ? editor.getAttributes("image") : {};
     src.value = typeof attributes.src === "string" ? attributes.src : "";
     alt.value = typeof attributes.alt === "string" ? attributes.alt : "";
     title.value = typeof attributes.title === "string" ? attributes.title : "";
     caption.value =
       typeof attributes.caption === "string" ? attributes.caption : "";
-    const tokens =
-      typeof attributes.jwClassTokens === "string"
-        ? attributes.jwClassTokens
-        : "";
+    const tokens = String(attributes.jwClassTokens ?? "");
     alignment.value =
-      (["left", "center", "right"] as const).find((value) =>
-        tokens.includes(`jw-image-align-${value}`),
+      ["left", "center", "right"].find((value) =>
+        tokens.includes("jw-image-align-" + value),
       ) ?? "center";
     size.value =
-      (["25", "50", "75", "100"] as const).find((value) =>
-        tokens.includes(`jw-image-size-${value}`),
+      ["25", "50", "75", "100"].find((value) =>
+        tokens.includes("jw-image-size-" + value),
       ) ?? "100";
+    details.open = editing;
+    error.hidden = true;
+    selectMode(editing || !uploadEnabled ? "url" : "file");
+    preview.hidden = !editing;
+    if (editing) preview.src = src.value;
     apply.textContent = editorText(
       locale,
-      editingSelectedImage ? "이미지 적용" : "이미지 삽입",
+      editing ? "이미지 적용" : "이미지 삽입",
     );
+    if (uploadEnabled) queue.mountNative();
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
     error.hidden = true;
-    let value = src.value.trim();
-    const selected = file.files?.[0];
-    if (selected && uploadEnabled) {
-      apply.disabled = true;
-      file.disabled = true;
-      progress.textContent = editorText(
-        locale,
-        "이미지를 업로드하는 중입니다…",
-      );
-      progress.hidden = false;
-      try {
-        const uploaded = await uploadEditorImage(
-          selected,
-          maxSizeMb,
-          fetch,
-          locale,
-        );
-        value = uploaded.url;
-        if (!alt.value.trim()) alt.value = uploaded.originalName;
-        progress.textContent = editorText(
-          locale,
-          "업로드 완료. 본문에 삽입합니다.",
-        );
-      } catch (uploadError) {
-        error.textContent =
-          uploadError instanceof Error
-            ? uploadError.message
-            : editorText(locale, "이미지 업로드에 실패했습니다.");
+    if (queue.busy) return;
+    let sources: Array<{ url: string }> = [{ url: src.value.trim() }];
+    if (mode === "file") {
+      if (!queue.count) {
+        error.textContent = en
+          ? "Choose images first."
+          : "먼저 이미지를 선택하세요.";
         error.hidden = false;
-        progress.hidden = true;
-        file.disabled = false;
-        apply.disabled = false;
-        file.focus();
         return;
       }
-    } else if (!isAllowedEditorUrl(value, true)) {
+      if (editing && queue.count !== 1) {
+        error.textContent = en
+          ? "Choose one replacement image."
+          : "교체할 이미지는 한 장만 선택하세요.";
+        error.hidden = false;
+        return;
+      }
+      apply.disabled = true;
+      const result = await queue.uploadAll();
+      apply.disabled = false;
+      if (!handle.element.open || editor.isDestroyed) return;
+      if (!result) return;
+      sources = result;
+    } else if (!isAllowedEditorUrl(src.value.trim(), true)) {
       error.textContent = editorText(
         locale,
         "https 또는 상대 경로 이미지만 사용할 수 있습니다.",
@@ -636,35 +622,41 @@ function createImageDialog(
       src.focus();
       return;
     }
-    const current = editingSelectedImage
-      ? editor.getAttributes("image").jwClassTokens
-      : DEFAULT_IMAGE_CLASS_TOKENS;
-    const attributes = {
-      src: value,
+    const attributes = (url: string) => ({
+      src: url,
       alt: alt.value.trim(),
       title: title.value.trim() || null,
       caption: caption.value.trim(),
       jwClassTokens: imageClassTokens(
         alignment.value as ImageAlignment,
         size.value as ImageSize,
-        current,
+        editing
+          ? editor.getAttributes("image").jwClassTokens
+          : DEFAULT_IMAGE_CLASS_TOKENS,
       ),
-    };
-    if (editingSelectedImage) {
-      editor.chain().focus().updateAttributes("image", attributes).run();
-    } else {
+    });
+    if (editing)
       editor
         .chain()
         .focus()
-        .insertContent({ type: "image", attrs: attributes })
+        .updateAttributes("image", attributes(sources[0].url))
         .run();
-    }
+    else
+      editor
+        .chain()
+        .focus()
+        .insertContent(
+          sources.flatMap(({ url }) => [
+            { type: "image", attrs: attributes(url) },
+            { type: "paragraph" },
+          ]),
+        )
+        .run();
+    queue.clear();
     form.reset();
-    progress.hidden = true;
-    file.disabled = false;
-    apply.disabled = false;
     handle.close();
   });
+  selectMode(mode);
   return handle;
 }
 
@@ -717,6 +709,7 @@ function createMediaDialog(
     apply,
   );
   const handle = createDialog({
+    editor,
     title: editorText(locale, "동영상"),
     trigger,
     content: form,
@@ -804,6 +797,7 @@ function createSmartCardDialog(
     apply,
   );
   const handle = createDialog({
+    editor,
     title: editorText(locale, "링크 카드"),
     trigger,
     content: form,
@@ -840,28 +834,46 @@ function createSmartCardDialog(
 }
 
 function installRovingKeyboard(toolbar: HTMLElement): void {
-  toolbar.addEventListener("keydown", (event) => {
-    if (!(event.target instanceof HTMLButtonElement)) return;
-    if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
-      return;
-    }
-    const controls = [
+  const controls = () =>
+    [
       ...toolbar.querySelectorAll<HTMLElement>(
         "button:not(:disabled), select:not(:disabled)",
       ),
-    ];
-    const current = controls.indexOf(event.target);
-    if (current < 0 || controls.length === 0) return;
+    ].filter(
+      (element) =>
+        !element.closest("[hidden]") &&
+        getComputedStyle(element).display !== "none",
+    );
+  const refresh = () => {
+    const enabled = controls();
+    const active =
+      enabled.find((item) => item === document.activeElement) ??
+      enabled.find((item) => item.tabIndex === 0) ??
+      enabled[0];
+    for (const item of toolbar.querySelectorAll<HTMLElement>("button, select"))
+      item.tabIndex = item === active ? 0 : -1;
+  };
+  toolbar.addEventListener("jwsoft-controls-updated", refresh);
+  toolbar.addEventListener("focusin", refresh);
+  toolbar.addEventListener("keydown", (event) => {
+    if (
+      !(event.target instanceof HTMLButtonElement) ||
+      !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)
+    )
+      return;
+    const enabled = controls(),
+      current = enabled.indexOf(event.target);
+    if (current < 0 || !enabled.length) return;
     event.preventDefault();
     const next =
       event.key === "Home"
         ? 0
         : event.key === "End"
-          ? controls.length - 1
-          : event.key === "ArrowRight"
-            ? (current + 1) % controls.length
-            : (current - 1 + controls.length) % controls.length;
-    controls[next].focus();
+          ? enabled.length - 1
+          : (current + (event.key === "ArrowRight" ? 1 : -1) + enabled.length) %
+            enabled.length;
+    enabled[next].focus();
+    refresh();
   });
 }
 
@@ -1121,6 +1133,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
 
   const update = () => {
     for (const control of controls) control.__jwsoftUpdate?.(editor.isEditable);
+    toolbar.dispatchEvent(new Event("jwsoft-controls-updated"));
   };
   editor.on("transaction", update);
   editor.on("selectionUpdate", update);
@@ -1131,6 +1144,43 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     editor.off("update", update);
   });
   installRovingKeyboard(toolbar);
+  const more = createPopover(
+    locale === "en" ? "More formatting" : "서식 더보기",
+  );
+  const extraGroups = [
+    ...toolbar.querySelectorAll<HTMLElement>(".jwsoft-tiptap-tool-group"),
+  ].filter((group) =>
+    [t("구조"), t("문단 모양"), t("표 편집")].includes(
+      group.getAttribute("aria-label") ?? "",
+    ),
+  );
+  for (const group of extraGroups) more.panel.append(group);
+  toolbar.append(more.trigger);
+  region.append(more.panel);
+  const compactTools = [
+    ...inline.querySelectorAll<HTMLButtonElement>("button"),
+  ].slice(3);
+  const compactGroup = createGroup(t("글자 서식"));
+  more.panel.prepend(compactGroup);
+  const adapt = () => {
+    const compact = toolbar.clientWidth < 620;
+    if (compact) {
+      for (const tool of compactTools) compactGroup.append(tool);
+      more.panel.append(history);
+    } else {
+      for (const tool of compactTools) inline.append(tool);
+      toolbar.insertBefore(history, more.trigger);
+    }
+    compactGroup.hidden = !compact;
+    toolbar.dispatchEvent(new Event("jwsoft-controls-updated"));
+  };
+  const resizeObserver =
+    typeof ResizeObserver === "undefined" ? null : new ResizeObserver(adapt);
+  resizeObserver?.observe(toolbar);
+  editor.on("destroy", () => {
+    resizeObserver?.disconnect();
+    more.destroy();
+  });
   update();
   return region;
 }
