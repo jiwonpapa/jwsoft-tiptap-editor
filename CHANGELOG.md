@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 배포 하네스에서 SSH 사용자·앱 소유자와 배포 역할·Laravel 실행 모드를 분리하고, 최초 ZIP 설치의 중첩 경로 오류 및 기존 pending 삭제를 방지; 전환 위험 미확인 시 설치 후 활성화만 보류
 - 원격 변경 전에 `EXPECTED_APP_ENV`, production `APP_DEBUG=false`, Laravel cache·log·plugin 재귀 쓰기 권한과 install/update 실제 상태를 확인하는 무변경 배포 preflight 추가
 - staging smoke 증거와 production 동일 checksum을 비식별 지문으로 기록하고 production 전에 로컬 staging 증거까지 재검증하는 배포 gate 추가
 - G7 공개 renderer의 서버 내부 API 호출을 수용하는 멀티워커 하네스에서 상품·페이지 canonical HTML 출력까지 검증해 stable readiness를 60/62로 갱신

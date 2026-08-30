@@ -19,6 +19,11 @@ requireText(
 );
 requireText("APPROVED_STAGING_SHA256", "approved staging checksum");
 requireText("EXPECTED_APP_ENV", "explicit remote application environment");
+requireText(
+  'sudo -n -u "$DEPLOY_RUN_USER" -- bash -s --',
+  "explicit application owner execution",
+);
+requireText('"${remote_shell[@]}"', "remote execution account routing");
 requireText('[ "$action" = "--apply" ]', "explicit apply gate");
 requireText("remote-deploy-preflight.sh", "read-only remote preflight");
 requireText(
@@ -95,7 +100,6 @@ for (const required of [
   "배포 대상 APP_ENV 불일치",
   "production은 APP_ENV=production",
   "production은 APP_DEBUG=false",
-  "staging 배포에 APP_ENV=production",
   "storage/framework/cache/data",
   "storage/framework/views",
   "storage/logs",
@@ -103,6 +107,7 @@ for (const required of [
   "plugins",
   "DEPLOY_MODE=update",
   "DEPLOY_MODE=install",
+  "pending 경로가 있어 덮어쓰지",
 ]) {
   if (!remotePreflight.includes(required)) {
     throw new Error(`remote deploy preflight 누락: ${required}`);

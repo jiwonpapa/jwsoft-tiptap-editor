@@ -15,6 +15,7 @@ esac
 
 [ -f "$g7_root/artisan" ] || { echo '원격 G7 artisan을 찾을 수 없습니다.' >&2; exit 1; }
 [ -f "$g7_root/vendor/autoload.php" ] || { echo '원격 G7 vendor/autoload.php를 찾을 수 없습니다.' >&2; exit 1; }
+cd "$g7_root"
 
 runtime_environment="$("$php_bin" -r '
 $g7Root = $argv[1];
@@ -55,10 +56,9 @@ actual_app_debug="$(printf '%s\n' "$runtime_environment" | sed -n 's/^JW_DEBUG=/
 }
 if [ "$deploy_environment" = "production" ]; then
   [ "$actual_app_env" = "production" ] || { echo 'production은 APP_ENV=production이어야 합니다.' >&2; exit 1; }
+fi
+if [ "$actual_app_env" = "production" ]; then
   [ "$actual_app_debug" = "0" ] || { echo 'production은 APP_DEBUG=false여야 합니다.' >&2; exit 1; }
-elif [ "$actual_app_env" = "production" ]; then
-  echo 'staging 배포에 APP_ENV=production 대상을 사용할 수 없습니다.' >&2
-  exit 1
 fi
 
 for relative_path in storage/framework/cache/data storage/framework/views storage/logs bootstrap/cache; do
@@ -84,6 +84,7 @@ plugin_root="$g7_root/plugins/jwsoft-tiptap-editor"
 case "$deploy_mode" in
   install)
     [ ! -e "$plugin_root" ] || { echo 'JWSoft가 이미 설치되어 DEPLOY_MODE=update가 필요합니다.' >&2; exit 1; }
+    [ ! -e "$g7_root/plugins/_pending/jwsoft-tiptap-editor" ] || { echo '기존 JWSoft pending 경로가 있어 덮어쓰지 않습니다.' >&2; exit 1; }
     ;;
   update)
     [ -f "$plugin_root/plugin.json" ] || { echo 'JWSoft가 설치되지 않아 DEPLOY_MODE=install이 필요합니다.' >&2; exit 1; }

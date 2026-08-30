@@ -53,8 +53,10 @@ try {
 
   fs.writeFileSync(environmentFile, "APP_ENV='production'\nAPP_DEBUG=true\n");
   run("production", "production", "install", "APP_DEBUG=false");
+  run("staging", "production", "install", "APP_DEBUG=false");
   fs.writeFileSync(environmentFile, "APP_ENV=production\nAPP_DEBUG=false\n");
-  run("staging", "production", "install", "staging 배포에 APP_ENV=production");
+  run("staging", "staging", "install", "APP_ENV 불일치");
+  run("staging", "production", "install");
   run("production", "production", "install");
 
   fs.writeFileSync(environmentFile, "APP_ENV=staging\nAPP_DEBUG=false\n");
@@ -65,6 +67,11 @@ try {
   run("staging", "staging", "install", "APP_ENV 불일치");
   run("production", "production", "install", "APP_DEBUG=false");
   fs.unlinkSync(configFile);
+
+  const pending = path.join(fixture, "plugins/_pending/jwsoft-tiptap-editor");
+  fs.mkdirSync(pending, { recursive: true });
+  run("staging", "staging", "install", "pending 경로가 있어 덮어쓰지");
+  fs.rmdirSync(pending);
 
   fs.mkdirSync(pluginRoot);
   fs.writeFileSync(path.join(pluginRoot, "plugin.json"), "{}\n");

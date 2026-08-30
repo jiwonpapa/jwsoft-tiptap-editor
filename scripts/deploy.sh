@@ -17,6 +17,7 @@ load_env_file "$config"
 : "${EXPECTED_APP_ENV:?EXPECTED_APP_ENV가 필요합니다.}"
 : "${G7_REMOTE_ROOT:?G7_REMOTE_ROOT가 필요합니다.}"
 : "${PHP_BIN:=php}"
+: "${DEPLOY_RUN_USER:=}"
 : "${REMOTE_ARTIFACT_DIR:=/tmp/jwsoft-tiptap-editor}"
 : "${SMOKE_URL:?SMOKE_URL이 필요합니다.}"
 case "$DEPLOY_MODE" in install|update) ;; *) fail "DEPLOY_MODE는 install 또는 update여야 합니다." ;; esac
@@ -24,6 +25,11 @@ case "$DEPLOY_MODE" in install|update) ;; *) fail "DEPLOY_MODE는 install 또는
 for pair in "DEPLOY_HOST:$DEPLOY_HOST" "EXPECTED_APP_ENV:$EXPECTED_APP_ENV" "G7_REMOTE_ROOT:$G7_REMOTE_ROOT" "PHP_BIN:$PHP_BIN" "REMOTE_ARTIFACT_DIR:$REMOTE_ARTIFACT_DIR"; do
   require_safe_token "${pair%%:*}" "${pair#*:}"
 done
+remote_shell=(bash -s --)
+if [ -n "$DEPLOY_RUN_USER" ]; then
+  printf '%s' "$DEPLOY_RUN_USER" | grep -Eq '^[a-z_][a-z0-9_-]*$' || fail "DEPLOY_RUN_USER 형식이 안전하지 않습니다."
+  remote_shell=(sudo -n -u "$DEPLOY_RUN_USER" -- bash -s --)
+fi
 printf '%s' "$SMOKE_URL" | grep -Eq '^https?://[A-Za-z0-9._:/?&=%+-]+$' || fail "SMOKE_URL 형식이 안전하지 않습니다."
 
 version="$(node -p "require('$PROJECT_ROOT/package.json').version")"
@@ -42,6 +48,7 @@ fi
 remote_zip="$REMOTE_ARTIFACT_DIR/$(basename "$artifact")"
 info "환경: $environment"
 info "모드: $DEPLOY_MODE"
+info "실행 계정: ${DEPLOY_RUN_USER:-SSH 사용자}"
 info "호스트: $DEPLOY_HOST"
 info "G7: $G7_REMOTE_ROOT"
 info "artifact: $artifact"
@@ -54,13 +61,13 @@ require_command ssh
 require_command rsync
 require_command curl
 
-ssh "$DEPLOY_HOST" bash -s -- \
+ssh "$DEPLOY_HOST" "${remote_shell[@]}" \
   "$G7_REMOTE_ROOT" "$PHP_BIN" "$environment" "$EXPECTED_APP_ENV" "$DEPLOY_MODE" \
   < "$PROJECT_ROOT/scripts/remote-deploy-preflight.sh"
 ssh "$DEPLOY_HOST" "mkdir -p '$REMOTE_ARTIFACT_DIR'"
 rsync -av --checksum "$artifact" "$DEPLOY_HOST:$remote_zip"
 
-ssh "$DEPLOY_HOST" bash -s -- \
+ssh "$DEPLOY_HOST" "${remote_shell[@]}" \
   "$G7_REMOTE_ROOT" "$PHP_BIN" "$DEPLOY_MODE" "$remote_zip" "$checksum" <<'REMOTE'
 set -Eeuo pipefail
 g7_root="$1"
@@ -88,13 +95,14 @@ trap rollback ERR
 
 if [ "$deploy_mode" = "install" ]; then
   pending="plugins/_pending/jwsoft-tiptap-editor"
-  rm -rf "$pending"
-  mkdir -p "$pending"
-  unzip -q "$artifact" -d "$(dirname "$pending")/.jwsoft-unpack"
-  extracted="$(dirname "$pending")/.jwsoft-unpack/jwsoft-tiptap-editor"
+  [ ! -e "$pending" ] || { echo '기존 JWSoft pending 경로가 있어 덮어쓰지 않습니다.' >&2; exit 1; }
+  mkdir -p "$(dirname "$pending")"
+  unpack="$(mktemp -d "$(dirname "$pending")/.jwsoft-unpack.XXXXXX")"
+  unzip -q "$artifact" -d "$unpack"
+  extracted="$unpack/jwsoft-tiptap-editor"
   [ -f "$extracted/plugin.json" ] || { echo 'artifact root가 잘못되었습니다.' >&2; exit 1; }
   mv "$extracted" "$pending"
-  rm -rf "$(dirname "$pending")/.jwsoft-unpack"
+  rmdir "$unpack"
   "$php_bin" artisan plugin:install jwsoft-tiptap-editor --vendor-mode=bundled --no-interaction
 else
   "$php_bin" artisan plugin:update jwsoft-tiptap-editor --zip="$artifact" --force --vendor-mode=bundled --no-interaction
@@ -108,8 +116,8 @@ $app->make(\Illuminate\Contracts\Console\Kernel::class)->bootstrap();
 $acknowledged = plugin_setting("jwsoft-tiptap-editor", "legacyContentRiskAcknowledged", false);
 exit(in_array($acknowledged, [true, 1, "1"], true) ? 0 : 1);
 ' "$g7_root" || {
-  echo '배포 중단: 관리자 플러그인 설정에서 기존 콘텐츠 전환 위험을 먼저 확인하십시오.' >&2
-  exit 1
+  echo '설치는 완료됐지만 활성화는 보류했습니다. 관리자 플러그인 설정에서 기존 콘텐츠 전환 위험을 먼저 확인하십시오. 기존 에디터는 유지합니다.' >&2
+  exit 42
 }
 
 "$php_bin" artisan plugin:deactivate sirsoft-ckeditor5 --no-interaction || true

@@ -1,0 +1,103 @@
+import assert from "node:assert/strict";
+import { execFileSync, spawnSync } from "node:child_process";
+import crypto from "node:crypto";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+const root = path.resolve(import.meta.dirname, "..");
+const deploy = fs.readFileSync(path.join(root, "scripts/deploy.sh"), "utf8");
+const remote = deploy.split("<<'REMOTE'\n")[1]?.split("\nREMOTE")[0];
+assert.ok(remote, "remote deployment transaction must exist");
+const fixture = fs.mkdtempSync(path.join(os.tmpdir(), "jwsoft-transaction-"));
+const app = path.join(fixture, "g7");
+const source = path.join(fixture, "source");
+const archive = path.join(fixture, "plugin.zip");
+const php = path.join(fixture, "php");
+const commandLog = path.join(fixture, "commands.log");
+
+try {
+  fs.mkdirSync(app);
+  fs.mkdirSync(path.join(source, "jwsoft-tiptap-editor"), { recursive: true });
+  fs.writeFileSync(
+    path.join(source, "jwsoft-tiptap-editor/plugin.json"),
+    '{"identifier":"jwsoft-tiptap-editor"}\n',
+  );
+  execFileSync("zip", ["-qr", archive, "jwsoft-tiptap-editor"], {
+    cwd: source,
+  });
+  const checksum = crypto
+    .createHash("sha256")
+    .update(fs.readFileSync(archive))
+    .digest("hex");
+  fs.writeFileSync(
+    php,
+    `#!/usr/bin/env bash
+set -eu
+printf '%s\\n' "$*" >> "$JW_TEST_COMMAND_LOG"
+if [ "$1" = "-r" ]; then
+  exit "$JW_TEST_ACK_EXIT"
+fi
+if [ "$2" = "plugin:install" ]; then
+  test -f plugins/_pending/jwsoft-tiptap-editor/plugin.json
+  mv plugins/_pending/jwsoft-tiptap-editor plugins/jwsoft-tiptap-editor
+fi
+if [ "$2" = "plugin:list" ]; then
+  echo jwsoft-tiptap-editor
+fi
+`,
+    { mode: 0o755 },
+  );
+  const run = (mode, digest, acknowledged = true) => {
+    fs.writeFileSync(commandLog, "");
+    return spawnSync("bash", ["-s", "--", app, php, mode, archive, digest], {
+      input: remote,
+      encoding: "utf8",
+      env: {
+        ...process.env,
+        JW_TEST_COMMAND_LOG: commandLog,
+        JW_TEST_ACK_EXIT: acknowledged ? "0" : "1",
+      },
+    });
+  };
+
+  let result = run("install", "0".repeat(64));
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /checksum 불일치/);
+  assert.equal(fs.readFileSync(commandLog, "utf8"), "");
+
+  const pending = path.join(app, "plugins/_pending/jwsoft-tiptap-editor");
+  fs.mkdirSync(pending, { recursive: true });
+  fs.writeFileSync(path.join(pending, "keep.txt"), "user-owned\n");
+  result = run("install", checksum);
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /pending 경로가 있어 덮어쓰지/);
+  assert.equal(
+    fs.readFileSync(path.join(pending, "keep.txt"), "utf8"),
+    "user-owned\n",
+  );
+  assert.equal(fs.readFileSync(commandLog, "utf8"), "");
+  fs.rmSync(pending, { recursive: true });
+
+  result = run("install", checksum, false);
+  assert.equal(result.status, 42, result.stderr);
+  assert.match(result.stderr, /활성화는 보류/);
+  assert.ok(
+    fs.existsSync(path.join(app, "plugins/jwsoft-tiptap-editor/plugin.json")),
+  );
+  assert.doesNotMatch(
+    fs.readFileSync(commandLog, "utf8"),
+    /plugin:deactivate|plugin:activate/,
+  );
+
+  result = run("update", checksum);
+  assert.equal(result.status, 0, result.stderr);
+  const commands = fs.readFileSync(commandLog, "utf8");
+  assert.ok(
+    commands.indexOf("plugin:deactivate sirsoft-ckeditor5") <
+      commands.indexOf("plugin:activate jwsoft-tiptap-editor"),
+  );
+  console.log("[jwsoft] remote deployment transaction tests passed: 4 cases");
+} finally {
+  fs.rmSync(fixture, { recursive: true, force: true });
+}

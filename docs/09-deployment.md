@@ -7,10 +7,12 @@
 - production은 `PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production`이 추가로 필요합니다.
 - install/update 모드를 추측하지 않습니다.
 - 원격 `APP_ENV`가 `EXPECTED_APP_ENV`와 다르면 변경 전에 중단합니다.
-- staging 배포에 `APP_ENV=production` 대상을 사용할 수 없습니다.
+- 배포 역할(staging/production)은 승인된 대상 환경 파일로 결정합니다. Laravel `APP_ENV`는 실행 모드이며 스테이징도 production 모드를 사용할 수 있습니다. 이 경우 `EXPECTED_APP_ENV=production`을 명시해야 하며 디버그는 꺼져 있어야 합니다.
 - production은 원격 `APP_ENV=production`, `APP_DEBUG=false`가 아니면 중단합니다.
 - Laravel cache·view·log·bootstrap cache 및 기존 JWSoft 설치 경로의 파일·하위 디렉터리와 plugin 루트가 배포 사용자에게 쓰기 가능하지 않으면 업로드 전에 중단합니다.
 - JWSoft 설치 여부와 `DEPLOY_MODE=install|update`가 일치하지 않으면 추측하거나 덮어쓰지 않습니다.
+- SSH 사용자와 앱 소유자가 다르면 `DEPLOY_RUN_USER`를 명시합니다. 사전검증과 플러그인 명령은 `sudo -n -u`로 해당 계정에서 실행하며 소유권을 임의 변경하지 않습니다.
+- 기존 JWSoft pending 경로는 삭제·덮어쓰지 않습니다. 최초 설치는 새 임시 디렉터리에 압축을 풀고 정확한 플러그인 루트를 이동합니다.
 - staging에 사용한 artifact checksum만 production에 허용합니다.
 - CKEditor 비활성화가 실패해 실제 활성 상태가 남아 있으면 JWSoft 활성화 guard가 배포를 중단합니다.
 - 원격 적용 전 관리자 설정에서 `legacyContentRiskAcknowledged=true`를 명시적으로 저장해야 합니다. 하네스가 이 확인을 대신하거나 기존 HTML을 자동 변환하지 않습니다.
@@ -22,6 +24,8 @@ cp deploy/environments/staging.env.example deploy/environments/staging.env
 ```
 
 실제 `.env` 파일은 gitignore 대상입니다.
+
+최초 설치 후 전환 위험 확인 설정이 꺼져 있으면 종료 코드 42로 활성화를 보류하고 기존 에디터를 유지합니다. 이 상태는 배포 smoke 통과로 기록하지 않습니다. 관리자가 확인 설정을 저장한 뒤 `DEPLOY_MODE=update`로 다시 적용하면 전환을 진행합니다.
 
 ## 계획 확인
 
