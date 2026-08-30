@@ -95,5 +95,5 @@
 - [x] npm/composer lock과 audit 통과 <!-- p0:supply-chain.locks-audit -->
 - [x] reproducible build 또는 산출물 checksum 동일성 <!-- p0:supply-chain.reproducible -->
 - [x] package manifest·vendor·dist 포함 <!-- p0:supply-chain.package -->
-- [ ] staging 배포와 smoke <!-- p0:deploy.staging -->
+- [x] staging 배포와 smoke <!-- p0:deploy.staging -->
 - [ ] production은 staging과 동일 checksum <!-- p0:deploy.production-checksum -->

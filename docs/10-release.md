@@ -37,3 +37,9 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [x] 공개 `main` GitHub 온라인 설치 원본·설치 문서
 - [x] `v0.1.0-alpha.18` 공개 개발 릴리스와 온라인 설치·업데이트 검증
 - [ ] stable 태그·GitHub release
+
+## alpha.21 이후 남은 stable 차단 사항
+
+alpha.21은 공개 alpha와 승인 staging 배포까지 완료했습니다. 최신성 gate 기준으로 남은 화면 증거는 공개 게시판·관리자 게시판·상품·페이지·모바일/다크/다국어·direct HtmlEditor 6종이며, production 대상 확인과 동일 checksum 적용이 별도로 필요합니다. 이전 버전의 화면 JSON을 최신 버전으로 바꿔 기록하지 않습니다.
+
+현재 출시 규칙에는 순환 조건도 남아 있습니다. 헌법 제10조는 stable 태그 이후 배포를 요구하지만, stable 승인 체크리스트에는 production 배포 완료가 포함됩니다. 또한 기존 `release-candidate-check`의 기록기는 alpha 전용입니다. 이 상태로 stable 승인이나 production을 강행하지 않습니다. 사전 품질 gate → 승인 staging → 동일 ZIP production → 최종 stable 공개처럼 단계를 분리하는 변경은 별도 ADR과 형님의 명시적 승인 후 적용해야 합니다. 이 문서는 승인 요청 사항을 기록할 뿐 헌법이나 배포 허용 범위를 변경하지 않습니다.

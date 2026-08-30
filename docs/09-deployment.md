@@ -87,3 +87,13 @@ staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact che
 - 최종 공개 ZIP과 배포 ZIP의 SHA-256은 `9a5547217c0241557683b9515c4a81aff8e67824848fcd98de16d6dfc98c6f0e`입니다. 두 번의 패키지 생성과 라이선스 검사를 통과했습니다.
 - 배포 전후 페이지 6건·게시글 50,005건·상품 20,000건, 총 70,011건의 본문 해시가 동일합니다. 이미지·미디어·영상 업로드·스마트카드 ON, 높이 400, standard 툴바 설정을 확인했습니다.
 - 실제 인증 관리자 화면에서 G7 FileUploader를 조작하는 검증과 모바일 실기기 키보드 관찰은 남아 있습니다. 상세 증거 경계는 [alpha.20 UI·UX 검증 범위](acceptance/ui-ux-alpha20.md)를 따릅니다. stable 또는 production 승인으로 표현하지 않습니다.
+
+## alpha.21 메뉴 UX 배포 검증 — 2026-08-30
+
+- 메뉴 구현 3개 커밋 뒤, 최신 증거 gate `a9add42`, 버전·JS `e1d4330`, 오프라인 vendor bundle `c7b965e`를 차수별 커밋·푸시했습니다. `c7b965e`의 CI와 전용 G7 alpha 후보 게이트가 통과했습니다.
+- 단위 89개, 증거 거부 회귀 14개, 독립 Chromium UI 21개, G7 통합 6개가 통과했습니다. 전체 Playwright 실행의 15개 skip은 viewport 비대상 13개와 별도 G7 URL을 요구하는 환경 검사 2개이며, 통과 수에 포함하지 않았습니다. npm/composer advisory 검사도 통과했습니다.
+- 새 ZIP의 반복 빌드 SHA-256은 `464473f99c5596841af368f25c929b785c2bf24a28037b523ade56de2ccf321e`입니다. 공개 Release asset, 전용 G7 설치·업데이트, 승인 staging 적용이 이 ZIP을 사용했습니다. alpha.20의 기존 ZIP은 바꾸지 않았습니다.
+- 처음 GitHub prerelease로 등록했을 때 G7이 `releases/latest`의 alpha.20을 선택해 온라인 수명주기 검사가 실패했습니다. 기존 alpha 온라인 배포 방식대로 Latest에 등록한 뒤, ZIP·GitHub 최초 설치, alpha.20 → alpha.21 온라인 업데이트, 데이터 보존 uninstall, CKEditor 롤백·JWSoft 복구를 다시 실행해 통과했습니다. 이 등록 방식은 stable 승인이 아닙니다.
+- 승인 staging의 `--apply` 업데이트와 health smoke가 성공했습니다. JWSoft alpha.21 active / CKEditor inactive, APP_DEBUG=false, health·공개 홈페이지 HTTP 200을 확인했습니다.
+- 원격 주요 런타임 7개 파일의 SHA-256이 릴리스 입력과 일치하고, 페이지 6건·게시글 50,005건·상품 20,000건, 합계 70,011건의 본문 해시가 배포 전후 동일합니다. 로컬 상세 증거는 `test-results/deploy/alpha21-runtime.json`과 `staging.json`입니다.
+- staging 항목은 위 배포·health·활성 상태·런타임 확인 범위로 완료했습니다. 최신 인증 G7 화면 6종과 production 동일 checksum 배포는 별도 미완료입니다. staging을 production으로 재분류하지 않았으며, 전용 G7의 기존 코어 변경 상태도 유지했습니다.

@@ -14,6 +14,8 @@ G7은 공개 GitHub의 최신 릴리스 또는 `main` 아카이브를 내려받�
 
 현재 `alpha` 온라인 설치는 개발·staging 검증 전용입니다. stable·운영 설치 승인으로 해석하지 않습니다.
 
+G7 7.0.9의 `GithubHelper`는 `releases/latest`가 반환하는 source archive를 우선 사용하며 GitHub의 prerelease는 선택하지 않습니다. 따라서 이 개발 저장소의 alpha 온라인 설치 릴리스는 Latest 목록에 등록하되, 버전명의 `-alpha.N`과 개발·staging 전용 안내를 유지합니다. GitHub의 Latest 표시는 이 제품의 stable 승인이나 운영 사용 승인이 아닙니다. `alpha.21`은 이 경로의 최초 설치·이전 버전에서의 업데이트를 실제 전용 G7에서 확인했습니다.
+
 ## 요구사항
 
 - G7 7.0.9 이상
