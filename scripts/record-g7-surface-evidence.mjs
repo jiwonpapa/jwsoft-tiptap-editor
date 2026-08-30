@@ -34,9 +34,8 @@ const requiredArgs = [
   "product-api-canonical",
   "page-api-canonical",
   "product-show-active",
-  "product-show-inactive",
   "page-show-active",
-  "page-show-inactive",
+  "renderer-workers",
 ];
 for (const key of requiredArgs) {
   if (args[key] === undefined || args[key] === "") {
@@ -105,13 +104,13 @@ const screenshotGroups = {
   ecommerce: [
     "ecommerce-create.png",
     "ecommerce-edit.png",
-    "ecommerce-public-upstream-failure.png",
+    "ecommerce-public.png",
   ],
   page: [
     "page-create.png",
     "page-edit.png",
     "page-admin-show.png",
-    "page-public-upstream-failure.png",
+    "page-public.png",
   ],
   fallback: ["direct-html-editor-fallback.png"],
   settings: ["plugin-settings.png"],
@@ -150,15 +149,15 @@ if (positiveInteger("fallback-textarea-count") !== 1) {
 if (!boolean("product-api-canonical") || !boolean("page-api-canonical")) {
   throw new Error("product and page APIs must expose canonical stored HTML");
 }
-for (const key of [
-  "product-show-active",
-  "product-show-inactive",
-  "page-show-active",
-  "page-show-inactive",
-]) {
-  if (boolean(key)) {
-    throw new Error(`${key} unexpectedly passed; refresh the surface result`);
+for (const key of ["product-show-active", "page-show-active"]) {
+  if (!boolean(key)) {
+    throw new Error(`${key} must pass with the plugin active`);
   }
+}
+if (positiveInteger("renderer-workers") < 2) {
+  throw new Error(
+    "public renderer evidence requires at least two HTTP workers",
+  );
 }
 
 const provenance = {
@@ -209,53 +208,55 @@ const fallback = {
 };
 const ecommerce = {
   schemaVersion: 1,
-  status: "blocked",
+  status: "pass",
   ...provenance,
   workflow: {
     createScreen: true,
     editSaved: true,
-    publicShow: false,
+    publicShow: true,
     productId: positiveInteger("product-id"),
     productCode: args["product-code"],
     canonicalApiHtml: true,
   },
-  isolation: {
-    pluginActivePublicShow: false,
-    pluginInactivePublicShow: false,
-    boundary: "G7 7.0.9 sirsoft-basic public product data binding",
+  renderer: {
+    workers: positiveInteger("renderer-workers"),
+    cacheKey: "fresh",
+    canonicalHtmlVisible: true,
   },
   screenshots: screenshots.ecommerce,
 };
 const page = {
   schemaVersion: 1,
-  status: "blocked",
+  status: "pass",
   ...provenance,
   workflow: {
     createSaved: true,
     editSaved: true,
     adminShow: true,
-    publicShow: false,
+    publicShow: true,
     pageId: positiveInteger("page-id"),
     pageSlug: args["page-slug"],
     canonicalApiHtml: true,
   },
-  isolation: {
-    pluginActivePublicShow: false,
-    pluginInactivePublicShow: false,
-    boundary: "G7 7.0.9 sirsoft-basic public page data binding",
+  renderer: {
+    workers: positiveInteger("renderer-workers"),
+    cacheKey: "fresh",
+    canonicalHtmlVisible: true,
   },
   screenshots: screenshots.page,
 };
 const overall = {
   schemaVersion: 2,
-  status: "blocked",
+  status: "pass",
   ...provenance,
   completed: [
     "surfaces.public-board",
     "surfaces.admin-board",
+    "surfaces.ecommerce",
+    "surfaces.page",
     "surfaces.fallback",
   ],
-  blocked: ["surfaces.ecommerce", "surfaces.page"],
+  blocked: [],
   surfaces: {
     publicBoard: publicBoard.workflow,
     adminBoard: adminBoard.workflow,
@@ -285,6 +286,4 @@ for (const [file, value] of Object.entries(outputs)) {
     `${JSON.stringify(value, null, 2)}\n`,
   );
 }
-console.log(
-  `[jwsoft] G7 ${args["g7-version"]} 실제 화면: 3개 통과, 2개 G7 공개 renderer 차단 기록`,
-);
+console.log(`[jwsoft] G7 ${args["g7-version"]} 실제 화면 5개 통과`);

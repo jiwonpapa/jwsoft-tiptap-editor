@@ -12,6 +12,7 @@
 /vendor/
 /coverage/
 /playwright-report/
+/.playwright-cli/
 /test-results/
 /output/
 /.phpunit.cache/

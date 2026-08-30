@@ -2,7 +2,7 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 각 체크 항목의 `p0` ID는 `harness/contracts/stable-readiness.json`과 연결되며, 단순 체크 표시만으로 완료 처리되지 않습니다.
 
-공개 `alpha.18`은 전용 G7 7.0.9에서 release-candidate 계약, 재현 가능한 ZIP, GitHub 최초 설치, `alpha.16 → alpha.18` 온라인 업데이트, CKEditor 롤백과 콘텐츠 해시 보존을 검증했습니다. instance 수명주기·구조 편집·반응형 이미지 배치·브라우저 입력 계층, G7의 모든 `html_editor` 교체 저장 endpoint 서버 정제와 관리자 이미지 목록·참조 판정·삭제도 통과했습니다. 실제 브라우저의 공개·관리자 게시판과 direct `HtmlEditor` fallback까지 통과하여 현재 stable readiness는 58/62입니다. 상품·페이지는 canonical API 정본은 정상이나 플러그인 활성·비활성 모두에서 `sirsoft-basic` 공개 renderer가 데이터를 표시하지 않아 별도 차단 증거로 남겼습니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 현재 버전 브라우저·staging·production 증거가 남은 stable 차단 항목입니다.
+공개 `alpha.18`은 전용 G7 7.0.9에서 release-candidate 계약, 재현 가능한 ZIP, GitHub 최초 설치, `alpha.16 → alpha.18` 온라인 업데이트, CKEditor 롤백과 콘텐츠 해시 보존을 검증했습니다. instance 수명주기·구조 편집·반응형 이미지 배치·브라우저 입력 계층, G7의 모든 `html_editor` 교체 저장 endpoint 서버 정제와 관리자 이미지 목록·참조 판정·삭제도 통과했습니다. 실제 브라우저에서 공개·관리자 게시판, 상품, 페이지와 direct `HtmlEditor` fallback까지 통과하여 현재 stable readiness는 60/62입니다. 상품·페이지 공개 출력은 G7의 서버 내부 API 호출을 수용하는 멀티워커 하네스와 fresh cache key에서 canonical HTML을 확인했습니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 staging·production 증거가 남은 stable 차단 항목입니다.
 
 ## A. 편집기 교체
 
@@ -72,8 +72,8 @@
 
 - [x] 공개 게시판 create/edit/reply/show <!-- p0:surfaces.public-board -->
 - [x] 관리자 게시판 create/edit/show <!-- p0:surfaces.admin-board -->
-- [ ] 쇼핑몰 상품 description create/edit/show <!-- p0:surfaces.ecommerce -->
-- [ ] 페이지 create/edit/show <!-- p0:surfaces.page -->
+- [x] 쇼핑몰 상품 description create/edit/show <!-- p0:surfaces.ecommerce -->
+- [x] 페이지 create/edit/show <!-- p0:surfaces.page -->
 - [x] 모바일·다크모드·다국어 <!-- p0:surfaces.mobile-dark-i18n -->
 - [x] direct HtmlEditor fallback 화면 무회귀 <!-- p0:surfaces.fallback -->
 

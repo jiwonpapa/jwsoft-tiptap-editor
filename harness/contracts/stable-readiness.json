@@ -312,6 +312,18 @@
       "artifacts": ["test-results/parity/browser/admin-board.json"]
     },
     {
+      "id": "surfaces.ecommerce",
+      "gate": "browser",
+      "requirement": "쇼핑몰 상품 description create edit show",
+      "artifacts": ["test-results/parity/browser/ecommerce-surface.json"]
+    },
+    {
+      "id": "surfaces.page",
+      "gate": "browser",
+      "requirement": "페이지 create edit show",
+      "artifacts": ["test-results/parity/browser/page-surface.json"]
+    },
+    {
       "id": "surfaces.mobile-dark-i18n",
       "gate": "browser",
       "requirement": "모바일 다크모드 한국어 영어 편집 화면",

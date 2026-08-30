@@ -38,7 +38,7 @@
 - 이미지와 표
 - 전환·롤백
 
-독립 Chromium 검사는 데스크톱 선택 영역 서식·키보드 포커스·링크·인용·목록·정렬·들여쓰기, mock API 이미지 업로드와 caption·정렬·크기 재편집 및 412px 반응형 출력, 화면 이동 100회의 mount/unmount instance 회수, Pixel 7 viewport의 툴바 스크롤·대화상자 폭을 검증합니다. `Input.imeSetComposition`은 JS 합성 이벤트가 아닌 Chromium 입력 계층에서 한글 composition을 발생시키며, 신뢰된 loopback origin의 Clipboard API·붙여넣기 단축키·툴바와 키보드 undo/redo를 함께 검사합니다. 공개 `alpha.18`은 실제 인증 G7에서 공개·관리자 게시판 작성/재편집·답글, 한국어·영어 UI, 접근성 이름, 단일 instance, 412px 다크 테마와 direct `HtmlEditor` fallback을 screenshot·JSON으로 기록했습니다. 상품·페이지는 저장 canonical API는 통과했지만 공식 `sirsoft-basic` 공개 renderer가 플러그인 비활성 대조군에서도 데이터를 표시하지 않아 차단 증거로 분리했습니다. Android/iOS 물리 키보드 입력은 아직 관측하지 않았으며 별도 실기기 증거로 분리합니다.
+독립 Chromium 검사는 데스크톱 선택 영역 서식·키보드 포커스·링크·인용·목록·정렬·들여쓰기, mock API 이미지 업로드와 caption·정렬·크기 재편집 및 412px 반응형 출력, 화면 이동 100회의 mount/unmount instance 회수, Pixel 7 viewport의 툴바 스크롤·대화상자 폭을 검증합니다. `Input.imeSetComposition`은 JS 합성 이벤트가 아닌 Chromium 입력 계층에서 한글 composition을 발생시키며, 신뢰된 loopback origin의 Clipboard API·붙여넣기 단축키·툴바와 키보드 undo/redo를 함께 검사합니다. 공개 `alpha.18`은 실제 인증 G7에서 공개·관리자 게시판 작성/재편집·답글, 상품·페이지 작성/재편집·공개 출력, 한국어·영어 UI, 접근성 이름, 단일 instance, 412px 다크 테마와 direct `HtmlEditor` fallback을 screenshot·JSON으로 기록했습니다. G7 공개 renderer는 자신의 API를 HTTP로 호출하므로 단일 프로세스 개발 서버가 아닌 2개 이상 worker와 fresh cache key로 검증합니다. Android/iOS 물리 키보드 입력은 아직 관측하지 않았으며 별도 실기기 증거로 분리합니다.
 
 ## 증거 파일
 

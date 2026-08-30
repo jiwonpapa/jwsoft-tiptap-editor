@@ -1,3 +1,4 @@
 dist/
 vendor-bundle.json
 output/
+.playwright-cli/

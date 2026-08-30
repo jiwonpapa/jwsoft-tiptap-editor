@@ -56,13 +56,13 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 ## Epic 5 — 통합·전환
 
 - [x] 공개·관리자 board create/edit/reply/show E2E
-- [ ] ecommerce/page 공개 renderer E2E — canonical API 통과, 공식 `sirsoft-basic` 표시 차단
+- [x] ecommerce/page create/edit/public renderer E2E
 - [x] legacy CKEditor HTML corpus
 - [x] install/update/deactivate/rollback
 - [x] performance/instance budget
 - [x] parity evidence generator
 
-전용 G7 7.0.9에서 공개 `alpha.18`의 게시판·fallback E2E와 ZIP·GitHub 설치·업데이트·CKEditor 역전환·복구를 실행했고, 페이지·게시글·상품 HTML 해시가 전 과정에서 유지됨을 확인했습니다. 인증 브라우저 5회 표본은 route-to-editor 861~1,093ms, 동시 editor instance 1개입니다. 상품·페이지 공개 출력은 플러그인 비활성 대조군에서도 같은 공식 renderer 차단이 재현되어 완료 처리하지 않습니다.
+전용 G7 7.0.9에서 공개 `alpha.18`의 게시판·상품·페이지·fallback E2E와 ZIP·GitHub 설치·업데이트·CKEditor 역전환·복구를 실행했고, 페이지·게시글·상품 HTML 해시가 전 과정에서 유지됨을 확인했습니다. 인증 브라우저 5회 표본은 route-to-editor 861~1,093ms, 동시 editor instance 1개입니다. 상품·페이지 공개 출력은 G7의 서버 내부 API 호출을 처리하는 멀티워커 하네스와 fresh cache key에서 canonical HTML을 확인했습니다.
 
 ## Epic 6 — 출시
 
@@ -73,7 +73,7 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 - [x] GitHub public 전환 승인 및 공개 `main` 온라인 설치 원본 제공
 - [ ] stable GitHub release 승인
 
-`alpha.18`을 같은 commit epoch로 두 번 패키징해 동일 checksum을 확인하고 공개 GitHub 개발 릴리스로 게시했습니다. 전용 로컬 G7 7.0.9에서 최초 설치, alpha.16 → alpha.18 업데이트, uninstall, CKEditor 롤백, JWSoft 복구와 페이지·게시글·상품 정본 해시 보존도 통과했습니다. 실제 staging·production 환경 파일과 배포 승인이 없고 stable readiness가 58/62이므로 stable 태그와 운영 배포는 진행하지 않았습니다.
+`alpha.18`을 같은 commit epoch로 두 번 패키징해 동일 checksum을 확인하고 공개 GitHub 개발 릴리스로 게시했습니다. 전용 로컬 G7 7.0.9에서 최초 설치, alpha.16 → alpha.18 업데이트, uninstall, CKEditor 롤백, JWSoft 복구와 페이지·게시글·상품 정본 해시 보존도 통과했습니다. 실제 staging·production 환경 파일과 배포 승인이 없고 stable readiness가 60/62이므로 stable 태그와 운영 배포는 진행하지 않았습니다.
 
 ## Epic 7 — 미디어 입력
 
