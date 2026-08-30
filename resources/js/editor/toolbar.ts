@@ -9,6 +9,7 @@ import { createDialog, type DialogHandle } from "@/editor/dialog";
 import { editorIcon, iconForLabel } from "@/editor/icons";
 import { createImageUploadQueue } from "@/editor/imageUploadQueue";
 import { createPopover } from "@/editor/popover";
+import { installWritingTools } from "@/editor/writingTools";
 import {
   DEFAULT_IMAGE_CLASS_TOKENS,
   imageClassTokens,
@@ -49,67 +50,69 @@ interface ButtonOptions {
   enabled?: () => boolean;
 }
 
-const tokenLabels: Record<ClassTokenCategory, Record<string, string>> = {
-  textSize: {
-    "jw-text-sm": "작게",
-    "jw-text-base": "기본",
-    "jw-text-lg": "크게",
-    "jw-text-xl": "매우 크게",
-  },
-  alignment: {
-    "jw-align-left": "왼쪽",
-    "jw-align-center": "가운데",
-    "jw-align-right": "오른쪽",
-  },
-  indentation: {
-    "jw-indent-1": "들여쓰기 1단계",
-    "jw-indent-2": "들여쓰기 2단계",
-    "jw-indent-3": "들여쓰기 3단계",
-    "jw-indent-4": "들여쓰기 4단계",
-  },
-  spacing: {
-    "jw-space-tight": "좁게",
-    "jw-space-normal": "기본",
-    "jw-space-relaxed": "넓게",
-  },
-  table: {
-    "jw-table": "기본 표",
-    "jw-table-striped": "줄무늬 표",
-  },
-  image: {
-    "jw-image": "이미지",
-    "jw-image-align-left": "왼쪽",
-    "jw-image-align-center": "가운데",
-    "jw-image-align-right": "오른쪽",
-    "jw-image-size-25": "너비 25%",
-    "jw-image-size-50": "너비 50%",
-    "jw-image-size-75": "너비 75%",
-    "jw-image-size-100": "너비 100%",
-    "jw-image-inline": "글 안",
-    "jw-image-block": "가운데 블록",
-    "jw-image-rounded": "둥근 모서리",
-  },
-  media: {
-    "jw-media": "미디어",
-    "jw-media-16x9": "16:9",
-    "jw-media-9x16": "9:16",
-    "jw-media-youtube": "YouTube",
-    "jw-media-vimeo": "Vimeo",
-    "jw-media-mp4": "MP4",
-    "jw-media-source": "미디어 주소",
-  },
-  card: {
-    "jw-card": "링크 카드",
-    "jw-card-generic": "일반 링크 카드",
-    "jw-card-instagram": "Instagram 카드",
-    "jw-card-x": "X 카드",
-    "jw-card-tiktok": "TikTok 카드",
-    "jw-card-facebook": "Facebook 카드",
-    "jw-card-threads": "Threads 카드",
-    "jw-card-link": "카드 주소",
-    "jw-card-image": "카드 이미지",
-  },
-};
+const tokenLabels: Partial<Record<ClassTokenCategory, Record<string, string>>> =
+  {
+    textSize: {
+      "jw-text-sm": "작게",
+      "jw-text-base": "기본",
+      "jw-text-lg": "크게",
+      "jw-text-xl": "매우 크게",
+    },
+    alignment: {
+      "jw-align-left": "왼쪽",
+      "jw-align-center": "가운데",
+      "jw-align-right": "오른쪽",
+      "jw-align-justify": "양쪽 정렬",
+    },
+    indentation: {
+      "jw-indent-1": "들여쓰기 1단계",
+      "jw-indent-2": "들여쓰기 2단계",
+      "jw-indent-3": "들여쓰기 3단계",
+      "jw-indent-4": "들여쓰기 4단계",
+    },
+    spacing: {
+      "jw-space-tight": "좁게",
+      "jw-space-normal": "기본",
+      "jw-space-relaxed": "넓게",
+    },
+    table: {
+      "jw-table": "기본 표",
+      "jw-table-striped": "줄무늬 표",
+    },
+    image: {
+      "jw-image": "이미지",
+      "jw-image-align-left": "왼쪽",
+      "jw-image-align-center": "가운데",
+      "jw-image-align-right": "오른쪽",
+      "jw-image-size-25": "너비 25%",
+      "jw-image-size-50": "너비 50%",
+      "jw-image-size-75": "너비 75%",
+      "jw-image-size-100": "너비 100%",
+      "jw-image-inline": "글 안",
+      "jw-image-block": "가운데 블록",
+      "jw-image-rounded": "둥근 모서리",
+    },
+    media: {
+      "jw-media": "미디어",
+      "jw-media-16x9": "16:9",
+      "jw-media-9x16": "9:16",
+      "jw-media-youtube": "YouTube",
+      "jw-media-vimeo": "Vimeo",
+      "jw-media-mp4": "MP4",
+      "jw-media-source": "미디어 주소",
+    },
+    card: {
+      "jw-card": "링크 카드",
+      "jw-card-generic": "일반 링크 카드",
+      "jw-card-instagram": "Instagram 카드",
+      "jw-card-x": "X 카드",
+      "jw-card-tiktok": "TikTok 카드",
+      "jw-card-facebook": "Facebook 카드",
+      "jw-card-threads": "Threads 카드",
+      "jw-card-link": "카드 주소",
+      "jw-card-image": "카드 이미지",
+    },
+  };
 
 export function normalizeToolbarProfile(value: unknown): ToolbarProfile {
   return TOOLBAR_PROFILES.includes(value as ToolbarProfile)
@@ -207,7 +210,7 @@ function createTokenSelect(
   for (const token of EDITOR_POLICY.classTokens[category]) {
     select.add(
       new Option(
-        editorText(locale, tokenLabels[category][token] ?? token),
+        editorText(locale, tokenLabels[category]?.[token] ?? token),
         token,
       ),
     );
@@ -337,6 +340,7 @@ function createLinkDialog(
     trigger,
     content: form,
     locale,
+    compact: true,
   });
 
   form.addEventListener("submit", (event) => {
@@ -497,7 +501,9 @@ function createImageDialog(
     alignment.add(new Option(editorText(locale, label), value));
   const size = document.createElement("select");
   size.setAttribute("aria-label", editorText(locale, "이미지 크기"));
-  for (const value of ["25", "50", "75", "100"])
+  for (const value of Array.from({ length: 19 }, (_, index) =>
+    String(10 + index * 5),
+  ))
     size.add(new Option(value + "%", value));
   alignment.value = "center";
   size.value = "100";
@@ -571,10 +577,7 @@ function createImageDialog(
       ["left", "center", "right"].find((value) =>
         tokens.includes("jw-image-align-" + value),
       ) ?? "center";
-    size.value =
-      ["25", "50", "75", "100"].find((value) =>
-        tokens.includes("jw-image-size-" + value),
-      ) ?? "100";
+    size.value = /jw-image-size-(\d+)/.exec(tokens)?.[1] ?? "100";
     details.open = editing;
     error.hidden = true;
     selectMode(editing || !uploadEnabled ? "url" : "file");
@@ -669,7 +672,7 @@ function createMediaDialog(
   locale: string,
 ): DialogHandle {
   const form = document.createElement("form");
-  form.className = "jwsoft-tiptap-dialog-form";
+  form.className = "jwsoft-tiptap-dialog-form jwsoft-media-form";
   const url = document.createElement("input");
   url.type = "url";
   url.inputMode = "url";
@@ -677,6 +680,51 @@ function createMediaDialog(
   const file = document.createElement("input");
   file.type = "file";
   file.accept = "video/mp4,.mp4";
+  file.className = "jwsoft-sr-only";
+  file.setAttribute("aria-label", editorText(locale, "MP4 파일"));
+  let mode: "url" | "file" = "url";
+  let selectedFile: File | undefined;
+  let controller: AbortController | null = null;
+  const urlPanel = formField(editorText(locale, "동영상 URL"), url);
+  const filePanel = document.createElement("div");
+  filePanel.hidden = true;
+  const dropzone = document.createElement("button");
+  dropzone.type = "button";
+  dropzone.className = "jwsoft-upload-dropzone";
+  const dropTitle = document.createElement("strong");
+  dropTitle.textContent =
+    locale === "en"
+      ? "Drop an MP4 here or choose a file"
+      : "MP4를 끌어놓거나 파일을 선택하세요";
+  const hint = document.createElement("span");
+  hint.textContent =
+    locale === "en"
+      ? `MP4 · up to ${maxSizeMb} MB`
+      : `MP4 · 최대 ${maxSizeMb}MB`;
+  dropzone.append(editorIcon("upload"), dropTitle, hint);
+  const fileName = document.createElement("p");
+  fileName.className = "jwsoft-video-file-name";
+  const selectFile = (selected?: File) => {
+    selectedFile = selected;
+    fileName.textContent = selected
+      ? `${selected.name} · ${(selected.size / 1024 / 1024).toFixed(1)} MB`
+      : "";
+  };
+  dropzone.addEventListener("click", () => file.click());
+  file.addEventListener("change", () => selectFile(file.files?.[0]));
+  dropzone.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    dropzone.dataset.dragging = "true";
+  });
+  dropzone.addEventListener("dragleave", () => {
+    delete dropzone.dataset.dragging;
+  });
+  dropzone.addEventListener("drop", (event) => {
+    event.preventDefault();
+    delete dropzone.dataset.dragging;
+    if (!controller) selectFile(event.dataTransfer?.files[0]);
+  });
+  filePanel.append(file, dropzone, fileName);
   const progress = document.createElement("div");
   progress.className = "jwsoft-tiptap-upload-status";
   progress.setAttribute("role", "status");
@@ -687,27 +735,43 @@ function createMediaDialog(
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = editorText(locale, "동영상 삽입");
-  if (uploadEnabled) {
-    const hint = document.createElement("div");
-    hint.className = "jwsoft-tiptap-upload-hint";
-    hint.textContent =
-      locale === "en"
-        ? `Chunked MP4 upload: up to ${maxSizeMb} MB`
-        : `MP4 청크 업로드: 최대 ${maxSizeMb}MB`;
-    form.append(
-      formField(editorText(locale, "MP4 파일"), file),
-      hint,
-      progress,
-    );
-  }
-  form.append(
-    formField(
-      editorText(locale, uploadEnabled ? "또는 동영상 URL" : "동영상 URL"),
-      url,
-    ),
-    error,
-    apply,
+  const tabs = document.createElement("div");
+  tabs.className = "jwsoft-dialog-tabs";
+  tabs.setAttribute("role", "tablist");
+  tabs.setAttribute(
+    "aria-label",
+    locale === "en" ? "Video source" : "동영상 입력 방식",
   );
+  if (uploadEnabled) {
+    for (const [value, label] of [
+      ["url", locale === "en" ? "Video URL" : "동영상 주소"],
+      ["file", locale === "en" ? "Upload MP4" : "MP4 업로드"],
+    ] as const) {
+      const tab = document.createElement("button");
+      tab.type = "button";
+      tab.role = "tab";
+      tab.textContent = label;
+      tab.setAttribute("aria-selected", String(mode === value));
+      tab.addEventListener("click", () => {
+        if (controller) return;
+        mode = value;
+        urlPanel.hidden = mode !== "url";
+        filePanel.hidden = mode !== "file";
+        for (const other of tabs.querySelectorAll("button"))
+          other.setAttribute("aria-selected", String(other === tab));
+        error.hidden = true;
+      });
+      tabs.append(tab);
+    }
+    form.append(tabs);
+  }
+  const actions = document.createElement("div");
+  actions.className = "jwsoft-tiptap-dialog-actions";
+  const cancel = document.createElement("button");
+  cancel.type = "button";
+  cancel.textContent = locale === "en" ? "Cancel" : "취소";
+  actions.append(cancel, apply);
+  form.append(urlPanel, filePanel, progress, error, actions);
   const handle = createDialog({
     editor,
     title: editorText(locale, "동영상"),
@@ -715,19 +779,40 @@ function createMediaDialog(
     content: form,
     locale,
   });
+  cancel.addEventListener("click", () => handle.close());
+  handle.onClose(() => {
+    controller?.abort();
+    controller = null;
+    apply.disabled = false;
+    file.disabled = false;
+    dropzone.disabled = false;
+    progress.hidden = true;
+  });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
+    if (controller) return;
     error.hidden = true;
     let value = url.value;
-    const selected = file.files?.[0];
+    const selected = mode === "file" ? selectedFile : undefined;
+    if (mode === "file" && !selected) {
+      error.textContent =
+        locale === "en" ? "Choose an MP4 file." : "MP4 파일을 선택하세요.";
+      error.hidden = false;
+      return;
+    }
     if (selected && uploadEnabled) {
+      const request = new AbortController();
+      controller = request;
       apply.disabled = true;
       file.disabled = true;
+      dropzone.disabled = true;
       progress.hidden = false;
       try {
         const uploaded = await uploadEditorMedia(selected, {
           maxSizeMb,
           locale,
+          signal: request.signal,
           onProgress: (completed, total) => {
             progress.textContent = editorText(
               locale,
@@ -736,8 +821,20 @@ function createMediaDialog(
             );
           },
         });
+        if (
+          request.signal.aborted ||
+          !handle.element.open ||
+          editor.isDestroyed
+        )
+          return;
         value = uploaded.url;
       } catch (uploadError) {
+        if (
+          request.signal.aborted ||
+          !handle.element.open ||
+          editor.isDestroyed
+        )
+          return;
         error.textContent =
           uploadError instanceof Error
             ? uploadError.message
@@ -747,6 +844,13 @@ function createMediaDialog(
         apply.disabled = false;
         file.focus();
         return;
+      } finally {
+        if (controller === request) {
+          controller = null;
+          apply.disabled = false;
+          file.disabled = false;
+          dropzone.disabled = false;
+        }
       }
     }
     const media = normalizeMediaUrl(value, allowed);
@@ -760,6 +864,7 @@ function createMediaDialog(
       return;
     }
     insertMediaEmbed(editor, media);
+    selectFile();
     form.reset();
     progress.hidden = true;
     file.disabled = false;
@@ -802,9 +907,21 @@ function createSmartCardDialog(
     trigger,
     content: form,
     locale,
+    compact: true,
+  });
+  let controller: AbortController | null = null;
+  handle.onClose(() => {
+    controller?.abort();
+    controller = null;
+    apply.disabled = false;
+    progress.hidden = true;
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
+    event.stopPropagation();
+    if (controller) return;
+    const request = new AbortController();
+    controller = request;
     error.hidden = true;
     progress.hidden = false;
     progress.textContent = editorText(
@@ -813,11 +930,21 @@ function createSmartCardDialog(
     );
     apply.disabled = true;
     try {
-      insertSmartCard(editor, await fetchLinkPreview(url.value, fetch, locale));
+      const preview = await fetchLinkPreview(
+        url.value,
+        fetch,
+        locale,
+        request.signal,
+      );
+      if (request.signal.aborted || !handle.element.open || editor.isDestroyed)
+        return;
+      insertSmartCard(editor, preview);
       form.reset();
       progress.hidden = true;
       handle.close();
     } catch (previewError) {
+      if (request.signal.aborted || !handle.element.open || editor.isDestroyed)
+        return;
       error.textContent =
         previewError instanceof Error
           ? previewError.message
@@ -826,7 +953,10 @@ function createSmartCardDialog(
       progress.hidden = true;
       url.focus();
     } finally {
-      apply.disabled = false;
+      if (controller === request) {
+        controller = null;
+        apply.disabled = false;
+      }
     }
   });
 
@@ -923,16 +1053,16 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       active: () => editor.isActive("italic"),
     }),
   );
+  add(
+    inline,
+    createButton({
+      label: t("밑줄"),
+      title: t("밑줄 (Ctrl/Command+U)"),
+      run: () => void editor.chain().focus().toggleUnderline().run(),
+      active: () => editor.isActive("underline"),
+    }),
+  );
   if (profile !== "minimal") {
-    add(
-      inline,
-      createButton({
-        label: t("밑줄"),
-        title: t("밑줄 (Ctrl/Command+U)"),
-        run: () => void editor.chain().focus().toggleUnderline().run(),
-        active: () => editor.isActive("underline"),
-      }),
-    );
     add(
       inline,
       createButton({
@@ -1018,28 +1148,26 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   add(insert, link);
   dialogs.push(createLinkDialog(editor, link, locale));
 
+  const image = createButton({ label: t("이미지"), run: () => undefined });
+  add(insert, image);
+  dialogs.push(
+    createImageDialog(
+      editor,
+      image,
+      options.imageUpload,
+      options.imageMaxSizeMb,
+      locale,
+    ),
+  );
+
   if (profile !== "minimal") {
     const table = createButton({ label: t("표"), run: () => undefined });
-    const image = createButton({
-      label: t("이미지"),
-      run: () => undefined,
-    });
     add(insert, table);
-    add(insert, image);
     const media = options.mediaEmbed
       ? createButton({ label: t("동영상"), run: () => undefined })
       : null;
     if (media) add(insert, media);
-    dialogs.push(
-      createTableDialog(editor, table, locale),
-      createImageDialog(
-        editor,
-        image,
-        options.imageUpload,
-        options.imageMaxSizeMb,
-        locale,
-      ),
-    );
+    dialogs.push(createTableDialog(editor, table, locale));
     if (media) {
       dialogs.push(
         createMediaDialog(
@@ -1157,6 +1285,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   for (const group of extraGroups) more.panel.append(group);
   toolbar.append(more.trigger);
   region.append(more.panel);
+  if (profile !== "minimal")
+    installWritingTools(editor, region, toolbar, more.panel, locale);
   const compactTools = [
     ...inline.querySelectorAll<HTMLButtonElement>("button"),
   ].slice(3);

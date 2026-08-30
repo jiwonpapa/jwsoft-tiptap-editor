@@ -3,9 +3,10 @@ import Image from "@tiptap/extension-image";
 import type { DOMOutputSpec } from "@tiptap/pm/model";
 
 import { normalizeClassTokens } from "@/editor/classTokens";
+import { resizableImageView } from "@/editor/imageView";
 
 export type ImageAlignment = "left" | "center" | "right";
-export type ImageSize = "25" | "50" | "75" | "100";
+export type ImageSize = `${number}`;
 
 export const DEFAULT_IMAGE_CLASS_TOKENS =
   "jw-image jw-image-align-center jw-image-size-100";
@@ -43,6 +44,9 @@ function directChild(
 }
 
 export const PolicyImage = Image.extend({
+  addNodeView() {
+    return resizableImageView;
+  },
   addAttributes() {
     return {
       ...this.parent?.(),

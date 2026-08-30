@@ -41,6 +41,34 @@ const tokenCss = `
 .jw-align-left { text-align: left; }
 .jw-align-center { text-align: center; }
 .jw-align-right { text-align: right; }
+.jw-align-justify { text-align: justify; }
+${policy.classTokens.inlineSize.map((token) => `.${token} { font-size: ${token.split("-").at(-1)}px; }`).join("\n")}
+.jw-color-gray { color: #64748b; }
+.jw-color-red { color: #b91c1c; }
+.jw-color-orange { color: #c2410c; }
+.jw-color-green { color: #15803d; }
+.jw-color-blue { color: #1d4ed8; }
+.jw-color-purple { color: #7e22ce; }
+.jw-highlight-yellow { background-color: #fef08a; color: #20242b; }
+.jw-highlight-green { background-color: #bbf7d0; color: #20242b; }
+.jw-highlight-blue { background-color: #bfdbfe; color: #20242b; }
+.jw-highlight-pink { background-color: #fbcfe8; color: #20242b; }
+.jw-highlight-purple { background-color: #e9d5ff; color: #20242b; }
+.jw-task-list { list-style: none; padding-inline-start: 0; }
+.jw-task-item { position: relative; padding-inline-start: 1.75em; }
+.jw-task-item::before { content: '☐'; position: absolute; inset-inline-start: 0; }
+.jw-task-checked::before { content: '☑'; }
+.jw-task-checked > p { color: #64748b; text-decoration: line-through; }
+.jw-cell-gray { background-color: #f1f5f9; color: #20242b; }
+.jw-cell-blue { background-color: #dbeafe; color: #20242b; }
+.jw-cell-green { background-color: #dcfce7; color: #20242b; }
+.jw-cell-yellow { background-color: #fef9c3; color: #20242b; }
+.jw-cell-pink { background-color: #fce7f3; color: #20242b; }
+.jw-cell-top { vertical-align: top; }
+.jw-cell-middle { vertical-align: middle; }
+.jw-cell-bottom { vertical-align: bottom; }
+.jw-table-bordered td, .jw-table-bordered th { border: 1px solid #cbd5e1; }
+.jw-table-borderless td, .jw-table-borderless th { border-color: transparent; }
 .jw-indent-1 { margin-inline-start: 2rem; }
 .jw-indent-2 { margin-inline-start: 4rem; }
 .jw-indent-3 { margin-inline-start: 6rem; }
@@ -62,6 +90,14 @@ const tokenCss = `
 .jw-image-size-50 { width: 50%; }
 .jw-image-size-75 { width: 75%; }
 .jw-image-size-100 { width: 100%; }
+${policy.classTokens.image
+  .filter(
+    (token) =>
+      /^jw-image-size-/.test(token) &&
+      !["25", "50", "75", "100"].includes(token.split("-").at(-1)),
+  )
+  .map((token) => `.${token} { width: ${token.split("-").at(-1)}%; }`)
+  .join("\n")}
 .jw-image-rounded, .jw-image-rounded > img { border-radius: 0.5rem; }
 .jw-media { position: relative; width: min(100%, 60rem); margin: 1rem auto; overflow: hidden; border-radius: 0.625rem; background: #111827; color: #fff; }
 .jw-media-16x9 { aspect-ratio: 16 / 9; }

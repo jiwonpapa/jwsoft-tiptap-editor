@@ -97,6 +97,7 @@ export async function fetchLinkPreview(
   url: string,
   request: typeof fetch = fetch,
   locale: string = "ko",
+  signal?: AbortSignal,
 ): Promise<SmartCardPreview> {
   const response = await request(ENDPOINT, {
     method: "POST",
@@ -107,6 +108,7 @@ export async function fetchLinkPreview(
       ...authorizationHeaders(),
     },
     body: JSON.stringify({ url }),
+    ...(signal ? { signal } : {}),
   });
   let payload: PreviewPayload = {};
   try {

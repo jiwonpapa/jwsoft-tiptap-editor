@@ -247,12 +247,9 @@ function normalizeImageFigures(root: DocumentFragment): void {
     "jw-image-align-center",
     "jw-image-align-right",
   ];
-  const sizes = [
-    "jw-image-size-25",
-    "jw-image-size-50",
-    "jw-image-size-75",
-    "jw-image-size-100",
-  ];
+  const sizes = EDITOR_POLICY.classTokens.image.filter((token) =>
+    token.startsWith("jw-image-size-"),
+  );
   for (const figure of root.querySelectorAll<HTMLElement>("figure.jw-image")) {
     const children = [...figure.children];
     const image = children[0];

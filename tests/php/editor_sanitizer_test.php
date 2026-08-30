@@ -47,6 +47,13 @@ $link = $sanitizer->sanitize(
 );
 assertEditorPolicy($link->canonicalHtml === '<p class="jw-align-center jw-indent-2"><a href="https://example.com" rel="noopener noreferrer ugc" target="_blank">링크</a></p>', 'class token and _blank rel normalization failed');
 
+$writing = $sanitizer->sanitize('<p class="jw-align-justify"><span class="jw-font-24 jw-color-blue jw-highlight-yellow evil" style="color:red" onclick="alert(1)">서식</span><sub>아래</sub><sup>위</sup></p><ul class="jw-task-list"><li class="jw-task-checked jw-task-item"><p>완료</p></li></ul><table class="jw-table-borderless"><tr><td class="jw-cell-blue jw-cell-middle" colspan="2"><p>셀</p></td></tr></table><figure class="jw-image jw-image-size-55 jw-image-align-center"><img src="/safe.png"></figure>');
+foreach (['jw-align-justify', 'jw-font-24', 'jw-color-blue', 'jw-highlight-yellow', '<sub>', '<sup>', 'jw-task-checked', 'jw-cell-blue', 'jw-cell-middle', 'jw-table-borderless', 'jw-image-size-55'] as $token) {
+    assertEditorPolicy(str_contains($writing->canonicalHtml, $token), 'writing tool token lost: '.$token);
+}
+assertEditorPolicy(! preg_match('/style=|onclick|evil/', $writing->canonicalHtml), 'writing tools must not allow arbitrary attributes');
+assertEditorPolicy($sanitizer->sanitize($writing->canonicalHtml)->canonicalHtml === $writing->canonicalHtml, 'writing tool output must be idempotent');
+
 $imageFigure = $sanitizer->sanitize(
     '<figure class="jw-image jw-image-size-50 jw-image-align-right"><img src="/storage/editor/a.webp" alt="예시"><figcaption>오른쪽 이미지</figcaption></figure>',
 );

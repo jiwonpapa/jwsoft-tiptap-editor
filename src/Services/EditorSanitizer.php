@@ -260,9 +260,10 @@ final class EditorSanitizer
         $alignments = array_values(array_intersect($classes, [
             'jw-image-align-left', 'jw-image-align-center', 'jw-image-align-right',
         ]));
-        $sizes = array_values(array_intersect($classes, [
-            'jw-image-size-25', 'jw-image-size-50', 'jw-image-size-75', 'jw-image-size-100',
-        ]));
+        $sizes = array_values(array_intersect($classes, array_filter(
+            $policy['classTokens']['image'],
+            static fn (string $token): bool => str_starts_with($token, 'jw-image-size-'),
+        )));
         $children = [];
         foreach ($element->childNodes as $child) {
             if ($child instanceof DOMElement) {

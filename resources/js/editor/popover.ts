@@ -42,6 +42,14 @@ export function createPopover(label: string, icon: EditorIcon = "more") {
   const resize = () => {
     if (panel.matches(":popover-open")) position();
   };
+  const escape = (event: KeyboardEvent) => {
+    if (event.key === "Escape" && panel.matches(":popover-open")) {
+      event.preventDefault();
+      panel.hidePopover();
+      trigger.focus();
+    }
+  };
+  document.addEventListener("keydown", escape);
   window.addEventListener("resize", resize);
   window.visualViewport?.addEventListener("resize", resize);
   return {
@@ -53,6 +61,7 @@ export function createPopover(label: string, icon: EditorIcon = "more") {
     destroy: () => {
       window.removeEventListener("resize", resize);
       window.visualViewport?.removeEventListener("resize", resize);
+      document.removeEventListener("keydown", escape);
       panel.remove();
     },
   };

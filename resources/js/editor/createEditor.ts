@@ -10,6 +10,12 @@ import StarterKit from "@tiptap/starter-kit";
 
 import { ClassTokenExtension } from "@/editor/classTokens";
 import { PolicyImage } from "@/editor/imageNode";
+import {
+  PolicyTextStyle,
+  PolicySubscript,
+  PolicySuperscript,
+} from "@/editor/inlineStyle";
+import { PolicyTaskItem, PolicyTaskList } from "@/editor/taskList";
 import { MediaEmbedExtension } from "@/editor/mediaEmbed";
 import { SmartCardExtension } from "@/editor/smartCard";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
@@ -60,6 +66,11 @@ export function createEditor(options: CreateEditorOptions): Editor {
       TableKit.configure({ table: false }),
       PolicyTable.configure({ resizable: false, View: null }),
       ClassTokenExtension,
+      PolicyTextStyle,
+      PolicySubscript,
+      PolicySuperscript,
+      PolicyTaskList,
+      PolicyTaskItem,
       MediaEmbedExtension,
       SmartCardExtension,
       Placeholder.configure({

@@ -229,7 +229,7 @@ test("Chromium Korean IME paste undo and redo preserve canonical content", async
   await page.keyboard.press("ControlOrMeta+V");
   await expect(editable).toHaveText("한글 입력붙여넣기");
   await expect(editable.locator("[style], [onclick], script")).toHaveCount(0);
-  await expect(page.locator("[role='status']")).toContainText("실행취소");
+  await expect(page.locator(".jwsoft-tiptap-status")).toContainText("실행취소");
 
   const undo = page.getByTitle("실행취소 (Ctrl/Command+Z)");
   const redo = page.getByTitle("다시실행 (Ctrl/Command+Shift+Z)");
@@ -420,6 +420,7 @@ test("link quote lists alignment and indentation use policy-safe controls", asyn
   await linkDialog.getByRole("button", { name: "링크 적용" }).click();
   await expect(editable.locator("a")).toHaveCount(2);
 
+  await page.getByRole("button", { name: "서식 더보기" }).click();
   await page
     .getByLabel("정렬", { exact: true })
     .selectOption("jw-align-center");
@@ -443,7 +444,9 @@ test("link quote lists alignment and indentation use policy-safe controls", asyn
   await page.getByRole("button", { name: "번호 목록", exact: true }).click();
   await expect(editable.locator("ol")).toHaveCount(1);
 
+  await page.keyboard.press("Escape");
   await editable.locator("li").nth(1).click();
+  await page.getByRole("button", { name: "서식 더보기" }).click();
   await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
   await expect(editable.locator("ol")).toHaveCount(2);
   const nestedOrderedListCount = await editable.locator("ol").count();
@@ -470,7 +473,9 @@ test("desktop toolbar keeps selection commands and keyboard focus usable", async
   test.skip(testInfo.project.name !== "chromium-desktop");
   await mountEditor(page);
   const editable = page.locator(".jwsoft-tiptap-editable");
-  const bold = page.getByRole("button", { name: /굵게/ });
+  const bold = page
+    .locator(".jwsoft-tiptap-toolbar")
+    .getByRole("button", { name: /굵게/ });
   await bold.focus();
   await expect(bold).toBeFocused();
   await page.keyboard.press("ArrowRight");
@@ -751,6 +756,7 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
   await mountEditor(page, "standard", false, true, true);
   await page.getByRole("button", { name: "동영상" }).click();
   const dialog = page.getByRole("dialog", { name: "동영상" });
+  await dialog.getByRole("tab", { name: "MP4 업로드" }).click();
   await dialog.getByLabel("MP4 파일").setInputFiles({
     name: "proof.mp4",
     mimeType: "video/mp4",
@@ -897,4 +903,150 @@ test("failed automatic preview preserves the original URL as a link", async ({
   await expect(editable.locator("a")).toHaveText(
     "https://example.com/preserved",
   );
+});
+
+test("inline appearance find-replace checklist and fullscreen stay policy-safe", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    "<p>가나다 가나다</p>",
+  );
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.getByRole("button", { name: "글자 모양", exact: true }).click();
+  await page
+    .getByLabel("글자 크기", { exact: true })
+    .selectOption("jw-font-24");
+  await page.getByRole("button", { name: "글자색: 파랑", exact: true }).click();
+  await expect(editable.locator("span.jw-color-blue.jw-font-24")).toHaveText(
+    "가나다 가나다",
+  );
+  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page
+    .getByRole("button", { name: "찾기 / 바꾸기", exact: true })
+    .click();
+  const dialog = page.getByRole("dialog", {
+    name: "찾기 / 바꾸기",
+    exact: true,
+  });
+  await dialog.getByLabel("찾을 내용").fill("가나다");
+  await dialog.getByLabel("바꿀 내용").fill("수정");
+  await expect(dialog.getByRole("status")).toHaveText("2개 일치");
+  await dialog.getByRole("button", { name: "모두 바꾸기" }).click();
+  await dialog.getByRole("button", { name: "닫기" }).click();
+  await expect(editable).toHaveText("수정 수정");
+  await editable.focus();
+  await page.keyboard.press("ControlOrMeta+Z");
+  await expect(editable).toHaveText("가나다 가나다");
+  await page.keyboard.press("ControlOrMeta+A");
+  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page.getByRole("button", { name: "체크리스트", exact: true }).click();
+  await page.keyboard.press("Escape");
+  await editable.getByRole("checkbox").first().check();
+  await expect(editable.locator("li.jw-task-checked")).toHaveCount(1);
+  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page.getByRole("button", { name: "전체화면", exact: true }).click();
+  await expect(page.locator(".jwsoft-editor-fullscreen")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await page.keyboard.press("Escape");
+  await expect(page.locator(".jwsoft-editor-fullscreen")).toHaveCount(0);
+  const html = await page.evaluate(() => {
+    const values = (window as any).__e2eStateUpdates.filter(
+      (item: any) => typeof item.updates["form.content"] === "string",
+    );
+    return values[values.length - 1].updates["form.content"] as string;
+  });
+  expect(html).toContain("jw-task-checked");
+  expect(html).not.toMatch(/style=|data-|<input|<button/);
+  await page.screenshot({
+    path: testInfo.outputPath("editor-writing-tools.png"),
+    fullPage: true,
+  });
+});
+
+test("table context controls and image resize are usable on the rendered editor", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    '<table><tbody><tr><td colspan="1" rowspan="1"><p>셀</p></td><td colspan="1" rowspan="1"><p>둘</p></td></tr></tbody></table><p>이미지</p><figure class="jw-image jw-image-align-center jw-image-size-50"><img src="https://images.example/proof.png" alt="예시"></figure><p>끝</p>',
+  );
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.locator("td").first().click();
+  const context = page.getByRole("toolbar", { name: "표 편집 도구" });
+  await expect(context).toBeVisible();
+  await context
+    .getByLabel("셀 배경", { exact: true })
+    .selectOption("jw-cell-blue");
+  await context
+    .getByLabel("세로 정렬", { exact: true })
+    .selectOption("jw-cell-middle");
+  await context
+    .getByLabel("표 테두리", { exact: true })
+    .selectOption("jw-table-borderless");
+  await expect(editable.locator("td").first()).toHaveClass(/jw-cell-blue/);
+  await expect(editable.locator("td").first()).toHaveClass(/jw-cell-middle/);
+  await context.getByRole("button", { name: "행 추가", exact: true }).click();
+  await expect(editable.locator("tr")).toHaveCount(2);
+  await editable.locator("img").click();
+  const handle = editable.getByRole("slider", { name: "이미지 너비 조절" });
+  await expect(handle).toBeVisible();
+  await handle.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(editable.locator("figure.jw-image")).toHaveClass(
+    /jw-image-size-55/,
+  );
+  await expect(editable.locator("[style]")).toHaveCount(0);
+  await page.screenshot({
+    path: testInfo.outputPath("editor-context-tools.png"),
+    fullPage: true,
+  });
+});
+
+test("closing a pending link preview modal does not insert late content", async ({
+  page,
+}) => {
+  let requested = false;
+  await page.route(
+    "**/api/plugins/jwsoft-tiptap-editor/link-preview",
+    async (route) => {
+      requested = true;
+      await new Promise((resolve) => setTimeout(resolve, 200));
+      await route
+        .fulfill({
+          contentType: "application/json",
+          body: JSON.stringify({
+            success: true,
+            data: {
+              url: "https://example.com/post",
+              title: "Late title",
+              description: "",
+              provider: "generic",
+            },
+          }),
+        })
+        .catch(() => {});
+    },
+  );
+  await mountEditor(page, "standard", false, false, false, true);
+  await page.getByRole("button", { name: "링크 카드", exact: true }).click();
+  const dialog = page.getByRole("dialog", { name: "링크 카드", exact: true });
+  await dialog.getByLabel("HTTPS 주소").fill("https://example.com/post");
+  await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();
+  await expect.poll(() => requested).toBe(true);
+  await dialog.getByRole("button", { name: "닫기" }).click();
+  await page.waitForTimeout(350);
+  await expect(page.locator(".jwsoft-tiptap-editable .jw-card")).toHaveCount(0);
 });

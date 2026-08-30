@@ -27,6 +27,7 @@ export interface MediaUploadOptions {
   locale?: string;
   request?: typeof fetch;
   onProgress?: (completed: number, total: number) => void;
+  signal?: AbortSignal;
 }
 
 function authorizationHeaders(): HeadersInit {
@@ -306,7 +307,15 @@ export async function uploadEditorMedia(
   options: MediaUploadOptions,
 ): Promise<UploadedEditorMedia> {
   const locale = options.locale ?? "ko";
-  const request = options.request ?? fetch;
+  const baseRequest = options.request ?? fetch;
+  const request: typeof fetch = (input, init) => {
+    if (options.signal?.aborted)
+      return Promise.reject(new DOMException("Aborted", "AbortError"));
+    return baseRequest(input, {
+      ...init,
+      ...(options.signal ? { signal: options.signal } : {}),
+    });
+  };
   validateEditorMediaFile(file, options.maxSizeMb, locale);
   let session = await resumeSession(file, request);
   session ??= await beginSession(file, request, locale);

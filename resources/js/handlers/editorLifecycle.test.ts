@@ -371,9 +371,9 @@ describe("G7 editor lifecycle", () => {
     expect(minimal.querySelector("[role='toolbar']")?.textContent).toContain(
       "링크",
     );
-    expect(
-      minimal.querySelector("[role='toolbar']")?.textContent,
-    ).not.toContain("이미지");
+    expect(minimal.querySelector("[role='toolbar']")?.textContent).toContain(
+      "이미지",
+    );
 
     const full = addContainer("description");
     await initEditorHandler(

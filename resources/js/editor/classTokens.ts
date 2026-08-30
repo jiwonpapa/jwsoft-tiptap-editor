@@ -1,6 +1,7 @@
 import { Extension, type Editor } from "@tiptap/core";
 import type { Node as ProseMirrorNode } from "@tiptap/pm/model";
 import { NodeSelection, type EditorState } from "@tiptap/pm/state";
+import { CellSelection } from "@tiptap/pm/tables";
 
 import { EDITOR_CLASS_TOKENS, EDITOR_POLICY } from "@/generated/editorPolicy";
 
@@ -28,6 +29,13 @@ const EDITABLE_NODE_TYPES: Record<ClassTokenCategory, readonly string[]> = {
   image: ["image"],
   media: [],
   card: [],
+  inlineSize: [],
+  textColor: [],
+  highlight: [],
+  task: [],
+  cellBackground: ["tableCell", "tableHeader"],
+  cellVertical: ["tableCell", "tableHeader"],
+  tableBorder: ["table"],
 };
 const allowedTokens = new Set<string>(EDITOR_CLASS_TOKENS);
 
@@ -58,6 +66,16 @@ function tokenTargets(
   const targets = new Map<number, ProseMirrorNode>();
 
   if (
+    selection instanceof CellSelection &&
+    (category === "cellBackground" || category === "cellVertical")
+  ) {
+    selection.forEachCell((node, pos) => {
+      if (eligible.has(node.type.name)) targets.set(pos, node);
+    });
+    return [...targets].map(([pos, node]) => ({ pos, node }));
+  }
+
+  if (
     selection instanceof NodeSelection &&
     eligible.has(selection.node.type.name)
   ) {
@@ -77,10 +95,15 @@ function tokenTargets(
     });
   }
 
-  if (category === "table" && targets.size === 0) {
+  if (
+    ["table", "tableBorder", "cellBackground", "cellVertical"].includes(
+      category,
+    ) &&
+    targets.size === 0
+  ) {
     for (let depth = selection.$from.depth; depth > 0; depth -= 1) {
       const node = selection.$from.node(depth);
-      if (node.type.name !== "table") continue;
+      if (!eligible.has(node.type.name)) continue;
       targets.set(selection.$from.before(depth), node);
       break;
     }
