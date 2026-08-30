@@ -6,6 +6,8 @@
 
 아래 `[x]`는 구현 및 과거 검증 이력이며, 현재 버전·소스 입력·실행 번들·패키지 checksum에 맞는 증거가 없으면 다시 미검증으로 집계합니다. `[ ]`는 승인 체크가 남은 항목입니다. 옛 screenshot이나 JSON의 버전·checksum만 바꿔 새 증거로 사용하지 않습니다. Chromium 입력 계층 검사와 Android/iOS 실기기 IME 관찰은 별개입니다.
 
+2026-08-30 RC1 공유 로컬 G7 검증에서는 새 공개 글의 화면 너비 전환 후 본문 유실이 재현되어 승격을 중단했습니다. CKEditor 비교도 실패했으며 공통 원인은 아직 격리 중입니다. [실제 설치·검증 및 배포 차단 보고](g7-rc1-local-validation.md)를 먼저 확인하십시오.
+
 ## A. 편집기 교체
 
 - [x] `html_editor` replace extension 제공 <!-- p0:editor.extensions.html -->
