@@ -10,7 +10,7 @@
 ## 품질
 
 - [ ] `make release-check` stable gate
-- [x] `make release-candidate-check` alpha gate
+- [ ] 현재 RC의 `make release-candidate-check` 57개 gate
 - [x] npm/composer audit
 - [x] MVP parity evidence 100%
 - [x] legacy loss report 검증
@@ -42,4 +42,4 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 
 alpha.21은 공개 alpha와 승인 staging 배포까지 완료했습니다. 최신성 gate 기준으로 남은 화면 증거는 공개 게시판·관리자 게시판·상품·페이지·모바일/다크/다국어·direct HtmlEditor 6종이며, production 대상 확인과 동일 checksum 적용이 별도로 필요합니다. 이전 버전의 화면 JSON을 최신 버전으로 바꿔 기록하지 않습니다.
 
-현재 출시 규칙에는 순환 조건도 남아 있습니다. 헌법 제10조는 stable 태그 이후 배포를 요구하지만, stable 승인 체크리스트에는 production 배포 완료가 포함됩니다. 또한 기존 `release-candidate-check`의 기록기는 alpha 전용입니다. 이 상태로 stable 승인이나 production을 강행하지 않습니다. 사전 품질 gate → 승인 staging → 동일 ZIP production → 최종 stable 공개처럼 단계를 분리하는 변경은 별도 ADR과 형님의 명시적 승인 후 적용해야 합니다. 이 문서는 승인 요청 사항을 기록할 뿐 헌법이나 배포 허용 범위를 변경하지 않습니다.
+2026-08-30 제품 소유자의 명시적 승인에 따라 [ADR 0012](adr/0012-phased-release-promotion.md)와 헌법 제10조를 개정했습니다. 현재 후보는 `0.1.0-rc.1`이며 후보 공개 전 57개 → GitHub 수명주기 포함 60개 → staging 포함 61개 → 동일 ZIP production 이후 62개로 검증합니다. 이는 완료 선언이 아니며 각 단계의 최신 증거가 있어야 통과합니다. 같은 서버 사용 승인은 환경 격리 검증을 의미하지 않습니다. RC의 전체 통과도 `0.1.0` 버전 검증으로 표현하지 않습니다.

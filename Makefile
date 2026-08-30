@@ -15,6 +15,7 @@ check:
 	node scripts/deploy-contract-test.mjs
 	node scripts/deploy-evidence-test.mjs
 	node scripts/stable-evidence-test.mjs
+	node scripts/release-phases-test.mjs
 	node scripts/remote-deploy-preflight-test.mjs
 	node scripts/remote-deploy-transaction-test.mjs
 	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer validate --strict --no-check-publish
@@ -73,7 +74,7 @@ release-candidate-check:
 stable-readiness-gate:
 	node scripts/stable-readiness-gate.mjs
 
-release-check: release-candidate-check stable-readiness-gate
+release-check: parity-gate stable-readiness-gate
 
 deploy-plan:
 	./scripts/deploy.sh "$(ENV)" --plan

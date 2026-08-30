@@ -3,8 +3,15 @@ import path from "node:path";
 import { execFileSync } from "node:child_process";
 import { hashFile, sourceFingerprint } from "./evidence-provenance.mjs";
 import { currentPackage, validateStableArtifact } from "./stable-evidence.mjs";
+import { partitionReleaseRows } from "./release-phases.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
+const args = process.argv.slice(2);
+if (args.length > 1 || (args.length && !args[0].startsWith("--phase=")))
+  throw new Error(
+    "usage: stable-readiness-gate.mjs [--phase=candidate|predeploy|production|final]",
+  );
+const phase = args[0]?.slice("--phase=".length) ?? "final";
 const acceptancePath = path.join(
   root,
   "docs/acceptance/sirsoft-ckeditor5-parity.md",
@@ -68,6 +75,7 @@ if (unknownIds.length)
 const verified = [];
 const remaining = [];
 const artifactErrors = new Map();
+const { required, deferred } = partitionReleaseRows(rows, phase);
 for (const row of rows) {
   const item = coverage.get(row.id);
   if (!item) {
@@ -76,6 +84,7 @@ for (const row of rows) {
   if (!Array.isArray(item.artifacts) || item.artifacts.length === 0) {
     throw new Error(`stable coverage artifact가 없습니다: ${row.id}`);
   }
+  if (!required.includes(row)) continue;
   const reasons = row.checked ? [] : ["acceptance checklist is not approved"];
   for (const artifact of item.artifacts) {
     if (!artifactErrors.has(artifact)) {
@@ -105,10 +114,14 @@ const ready = remaining.length === 0 && globalBlockers.length === 0;
 const outputDirectory = path.join(root, "test-results", "release");
 fs.mkdirSync(outputDirectory, { recursive: true });
 fs.writeFileSync(
-  path.join(outputDirectory, "stable-readiness.json"),
+  path.join(
+    outputDirectory,
+    phase === "final" ? "stable-readiness.json" : `${phase}-readiness.json`,
+  ),
   `${JSON.stringify(
     {
       schemaVersion: 3,
+      phase,
       status: ready ? "pass" : "blocked",
       pluginVersion: version,
       sourceFingerprint: context.fingerprint,
@@ -118,6 +131,9 @@ fs.writeFileSync(
       cleanTree,
       globalBlockers,
       totalCount: rows.length,
+      requiredCount: required.length,
+      deferredCount: deferred.length,
+      deferred: deferred.map(({ id, requirement }) => ({ id, requirement })),
       verifiedCount: verified.length,
       remainingCount: remaining.length,
       verified,
@@ -129,11 +145,13 @@ fs.writeFileSync(
 );
 if (!ready) {
   console.error(
-    `[jwsoft] stable 출시 차단: 증거 완료 ${verified.length}/${rows.length}, P0 미완료 ${remaining.length}개\n${remaining
+    `[jwsoft] ${phase} gate 차단: 증거 완료 ${verified.length}/${required.length}, 전체 P0 ${rows.length}개, 미검증 ${remaining.length}개\n${remaining
       .map((item) => `- ${item.id}: ${item.reasons.join("; ")}`)
       .concat(globalBlockers.map((reason) => `- ${reason}`))
       .join("\n")}`,
   );
   process.exit(1);
 }
-console.log(`[jwsoft] stable readiness gate 통과: ${verified.length}개`);
+console.log(
+  `[jwsoft] ${phase} readiness gate 통과: ${verified.length}/${required.length}, 후속 단계 ${deferred.length}개`,
+);

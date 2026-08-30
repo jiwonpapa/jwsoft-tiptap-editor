@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { evidenceFile, hashFile } from "./evidence-provenance.mjs";
+import { validateProductionVersion } from "./release-phases.mjs";
 
 const read = (root, file) =>
   JSON.parse(fs.readFileSync(evidenceFile(root, file), "utf8"));
@@ -221,13 +222,20 @@ export function validateStableArtifact(context, relative) {
     );
     packageMatches(data.artifact?.sha256);
     if (environment === "production") {
+      validateProductionVersion(version);
       const staging = read(root, "test-results/deploy/staging.json");
       requireValue(
         staging.status === "pass" &&
           staging.environment === "staging" &&
           staging.pluginVersion === version &&
           staging.artifact?.sha256 === artifactSha256 &&
-          data.sameAsStaging === true,
+          data.sameAsStaging === true &&
+          data.stagingEvidenceSha256 ===
+            hashFile(evidenceFile(root, "test-results/deploy/staging.json")) &&
+          Date.parse(data.appliedAt) > Date.parse(staging.appliedAt) &&
+          (data.targetFingerprint !== staging.targetFingerprint ||
+            (data.sameTargetAsStaging === true &&
+              data.sameTargetPromotionApproved === true)),
         "production is not bound to the approved staging artifact",
       );
     }

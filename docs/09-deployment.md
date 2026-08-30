@@ -14,6 +14,8 @@
 - SSH 사용자와 앱 소유자가 다르면 `DEPLOY_RUN_USER`를 명시합니다. 사전검증과 플러그인 명령은 `sudo -n -u`로 해당 계정에서 실행하며 소유권을 임의 변경하지 않습니다.
 - 기존 JWSoft pending 경로는 삭제·덮어쓰지 않습니다. 최초 설치는 새 임시 디렉터리에 압축을 풀고 정확한 플러그인 루트를 이동합니다.
 - staging에 사용한 artifact checksum만 production에 허용합니다.
+- 원격 변경 전에 현재 증거의 사전 60개(staging) 또는 staging 포함 61개(production)를 검사합니다. alpha/beta production은 금지합니다.
+- 같은 대상을 단계별로 사용하는 경우 소유자 승인과 `SAME_TARGET_PROMOTION_APPROVED=1`이 필요합니다. 별도 실제 적용·smoke를 수행하며 환경 격리 검증으로 표현하지 않습니다.
 - CKEditor 비활성화가 실패해 실제 활성 상태가 남아 있으면 JWSoft 활성화 guard가 배포를 중단합니다.
 - 업데이트 후 이미 JWSoft가 활성 상태인 경우 활성화 명령을 반복하지 않습니다. G7 PluginRepository 계약으로 JWSoft active / CKEditor inactive를 전환 전후 확인하며, 명령 성공 코드만으로 완료를 판정하지 않습니다.
 - `--apply`로 승인된 배포만 CKEditor 비활성화 → JWSoft 활성화를 수행합니다. 선행 위험 확인 설정은 요구하지 않으며 전환 직전에 안내합니다. 설치·활성화·조회는 기존 본문을 쓰지 않고, 기존 글 수정 후 저장 시에만 정제 HTML이 저장됩니다.
@@ -49,7 +51,7 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 
 ## 원격 순서
 
-1. 로컬 release-check와 artifact·vendor bundle checksum
+1. 로컬 단계별 deployment-gate(60/61개)와 artifact·vendor bundle checksum
 2. 원격 환경·권한·설치 모드 무변경 사전검증
 3. artifact upload
 4. remote checksum 검증 후 rollback trap 활성화
@@ -63,6 +65,8 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 하네스는 DB 전체 백업을 자동으로 만들지 않습니다. 이 플러그인은 기존 HTML 필드를 유지하며 G7 plugin update의 파일 백업·복원을 사용합니다. 적용 실패 시 하네스는 jwsoft를 비활성화하고 CKEditor 재활성화를 시도합니다. DB migration이 추가되는 릴리스는 별도 migration/backup ADR과 운영 승인 없이는 배포할 수 없습니다.
 
 staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact checksum과 대상·smoke URL의 SHA-256 지문만 기록합니다. production 계획·적용은 이 staging 증거와 `APPROVED_STAGING_SHA256`가 현재 artifact에 모두 일치해야 하며, 성공 후 `production.json`을 기록합니다. 원격 호스트·경로·URL 원문과 비밀값은 증거에 저장하지 않습니다.
+
+production 증거는 staging JSON의 SHA-256과 적용 시각을 연결하며 staging보다 나중에 실제 적용되어야 합니다. 이전 기록은 `test-results/deploy/history/`에 보존합니다. 완료 후 `make release-check`로 재빌드 없이 전체 62개를 확인합니다. 후보 ZIP의 버전·바이트는 승격 중 변경하지 않습니다. 승인된 단계 분리의 근거는 [ADR 0012](adr/0012-phased-release-promotion.md)입니다.
 
 `alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다.
 

@@ -18,9 +18,6 @@ const read = (relative) => {
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(root, "package.json"), "utf8"),
 );
-if (!packageJson.version.includes("-alpha.")) {
-  throw new Error("release-candidate evidence는 alpha 버전에만 허용됩니다");
-}
 
 const files = {
   parity: "test-results/parity/evidence.json",
@@ -55,10 +52,16 @@ const commit = execFileSync("git", ["rev-parse", "HEAD"], {
 if (data.parity.commit !== commit) {
   throw new Error("release candidate parity commit 불일치");
 }
+execFileSync(
+  process.execPath,
+  [path.join(root, "scripts/stable-readiness-gate.mjs"), "--phase=candidate"],
+  { cwd: root, stdio: "inherit" },
+);
 
 const output = {
   schemaVersion: 1,
   status: "pass",
+  scopePhase: "candidate",
   version: packageJson.version,
   commit,
   artifact: data.supplyChain.artifact,
@@ -94,5 +97,5 @@ const target = path.join(root, "test-results/release/candidate.json");
 fs.mkdirSync(path.dirname(target), { recursive: true });
 fs.writeFileSync(target, `${JSON.stringify(output, null, 2)}\n`);
 console.log(
-  `[jwsoft] alpha release candidate evidence 통과: ${output.version} ${sha256}`,
+  `[jwsoft] release candidate evidence 통과 (배포 승인 아님): ${output.version} ${sha256}`,
 );

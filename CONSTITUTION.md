@@ -47,7 +47,16 @@ stable 릴리스는 `docs/acceptance/sirsoft-ckeditor5-parity.md`의 필수 항�
 
 ## 제10조 — 실패 폐쇄형 배포
 
-패키지와 배포 하네스는 dry-run이 기본입니다. stable 태그, parity evidence, checksum, 깨끗한 Git 상태, 승인된 대상 환경이 없으면 배포하지 않습니다. 프로덕션 배포는 staging과 동일 artifact checksum을 사용합니다.
+패키지와 배포 하네스는 dry-run이 기본입니다. ZIP 생성 자체는 릴리스·배포 승인이 아닙니다. 최신 입력·버전·checksum에 결합된 동등성 증거와 깨끗한 Git 상태를 단계별로 확인합니다.
+
+- 개발 후보 공개는 배포 2개와 공개 후 검증 가능한 GitHub 수명주기 3개를 제외한 57개 증거를 요구합니다. 나머지 5개는 완료가 아니라 후속 검증입니다.
+- staging 적용 전에는 GitHub 수명주기를 포함한 비배포 P0 60개가 모두 통과해야 합니다.
+- production 적용 전에는 위 60개와 현재 ZIP의 staging 증거, 합계 61개가 통과해야 합니다. 명시적 `--apply`, production 확인 토큰, 승인된 대상과 staging 동일 checksum을 요구합니다.
+- production은 최종 버전 또는 `-rc.N` 후보에만 허용하며 alpha/beta는 금지합니다. 후보의 운영 승인은 동일한 품질 gate를 요구하며 RC 버전을 정식 SemVer 태그로 오표기하지 않습니다.
+- staging과 production이 같은 대상이면 별도 동일 대상 승인을 기록하고 실제 적용·smoke를 각각 수행합니다. 과거 staging 기록을 production으로 재명명하지 않습니다.
+- 최종 승인 및 stable 태그·릴리스는 배포 후 전체 62개 증거가 통과한 뒤에만 가능합니다. 승격 과정에서 검증한 ZIP을 재빌드하거나 버전만 바꿔 대체하지 않습니다. 버전/입력이 바뀌면 다시 검증합니다.
+
+이 순서는 ADR-0012와 2026-08-30 제품 소유자 승인에 따른 것으로 제3조·제7조의 검증 범위를 줄이지 않습니다.
 
 ## 제11조 — 비밀과 개인정보
 

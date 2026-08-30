@@ -13,15 +13,16 @@ source_date_epoch="${SOURCE_DATE_EPOCH:-$(git -C "$PROJECT_ROOT" log -1 --format
 source_date_epoch="${source_date_epoch:-315532800}"
 export SOURCE_DATE_EPOCH="$source_date_epoch"
 case "$version" in
-  *-alpha.*)
-    info "환경 alpha artifact를 생성합니다. 운영 배포 금지입니다."
+  *-alpha.*|*-beta.*)
+    info "개발 artifact를 생성합니다. 운영 배포 금지입니다."
     ;;
   *)
-    "$PROJECT_ROOT/scripts/parity-gate.sh"
+    info "검증 대상 candidate artifact를 생성합니다. 이 명령은 릴리스/배포 승인이 아닙니다."
     [ -f "$PROJECT_ROOT/resources/extensions/html-editor.json" ] || fail "stable package에 HtmlEditor 확장이 없습니다."
     [ -f "$PROJECT_ROOT/resources/extensions/html-content.json" ] || fail "stable package에 HtmlContent 확장이 없습니다."
     ;;
 esac
+node "$PROJECT_ROOT/scripts/validate-manifest.mjs"
 
 build_root="$PROJECT_ROOT/.build/package"
 stage="$build_root/jwsoft-tiptap-editor"

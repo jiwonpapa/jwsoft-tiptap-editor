@@ -371,6 +371,7 @@ test("source-only license checks do not authorize a package", () =>
 
 test("production evidence requires matching staging role, version and archive", () =>
   fixture(({ context, write }) => {
+    context.version = "0.1.0-rc.1";
     const stagingFile = "test-results/deploy/staging.json";
     const productionFile = "test-results/deploy/production.json";
     const proof = {
@@ -379,14 +380,33 @@ test("production evidence requires matching staging role, version and archive", 
       pluginVersion: context.version,
       artifact: { sha256: context.artifactSha256 },
       sameAsStaging: true,
+      targetFingerprint: "e".repeat(64),
+      appliedAt: "2026-08-30T01:00:00Z",
+      sameTargetAsStaging: true,
+      sameTargetPromotionApproved: true,
     };
     write(productionFile, proof);
     assert.throws(
       () => validateStableArtifact(context, productionFile),
       /missing/,
     );
-    write(stagingFile, { ...proof, environment: "staging" });
+    const staging = {
+      ...proof,
+      environment: "staging",
+      appliedAt: "2026-08-30T00:00:00Z",
+    };
+    proof.stagingEvidenceSha256 = hashFile(write(stagingFile, staging));
+    write(productionFile, proof);
     validateStableArtifact(context, productionFile);
+    for (const override of [
+      { sameTargetPromotionApproved: false },
+      { appliedAt: staging.appliedAt },
+      { stagingEvidenceSha256: "f".repeat(64) },
+    ]) {
+      write(productionFile, { ...proof, ...override });
+      assert.throws(() => validateStableArtifact(context, productionFile));
+    }
+    write(productionFile, proof);
     write(stagingFile, {
       ...proof,
       environment: "staging",

@@ -70,6 +70,8 @@
 
 `node scripts/stable-evidence-test.mjs`는 오래된 버전·같은 버전의 다른 번들·다른 ZIP·변경된 screenshot·경로 탈출·중복 통합 검사·production/staging checksum 불일치의 거부를 검사합니다. 이 회귀 검사는 제품 기능이나 실제 배포 smoke를 대신하지 않습니다.
 
+ADR 0012 이후 `stable-readiness-gate.mjs --phase=candidate|predeploy|production|final`은 동일한 62개 계약을 57/60/61/62개의 필수 증거로 나누고 아직 검사하지 않은 항목을 `deferred`로 표시합니다. 기본값은 전체 `final`이며 검사 제외를 pass로 계산하지 않습니다. `release-phases-test.mjs`는 정확한 분리와 alpha/beta 운영 금지, 원격 변경 전 gate 순서를 검사합니다. production 검증은 동일 staging 파일의 해시, 버전·ZIP, 적용 시각 순서와 같은 대상의 명시적 승인을 요구합니다.
+
 ## 보안 corpus
 
 각 payload를 다음 네 경로로 실행합니다.

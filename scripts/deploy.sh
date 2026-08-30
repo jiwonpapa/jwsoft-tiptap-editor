@@ -7,6 +7,7 @@ environment="${1:-}"
 action="${2:---plan}"
 [ -n "$environment" ] || fail "환경 이름이 필요합니다. 예: staging"
 require_safe_token "환경" "$environment"
+case "$environment" in staging|production) ;; *) fail "환경은 staging 또는 production이어야 합니다." ;; esac
 case "$action" in --plan|--apply) ;; *) fail "두 번째 인자는 --plan 또는 --apply여야 합니다." ;; esac
 
 config="$PROJECT_ROOT/deploy/environments/$environment.env"
@@ -42,7 +43,11 @@ if [ "$environment" = "production" ]; then
     || fail "production에는 PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production이 필요합니다."
   [ -n "${APPROVED_STAGING_SHA256:-}" ] || fail "production에는 APPROVED_STAGING_SHA256가 필요합니다."
   [ "$APPROVED_STAGING_SHA256" = "$checksum" ] || fail "staging 승인 checksum과 artifact가 다릅니다."
-  DEPLOY_EVIDENCE_CHECKSUM="$checksum" node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" verify-production
+  DEPLOY_EVIDENCE_CHECKSUM="$checksum" \
+  DEPLOY_EVIDENCE_VERSION="$version" \
+  DEPLOY_EVIDENCE_TARGET="$DEPLOY_HOST:$G7_REMOTE_ROOT" \
+  DEPLOY_EVIDENCE_SAME_TARGET_APPROVED="${SAME_TARGET_PROMOTION_APPROVED:-0}" \
+    node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" verify-production
 fi
 
 remote_zip="$REMOTE_ARTIFACT_DIR/$(basename "$artifact")"
@@ -56,6 +61,8 @@ info "sha256: $checksum"
 info "적용 순서: 원격 사전검증 -> 업로드 -> checksum 검증 -> 플러그인 $DEPLOY_MODE -> sirsoft-ckeditor5 비활성화 -> jwsoft 활성화 -> 캐시 정리 -> smoke"
 
 [ "$action" = "--apply" ] || { info "계획만 출력했습니다. 서버 변경 없음."; exit 0; }
+
+node "$PROJECT_ROOT/scripts/deployment-gate.mjs" "$environment" "$artifact"
 
 require_command ssh
 require_command rsync
@@ -143,5 +150,6 @@ DEPLOY_EVIDENCE_MODE="$DEPLOY_MODE" \
 DEPLOY_EVIDENCE_APP_ENV="$EXPECTED_APP_ENV" \
 DEPLOY_EVIDENCE_TARGET="$DEPLOY_HOST:$G7_REMOTE_ROOT" \
 DEPLOY_EVIDENCE_SMOKE_URL="$SMOKE_URL" \
+DEPLOY_EVIDENCE_SAME_TARGET_APPROVED="${SAME_TARGET_PROMOTION_APPROVED:-0}" \
   node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" record
 info "배포와 smoke 통과"
