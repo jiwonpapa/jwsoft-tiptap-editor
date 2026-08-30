@@ -15,6 +15,7 @@ const baseEnv = {
   DEPLOY_EVIDENCE_CHECKSUM: checksum,
   DEPLOY_EVIDENCE_VERSION: "0.1.0-alpha.18",
   DEPLOY_EVIDENCE_ARTIFACT: "jwsoft-tiptap-editor-0.1.0-alpha.18.zip",
+  DEPLOY_EVIDENCE_APP_ENV: "staging",
   DEPLOY_EVIDENCE_TARGET: "test-host:/srv/g7",
   DEPLOY_EVIDENCE_SMOKE_URL: "https://example.invalid/smoke",
 };
@@ -37,6 +38,7 @@ try {
       ...baseEnv,
       DEPLOY_EVIDENCE_ENVIRONMENT: "production",
       DEPLOY_EVIDENCE_MODE: "update",
+      DEPLOY_EVIDENCE_APP_ENV: "production",
     },
     stdio: "pipe",
   });

@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 원격 변경 전에 `EXPECTED_APP_ENV`, production `APP_DEBUG=false`, Laravel cache·log·plugin 재귀 쓰기 권한과 install/update 실제 상태를 확인하는 무변경 배포 preflight 추가
 - staging smoke 증거와 production 동일 checksum을 비식별 지문으로 기록하고 production 전에 로컬 staging 증거까지 재검증하는 배포 gate 추가
 - G7 공개 renderer의 서버 내부 API 호출을 수용하는 멀티워커 하네스에서 상품·페이지 canonical HTML 출력까지 검증해 stable readiness를 60/62로 갱신
 - `0.1.0-alpha.18`: 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 태그 업데이트, 무데이터 삭제 uninstall, CKEditor 롤백·JWSoft 복구와 콘텐츠 해시 보존을 전용 G7 7.0.9에서 검증

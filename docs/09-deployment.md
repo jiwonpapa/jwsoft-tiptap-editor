@@ -6,6 +6,11 @@
 - `--apply`가 없으면 변경하지 않습니다.
 - production은 `PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production`이 추가로 필요합니다.
 - install/update 모드를 추측하지 않습니다.
+- 원격 `APP_ENV`가 `EXPECTED_APP_ENV`와 다르면 변경 전에 중단합니다.
+- staging 배포에 `APP_ENV=production` 대상을 사용할 수 없습니다.
+- production은 원격 `APP_ENV=production`, `APP_DEBUG=false`가 아니면 중단합니다.
+- Laravel cache·view·log·bootstrap cache 및 기존 JWSoft 설치 경로의 파일·하위 디렉터리와 plugin 루트가 배포 사용자에게 쓰기 가능하지 않으면 업로드 전에 중단합니다.
+- JWSoft 설치 여부와 `DEPLOY_MODE=install|update`가 일치하지 않으면 추측하거나 덮어쓰지 않습니다.
 - staging에 사용한 artifact checksum만 production에 허용합니다.
 - CKEditor 비활성화가 실패해 실제 활성 상태가 남아 있으면 JWSoft 활성화 guard가 배포를 중단합니다.
 - 원격 적용 전 관리자 설정에서 `legacyContentRiskAcknowledged=true`를 명시적으로 저장해야 합니다. 하네스가 이 확인을 대신하거나 기존 HTML을 자동 변환하지 않습니다.
@@ -40,15 +45,15 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 ## 원격 순서
 
 1. 로컬 release-check와 artifact·vendor bundle checksum
-2. artifact upload
-3. remote checksum 검증
-4. install 또는 update
-5. 기존 콘텐츠 전환 위험 확인 설정 검증
-6. CKEditor 비활성화
-7. jwsoft 활성화
-8. cache clear
-9. smoke
-10. 실패 시 즉시 역순 rollback
+2. 원격 환경·권한·설치 모드 무변경 사전검증
+3. artifact upload
+4. remote checksum 검증 후 rollback trap 활성화
+5. install 또는 update
+6. 기존 콘텐츠 전환 위험 확인 설정 검증
+7. CKEditor 비활성화
+8. jwsoft 활성화
+9. cache clear
+10. smoke와 배포 증거 기록
 
 하네스는 DB 전체 백업을 자동으로 만들지 않습니다. 이 플러그인은 기존 HTML 필드를 유지하며 G7 plugin update의 파일 백업·복원을 사용합니다. 적용 실패 시 하네스는 jwsoft를 비활성화하고 CKEditor 재활성화를 시도합니다. DB migration이 추가되는 릴리스는 별도 migration/backup ADR과 운영 승인 없이는 배포할 수 없습니다.
 

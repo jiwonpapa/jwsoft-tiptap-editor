@@ -49,6 +49,7 @@ const environment = process.env.DEPLOY_EVIDENCE_ENVIRONMENT ?? "";
 const version = process.env.DEPLOY_EVIDENCE_VERSION ?? "";
 const artifactName = process.env.DEPLOY_EVIDENCE_ARTIFACT ?? "";
 const deployMode = process.env.DEPLOY_EVIDENCE_MODE ?? "";
+const appEnvironment = process.env.DEPLOY_EVIDENCE_APP_ENV ?? "";
 const target = process.env.DEPLOY_EVIDENCE_TARGET ?? "";
 const smokeUrl = process.env.DEPLOY_EVIDENCE_SMOKE_URL ?? "";
 
@@ -63,6 +64,9 @@ if (!/^jwsoft-tiptap-editor-[0-9A-Za-z.-]+\.zip$/.test(artifactName)) {
 }
 if (!new Set(["install", "update"]).has(deployMode)) {
   throw new Error("deploy evidence mode must be install or update");
+}
+if (!/^[A-Za-z0-9._-]+$/.test(appEnvironment)) {
+  throw new Error("deploy evidence app environment is invalid");
 }
 if (target === "" || smokeUrl === "") {
   throw new Error("deploy evidence target and smoke URL are required");
@@ -86,6 +90,7 @@ const evidence = {
     sha256: checksum,
   },
   deployMode,
+  appEnvironment,
   targetFingerprint: fingerprint(target),
   smokeUrlFingerprint: fingerprint(smokeUrl),
   sameAsStaging,

@@ -14,6 +14,7 @@ check:
 	node scripts/license-audit.mjs
 	node scripts/deploy-contract-test.mjs
 	node scripts/deploy-evidence-test.mjs
+	node scripts/remote-deploy-preflight-test.mjs
 	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer validate --strict --no-check-publish
 	php tests/php/plugin_activation_test.php
 	php tests/php/plugin_double_load_test.php

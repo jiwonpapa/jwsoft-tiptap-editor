@@ -14,13 +14,14 @@ load_env_file "$config"
 
 : "${DEPLOY_HOST:?DEPLOY_HOST가 필요합니다.}"
 : "${DEPLOY_MODE:?DEPLOY_MODE=install 또는 update가 필요합니다.}"
+: "${EXPECTED_APP_ENV:?EXPECTED_APP_ENV가 필요합니다.}"
 : "${G7_REMOTE_ROOT:?G7_REMOTE_ROOT가 필요합니다.}"
 : "${PHP_BIN:=php}"
 : "${REMOTE_ARTIFACT_DIR:=/tmp/jwsoft-tiptap-editor}"
 : "${SMOKE_URL:?SMOKE_URL이 필요합니다.}"
 case "$DEPLOY_MODE" in install|update) ;; *) fail "DEPLOY_MODE는 install 또는 update여야 합니다." ;; esac
 
-for pair in "DEPLOY_HOST:$DEPLOY_HOST" "G7_REMOTE_ROOT:$G7_REMOTE_ROOT" "PHP_BIN:$PHP_BIN" "REMOTE_ARTIFACT_DIR:$REMOTE_ARTIFACT_DIR"; do
+for pair in "DEPLOY_HOST:$DEPLOY_HOST" "EXPECTED_APP_ENV:$EXPECTED_APP_ENV" "G7_REMOTE_ROOT:$G7_REMOTE_ROOT" "PHP_BIN:$PHP_BIN" "REMOTE_ARTIFACT_DIR:$REMOTE_ARTIFACT_DIR"; do
   require_safe_token "${pair%%:*}" "${pair#*:}"
 done
 printf '%s' "$SMOKE_URL" | grep -Eq '^https?://[A-Za-z0-9._:/?&=%+-]+$' || fail "SMOKE_URL 형식이 안전하지 않습니다."
@@ -45,7 +46,7 @@ info "호스트: $DEPLOY_HOST"
 info "G7: $G7_REMOTE_ROOT"
 info "artifact: $artifact"
 info "sha256: $checksum"
-info "적용 순서: 업로드 -> 원격 검증 -> 플러그인 $DEPLOY_MODE -> sirsoft-ckeditor5 비활성화 -> jwsoft 활성화 -> 캐시 정리 -> smoke"
+info "적용 순서: 원격 사전검증 -> 업로드 -> checksum 검증 -> 플러그인 $DEPLOY_MODE -> sirsoft-ckeditor5 비활성화 -> jwsoft 활성화 -> 캐시 정리 -> smoke"
 
 [ "$action" = "--apply" ] || { info "계획만 출력했습니다. 서버 변경 없음."; exit 0; }
 
@@ -53,6 +54,9 @@ require_command ssh
 require_command rsync
 require_command curl
 
+ssh "$DEPLOY_HOST" bash -s -- \
+  "$G7_REMOTE_ROOT" "$PHP_BIN" "$environment" "$EXPECTED_APP_ENV" "$DEPLOY_MODE" \
+  < "$PROJECT_ROOT/scripts/remote-deploy-preflight.sh"
 ssh "$DEPLOY_HOST" "mkdir -p '$REMOTE_ARTIFACT_DIR'"
 rsync -av --checksum "$artifact" "$DEPLOY_HOST:$remote_zip"
 
@@ -73,7 +77,6 @@ rollback() {
   "$php_bin" artisan optimize:clear --no-interaction
   echo '배포 실패: sirsoft-ckeditor5 활성화를 시도했습니다.' >&2
 }
-trap rollback ERR
 
 if command -v sha256sum >/dev/null 2>&1; then
   actual_checksum="$(sha256sum "$artifact" | awk '{print $1}')"
@@ -81,6 +84,7 @@ else
   actual_checksum="$(shasum -a 256 "$artifact" | awk '{print $1}')"
 fi
 [ "$actual_checksum" = "$expected_checksum" ] || { echo '원격 checksum 불일치' >&2; exit 1; }
+trap rollback ERR
 
 if [ "$deploy_mode" = "install" ]; then
   pending="plugins/_pending/jwsoft-tiptap-editor"
@@ -121,6 +125,7 @@ DEPLOY_EVIDENCE_CHECKSUM="$checksum" \
 DEPLOY_EVIDENCE_VERSION="$version" \
 DEPLOY_EVIDENCE_ARTIFACT="$(basename "$artifact")" \
 DEPLOY_EVIDENCE_MODE="$DEPLOY_MODE" \
+DEPLOY_EVIDENCE_APP_ENV="$EXPECTED_APP_ENV" \
 DEPLOY_EVIDENCE_TARGET="$DEPLOY_HOST:$G7_REMOTE_ROOT" \
 DEPLOY_EVIDENCE_SMOKE_URL="$SMOKE_URL" \
   node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" record
