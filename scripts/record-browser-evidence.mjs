@@ -2,6 +2,7 @@ import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
+import { validateMobileLayout } from "./stable-evidence.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const browserDir = path.join(root, "test-results/parity/browser");
@@ -40,6 +41,7 @@ const requiredArgs = [
   "mobile-body-scroll-width",
   "plugin-version",
   "source-commit",
+  "runtime-sha256",
   "observed-at",
 ];
 for (const key of requiredArgs) {
@@ -92,23 +94,23 @@ const mobileHeight = positiveInteger("mobile-height");
 const mobileToolbarClientWidth = positiveInteger("mobile-toolbar-client-width");
 const mobileToolbarScrollWidth = positiveInteger("mobile-toolbar-scroll-width");
 const mobileBodyScrollWidth = positiveInteger("mobile-body-scroll-width");
-if (mobileWidth > 480 || mobileHeight < 600) {
-  throw new Error("mobile viewport evidence is outside the supported range");
-}
-if (args["mobile-theme"] !== "dark") {
-  throw new Error("mobile dark theme evidence is required");
-}
-if (mobileToolbarScrollWidth <= mobileToolbarClientWidth) {
-  throw new Error("mobile toolbar must provide horizontal overflow");
-}
-if (mobileBodyScrollWidth > mobileWidth) {
-  throw new Error("mobile page must not overflow the viewport horizontally");
-}
+const responsive = {
+  viewport: { width: mobileWidth, height: mobileHeight },
+  theme: args["mobile-theme"],
+  toolbarClientWidth: mobileToolbarClientWidth,
+  toolbarScrollWidth: mobileToolbarScrollWidth,
+  bodyScrollWidth: mobileBodyScrollWidth,
+  editorInstances: 1,
+};
+validateMobileLayout(responsive);
 if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(args["plugin-version"])) {
   throw new Error("plugin-version must be a semantic version");
 }
 if (!/^[0-9a-f]{40}$/.test(args["source-commit"])) {
   throw new Error("source-commit must be a full git commit");
+}
+if (!/^[0-9a-f]{64}$/.test(args["runtime-sha256"])) {
+  throw new Error("runtime-sha256 must be the observed browser bundle digest");
 }
 if (Number.isNaN(Date.parse(args["observed-at"]))) {
   throw new Error("observed-at must be an ISO date-time");
@@ -121,6 +123,7 @@ const evidence = {
   observedAt: new Date(args["observed-at"]).toISOString(),
   pluginVersion: args["plugin-version"],
   sourceCommit: args["source-commit"],
+  runtimeSha256: args["runtime-sha256"],
   surfaces: {
     board: {
       create: true,
@@ -141,14 +144,7 @@ const evidence = {
     tabbableToolbarButtons: positiveInteger("tabbable"),
   },
   locales: ["ko", "en"],
-  responsive: {
-    viewport: { width: mobileWidth, height: mobileHeight },
-    theme: args["mobile-theme"],
-    toolbarClientWidth: mobileToolbarClientWidth,
-    toolbarScrollWidth: mobileToolbarScrollWidth,
-    bodyScrollWidth: mobileBodyScrollWidth,
-    editorInstances: 1,
-  },
+  responsive,
   performance: { readyMs, instances },
   screenshots,
 };

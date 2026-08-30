@@ -14,6 +14,7 @@ check:
 	node scripts/license-audit.mjs
 	node scripts/deploy-contract-test.mjs
 	node scripts/deploy-evidence-test.mjs
+	node scripts/stable-evidence-test.mjs
 	node scripts/remote-deploy-preflight-test.mjs
 	node scripts/remote-deploy-transaction-test.mjs
 	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer validate --strict --no-check-publish
@@ -24,6 +25,7 @@ check:
 	node scripts/vendor-bundle-manifest-test.mjs
 	find src tests/php tests/integration -name '*.php' -print0 | xargs -0 -n1 php -l
 	./scripts/check-shell.sh
+	node scripts/evidence-provenance.mjs record-checks
 
 build:
 	npm run build

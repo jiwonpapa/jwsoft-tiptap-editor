@@ -2,7 +2,9 @@
 
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 각 체크 항목의 `p0` ID는 `harness/contracts/stable-readiness.json`과 연결되며, 단순 체크 표시만으로 완료 처리되지 않습니다.
 
-공개 `alpha.18`은 전용 G7 7.0.9에서 release-candidate 계약, 재현 가능한 ZIP, GitHub 최초 설치, `alpha.16 → alpha.18` 온라인 업데이트, CKEditor 롤백과 콘텐츠 해시 보존을 검증했습니다. instance 수명주기·구조 편집·반응형 이미지 배치·브라우저 입력 계층, G7의 모든 `html_editor` 교체 저장 endpoint 서버 정제와 관리자 이미지 목록·참조 판정·삭제도 통과했습니다. 실제 브라우저에서 공개·관리자 게시판, 상품, 페이지와 direct `HtmlEditor` fallback까지 통과하여 현재 stable readiness는 60/62입니다. 상품·페이지 공개 출력은 G7의 서버 내부 API 호출을 수용하는 멀티워커 하네스와 fresh cache key에서 canonical HTML을 확인했습니다. 아래 `[x]`는 현 checkout의 자동화 산출물로 재검증되는 범위이고, `[ ]`는 staging·production 증거가 남은 stable 차단 항목입니다.
+공개 `alpha.18`은 전용 G7 7.0.9에서 GitHub 설치·업데이트·롤백과 주요 화면을 검증했습니다. 그러나 과거의 `60/62` 집계는 서로 다른 버전의 통과 JSON을 함께 인정했으므로 **최신 checkout의 stable 승인 수치가 아닙니다**. 현재 완료 수는 `make stable-readiness-gate`가 생성하는 `test-results/release/stable-readiness.json`에서 확인합니다.
+
+아래 `[x]`는 구현 및 과거 검증 이력이며, 현재 버전·소스 입력·실행 번들·패키지 checksum에 맞는 증거가 없으면 다시 미검증으로 집계합니다. `[ ]`는 승인 체크가 남은 항목입니다. 옛 screenshot이나 JSON의 버전·checksum만 바꿔 새 증거로 사용하지 않습니다. Chromium 입력 계층 검사와 Android/iOS 실기기 IME 관찰은 별개입니다.
 
 ## A. 편집기 교체
 

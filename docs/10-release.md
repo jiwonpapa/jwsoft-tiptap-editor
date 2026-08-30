@@ -27,7 +27,7 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [x] 전용 G7 ZIP 업데이트·롤백·복구 검증
 - [x] 공개 GitHub URL 최초 설치·Release 태그 업데이트·무데이터 삭제 uninstall 검증
 
-공개 `alpha.18` ZIP은 같은 commit epoch의 두 패키지가 SHA256 `0841149aadcacba18c89da4ba401d0880163cb42611a43f3c5df6a5668ccb8c1`로 일치합니다. 전용 G7 7.0.9에서 ZIP·GitHub 최초 설치, `alpha.16 → alpha.18` 태그 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증했습니다. UI 브라우저 증거는 게시판·상품·페이지·fallback, route-to-editor 5회 표본 861~1,093ms와 최대 동시 instance 1개를 기록합니다. `make release-candidate-check`는 alpha 후보 계약을 검사하며 실제 staging을 대체하지 않습니다. `make release-check`는 P0 62개 중 60개 통과와 남은 staging·production 2개 차단 항목을 분리해 보고하고, 미완료가 있는 동안 의도적으로 실패합니다.
+공개 `alpha.18` ZIP은 같은 commit epoch의 두 패키지가 SHA256 `0841149aadcacba18c89da4ba401d0880163cb42611a43f3c5df6a5668ccb8c1`로 일치합니다. 전용 G7 7.0.9에서 ZIP·GitHub 최초 설치, `alpha.16 → alpha.18` 태그 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증했습니다. 당시 UI 브라우저 증거는 게시판·상품·페이지·fallback, route-to-editor 5회 표본 861~1,093ms와 최대 동시 instance 1개를 기록합니다. 이는 최신 checkout의 재검증 결과가 아닙니다. `make release-candidate-check`는 alpha 후보 계약을 검사하며 실제 staging을 대체하지 않습니다. `make stable-readiness-gate`는 현재 입력·번들·ZIP에 맞는 P0 증거만 집계하고, 오래된 증거와 미완료를 차단합니다. 최신 완료 수는 생성된 JSON에서 확인하며 과거 `60/62`를 고정 수치로 재사용하지 않습니다.
 
 ## 공개
 

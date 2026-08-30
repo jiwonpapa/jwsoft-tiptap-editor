@@ -2,7 +2,7 @@
 
 그누보드7의 `sirsoft-ckeditor5`를 코어 수정 없이 대체하기 위한 Tiptap v3 기반 WYSIWYG 편집기 플러그인입니다.
 
-> 현재 상태: **`0.1.0-alpha.18` 공개 개발 릴리스**이며 GitHub 최초 설치·`alpha.16 → alpha.18` 온라인 업데이트·CKEditor 롤백을 전용 G7 7.0.9에서 검증했습니다. 게시판·상품·페이지 실브라우저까지 통과해 stable readiness는 **60/62**이고, staging·production 증거가 남아 있어 운영 설치 대상이 아닙니다.
+> 현재 상태: **개발·staging용 alpha**입니다. 공개 릴리스와 `main`의 미출시 변경은 다를 수 있습니다. 과거 버전에서 얻은 `60/62`를 최신 stable 승인으로 사용하지 않습니다. `make stable-readiness-gate`로 현재 소스·실행 번들·설치 ZIP에 맞는 증거와 남은 항목을 확인하며, stable·운영 설치 승인은 아직 없습니다.
 
 ## 결론
 

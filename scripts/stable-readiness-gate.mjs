@@ -1,5 +1,8 @@
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
+import { hashFile, sourceFingerprint } from "./evidence-provenance.mjs";
+import { currentPackage, validateStableArtifact } from "./stable-evidence.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const acceptancePath = path.join(
@@ -32,36 +35,64 @@ for (const item of contract.items ?? []) {
   }
   coverage.set(item.id, item);
 }
-const readArtifact = (relative) => {
-  const absolute = path.join(root, relative);
-  if (!fs.existsSync(absolute)) {
-    throw new Error(`stable evidence가 없습니다: ${relative}`);
-  }
-  const evidence = JSON.parse(fs.readFileSync(absolute, "utf8"));
-  if (relative.endsWith("/unit.json")) {
-    if (
-      evidence.success !== true ||
-      evidence.numTotalTests < 1 ||
-      evidence.numPassedTests !== evidence.numTotalTests
-    ) {
-      throw new Error(`unit evidence가 통과하지 않았습니다: ${relative}`);
-    }
-  } else if (evidence.status !== "pass") {
-    throw new Error(`stable evidence가 통과하지 않았습니다: ${relative}`);
-  }
-  return evidence;
+const version = JSON.parse(
+  fs.readFileSync(path.join(root, "package.json"), "utf8"),
+).version;
+const context = {
+  root,
+  version,
+  fingerprint: sourceFingerprint(root),
+  runtimeSha256: fs.existsSync(path.join(root, "dist/js/plugin.iife.js"))
+    ? hashFile(path.join(root, "dist/js/plugin.iife.js"))
+    : null,
+  artifactSha256: null,
 };
+let packageBlocker = null;
+try {
+  context.artifactSha256 = currentPackage(context);
+} catch (error) {
+  packageBlocker = error.message;
+}
+const cleanTree =
+  execFileSync("git", ["status", "--porcelain"], {
+    cwd: root,
+    encoding: "utf8",
+  }).trim() === "";
+const globalBlockers = cleanTree ? [] : ["Git worktree is not clean"];
+const unknownIds = [...coverage.keys()].filter(
+  (id) => !rows.some((row) => row.id === id),
+);
+if (unknownIds.length)
+  throw new Error(`체크리스트에 없는 coverage ID: ${unknownIds.join(", ")}`);
 
 const verified = [];
-for (const row of rows.filter(({ checked }) => checked)) {
+const remaining = [];
+const artifactErrors = new Map();
+for (const row of rows) {
   const item = coverage.get(row.id);
   if (!item) {
-    throw new Error(`완료 P0의 coverage 계약이 없습니다: ${row.id}`);
+    throw new Error(`P0의 coverage 계약이 없습니다: ${row.id}`);
   }
   if (!Array.isArray(item.artifacts) || item.artifacts.length === 0) {
     throw new Error(`stable coverage artifact가 없습니다: ${row.id}`);
   }
-  for (const artifact of item.artifacts) readArtifact(artifact);
+  const reasons = row.checked ? [] : ["acceptance checklist is not approved"];
+  for (const artifact of item.artifacts) {
+    if (!artifactErrors.has(artifact)) {
+      try {
+        validateStableArtifact(context, artifact);
+        artifactErrors.set(artifact, null);
+      } catch (error) {
+        artifactErrors.set(artifact, error.message);
+      }
+    }
+    if (artifactErrors.get(artifact))
+      reasons.push(`${artifact}: ${artifactErrors.get(artifact)}`);
+  }
+  if (reasons.length) {
+    remaining.push({ id: row.id, requirement: row.requirement, reasons });
+    continue;
+  }
   verified.push({
     id: row.id,
     requirement: row.requirement,
@@ -70,17 +101,22 @@ for (const row of rows.filter(({ checked }) => checked)) {
   });
 }
 
-const remaining = rows
-  .filter(({ checked }) => !checked)
-  .map(({ id, requirement }) => ({ id, requirement }));
+const ready = remaining.length === 0 && globalBlockers.length === 0;
 const outputDirectory = path.join(root, "test-results", "release");
 fs.mkdirSync(outputDirectory, { recursive: true });
 fs.writeFileSync(
   path.join(outputDirectory, "stable-readiness.json"),
   `${JSON.stringify(
     {
-      schemaVersion: 2,
-      status: remaining.length === 0 ? "pass" : "blocked",
+      schemaVersion: 3,
+      status: ready ? "pass" : "blocked",
+      pluginVersion: version,
+      sourceFingerprint: context.fingerprint,
+      runtimeSha256: context.runtimeSha256,
+      artifactSha256: context.artifactSha256,
+      packageBlocker,
+      cleanTree,
+      globalBlockers,
       totalCount: rows.length,
       verifiedCount: verified.length,
       remainingCount: remaining.length,
@@ -91,10 +127,11 @@ fs.writeFileSync(
     2,
   )}\n`,
 );
-if (remaining.length > 0) {
+if (!ready) {
   console.error(
     `[jwsoft] stable 출시 차단: 증거 완료 ${verified.length}/${rows.length}, P0 미완료 ${remaining.length}개\n${remaining
-      .map((item) => `- ${item.id}: ${item.requirement}`)
+      .map((item) => `- ${item.id}: ${item.reasons.join("; ")}`)
+      .concat(globalBlockers.map((reason) => `- ${reason}`))
       .join("\n")}`,
   );
   process.exit(1);

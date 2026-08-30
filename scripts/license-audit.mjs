@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import { hashFile, sourceFingerprint } from "./evidence-provenance.mjs";
 import path from "node:path";
 import process from "node:process";
 import { execFileSync } from "node:child_process";
@@ -111,6 +112,8 @@ const evidence = {
   tiptapProPackages: 0,
   domPurifyLicenseOption: "Apache-2.0",
   artifactChecked,
+  sourceFingerprint: sourceFingerprint(root),
+  artifactSha256: artifactChecked ? hashFile(artifact) : null,
 };
 fs.mkdirSync(path.join(root, "test-results", "release"), {
   recursive: true,

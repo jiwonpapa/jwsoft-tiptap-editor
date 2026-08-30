@@ -36,6 +36,9 @@ function recordBrowserEvidence(
         browser,
         pluginVersion: manifest.version,
         sourceCommit,
+        runtimeSha256: createHash("sha256")
+          .update(fs.readFileSync(bundlePath))
+          .digest("hex"),
         ...result,
       },
       null,

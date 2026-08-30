@@ -3,6 +3,7 @@ import fs from "node:fs";
 import path from "node:path";
 import process from "node:process";
 import { execFileSync } from "node:child_process";
+import { hashFile, sourceFingerprint } from "./evidence-provenance.mjs";
 
 const root = path.resolve(import.meta.dirname, "..");
 const pkg = JSON.parse(
@@ -36,6 +37,8 @@ const evidence = {
   schemaVersion: 1,
   status: "pass",
   version: pkg.version,
+  sourceFingerprint: sourceFingerprint(root),
+  runtimeSha256: hashFile(path.join(root, "dist/js/plugin.iife.js")),
   sourceDateEpoch: Number(epoch),
   builds: checksums.length,
   artifact: path.relative(root, artifact),
