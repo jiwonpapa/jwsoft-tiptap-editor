@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 전용 G7 7.0.9에서 공개·관리자 게시판 create/edit/reply/show와 direct `HtmlEditor` fallback 실브라우저 증거를 추가하고, 상품·페이지 공개 renderer 차단을 플러그인 활성·비활성 대조군으로 분리 기록
 - 관리자 설정·업로드 메뉴의 G7 권한 계약을 고정하고 오류 로그에서 업로드 세션 토큰과 내부 파일 경로를 제거
 - 관리자 이미지 목록이 요청 page를 정확히 적용하고 게시글·상품 설명·상품 공통정보·페이지의 참조를 판정하며 단건·일괄 삭제의 파일·DB 결과와 경합 누락 ID를 통합 검증
 - G7 7.0.9의 모든 `html_editor` 교체 저장 endpoint 11개를 공통 서버 sanitizer로 보호하고 다국어 HTML map도 locale별 canonical 정제

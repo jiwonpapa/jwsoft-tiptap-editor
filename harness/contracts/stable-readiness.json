@@ -300,10 +300,30 @@
       "artifacts": ["test-results/parity/integration.json"]
     },
     {
+      "id": "surfaces.public-board",
+      "gate": "browser",
+      "requirement": "공개 게시판 create edit reply show",
+      "artifacts": ["test-results/parity/browser/public-board.json"]
+    },
+    {
+      "id": "surfaces.admin-board",
+      "gate": "browser",
+      "requirement": "관리자 게시판 create edit show",
+      "artifacts": ["test-results/parity/browser/admin-board.json"]
+    },
+    {
       "id": "surfaces.mobile-dark-i18n",
       "gate": "browser",
       "requirement": "모바일 다크모드 한국어 영어 편집 화면",
       "artifacts": ["test-results/parity/browser/evidence.json"]
+    },
+    {
+      "id": "surfaces.fallback",
+      "gate": "browser",
+      "requirement": "direct HtmlEditor fallback 화면 무회귀",
+      "artifacts": [
+        "test-results/parity/browser/direct-html-editor-fallback.json"
+      ]
     },
     {
       "id": "lifecycle.install-sources",
