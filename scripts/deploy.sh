@@ -112,8 +112,23 @@ fi
 
 echo '에디터 전환: CKEditor를 비활성화한 뒤 JWSoft를 활성화합니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 변경되지 않습니다. 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.'
 
+verify_editor_state() {
+  "$php_bin" -r '
+  require "vendor/autoload.php";
+  $app = require "bootstrap/app.php";
+  $app->make(Illuminate\Contracts\Console\Kernel::class)->bootstrap();
+  $repository = $app->make(App\Contracts\Repositories\PluginRepositoryInterface::class);
+  $ready = $repository->findActiveByIdentifier("jwsoft-tiptap-editor") !== null
+      && $repository->findActiveByIdentifier("sirsoft-ckeditor5") === null;
+  exit($ready ? 0 : 1);
+  '
+}
+
 "$php_bin" artisan plugin:deactivate sirsoft-ckeditor5 --no-interaction || true
-"$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction
+if ! verify_editor_state; then
+  "$php_bin" artisan plugin:activate jwsoft-tiptap-editor --no-interaction
+fi
+verify_editor_state
 "$php_bin" artisan optimize:clear --no-interaction
 "$php_bin" artisan plugin:list | grep -q 'jwsoft-tiptap-editor'
 trap - ERR

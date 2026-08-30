@@ -15,6 +15,7 @@
 - 기존 JWSoft pending 경로는 삭제·덮어쓰지 않습니다. 최초 설치는 새 임시 디렉터리에 압축을 풀고 정확한 플러그인 루트를 이동합니다.
 - staging에 사용한 artifact checksum만 production에 허용합니다.
 - CKEditor 비활성화가 실패해 실제 활성 상태가 남아 있으면 JWSoft 활성화 guard가 배포를 중단합니다.
+- 업데이트 후 이미 JWSoft가 활성 상태인 경우 활성화 명령을 반복하지 않습니다. G7 PluginRepository 계약으로 JWSoft active / CKEditor inactive를 전환 전후 확인하며, 명령 성공 코드만으로 완료를 판정하지 않습니다.
 - `--apply`로 승인된 배포만 CKEditor 비활성화 → JWSoft 활성화를 수행합니다. 선행 위험 확인 설정은 요구하지 않으며 전환 직전에 안내합니다. 설치·활성화·조회는 기존 본문을 쓰지 않고, 기존 글 수정 후 저장 시에만 정제 HTML이 저장됩니다.
 
 ## 환경 파일
