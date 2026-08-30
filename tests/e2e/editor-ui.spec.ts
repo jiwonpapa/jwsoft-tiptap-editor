@@ -974,6 +974,15 @@ test("inline appearance find-replace checklist and fullscreen stay policy-safe",
 test("table context controls and image resize are usable on the rendered editor", async ({
   page,
 }, testInfo) => {
+  await page.route("https://images.example/proof.png", (route) =>
+    route.fulfill({
+      contentType: "image/png",
+      body: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=",
+        "base64",
+      ),
+    }),
+  );
   await mountEditor(
     page,
     "standard",
@@ -1008,6 +1017,25 @@ test("table context controls and image resize are usable on the rendered editor"
   await expect(editable.locator("figure.jw-image")).toHaveClass(
     /jw-image-size-55/,
   );
+  if (testInfo.project.name === "chromium-desktop") {
+    await handle.scrollIntoViewIfNeeded();
+    const bounds = await handle.boundingBox();
+    const width = await editable.evaluate((element) => element.clientWidth);
+    await page.mouse.move(
+      bounds!.x + bounds!.width / 2,
+      bounds!.y + bounds!.height / 2,
+    );
+    await page.mouse.down();
+    await page.mouse.move(
+      bounds!.x + bounds!.width / 2 - width * 0.1,
+      bounds!.y + bounds!.height / 2,
+      { steps: 6 },
+    );
+    await page.mouse.up();
+    await expect(editable.locator("figure.jw-image")).toHaveClass(
+      /jw-image-size-45/,
+    );
+  }
   await expect(editable.locator("[style]")).toHaveCount(0);
   await page.screenshot({
     path: testInfo.outputPath("editor-context-tools.png"),
