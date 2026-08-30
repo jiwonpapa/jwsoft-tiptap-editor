@@ -10,6 +10,7 @@ import { editorIcon, iconForLabel } from "@/editor/icons";
 import { createImageUploadQueue } from "@/editor/imageUploadQueue";
 import { createPopover } from "@/editor/popover";
 import { installWritingTools } from "@/editor/writingTools";
+import { labelMenuAction, menuField } from "@/editor/menuControls";
 import {
   DEFAULT_IMAGE_CLASS_TOKENS,
   imageClassTokens,
@@ -1062,80 +1063,93 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       active: () => editor.isActive("underline"),
     }),
   );
+  const menus: ReturnType<typeof createPopover>[] = [];
+  const menu = (label: string, icon: Parameters<typeof createPopover>[1]) => {
+    const handle = createPopover(label, icon);
+    menus.push(handle);
+    toolbar.append(handle.trigger);
+    region.append(handle.panel);
+    return handle;
+  };
   if (profile !== "minimal") {
+    const lists = menu(locale === "en" ? "Lists" : "목록", "list");
     add(
-      inline,
-      createButton({
-        label: t("취소선"),
-        run: () => void editor.chain().focus().toggleStrike().run(),
-        active: () => editor.isActive("strike"),
-      }),
+      lists.panel,
+      labelMenuAction(
+        createButton({
+          label: t("목록"),
+          title: t("글머리 목록"),
+          run: () => void editor.chain().focus().toggleBulletList().run(),
+          active: () => editor.isActive("bulletList"),
+        }),
+      ),
     );
     add(
-      inline,
-      createButton({
-        label: t("코드"),
-        run: () => void editor.chain().focus().toggleCode().run(),
-        active: () => editor.isActive("code"),
-      }),
-    );
-  }
-
-  if (profile !== "minimal") {
-    const structure = addGroup(t("구조"));
-    add(
-      structure,
-      createButton({
-        label: t("인용"),
-        run: () => void editor.chain().focus().toggleBlockquote().run(),
-        active: () => editor.isActive("blockquote"),
-      }),
+      lists.panel,
+      labelMenuAction(
+        createButton({
+          label: t("번호"),
+          title: t("번호 목록"),
+          run: () => void editor.chain().focus().toggleOrderedList().run(),
+          active: () => editor.isActive("orderedList"),
+        }),
+      ),
     );
     add(
-      structure,
-      createButton({
-        label: t("목록"),
-        title: t("글머리 목록"),
-        run: () => void editor.chain().focus().toggleBulletList().run(),
-        active: () => editor.isActive("bulletList"),
-      }),
+      lists.panel,
+      labelMenuAction(
+        createButton({
+          label: locale === "en" ? "Checklist" : "체크리스트",
+          run: () =>
+            void editor
+              .chain()
+              .focus()
+              .toggleList("taskList", "taskItem")
+              .run(),
+          active: () => editor.isActive("taskList"),
+        }),
+      ),
     );
-    add(
-      structure,
-      createButton({
-        label: t("번호"),
-        title: t("번호 목록"),
-        run: () => void editor.chain().focus().toggleOrderedList().run(),
-        active: () => editor.isActive("orderedList"),
-      }),
-    );
-    add(
-      structure,
-      createButton({
-        label: t("구분선"),
-        run: () => void editor.chain().focus().setHorizontalRule().run(),
-      }),
-    );
-
-    const layout = addGroup(t("문단 모양"));
-    add(layout, createTokenSelect(editor, "textSize", "문단 크기", locale));
-    add(layout, createTokenSelect(editor, "alignment", "정렬", locale));
-    add(layout, createTokenSelect(editor, "spacing", "줄 간격", locale));
+    const paragraph = menu(t("문단 모양"), "paragraph");
+    const layout = paragraph.panel;
+    for (const [category, label] of [
+      ["alignment", "정렬"],
+      ["spacing", "줄 간격"],
+      ["textSize", "문단 크기"],
+    ] as const) {
+      const select = createTokenSelect(editor, category, label, locale);
+      controls.push(select);
+      layout.append(menuField(t(label), select));
+    }
     add(
       layout,
-      createButton({
-        label: t("내어쓰기"),
-        run: () => void changeIndentation(editor, -1),
-        enabled: () => canChangeIndentation(editor, -1),
-      }),
+      labelMenuAction(
+        createButton({
+          label: t("내어쓰기"),
+          run: () => void changeIndentation(editor, -1),
+          enabled: () => canChangeIndentation(editor, -1),
+        }),
+      ),
     );
     add(
       layout,
-      createButton({
-        label: t("들여쓰기"),
-        run: () => void changeIndentation(editor, 1),
-        enabled: () => canChangeIndentation(editor, 1),
-      }),
+      labelMenuAction(
+        createButton({
+          label: t("들여쓰기"),
+          run: () => void changeIndentation(editor, 1),
+          enabled: () => canChangeIndentation(editor, 1),
+        }),
+      ),
+    );
+    add(
+      layout,
+      labelMenuAction(
+        createButton({
+          label: t("인용"),
+          run: () => void editor.chain().focus().toggleBlockquote().run(),
+          active: () => editor.isActive("blockquote"),
+        }),
+      ),
     );
   }
 
@@ -1188,46 +1202,13 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       add(insert, smartCard);
       dialogs.push(createSmartCardDialog(editor, smartCard, locale));
     }
-  }
-
-  if (profile === "full") {
-    const tableTools = addGroup(t("표 편집"));
-    for (const item of [
-      [
-        "행+",
-        () => editor.chain().focus().addRowAfter().run(),
-        () => editor.can().addRowAfter(),
-      ],
-      [
-        "행−",
-        () => editor.chain().focus().deleteRow().run(),
-        () => editor.can().deleteRow(),
-      ],
-      [
-        "열+",
-        () => editor.chain().focus().addColumnAfter().run(),
-        () => editor.can().addColumnAfter(),
-      ],
-      [
-        "열−",
-        () => editor.chain().focus().deleteColumn().run(),
-        () => editor.can().deleteColumn(),
-      ],
-      [
-        "표 삭제",
-        () => editor.chain().focus().deleteTable().run(),
-        () => editor.can().deleteTable(),
-      ],
-    ] as const) {
-      add(
-        tableTools,
-        createButton({
-          label: t(item[0]),
-          run: () => void item[1](),
-          enabled: item[2],
-        }),
-      );
-    }
+    add(
+      insert,
+      createButton({
+        label: t("구분선"),
+        run: () => void editor.chain().focus().setHorizontalRule().run(),
+      }),
+    );
   }
 
   const history = addGroup(t("기록"));
@@ -1240,6 +1221,19 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       enabled: () => editor.can().undo(),
     }),
   );
+
+  toolbar.prepend(history);
+  if (profile !== "minimal") {
+    const more = menu(locale === "en" ? "More tools" : "도구 더보기", "more");
+    const formatting = installWritingTools(
+      editor,
+      region,
+      toolbar,
+      more.panel,
+      locale,
+    );
+    inline.after(formatting.trigger);
+  }
   add(
     history,
     createButton({
@@ -1261,6 +1255,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
 
   const update = () => {
     for (const control of controls) control.__jwsoftUpdate?.(editor.isEditable);
+    for (const handle of menus) handle.trigger.disabled = !editor.isEditable;
     toolbar.dispatchEvent(new Event("jwsoft-controls-updated"));
   };
   editor.on("transaction", update);
@@ -1272,44 +1267,8 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     editor.off("update", update);
   });
   installRovingKeyboard(toolbar);
-  const more = createPopover(
-    locale === "en" ? "More formatting" : "서식 더보기",
-  );
-  const extraGroups = [
-    ...toolbar.querySelectorAll<HTMLElement>(".jwsoft-tiptap-tool-group"),
-  ].filter((group) =>
-    [t("구조"), t("문단 모양"), t("표 편집")].includes(
-      group.getAttribute("aria-label") ?? "",
-    ),
-  );
-  for (const group of extraGroups) more.panel.append(group);
-  toolbar.append(more.trigger);
-  region.append(more.panel);
-  if (profile !== "minimal")
-    installWritingTools(editor, region, toolbar, more.panel, locale);
-  const compactTools = [
-    ...inline.querySelectorAll<HTMLButtonElement>("button"),
-  ].slice(3);
-  const compactGroup = createGroup(t("글자 서식"));
-  more.panel.prepend(compactGroup);
-  const adapt = () => {
-    const compact = toolbar.clientWidth < 620;
-    if (compact) {
-      for (const tool of compactTools) compactGroup.append(tool);
-      more.panel.append(history);
-    } else {
-      for (const tool of compactTools) inline.append(tool);
-      toolbar.insertBefore(history, more.trigger);
-    }
-    compactGroup.hidden = !compact;
-    toolbar.dispatchEvent(new Event("jwsoft-controls-updated"));
-  };
-  const resizeObserver =
-    typeof ResizeObserver === "undefined" ? null : new ResizeObserver(adapt);
-  resizeObserver?.observe(toolbar);
   editor.on("destroy", () => {
-    resizeObserver?.disconnect();
-    more.destroy();
+    for (const handle of menus) handle.destroy();
   });
   update();
   return region;

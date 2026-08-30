@@ -104,6 +104,14 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
 .jwsoft-tiptap-popover:popover-open { display: flex; flex-direction: column; gap: 8px; animation: jwsoft-reveal .13s ease-out; }
 .jwsoft-tiptap-popover .jwsoft-tiptap-tool-group { border: 0; padding: 5px 0; flex-wrap: wrap; max-width: 330px; }
 .jwsoft-tiptap-popover .jwsoft-tiptap-tool-group + .jwsoft-tiptap-tool-group { border-top: 1px solid #edf0f4; }
+.jwsoft-menu-text, .jwsoft-menu-check { display: none; }
+.jwsoft-tiptap-popover { min-width: 240px; }
+.jwsoft-tiptap-popover [data-editor-command] { width: 100%; justify-content: flex-start; gap: 10px; padding-inline: 10px; }
+.jwsoft-tiptap-popover .jwsoft-menu-text { display: block; flex: 1; text-align: left; font-weight: 450; }
+.jwsoft-tiptap-popover .jwsoft-menu-check { display: block; width: 15px; visibility: hidden; }
+.jwsoft-tiptap-popover [aria-pressed=true] > .jwsoft-menu-check { visibility: visible; }
+.jwsoft-tiptap-popover [data-editor-command]:hover::after { display: none; }
+.jwsoft-menu-section { display: grid; gap: 2px; padding-top: 8px; border-top: 1px solid #edf0f4; }
 .jwsoft-tiptap-dialog { box-sizing: border-box; position: fixed; inset: 0; margin: auto; padding: 0; width: min(640px, calc(100vw - 32px)); max-height: min(820px, calc(100dvh - 48px)); overflow: auto; border: 1px solid #e5e7eb; border-radius: 16px; background: #fff; color: #20242b; box-shadow: 0 24px 80px #0f172a40; font-family: inherit; }
 .jwsoft-tiptap-dialog[open] { display: block; animation: jwsoft-reveal .16s ease-out; }
 .jwsoft-tiptap-dialog::backdrop { background: #0f172a66; backdrop-filter: blur(3px); }

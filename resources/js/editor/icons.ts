@@ -10,6 +10,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Code,
+  Eraser,
   Columns3,
   Highlighter,
   Image,
@@ -25,6 +26,7 @@ import {
   Minus,
   MoreHorizontal,
   Pilcrow,
+  Plus,
   Quote,
   Redo2,
   RotateCcw,
@@ -72,6 +74,8 @@ const icons = {
   upload: UploadCloud,
   retry: RotateCcw,
   remove: Trash2,
+  clear: Eraser,
+  insert: Plus,
   check: Check,
   down: ChevronDown,
   left: ChevronLeft,
@@ -132,6 +136,8 @@ const labels: Record<string, EditorIcon> = {
   "열+": "columns",
   "열−": "columns",
   "표 삭제": "remove",
+  체크리스트: "taskList",
+  Checklist: "taskList",
 };
 
 export function iconForLabel(label: string): EditorIcon | undefined {

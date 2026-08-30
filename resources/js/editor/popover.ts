@@ -13,6 +13,10 @@ export function createPopover(label: string, icon: EditorIcon = "more") {
   panel.popover = "auto";
   panel.setAttribute("role", "dialog");
   panel.setAttribute("aria-label", label);
+  panel.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element)) return;
+    if (event.target.closest("[data-editor-command]")) panel.hidePopover?.();
+  });
   trigger.setAttribute("aria-haspopup", "dialog");
   trigger.setAttribute("aria-expanded", "false");
   const position = () => {

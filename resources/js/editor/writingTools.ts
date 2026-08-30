@@ -8,6 +8,7 @@ import { editorIcon, type EditorIcon } from "@/editor/icons";
 import type { InlineCategory } from "@/editor/inlineStyle";
 import { createPopover } from "@/editor/popover";
 import { createFindReplace } from "@/editor/findReplace";
+import { labelMenuAction } from "@/editor/menuControls";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 
 export function installWritingTools(
@@ -117,36 +118,40 @@ export function installWritingTools(
   toolbar.insertBefore(formatting.trigger, toolbar.lastElementChild);
   region.append(panel);
   const advanced = document.createElement("div");
-  advanced.className = "jwsoft-tiptap-tool-group";
+  advanced.className = "jwsoft-menu-section";
+  const marks = [
+    ["strike", "strike", en ? "Strikethrough" : "취소선"],
+    ["code", "code", en ? "Code" : "코드"],
+    ["subscript", "subscript", en ? "Subscript" : "아래 첨자"],
+    ["superscript", "superscript", en ? "Superscript" : "위 첨자"],
+  ] as const;
+  const markButtons = marks.map(([mark, icon, label]) => {
+    const control = labelMenuAction(
+      button(label, icon, () => editor.chain().focus().toggleMark(mark).run()),
+    );
+    advanced.append(control);
+    return { control, mark };
+  });
   advanced.append(
-    button(en ? "Subscript" : "아래 첨자", "subscript", () =>
-      editor.chain().focus().toggleMark("subscript").run(),
+    labelMenuAction(
+      button(en ? "Clear formatting" : "서식 지우기", "clear", () => {
+        const chain = editor.chain().focus().unsetAllMarks().clearNodes();
+        for (const category of [
+          "textSize",
+          "alignment",
+          "spacing",
+          "indentation",
+        ] as const)
+          chain.setClassToken(category, null);
+        chain.run();
+      }),
     ),
-    button(en ? "Superscript" : "위 첨자", "superscript", () =>
-      editor.chain().focus().toggleMark("superscript").run(),
-    ),
-    button(en ? "Checklist" : "체크리스트", "taskList", () =>
-      editor.chain().focus().toggleList("taskList", "taskItem").run(),
-    ),
-    button(en ? "Clear formatting" : "서식 지우기", "remove", () => {
-      const chain = editor.chain().focus().unsetAllMarks().clearNodes();
-      for (const category of [
-        "textSize",
-        "alignment",
-        "spacing",
-        "indentation",
-      ] as const)
-        chain.setClassToken(category, null);
-      chain.run();
-    }),
   );
-  more.prepend(advanced);
-  const search = button(
-    en ? "Find and replace" : "찾기 / 바꾸기",
-    "search",
-    () => {},
+  panel.append(advanced);
+  const search = labelMenuAction(
+    button(en ? "Find and replace" : "찾기 / 바꾸기", "search", () => {}),
   );
-  advanced.append(search);
+  more.append(search);
   const findDialog = createFindReplace(editor, search, locale);
   region.append(findDialog.element);
   let fullscreen = false,
@@ -159,20 +164,31 @@ export function installWritingTools(
       previousOverflow = document.documentElement.style.overflow;
       document.documentElement.style.overflow = "hidden";
     } else document.documentElement.style.overflow = previousOverflow;
-    full.replaceChildren(
-      editorIcon(fullscreen ? "exitFullscreen" : "fullscreen"),
-    );
+    full
+      .querySelector(".jwsoft-icon")
+      ?.replaceWith(editorIcon(fullscreen ? "exitFullscreen" : "fullscreen"));
+    const label = fullscreen
+      ? en
+        ? "Exit fullscreen"
+        : "전체화면 종료"
+      : en
+        ? "Fullscreen"
+        : "전체화면";
+    full.setAttribute("aria-label", label);
+    full.title = label;
+    full.dataset.tooltip = label;
+    full.querySelector(".jwsoft-menu-text")!.textContent = label;
     full.setAttribute("aria-pressed", String(fullscreen));
   };
-  const full = button(
-    en ? "Fullscreen" : "전체화면",
-    "fullscreen",
-    toggleFullscreen,
+  const full = labelMenuAction(
+    button(en ? "Fullscreen" : "전체화면", "fullscreen", toggleFullscreen),
   );
-  advanced.append(full);
+  full.setAttribute("aria-pressed", "false");
+  more.append(full);
   const escapeFullscreen = (event: KeyboardEvent) => {
     if (
       event.key === "Escape" &&
+      !event.defaultPrevented &&
       fullscreen &&
       !document.querySelector("dialog[open], [popover]:popover-open")
     )
@@ -201,7 +217,7 @@ export function installWritingTools(
     contextButtons.push({ button: control, can });
   };
   const openMain = (label: string) => {
-    [...toolbar.querySelectorAll<HTMLButtonElement>("button")]
+    [...region.querySelectorAll<HTMLButtonElement>("button")]
       .find((control) => control.getAttribute("aria-label") === label)
       ?.click();
   };
@@ -345,12 +361,16 @@ export function installWritingTools(
         "aria-pressed",
         String((attributes[item.category] ?? null) === item.token),
       );
+    for (const { control, mark } of markButtons)
+      control.setAttribute("aria-pressed", String(editor.isActive(mark)));
     const length = Array.from(editor.state.doc.textContent).length;
     count.textContent = en
       ? `${length.toLocaleString()} characters`
       : `${length.toLocaleString()}자`;
     for (const control of [
       ...advanced.querySelectorAll("button"),
+      search,
+      full,
       formatting.trigger,
     ])
       control.disabled = !editor.isEditable;
@@ -421,4 +441,5 @@ export function installWritingTools(
   queueMicrotask(() => {
     if (!editor.isDestroyed) update();
   });
+  return formatting;
 }

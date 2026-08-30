@@ -386,9 +386,21 @@ describe("G7 editor lifecycle", () => {
       },
       undefined,
     );
-    expect(full.querySelector(".jwsoft-tiptap-popover")?.textContent).toContain(
-      "표 삭제",
+    const panels = [...full.querySelectorAll(".jwsoft-tiptap-popover")];
+    expect(
+      panels.find((panel) => panel.getAttribute("aria-label") === "도구 더보기")
+        ?.textContent,
+    ).toBe("찾기 / 바꾸기전체화면");
+    expect(
+      panels.find((panel) => panel.getAttribute("aria-label") === "목록")
+        ?.textContent,
+    ).toBe("글머리 목록번호 목록체크리스트");
+    expect(panels.some((panel) => panel.textContent?.includes("표 삭제"))).toBe(
+      false,
     );
+    expect(
+      full.querySelector('.jwsoft-tiptap-toolbar [aria-label^="실행취소"]'),
+    ).not.toBeNull();
 
     const readOnly = addContainer("notice");
     await initEditorHandler(
