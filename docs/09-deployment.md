@@ -63,4 +63,6 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 
 staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact checksum과 대상·smoke URL의 SHA-256 지문만 기록합니다. production 계획·적용은 이 staging 증거와 `APPROVED_STAGING_SHA256`가 현재 artifact에 모두 일치해야 하며, 성공 후 `production.json`을 기록합니다. 원격 호스트·경로·URL 원문과 비밀값은 증거에 저장하지 않습니다.
 
-`alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다. 실제 `deploy/environments/staging.env`·`production.env`, 대상 정보와 배포 승인이 없으므로 원격 staging 또는 production 적용 증거로 해석하지 않습니다.
+`alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다.
+
+2026-08-30 승인된 원격 staging G7 7.0.9에 공개 ZIP과 동일 checksum으로 최초 설치했습니다. 원격 entrypoint·manifest·JS·vendor bundle checksum, 필수 테이블 3개, health·관리자 shell HTTP 200, 기존 본문 70,011건의 해시 및 코어 변경 상태 보존을 확인했습니다. 전환 위험 확인 설정이 false여서 JWSoft는 inactive, CKEditor는 active를 유지합니다. 설치 결과는 로컬 `test-results/deploy/staging-install.json`에 별도 기록하며 활성 editor smoke나 production 배포 증거가 아닙니다. 전체 stable readiness는 계속 60/62입니다.

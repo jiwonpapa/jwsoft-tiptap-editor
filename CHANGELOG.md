@@ -6,6 +6,7 @@
 
 ### Changed
 
+- 승인된 원격 staging G7 7.0.9에 `alpha.18` 최초 설치와 원본 파일·콘텐츠 해시 보존을 확인; 기존 콘텐츠 전환 위험 미확인으로 JWSoft 활성화는 보류하고 CKEditor 유지
 - 배포 하네스에서 SSH 사용자·앱 소유자와 배포 역할·Laravel 실행 모드를 분리하고, 최초 ZIP 설치의 중첩 경로 오류 및 기존 pending 삭제를 방지; 전환 위험 미확인 시 설치 후 활성화만 보류
 - 원격 변경 전에 `EXPECTED_APP_ENV`, production `APP_DEBUG=false`, Laravel cache·log·plugin 재귀 쓰기 권한과 install/update 실제 상태를 확인하는 무변경 배포 preflight 추가
 - staging smoke 증거와 production 동일 checksum을 비식별 지문으로 기록하고 production 전에 로컬 staging 증거까지 재검증하는 배포 gate 추가
