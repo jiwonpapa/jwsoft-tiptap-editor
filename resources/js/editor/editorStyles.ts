@@ -92,6 +92,7 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
 .jwsoft-tiptap-tool[aria-pressed=true], .jwsoft-tiptap-tool[aria-expanded=true] { border-color: transparent; background: #eff4ff; color: #1d4ed8; }
 .jwsoft-tiptap-tool:disabled { color: #a3a9b3; opacity: .55; }
 .jwsoft-tiptap-tool[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; pointer-events: none; z-index: 30; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #20242b; color: #fff; font: 12px/1.4 system-ui; border-radius: 5px; padding: 6px 9px; white-space: nowrap; box-shadow: 0 3px 12px #0002; }
+.jwsoft-tiptap-tool[aria-expanded=true]:hover::after { display: none; }
 .jwsoft-tiptap-editable { padding: 28px 32px; color: var(--jw-ink); font-size: 16px; line-height: 1.75; overflow-wrap: anywhere; caret-color: #2563eb; }
 .jwsoft-tiptap-editable > :first-child { margin-top: 0; }
 .jwsoft-tiptap-editable p { margin-block: .55em; }
@@ -101,7 +102,7 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
 .jwsoft-tiptap-editable h4 { font-size: 1.15em; }
 .jwsoft-tiptap-editable blockquote { border-inline-start: 3px solid #cbd5e1; margin: 1em 0; padding: .25em 1.1em; color: #606978; }
 .jwsoft-tiptap-popover { position: fixed; inset: auto; margin: 0; box-sizing: border-box; width: max-content; max-width: calc(100vw - 16px); max-height: calc(100dvh - 24px); overflow: auto; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; color: #20242b; box-shadow: 0 10px 40px #14223a24; z-index: 1000; }
-.jwsoft-tiptap-popover:popover-open { display: flex; flex-direction: column; gap: 8px; animation: jwsoft-reveal .13s ease-out; }
+.jwsoft-tiptap-popover:popover-open, .jwsoft-tiptap-popover[open] { display: flex; flex-direction: column; gap: 6px; animation: jwsoft-reveal .13s ease-out; }
 .jwsoft-tiptap-popover .jwsoft-tiptap-tool-group { border: 0; padding: 5px 0; flex-wrap: wrap; max-width: 330px; }
 .jwsoft-tiptap-popover .jwsoft-tiptap-tool-group + .jwsoft-tiptap-tool-group { border-top: 1px solid #edf0f4; }
 .jwsoft-menu-text, .jwsoft-menu-check { display: none; }
@@ -112,6 +113,21 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
 .jwsoft-tiptap-popover [aria-pressed=true] > .jwsoft-menu-check { visibility: visible; }
 .jwsoft-tiptap-popover [data-editor-command]:hover::after { display: none; }
 .jwsoft-menu-section { display: grid; gap: 2px; padding-top: 8px; border-top: 1px solid #edf0f4; }
+.jwsoft-tiptap-popover { font-family: inherit; max-width: min(340px, calc(100vw - 16px)); }
+.jwsoft-popover-header { position: sticky; top: -12px; z-index: 1; background: inherit; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding: 0 0 6px 10px; border-bottom: 1px solid #edf0f4; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: #697588; }
+.jwsoft-popover-header .jwsoft-tiptap-tool { min-width: 28px; height: 28px; min-height: 28px; }
+.jwsoft-tiptap-popover .jwsoft-tiptap-tool-group { flex-direction: column; align-items: stretch; width: 100%; padding: 0; }
+.jwsoft-tiptap-popover .jwsoft-format-row { padding: 5px 10px; }
+.jwsoft-tiptap-popover .jwsoft-format-row select { max-width: 155px; }
+.jwsoft-tiptap-popover .jwsoft-menu-label { margin-left: 10px; }
+.jwsoft-tiptap-popover .jwsoft-color-grid { padding-inline: 6px; flex-wrap: wrap; }
+.jwsoft-tiptap-popover .jwsoft-color-grid [data-editor-command] { width: 32px; padding: 5px; justify-content: center; }
+.jwsoft-tiptap-popover[data-presentation=sheet] { max-width: none; border-radius: 16px; padding: 12px 12px max(12px, env(safe-area-inset-bottom)); overscroll-behavior: contain; }
+.jwsoft-tiptap-popover[data-presentation=sheet]::backdrop { background: #0f172a45; }
+.jwsoft-tiptap-popover[data-presentation=sheet] .jwsoft-popover-header { font-size: 14px; }
+.jwsoft-tiptap-popover[data-presentation=sheet] .jwsoft-tiptap-tool { min-height: 44px; }
+.jwsoft-toolbar-measure { position: fixed !important; left: -10000px !important; top: 0 !important; width: max-content !important; max-width: none !important; flex-wrap: nowrap !important; visibility: hidden !important; pointer-events: none !important; }
+html.dark .jwsoft-popover-header, html.dark .jwsoft-menu-section { border-color: #394150; color: #adb7c6; }
 .jwsoft-tiptap-dialog { box-sizing: border-box; position: fixed; inset: 0; margin: auto; padding: 0; width: min(640px, calc(100vw - 32px)); max-height: min(820px, calc(100dvh - 48px)); overflow: auto; border: 1px solid #e5e7eb; border-radius: 16px; background: #fff; color: #20242b; box-shadow: 0 24px 80px #0f172a40; font-family: inherit; }
 .jwsoft-tiptap-dialog[open] { display: block; animation: jwsoft-reveal .16s ease-out; }
 .jwsoft-tiptap-dialog::backdrop { background: #0f172a66; backdrop-filter: blur(3px); }
@@ -168,7 +184,7 @@ html.dark .jwsoft-upload-item { border-color: #414b5b; }
   .jwsoft-tiptap-toolbar { gap: 3px; padding: 5px; }
   .jwsoft-tiptap-tool-group { gap: 0; padding-right: 3px; }
   .jwsoft-tiptap-tool, .jwsoft-tiptap-select { height: 44px; min-height: 44px; }
-  .jwsoft-tiptap-tool { min-width: 40px; }
+  .jwsoft-tiptap-tool { min-width: 44px; }
   .jwsoft-tiptap-select { max-width: 84px; }
   .jwsoft-tiptap-editable { padding: 20px 16px; }
   .jwsoft-tiptap-dialog { width: calc(100vw - 16px); max-height: calc(100dvh - 24px); border-radius: 12px; }
@@ -211,7 +227,7 @@ html.dark .jwsoft-format-row { color: #bdc7d5; }
 @media (max-width: 640px) {
  .jwsoft-context-tools:popover-open { gap: 0; }
  .jwsoft-context-tools .jwsoft-tiptap-tool { width: 40px; }
- .jwsoft-color-grid .jwsoft-tiptap-tool { min-height: 40px; width: 36px; }
+ .jwsoft-tiptap-popover .jwsoft-color-grid .jwsoft-tiptap-tool { min-width: 44px; min-height: 44px; width: 44px; }
  .jwsoft-editor-fullscreen { inset: 0 !important; border-radius: 0; }
  .jwsoft-image-resize { width: 24px; height: 24px; }
  .jwsoft-tiptap-dialog-actions { flex-wrap: wrap; }

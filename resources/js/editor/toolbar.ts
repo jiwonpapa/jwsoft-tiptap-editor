@@ -11,6 +11,7 @@ import { createImageUploadQueue } from "@/editor/imageUploadQueue";
 import { createPopover } from "@/editor/popover";
 import { installWritingTools } from "@/editor/writingTools";
 import { labelMenuAction, menuField } from "@/editor/menuControls";
+import { installResponsiveInsert } from "@/editor/responsiveToolbar";
 import {
   DEFAULT_IMAGE_CLASS_TOKENS,
   imageClassTokens,
@@ -1065,7 +1066,11 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   );
   const menus: ReturnType<typeof createPopover>[] = [];
   const menu = (label: string, icon: Parameters<typeof createPopover>[1]) => {
-    const handle = createPopover(label, icon);
+    const handle = createPopover(label, icon, {
+      editor,
+      locale,
+      sheet: icon !== "more",
+    });
     menus.push(handle);
     toolbar.append(handle.trigger);
     region.append(handle.panel);
@@ -1234,6 +1239,11 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
     );
     inline.after(formatting.trigger);
   }
+  const insertMenu = menu(
+    locale === "en" ? "Insert tools" : "삽입 도구",
+    "insert",
+  );
+  const stopResponsive = installResponsiveInsert(toolbar, insert, insertMenu);
   add(
     history,
     createButton({
@@ -1268,6 +1278,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   });
   installRovingKeyboard(toolbar);
   editor.on("destroy", () => {
+    stopResponsive();
     for (const handle of menus) handle.destroy();
   });
   update();

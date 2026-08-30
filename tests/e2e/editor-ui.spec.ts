@@ -142,6 +142,218 @@ async function mountEditor(
   );
 }
 
+async function insertTool(page: Page, name: string) {
+  const direct = page
+    .locator(".jwsoft-tiptap-toolbar")
+    .getByRole("button", { name, exact: true });
+  if (await direct.isVisible()) await direct.click();
+  else {
+    await page.getByRole("button", { name: "삽입 도구", exact: true }).click();
+    await page
+      .getByRole("dialog", { name: "삽입 도구", exact: true })
+      .getByRole("button", { name, exact: true })
+      .click();
+  }
+}
+
+async function menuAction(page: Page, name: string, action: string) {
+  const panel = page.getByRole("dialog", { name, exact: true });
+  if (!(await panel.isVisible()))
+    await page.getByRole("button", { name, exact: true }).click();
+  await panel.getByRole("button", { name: action, exact: true }).click();
+}
+
+test("focused menus expose named tools and keyboard actions without mixing categories", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(page, "full");
+  const more = page.getByRole("button", { name: "도구 더보기", exact: true });
+  await more.focus();
+  await page.keyboard.press("ArrowDown");
+  const panel = page.getByRole("dialog", { name: "도구 더보기", exact: true });
+  await expect(panel).toBeVisible();
+  await expect(
+    panel.locator("[data-editor-command] .jwsoft-menu-text"),
+  ).toHaveText(["찾기 / 바꾸기", "전체화면"]);
+  await expect(
+    panel.getByRole("button", { name: "찾기 / 바꾸기", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("ArrowDown");
+  await expect(
+    panel.getByRole("button", { name: "전체화면", exact: true }),
+  ).toBeFocused();
+  await page.keyboard.press("Escape");
+  await expect(more).toBeFocused();
+  await expect(panel).not.toBeVisible();
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+  await menuAction(page, "목록", "번호 목록");
+  await expect(editable.locator("ol li")).toHaveText("선택 영역 테스트");
+  await expect(editable).toBeFocused();
+  await editable.locator("ol li").click();
+  await page.getByRole("button", { name: "목록", exact: true }).click();
+  const lists = page.getByRole("dialog", { name: "목록", exact: true });
+  await expect(
+    lists.getByRole("button", { name: "번호 목록", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(lists.locator(".jwsoft-menu-text")).toHaveText([
+    "글머리 목록",
+    "번호 목록",
+    "체크리스트",
+  ]);
+  await page.screenshot({
+    path: testInfo.outputPath("editor-list-menu.png"),
+    fullPage: true,
+    animations: "disabled",
+  });
+  await page.keyboard.press("Escape");
+  await more.click();
+  await page.screenshot({
+    path: testInfo.outputPath("editor-more-menu.png"),
+    fullPage: true,
+    animations: "disabled",
+  });
+  await panel
+    .getByRole("button", { name: "찾기 / 바꾸기", exact: true })
+    .click();
+  await expect(panel).not.toBeVisible();
+  const find = page.getByRole("dialog", { name: "찾기 / 바꾸기", exact: true });
+  await expect(find).toBeVisible();
+  await expect(page.locator("dialog[open]")).toHaveCount(1);
+  await find.getByRole("button", { name: "닫기", exact: true }).click();
+  await expect(more).toBeFocused();
+});
+
+test("toolbar keeps history visible at 360 390 768 and 1280 pixels", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await mountEditor(page, "full", false, true, false, true);
+  const toolbar = page.locator(".jwsoft-tiptap-toolbar");
+  for (const width of [1280, 768, 390, 360, 1280]) {
+    await page.setViewportSize({ width, height: 840 });
+    const folded = toolbar.getByRole("button", {
+      name: "삽입 도구",
+      exact: true,
+    });
+    if (width < 768) await expect(folded).toBeVisible();
+    if (width === 1280) await expect(folded).not.toBeVisible();
+    await expect(
+      toolbar.getByRole("button", { name: /^실행취소/ }),
+    ).toBeVisible();
+    await expect(
+      toolbar.getByRole("button", { name: /^다시실행/ }),
+    ).toBeVisible();
+    const metrics = await toolbar.evaluate((element) => ({
+      width: element.clientWidth,
+      scroll: element.scrollWidth,
+      height: element.getBoundingClientRect().height,
+      page: document.documentElement.scrollWidth,
+      viewport: window.innerWidth,
+    }));
+    expect(metrics.scroll).toBeLessThanOrEqual(metrics.width);
+    expect(metrics.page).toBeLessThanOrEqual(metrics.viewport);
+    expect(metrics.height).toBeLessThanOrEqual(width <= 640 ? 104 : 52);
+    await page.screenshot({
+      path: testInfo.outputPath(`toolbar-${width}.png`),
+      fullPage: true,
+      animations: "disabled",
+    });
+  }
+  // Narrow embedded editors fold on container width even on a wide desktop.
+  await page.locator("main").evaluate((element) => {
+    element.style.width = "360px";
+  });
+  await expect(
+    toolbar.getByRole("button", { name: "삽입 도구", exact: true }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "문단 모양", exact: true }).click();
+  await expect(
+    page.getByRole("dialog", { name: "문단 모양", exact: true }),
+  ).toHaveAttribute("data-presentation", "popover");
+});
+
+test("mobile formatting sheet preserves selection traps focus and returns to visible triggers", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-mobile");
+  await mountEditor(page, "standard");
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+  const top = await editable.evaluate(
+    (element) => element.getBoundingClientRect().top,
+  );
+  const trigger = page.getByRole("button", { name: "문단 모양", exact: true });
+  await trigger.click();
+  const sheet = page.getByRole("dialog", { name: "문단 모양", exact: true });
+  await expect(sheet).toHaveAttribute("data-presentation", "sheet");
+  await expect(sheet).toHaveAttribute("aria-modal", "true");
+  const box = await sheet.boundingBox();
+  expect(box!.y + box!.height).toBeGreaterThan(
+    (await page.evaluate(() => window.innerHeight)) - 20,
+  );
+  for (let step = 0; step < 9; step++) {
+    await page.keyboard.press("Tab");
+    expect(
+      await sheet.evaluate((element) =>
+        element.contains(document.activeElement),
+      ),
+    ).toBe(true);
+  }
+  await sheet
+    .getByLabel("정렬", { exact: true })
+    .selectOption("jw-align-center");
+  await expect(editable.locator("p.jw-align-center")).toHaveText(
+    "선택 영역 테스트",
+  );
+  await sheet
+    .getByLabel("줄 간격", { exact: true })
+    .selectOption("jw-space-relaxed");
+  await page.screenshot({
+    path: testInfo.outputPath("editor-paragraph-sheet.png"),
+    fullPage: true,
+    animations: "disabled",
+  });
+  await sheet.getByRole("button", { name: "들여쓰기", exact: true }).click();
+  await expect(sheet).not.toBeVisible();
+  await expect(editable).toBeFocused();
+  await expect(
+    editable.locator("p.jw-align-center.jw-space-relaxed.jw-indent-1"),
+  ).toHaveCount(1);
+  expect(
+    await editable.evaluate((element) => element.getBoundingClientRect().top),
+  ).toBe(top);
+  await insertTool(page, "이미지");
+  await expect(page.locator("dialog[open]")).toHaveCount(1);
+  await page.keyboard.press("Escape");
+  await expect(
+    page.getByRole("button", { name: "삽입 도구", exact: true }),
+  ).toBeFocused();
+  await page.getByRole("button", { name: "글자 모양", exact: true }).click();
+  const textSheet = page.getByRole("dialog", {
+    name: "글자 모양",
+    exact: true,
+  });
+  await textSheet
+    .getByLabel("글자 크기", { exact: true })
+    .selectOption("jw-font-20");
+  await page.screenshot({
+    path: testInfo.outputPath("editor-text-sheet.png"),
+    fullPage: true,
+    animations: "disabled",
+  });
+  await textSheet
+    .getByRole("button", { name: "글자색: 파랑", exact: true })
+    .click();
+  await expect(editable.locator("span.jw-color-blue.jw-font-20")).toHaveText(
+    "선택 영역 테스트",
+  );
+  await expect(textSheet).not.toBeVisible();
+  await expect(editable).toBeFocused();
+});
+
 test("Chromium Korean IME paste undo and redo preserve canonical content", async ({
   context,
   page,
@@ -414,13 +626,13 @@ test("link quote lists alignment and indentation use policy-safe controls", asyn
   await editable.click();
   await page.keyboard.press("ControlOrMeta+A");
 
-  await page.getByRole("button", { name: "링크", exact: true }).click();
+  await insertTool(page, "링크");
   const linkDialog = page.getByRole("dialog", { name: "링크" });
   await linkDialog.getByLabel("주소").fill("https://example.com/proof");
   await linkDialog.getByRole("button", { name: "링크 적용" }).click();
   await expect(editable.locator("a")).toHaveCount(2);
 
-  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page.getByRole("button", { name: "문단 모양", exact: true }).click();
   await page
     .getByLabel("정렬", { exact: true })
     .selectOption("jw-align-center");
@@ -430,27 +642,26 @@ test("link quote lists alignment and indentation use policy-safe controls", asyn
   );
   await expect(alignedIndentedParagraphs).toHaveCount(2);
   const alignedIndentedCount = await alignedIndentedParagraphs.count();
-  await page.getByRole("button", { name: "내어쓰기", exact: true }).click();
+  await menuAction(page, "문단 모양", "내어쓰기");
   await expect(editable.locator("p.jw-indent-1")).toHaveCount(0);
-  await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
+  await menuAction(page, "문단 모양", "들여쓰기");
 
-  await page.getByRole("button", { name: "인용", exact: true }).click();
+  await menuAction(page, "문단 모양", "인용");
   await expect(editable.locator("blockquote")).toHaveCount(1);
   const blockquoteAppliedCount = await editable.locator("blockquote").count();
-  await page.getByRole("button", { name: "글머리 목록", exact: true }).click();
+  await menuAction(page, "목록", "글머리 목록");
   await expect(editable.locator("ul")).toHaveCount(1);
   const bulletListAppliedCount = await editable.locator("ul").count();
-  await page.getByRole("button", { name: "글머리 목록", exact: true }).click();
-  await page.getByRole("button", { name: "번호 목록", exact: true }).click();
+  await menuAction(page, "목록", "글머리 목록");
+  await menuAction(page, "목록", "번호 목록");
   await expect(editable.locator("ol")).toHaveCount(1);
 
   await page.keyboard.press("Escape");
   await editable.locator("li").nth(1).click();
-  await page.getByRole("button", { name: "서식 더보기" }).click();
-  await page.getByRole("button", { name: "들여쓰기", exact: true }).click();
+  await menuAction(page, "문단 모양", "들여쓰기");
   await expect(editable.locator("ol")).toHaveCount(2);
   const nestedOrderedListCount = await editable.locator("ol").count();
-  await page.getByRole("button", { name: "내어쓰기", exact: true }).click();
+  await menuAction(page, "문단 모양", "내어쓰기");
   await expect(editable.locator("ol")).toHaveCount(1);
   await expect(editable.locator("[style]")).toHaveCount(0);
 
@@ -494,10 +705,11 @@ test("desktop toolbar keeps selection commands and keyboard focus usable", async
   await page.screenshot({
     path: testInfo.outputPath("editor-toolbar-desktop.png"),
     fullPage: true,
+    animations: "disabled",
   });
 });
 
-test("mobile toolbar uses overflow menus and a non-reflowing modal", async ({
+test("mobile toolbar uses grouped menus and a non-reflowing modal", async ({
   page,
 }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium-mobile");
@@ -519,7 +731,7 @@ test("mobile toolbar uses overflow menus and a non-reflowing modal", async ({
   const editorTop = await page
     .locator(".jwsoft-tiptap-editable")
     .evaluate((element) => element.getBoundingClientRect().top);
-  await page.getByRole("button", { name: "이미지" }).click();
+  await insertTool(page, "이미지");
   const dialog = page.getByRole("dialog", { name: "이미지" });
   await expect(dialog).toBeVisible();
   await expect(dialog).toHaveAttribute("aria-modal", "true");
@@ -540,6 +752,7 @@ test("mobile toolbar uses overflow menus and a non-reflowing modal", async ({
   await page.screenshot({
     path: testInfo.outputPath("editor-toolbar-mobile.png"),
     fullPage: true,
+    animations: "disabled",
   });
 });
 
@@ -579,7 +792,7 @@ test("image upload supports caption alignment size and responsive output", async
       }),
   );
   await mountEditor(page, "standard", true);
-  await page.getByRole("button", { name: "이미지" }).click();
+  await insertTool(page, "이미지");
   const dialog = page.getByRole("dialog", { name: "이미지" });
   await dialog.getByLabel("이미지 파일").setInputFiles({
     name: "proof.png",
@@ -601,7 +814,7 @@ test("image upload supports caption alignment size and responsive output", async
   await expect(figure.locator("figcaption")).toHaveText("초기 캡션");
 
   await figure.click();
-  await page.getByRole("button", { name: "이미지", exact: true }).click();
+  await insertTool(page, "이미지");
   await expect(
     dialog.getByRole("button", { name: "이미지 적용" }),
   ).toBeVisible();
@@ -639,6 +852,7 @@ test("image upload supports caption alignment size and responsive output", async
   await page.screenshot({
     path: testInfo.outputPath("editor-image-layout-mobile.png"),
     fullPage: true,
+    animations: "disabled",
   });
   recordBrowserEvidence("editor-image-layout.json", testInfo.project.name, {
     uploadInserted: true,
@@ -659,7 +873,7 @@ test("media URL creates safe canonical HTML and a click-to-load responsive playe
 }, testInfo) => {
   test.skip(testInfo.project.name !== "chromium-desktop");
   await mountEditor(page, "standard", false, true);
-  await page.getByRole("button", { name: "동영상" }).click();
+  await insertTool(page, "동영상");
   const dialog = page.getByRole("dialog", { name: "동영상" });
   await dialog.getByLabel("동영상 URL").fill("https://youtu.be/dQw4w9WgXcQ");
   await dialog.getByRole("button", { name: "동영상 삽입" }).click();
@@ -754,7 +968,7 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
     },
   );
   await mountEditor(page, "standard", false, true, true);
-  await page.getByRole("button", { name: "동영상" }).click();
+  await insertTool(page, "동영상");
   const dialog = page.getByRole("dialog", { name: "동영상" });
   await dialog.getByRole("tab", { name: "MP4 업로드" }).click();
   await dialog.getByLabel("MP4 파일").setInputFiles({
@@ -853,7 +1067,7 @@ test("link card toolbar inserts a generic HTTPS preview", async ({
       }),
   );
   await mountEditor(page, "standard", false, false, false, true);
-  await page.getByRole("button", { name: "링크 카드" }).click();
+  await insertTool(page, "링크 카드");
   const dialog = page.getByRole("dialog", { name: "링크 카드" });
   await dialog.getByLabel("HTTPS 주소").fill("https://example.com/article");
   await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();
@@ -928,7 +1142,7 @@ test("inline appearance find-replace checklist and fullscreen stay policy-safe",
   await expect(editable.locator("span.jw-color-blue.jw-font-24")).toHaveText(
     "가나다 가나다",
   );
-  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page.getByRole("button", { name: "도구 더보기" }).click();
   await page
     .getByRole("button", { name: "찾기 / 바꾸기", exact: true })
     .click();
@@ -946,15 +1160,13 @@ test("inline appearance find-replace checklist and fullscreen stay policy-safe",
   await page.keyboard.press("ControlOrMeta+Z");
   await expect(editable).toHaveText("가나다 가나다");
   await page.keyboard.press("ControlOrMeta+A");
-  await page.getByRole("button", { name: "서식 더보기" }).click();
-  await page.getByRole("button", { name: "체크리스트", exact: true }).click();
+  await menuAction(page, "목록", "체크리스트");
   await page.keyboard.press("Escape");
   await editable.getByRole("checkbox").first().check();
   await expect(editable.locator("li.jw-task-checked")).toHaveCount(1);
-  await page.getByRole("button", { name: "서식 더보기" }).click();
+  await page.getByRole("button", { name: "도구 더보기" }).click();
   await page.getByRole("button", { name: "전체화면", exact: true }).click();
   await expect(page.locator(".jwsoft-editor-fullscreen")).toHaveCount(1);
-  await page.keyboard.press("Escape");
   await page.keyboard.press("Escape");
   await expect(page.locator(".jwsoft-editor-fullscreen")).toHaveCount(0);
   const html = await page.evaluate(() => {
@@ -968,6 +1180,7 @@ test("inline appearance find-replace checklist and fullscreen stay policy-safe",
   await page.screenshot({
     path: testInfo.outputPath("editor-writing-tools.png"),
     fullPage: true,
+    animations: "disabled",
   });
 });
 
@@ -1040,6 +1253,7 @@ test("table context controls and image resize are usable on the rendered editor"
   await page.screenshot({
     path: testInfo.outputPath("editor-context-tools.png"),
     fullPage: true,
+    animations: "disabled",
   });
 });
 
@@ -1069,7 +1283,7 @@ test("closing a pending link preview modal does not insert late content", async 
     },
   );
   await mountEditor(page, "standard", false, false, false, true);
-  await page.getByRole("button", { name: "링크 카드", exact: true }).click();
+  await insertTool(page, "링크 카드");
   const dialog = page.getByRole("dialog", { name: "링크 카드", exact: true });
   await dialog.getByLabel("HTTPS 주소").fill("https://example.com/post");
   await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();

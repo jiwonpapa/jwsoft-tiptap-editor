@@ -47,7 +47,19 @@ export function createDialog(options: {
     document.documentElement.style.overflow = scrollTop;
     options.trigger.setAttribute("aria-expanded", "false");
     for (const callback of callbacks) callback();
-    if (restoreFocus && options.trigger.isConnected) options.trigger.focus();
+    if (restoreFocus && options.trigger.isConnected) {
+      const menu = options.trigger.closest<HTMLElement>(
+        ".jwsoft-tiptap-popover",
+      );
+      const owner = menu
+        ? [
+            ...document.querySelectorAll<HTMLButtonElement>(
+              "button[aria-controls]",
+            ),
+          ].find((button) => button.getAttribute("aria-controls") === menu.id)
+        : null;
+      (owner ?? options.trigger).focus();
+    }
   };
   const close = (restoreFocus = true) => {
     if (dialog.open) dialog.close();

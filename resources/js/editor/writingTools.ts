@@ -34,6 +34,7 @@ export function installWritingTools(
   const formatting = createPopover(
     en ? "Text appearance" : "글자 모양",
     "text",
+    { editor, locale },
   );
   const panel = formatting.panel;
   const inlineLabels: Record<InlineCategory, string> = {
@@ -106,10 +107,11 @@ export function installWritingTools(
             .focus()
             .setMark("jwTextStyle", { [category]: token })
             .run();
-          formatting.close();
+          formatting.close("editor");
         },
       );
       if (token) control.classList.add(token);
+      control.dataset.editorCommand = "true";
       grid.append(control);
       colorButtons.push({ element: control, category, token });
     }
@@ -190,11 +192,13 @@ export function installWritingTools(
       event.key === "Escape" &&
       !event.defaultPrevented &&
       fullscreen &&
-      !document.querySelector("dialog[open], [popover]:popover-open")
+      !document.querySelector(
+        "dialog[open], .jwsoft-tiptap-popover:popover-open",
+      )
     )
       toggleFullscreen();
   };
-  document.addEventListener("keydown", escapeFullscreen);
+  document.addEventListener("keydown", escapeFullscreen, true);
 
   const context = document.createElement("div");
   context.className = "jwsoft-context-tools";
@@ -368,7 +372,9 @@ export function installWritingTools(
       ? `${length.toLocaleString()} characters`
       : `${length.toLocaleString()}자`;
     for (const control of [
-      ...advanced.querySelectorAll("button"),
+      ...panel.querySelectorAll<HTMLButtonElement | HTMLSelectElement>(
+        "button:not(.jwsoft-popover-close), select",
+      ),
       search,
       full,
       formatting.trigger,
@@ -421,16 +427,20 @@ export function installWritingTools(
     if (!editor.isDestroyed) update();
   };
   editor.on("selectionUpdate", safeUpdate);
+  editor.on("transaction", safeUpdate);
   editor.on("update", safeUpdate);
   window.addEventListener("resize", safeUpdate);
   window.addEventListener("scroll", safeUpdate, true);
   window.visualViewport?.addEventListener("resize", safeUpdate);
   document.addEventListener("click", safeUpdate);
   editor.on("destroy", () => {
+    editor.off("transaction", safeUpdate);
+    editor.off("selectionUpdate", safeUpdate);
+    editor.off("update", safeUpdate);
     formatting.destroy();
     context.remove();
     count.remove();
-    document.removeEventListener("keydown", escapeFullscreen);
+    document.removeEventListener("keydown", escapeFullscreen, true);
     window.removeEventListener("resize", safeUpdate);
     window.removeEventListener("scroll", safeUpdate, true);
     window.visualViewport?.removeEventListener("resize", safeUpdate);
