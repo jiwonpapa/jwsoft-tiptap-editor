@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>JWSoft 편집 도구 확인</title>
+        <style>
+            body {
+                margin: 0;
+                background: #f7f8fa;
+                color: #20242b;
+                font:
+                    14px/1.5 system-ui,
+                    sans-serif;
+            }
+            main {
+                max-width: 1040px;
+                margin: 48px auto;
+                padding: 0 20px;
+            }
+            header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 12px;
+                margin-bottom: 20px;
+            }
+            h1 {
+                margin: 0;
+                font-size: 20px;
+                font-weight: 600;
+            }
+            .preview-actions {
+                display: flex;
+                gap: 8px;
+            }
+            .preview-actions button {
+                border: 1px solid #dde2e9;
+                padding: 8px 12px;
+                border-radius: 6px;
+                background: white;
+                cursor: pointer;
+            }
+            .jwsoft-tiptap-shell {
+                border: 1px solid #e5e7eb;
+            }
+            .jwsoft-tiptap-editable {
+                min-height: 400px;
+                outline: none;
+            }
+            .note {
+                color: #758094;
+                font-size: 12px;
+                margin-top: 16px;
+            }
+            html.dark body {
+                background: #111419;
+                color: #e5e9ef;
+            }
+            @media (max-width: 640px) {
+                main {
+                    margin: 16px auto;
+                    padding: 0 8px;
+                }
+                header {
+                    padding: 0 8px;
+                }
+                h1 {
+                    font-size: 16px;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <header>
+                <h1>JWSoft 편집 도구</h1>
+                <div class="preview-actions">
+                    <button id="theme" type="button">다크 모드</button>
+                </div>
+            </header>
+            <div class="jwsoft-tiptap-shell" id="editor-shell">
+                <div id="editor"></div>
+            </div>
+            <p class="note">
+                로컬 UI 확인용 · 서버 저장과 업로드를 수행하지 않습니다.
+            </p>
+        </main>
+        <script type="module">
+            import { createEditor } from "../resources/js/editor/createEditor.ts";
+            import { createEditorToolbar } from "../resources/js/editor/toolbar.ts";
+            import { injectEditorStyles } from "../resources/js/editor/editorStyles.ts";
+            injectEditorStyles();
+            const editor = createEditor({
+                element: document.querySelector("#editor"),
+                content:
+                    "<h2>작성에 집중할 수 있도록</h2><p>글자 모양, 목록, 문단 도구를 목적에 맞게 찾을 수 있습니다. 이 문장을 선택하고 서식을 바꿔 보세요.</p><p>더보기에는 찾기와 전체화면만 남겼습니다.</p>",
+                placeholder: "내용을 입력하세요.",
+                editable: true,
+                onUpdate: () => {},
+            });
+            const toolbar = createEditorToolbar({
+                editor,
+                profile: "full",
+                imageUpload: false,
+                imageMaxSizeMb: 10,
+                mediaEmbed: true,
+                mediaOptions: { youtube: true, vimeo: true, mp4: true },
+                videoUpload: false,
+                videoMaxSizeMb: 200,
+                smartCards: false,
+                locale: "ko",
+            });
+            document.querySelector("#editor-shell").prepend(toolbar);
+            document
+                .querySelector("#theme")
+                .addEventListener("click", () =>
+                    document.documentElement.classList.toggle("dark"),
+                );
+            window.addEventListener("pagehide", () => editor.destroy());
+        </script>
+    </body>
+</html>
