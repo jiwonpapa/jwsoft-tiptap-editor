@@ -90,4 +90,4 @@ php artisan plugin:activate sirsoft-ckeditor5
 php artisan optimize:clear
 ```
 
-롤백 후 편집·조회 smoke를 다시 실행합니다. MVP 6 하네스에서는 페이지·게시글·상품 canonical HTML과 이미지 레코드 수가 alpha.6 → alpha.7 업데이트·롤백·복구 전후 동일함을 해시로 검증합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.
+롤백 후 편집·조회 smoke를 다시 실행합니다. `alpha.18` 하네스에서는 페이지·게시글·상품 canonical HTML과 이미지 레코드 수가 alpha.16 → alpha.18 온라인 업데이트·CKEditor 롤백·JWSoft 복구 전후 동일함을 해시로 검증합니다. jwsoft 전용 class token은 CKEditor에서도 HTML class로 보존되지만 해당 CSS 제공 여부는 전환 문서에서 확인합니다.

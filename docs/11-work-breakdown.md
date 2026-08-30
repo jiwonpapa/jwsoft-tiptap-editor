@@ -30,16 +30,17 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 - [x] 초기 HTML policy·schema 손실 분석과 명시적 확인
 - [x] clipboard paste 손실 분석과 실행취소 안내
 - [x] 선택 영역 unit·toolbar keyboard·mobile viewport browser tests
-- [ ] 실제 한글 IME·Android/iOS 실기기 tests
+- [x] Chromium 입력 계층 실제 한글 IME
+- [ ] Android/iOS 실기기 tests
 
 ## Epic 3 — 서버 정책
 
 - [x] policy codegen과 checksum gate
 - [x] Symfony sanitizer service와 canonical response
 - [x] G7 게시판·상품·페이지 전체 편집 create/update 미들웨어
-- [ ] 쇼핑몰·페이지를 포함한 모든 content write path 적용 확인
+- [x] 쇼핑몰·페이지를 포함한 모든 `html_editor` content write path 적용 확인
 - [x] PHP·브라우저·G7 직접 제출 security corpus
-- [ ] clipboard paste·저장 후 render security corpus
+- [x] clipboard paste·저장 후 render security corpus
 
 ## Epic 4 — 이미지 parity
 
@@ -54,13 +55,14 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 
 ## Epic 5 — 통합·전환
 
-- [x] board/ecommerce/page E2E
+- [x] 공개·관리자 board create/edit/reply/show E2E
+- [ ] ecommerce/page 공개 renderer E2E — canonical API 통과, 공식 `sirsoft-basic` 표시 차단
 - [x] legacy CKEditor HTML corpus
 - [x] install/update/deactivate/rollback
 - [x] performance/instance budget
 - [x] parity evidence generator
 
-전용 G7 7.0.9에서 alpha.5 → alpha.6 ZIP 업데이트와 CKEditor 역전환·복구를 실행했고, 페이지·게시글·상품 HTML 해시가 전 과정에서 유지됨을 확인했습니다. 인증 브라우저 5회 표본은 route-to-editor p95 1,227ms, 동시 editor instance 1개였고 번들 gzip은 162,061 bytes였습니다. 이 결과는 MVP 5 계약 범위이며 stable 출시 승인은 아닙니다.
+전용 G7 7.0.9에서 공개 `alpha.18`의 게시판·fallback E2E와 ZIP·GitHub 설치·업데이트·CKEditor 역전환·복구를 실행했고, 페이지·게시글·상품 HTML 해시가 전 과정에서 유지됨을 확인했습니다. 인증 브라우저 5회 표본은 route-to-editor 861~1,093ms, 동시 editor instance 1개입니다. 상품·페이지 공개 출력은 플러그인 비활성 대조군에서도 같은 공식 renderer 차단이 재현되어 완료 처리하지 않습니다.
 
 ## Epic 6 — 출시
 
@@ -71,7 +73,7 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 - [x] GitHub public 전환 승인 및 공개 `main` 온라인 설치 원본 제공
 - [ ] stable GitHub release 승인
 
-6차는 `alpha.7`을 같은 commit epoch로 두 번 패키징해 동일 checksum을 확인했습니다. 전용 로컬 G7 7.0.9에서 alpha.6 → alpha.7 업데이트, CKEditor 롤백, JWSoft 복구와 페이지·게시글·상품 정본 해시 보존도 통과했습니다. 실제 staging 환경 파일과 배포 승인이 없으므로 staging·stable·공개 릴리스는 진행하지 않았습니다.
+`alpha.18`을 같은 commit epoch로 두 번 패키징해 동일 checksum을 확인하고 공개 GitHub 개발 릴리스로 게시했습니다. 전용 로컬 G7 7.0.9에서 최초 설치, alpha.16 → alpha.18 업데이트, uninstall, CKEditor 롤백, JWSoft 복구와 페이지·게시글·상품 정본 해시 보존도 통과했습니다. 실제 staging·production 환경 파일과 배포 승인이 없고 stable readiness가 58/62이므로 stable 태그와 운영 배포는 진행하지 않았습니다.
 
 ## Epic 7 — 미디어 입력
 

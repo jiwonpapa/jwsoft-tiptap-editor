@@ -2,7 +2,7 @@
 
 그누보드7의 `sirsoft-ckeditor5`를 코어 수정 없이 대체하기 위한 Tiptap v3 기반 WYSIWYG 편집기 플러그인입니다.
 
-> 현재 상태: **`alpha.18` 개발 단계**이며 공개 `alpha.12`의 GitHub 설치를 검증했습니다. 개발·staging에서는 GitHub URL로 설치할 수 있지만, 전체 브라우저·수명주기·staging 증거가 완료되기 전까지 stable·운영 설치 대상이 아닙니다.
+> 현재 상태: **`0.1.0-alpha.18` 공개 개발 릴리스**이며 GitHub 최초 설치·`alpha.16 → alpha.18` 온라인 업데이트·CKEditor 롤백을 전용 G7 7.0.9에서 검증했습니다. stable readiness는 **58/62**이고, 상품·페이지 공개 renderer 및 staging·production 증거가 남아 있어 운영 설치 대상이 아닙니다.
 
 ## 결론
 
@@ -23,6 +23,8 @@ https://github.com/jiwonpapa/jwsoft-tiptap-editor
 ```
 
 현재 `alpha`는 개발·staging 검증용입니다. 설치 후 기존 콘텐츠 전환 위험을 확인하고 CKEditor를 비활성화한 다음 JWSoft를 활성화해야 합니다.
+
+공개 개발 릴리스: [v0.1.0-alpha.18](https://github.com/jiwonpapa/jwsoft-tiptap-editor/releases/tag/v0.1.0-alpha.18)
 
 ## 완료 조건
 

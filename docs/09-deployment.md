@@ -52,4 +52,4 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 
 하네스는 DB 전체 백업을 자동으로 만들지 않습니다. 이 플러그인은 기존 HTML 필드를 유지하며 G7 plugin update의 파일 백업·복원을 사용합니다. 적용 실패 시 하네스는 jwsoft를 비활성화하고 CKEditor 재활성화를 시도합니다. DB migration이 추가되는 릴리스는 별도 migration/backup ADR과 운영 승인 없이는 배포할 수 없습니다.
 
-`alpha.7`은 전용 로컬 G7에서 동일 순서의 update·smoke·rollback·restore를 검증한 출시 후보입니다. 실제 `deploy/environments/staging.env`와 배포 승인이 없으므로 원격 staging 또는 production 적용 증거로 해석하지 않습니다.
+`alpha.18`은 전용 로컬 G7에서 공개 GitHub 최초 설치, `alpha.16 → alpha.18` 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증한 공개 개발 릴리스입니다. 실제 `deploy/environments/staging.env`·`production.env`, 대상 정보와 배포 승인이 없으므로 원격 staging 또는 production 적용 증거로 해석하지 않습니다.

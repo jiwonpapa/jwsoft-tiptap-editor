@@ -27,7 +27,7 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [x] 전용 G7 ZIP 업데이트·롤백·복구 검증
 - [x] 공개 GitHub URL 최초 설치·Release 태그 업데이트·무데이터 삭제 uninstall 검증
 
-현재 개발 하네스에서는 `alpha.12` ZIP을 같은 commit epoch로 두 번 생성해 checksum 일치를 확인하고, `alpha.11 → alpha.12 → CKEditor → alpha.12` 생명주기와 콘텐츠 해시 보존을 검증합니다. UI 브라우저 증거는 현재 `alpha.12` commit의 인증 G7 9개 화면, route-to-editor p95 1,083ms, 최대 동시 instance 1개를 기록합니다. `make release-candidate-check`는 22개 후보 계약을 검사하며 실제 staging을 대체하지 않습니다. `make release-check`는 P0 62개 중 자동화 증거가 연결된 항목과 남은 차단 항목을 분리해 보고하고, 미완료가 있는 동안 의도적으로 실패합니다.
+공개 `alpha.18` ZIP은 같은 commit epoch의 두 패키지가 SHA256 `0841149aadcacba18c89da4ba401d0880163cb42611a43f3c5df6a5668ccb8c1`로 일치합니다. 전용 G7 7.0.9에서 ZIP·GitHub 최초 설치, `alpha.16 → alpha.18` 태그 업데이트, uninstall, CKEditor rollback, JWSoft restore와 콘텐츠 해시 보존을 검증했습니다. UI 브라우저 증거는 route-to-editor 5회 표본 861~1,093ms와 최대 동시 instance 1개를 기록합니다. `make release-candidate-check`는 alpha 후보 계약을 검사하며 실제 staging을 대체하지 않습니다. `make release-check`는 P0 62개 중 58개 통과와 남은 상품·페이지 renderer·staging·production 4개 차단 항목을 분리해 보고하고, 미완료가 있는 동안 의도적으로 실패합니다.
 
 ## 공개
 
@@ -35,4 +35,5 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 - [x] Tiptap·ProseMirror·DOMPurify·Symfony NOTICE와 원문 라이선스 포함
 - [x] GitHub visibility 승인 및 public 전환
 - [x] 공개 `main` GitHub 온라인 설치 원본·설치 문서
+- [x] `v0.1.0-alpha.18` 공개 개발 릴리스와 온라인 설치·업데이트 검증
 - [ ] stable 태그·GitHub release
