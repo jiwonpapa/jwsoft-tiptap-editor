@@ -511,7 +511,7 @@ test("Chromium Korean IME paste undo and redo preserve canonical content", async
       (options) =>
         options?.debounce === 300 &&
         options.debounceKey === "jwsoft-tiptap-sync-content" &&
-        options.render === false &&
+        options.render === true &&
         options.selfManaged === true,
     ),
   ).toBe(true);
@@ -531,6 +531,7 @@ test("Chromium Korean IME paste undo and redo preserve canonical content", async
     finalStateHtml: result.finalStateHtml,
     contentUpdateCount: result.contentUpdateCount,
     debounceMs: 300,
+    submissionSnapshotRefresh: true,
     screenshotSha256: createHash("sha256")
       .update(fs.readFileSync(screenshotPath))
       .digest("hex"),
