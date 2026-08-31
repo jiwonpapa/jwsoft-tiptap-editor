@@ -57,6 +57,7 @@ async function mountEditor(
   content = "<p>선택 영역 테스트</p>",
   origin = "http://jwsoft.test",
   hostForm = false,
+  richEmbeds = false,
 ): Promise<void> {
   await page.route(`${origin}/`, (route) =>
     route.fulfill({
@@ -105,6 +106,7 @@ async function mountEditor(
       withVideoUpload,
       withSmartCards,
       initialContent,
+      withRichEmbeds,
     }) => {
       const runtime = window as typeof window & {
         __e2eHandlers: Record<
@@ -124,6 +126,9 @@ async function mountEditor(
             videoUpload: withVideoUpload,
             videoMaxSizeMb: 200,
             smartCards: withSmartCards,
+            socialCards: withSmartCards,
+            xEmbed: withRichEmbeds,
+            facebookEmbed: withRichEmbeds,
             autoSmartCards: withSmartCards,
             autoEmbedUrls: withMediaEmbed,
             youtubeEmbed: true,
@@ -142,6 +147,7 @@ async function mountEditor(
       withVideoUpload: videoUpload,
       withSmartCards: smartCards,
       initialContent: content,
+      withRichEmbeds: richEmbeds,
     },
   );
 }

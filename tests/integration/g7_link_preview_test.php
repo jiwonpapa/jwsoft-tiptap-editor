@@ -5,6 +5,7 @@ use Plugins\Jwsoft\TiptapEditor\Exceptions\LinkPreviewException;
 use Plugins\Jwsoft\TiptapEditor\Services\Contracts\SafeUrlResolverInterface;
 use Plugins\Jwsoft\TiptapEditor\Services\DnsSafeUrlResolver;
 use Plugins\Jwsoft\TiptapEditor\Services\LinkPreviewService;
+use Plugins\Jwsoft\TiptapEditor\Services\SocialEmbedPolicy;
 
 $g7Root = $argv[1] ?? '';
 $projectRoot = $argv[2] ?? '';
@@ -64,6 +65,15 @@ $http->fake(function ($request) use ($http) {
     return $http->response('not found', 404, ['Content-Type' => 'text/plain']);
 });
 $service = new LinkPreviewService($http, $resolver);
+foreach (['https://x.com/a/status/20' => 'x', 'https://www.facebook.com/facebook/posts/10154009990506729/' => 'facebook'] as $url => $provider) {
+    $descriptor = $service->preview($url, ['social' => true, 'generic' => false, 'images' => false, 'embeds' => ['x' => true, 'facebook' => true]]);
+    assertLinkPreview($descriptor['provider'] === $provider && $descriptor['description'] === '' && $descriptor['image_url'] === null, 'embed descriptor must not fabricate fetched body or media');
+}
+assertLinkPreview($resolver->hosts === [], 'fixed public embed descriptors must not trigger server URL fetches');
+assertLinkPreview(SocialEmbedPolicy::normalize('https://www.facebook.com/ISS/posts/nasa-astronaut-megan-mcarthur/1194948136005111/')['url'] === 'https://www.facebook.com/ISS/posts/1194948136005111', 'Facebook copied slug URL must canonicalize to the public post ID');
+foreach (['http://x.com/a/status/20','https://x.com:443/a/status/20','https://x.com@evil.test/a/status/20','https://x.com.evil.test/a/status/20','https://x.com./a/status/20','https://x.com/a/status/%32%30','https://facebook.com/plugins/post.php?href=https://evil.test','https://fb.watch/abc','https://facebook.com/groups/1/posts/2'] as $url) {
+    assertLinkPreview(SocialEmbedPolicy::normalize($url) === null, 'non-whitelisted URL must not become an executable embed');
+}
 $preview = $service->preview('https://www.instagram.com/p/proof#tracking', [
     'social' => true,
     'generic' => true,

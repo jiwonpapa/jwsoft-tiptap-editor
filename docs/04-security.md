@@ -80,6 +80,9 @@
 - DNS의 모든 A/AAAA 응답이 공개 IP인지 검사하고 선택한 IP를 cURL `CURLOPT_RESOLVE`로 고정합니다. 최대 3회 redirect도 같은 검사를 반복합니다.
 - HTML만 최대 512KB까지 읽고 연결 3초·전체 6초 timeout과 분당 10회 요청 제한을 적용합니다.
 - 저장 정본은 allowlist class와 text·검증 URL만 가진 링크 카드입니다. SNS script·iframe·임의 embed는 저장하지 않습니다.
+
+RC4의 [ADR-0014](adr/0014-whitelisted-official-social-embeds.md)는 화이트리스트 X·Facebook 공식 SDK의 표시 시 실행만 예외로 승인합니다. 정책 1.6.0에 URL·SDK·CSP 출처를 고정하고 master/social/provider 토글과 click 로드를 함께 적용합니다. 표시 프레임은 보안 sandbox가 아니므로 제공자 SDK 공급망과 same-origin 실행 위험이 남습니다. OFF에서는 로드하지 않으며 종료 시 프레임과 타이머를 해제합니다. 서버 HTML 정제/SSRF 정책은 완화하지 않습니다.
+
 - 대표 이미지는 기본 꺼짐이며 opt-in이어도 최종 페이지와 같은 공개 호스트의 HTTPS URL만 허용합니다.
 
 ## 업데이트

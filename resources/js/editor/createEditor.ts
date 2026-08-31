@@ -19,6 +19,7 @@ import { PolicyTaskItem, PolicyTaskList } from "@/editor/taskList";
 import { MediaEmbedExtension } from "@/editor/mediaEmbed";
 import type { MediaPlaybackOptions } from "@/editor/mediaPlayer";
 import { SmartCardExtension } from "@/editor/smartCard";
+import type { SocialOptions } from "@/editor/socialPolicy";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
 import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
@@ -35,6 +36,7 @@ interface CreateEditorOptions {
   editable: boolean;
   onUpdate: (html: string) => void;
   mediaPlayback?: MediaPlaybackOptions;
+  socialEmbeds?: SocialOptions;
   onPasteSanitized?: () => void;
   onImageFilesDropped?: (files: File[], position: number) => void;
   onImageFilesPasted?: (files: File[], position: number) => void;
@@ -74,7 +76,7 @@ export function createEditor(options: CreateEditorOptions): Editor {
       PolicyTaskList,
       PolicyTaskItem,
       MediaEmbedExtension.configure(options.mediaPlayback ?? {}),
-      SmartCardExtension,
+      SmartCardExtension.configure(options.socialEmbeds ?? {}),
       Placeholder.configure({
         placeholder: options.placeholder,
       }),

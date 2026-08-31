@@ -11,7 +11,7 @@
 - 에디터: Tiptap v3 / ProseMirror
 - 저장 정본: 서버에서 정제한 HTML
 - 스타일: 사전 정의 class token만 허용
-- 런타임 CDN: 사용하지 않음
+- 런타임 라이브러리 CDN: 사용하지 않음. 단, [승인된 SNS 화이트리스트](docs/adr/0014-whitelisted-official-social-embeds.md)의 X·Facebook 공식 게시물 SDK만 설정에 따라 연결
 - 제품 라이선스: Proprietary(공개 열람 가능, 사용·복제·배포는 별도 서면 계약 필요)
 
 ## GitHub 온라인 설치

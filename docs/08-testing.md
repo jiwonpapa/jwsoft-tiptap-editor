@@ -1,5 +1,11 @@
 # 테스트 전략
 
+## Enter·공식 SNS 회귀
+
+`formSubmitGuard.test.ts`와 `editor-ui.spec.ts`는 제목 Enter의 미처리 GET 차단·제목 보존·본문 필수 안내와 기존 저장 버튼 키보드 동작을 확인합니다. 실제 로그인 공개/관리자 작성은 별도 G7 검사입니다.
+
+`socialPolicy.test.ts`, 서버 링크 미리보기 통합 검사와 `social-embeds.spec.ts`는 URL 화이트리스트·공통 표시·저장 정본·OFF·click 전 연결 없음·실패 재시도를 검사합니다. 기본 E2E는 제공자 SDK 모형을 사용합니다. `JWSOFT_LIVE_SOCIAL=1 npx playwright test tests/e2e/social-embeds.spec.ts --grep 'live official'`은 실제 제공자의 본문·이미지 표시를 추가로 검사하며 비공개/삭제 오류를 성공으로 인정하지 않습니다. 제공자 정책 변경이나 테스트 게시물 삭제로 실패하면 결과를 숨기거나 성공 기준을 낮추지 않습니다.
+
 ## G7 본문 동기화 회귀
 
 `node tests/integration/g7_state_sync_test.mjs "$G7_ROOT"`는 지정한 전용 G7의 실제 실행 번들·기본 게시판 저장 시퀀스와 현재 에디터 소스를 함께 실행합니다. 신규·수정·다국어 본문의 화면 너비 변경 및 입력 직후 저장에서 제출 값이 에디터 HTML과 같은지 확인합니다. 선택 위치·에디터 instance 유지와 다른 언어 본문 보존도 검사하며 `make integration-check`에 포함됩니다.

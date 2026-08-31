@@ -67,6 +67,9 @@ export interface InitEditorParams {
   externalMediaLoadMode?: string;
   mediaAutoplay?: boolean | string;
   smartCards?: boolean | string;
+  socialCards?: boolean | string;
+  xEmbed?: boolean | string;
+  facebookEmbed?: boolean | string;
   autoSmartCards?: boolean | string;
   imageMaxSizeMb?: number | string;
 }

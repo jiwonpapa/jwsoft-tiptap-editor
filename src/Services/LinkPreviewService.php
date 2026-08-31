@@ -27,6 +27,13 @@ class LinkPreviewService
      */
     public function preview(string $value, array $options): array
     {
+        $embed = SocialEmbedPolicy::normalize($value);
+        if ($embed && $options['social'] && ($options['embeds'][$embed['provider']] ?? false)) {
+            $label = $this->providerLabel($embed['provider'], '');
+            // This is a validated embed descriptor, not fetched/fabricated post metadata.
+            return ['url' => $embed['url'], 'provider' => $embed['provider'], 'provider_label' => $label,
+                'title' => $label.' post', 'description' => '', 'image_url' => null];
+        }
         $url = $this->normalizeUrl($value);
         $provider = $this->providerFor($url);
         if (($provider === 'generic' && ! $options['generic'])

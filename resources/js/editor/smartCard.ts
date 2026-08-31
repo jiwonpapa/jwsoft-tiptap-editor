@@ -2,6 +2,8 @@ import { Node, type Editor } from "@tiptap/core";
 import type { DOMOutputSpec } from "@tiptap/pm/model";
 
 import { editorText } from "@/editor/locale";
+import { socialNodeView } from "./socialView";
+import type { SocialOptions } from "./socialPolicy";
 
 const ENDPOINT = "/api/plugins/jwsoft-tiptap-editor/link-preview";
 const PROVIDERS = [
@@ -142,12 +144,16 @@ export function insertSmartCard(
     : editor.chain().focus().insertContent(content).run();
 }
 
-export const SmartCardExtension = Node.create({
+export const SmartCardExtension = Node.create<SocialOptions>({
   name: "smartCard",
   group: "block",
   atom: true,
   draggable: true,
   selectable: true,
+  addOptions: () => ({ x: false, facebook: false, loadMode: "immediate" }),
+  addNodeView() {
+    return socialNodeView(this.options);
+  },
 
   addAttributes() {
     return {

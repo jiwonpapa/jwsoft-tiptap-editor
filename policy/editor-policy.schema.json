@@ -11,9 +11,19 @@
     "classTokens",
     "urls",
     "media",
+    "externalEmbeds",
     "limits"
   ],
   "properties": {
+    "externalEmbeds": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x", "facebook"],
+      "properties": {
+        "x": { "$ref": "#/$defs/externalProvider" },
+        "facebook": { "$ref": "#/$defs/externalProvider" }
+      }
+    },
     "$schema": { "type": "string" },
     "policyVersion": {
       "type": "string",
@@ -114,6 +124,42 @@
         "maxImagePixels": { "type": "integer", "minimum": 10000 },
         "maxTableCells": { "type": "integer", "minimum": 1 }
       }
+    }
+  },
+  "$defs": {
+    "externalProvider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "hosts",
+        "pathPattern",
+        "canonicalHost",
+        "sdkUrl",
+        "scriptOrigins",
+        "connectOrigins",
+        "frameOrigins",
+        "imageOrigins"
+      ],
+      "properties": {
+        "hosts": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "pattern": "^[a-z0-9.-]+$" }
+        },
+        "pathPattern": { "type": "string" },
+        "canonicalHost": { "type": "string", "pattern": "^[a-z0-9.-]+$" },
+        "sdkUrl": { "type": "string", "pattern": "^https://" },
+        "scriptOrigins": { "$ref": "#/$defs/origins" },
+        "connectOrigins": { "$ref": "#/$defs/origins" },
+        "frameOrigins": { "$ref": "#/$defs/origins" },
+        "imageOrigins": { "$ref": "#/$defs/origins" }
+      }
+    },
+    "origins": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^https://[a-z0-9.-]+$" }
     }
   }
 }

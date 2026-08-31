@@ -56,16 +56,17 @@ export const mediaNodeView =
     };
     select.addEventListener("click", () => {
       const pos = position();
-      if (pos !== null) editor.chain().focus().setNodeSelection(pos).run();
+      if (pos !== null) {
+        editor.commands.setNodeSelection(pos);
+        editor.commands.focus();
+      }
     });
     remove.addEventListener("click", () => {
       const pos = position();
-      if (pos !== null)
-        editor
-          .chain()
-          .focus()
-          .deleteRange({ from: pos, to: pos + current.nodeSize })
-          .run();
+      if (pos !== null) {
+        editor.commands.deleteRange({ from: pos, to: pos + current.nodeSize });
+        editor.commands.focus();
+      }
     });
     const editableChanged = () => {
       actions.hidden = !editor.isEditable;

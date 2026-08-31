@@ -11,6 +11,7 @@ import { createEditor } from "@/editor/createEditor";
 import { insertAutomaticUrl } from "@/editor/automaticUrl";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { installFormSubmitGuard } from "@/editor/formSubmitGuard";
+import { socialOptions, type SocialOptions } from "@/editor/socialPolicy";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
 import { uploadEditorImage } from "@/editor/imageUpload";
@@ -222,6 +223,7 @@ function mountLocaleEditor(options: {
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
   mediaPlayback: MediaPlaybackOptions;
+  socialEmbeds: SocialOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
   smartCards: boolean;
@@ -252,6 +254,7 @@ function mountLocaleEditor(options: {
     placeholder: options.placeholder,
     editable: false,
     mediaPlayback: options.mediaPlayback,
+    socialEmbeds: options.socialEmbeds,
     onUpdate: (value) => {
       syncEditorValue({
         core: window.G7Core,
@@ -351,6 +354,7 @@ function mountMultilingualEditors(options: {
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
   mediaPlayback: MediaPlaybackOptions;
+  socialEmbeds: SocialOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
   smartCards: boolean;
@@ -388,6 +392,7 @@ function mountMultilingualEditors(options: {
       autoEmbedUrls: options.autoEmbedUrls,
       mediaOptions: options.mediaOptions,
       mediaPlayback: options.mediaPlayback,
+      socialEmbeds: options.socialEmbeds,
       videoUpload: options.videoUpload,
       videoMaxSizeMb: options.videoMaxSizeMb,
       smartCards: options.smartCards,
@@ -518,6 +523,7 @@ export async function initEditorHandler(
       autoEmbedUrls,
       mediaOptions,
       mediaPlayback,
+      socialEmbeds: socialOptions({ ...params }),
       videoUpload,
       videoMaxSizeMb,
       smartCards,
@@ -547,6 +553,7 @@ export async function initEditorHandler(
     autoEmbedUrls,
     mediaOptions,
     mediaPlayback,
+    socialEmbeds: socialOptions({ ...params }),
     videoUpload,
     videoMaxSizeMb,
     smartCards,

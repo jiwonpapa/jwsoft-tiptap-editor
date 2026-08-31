@@ -128,6 +128,8 @@ namespace {
         || ($settings['smartCards']['default'] ?? null) !== false
         || ($settings['autoSmartCards']['default'] ?? null) !== false
         || ($settings['socialCards']['default'] ?? null) !== true
+        || ($settings['xEmbed']['default'] ?? null) !== true
+        || ($settings['facebookEmbed']['default'] ?? null) !== true
         || ($settings['genericLinkCards']['default'] ?? null) !== true
         || ($settings['smartCardImages']['default'] ?? null) !== false
         || array_key_exists('legacyContentRiskAcknowledged', $settings)) {
@@ -145,7 +147,9 @@ namespace {
         || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true
         || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false
         || ($settingsConfig['defaults']['smartCards'] ?? null) !== false
-        || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== false
+        || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['xEmbed']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['facebookEmbed']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['smartCardImages']['expose'] ?? null) !== false) {
         throw new RuntimeException('Retired activation acknowledgement must be absent; feature defaults must stay fail-safe.');
     }

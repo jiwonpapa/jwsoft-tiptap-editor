@@ -67,7 +67,9 @@ YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합�
 
 ### 8. Smart card subsystem
 
-Instagram·X·TikTok·Facebook·Threads·일반 HTTPS URL은 서버가 제한적으로 HTML metadata를 읽어 `figure > a > strong/p` 카드로 삽입합니다. 저장 HTML에는 provider script·iframe·oEmbed 응답을 넣지 않습니다. SNS가 metadata 요청을 차단하면 검증된 원래 URL과 provider 이름만 가진 안전한 카드로 폴백합니다.
+Instagram·TikTok·Threads·일반 HTTPS URL은 서버가 제한적으로 HTML metadata를 읽어 `figure > a > strong/p` 카드로 삽입합니다. metadata 요청이 거부되면 빈 성공 카드 대신 원래 URL을 유지합니다.
+
+X·Facebook은 [ADR-0014](adr/0014-whitelisted-official-social-embeds.md)에 따라 허용된 게시물 URL과 설정에 한해 공식 SDK를 표시 전용 프레임에 연결합니다. 편집 NodeView와 글보기는 같은 표시기를 사용합니다. 저장 HTML에는 provider script·iframe·oEmbed 응답을 넣지 않습니다. OFF는 원래 카드, 로드 실패는 재시도/원문 링크를 제공합니다.
 
 서버 fetch는 공개 DNS 주소를 검사해 cURL 연결 IP를 고정하고, 리다이렉트마다 다시 검증합니다. HTTPS 443만 허용하며 6초 timeout, 3회 redirect, 512KB HTML 상한과 분당 10회 throttle을 적용합니다. 상세 결정은 [ADR 0009](adr/0009-ssrf-safe-smart-cards.md)을 따릅니다.
 

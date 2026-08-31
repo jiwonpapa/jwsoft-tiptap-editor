@@ -148,6 +148,18 @@ class Plugin extends AbstractPlugin
                 'hint' => ['ko' => 'SNS 외 일반 HTTPS 페이지 링크 카드를 허용합니다.', 'en' => 'Allow cards for general HTTPS pages outside supported social sites.'],
                 'required' => false,
             ],
+            'xEmbed' => [
+                'type' => 'boolean', 'default' => true,
+                'label' => ['ko' => 'X 공식 게시물 삽입', 'en' => 'Official X post embeds'],
+                'hint' => ['ko' => 'SNS 스마트카드가 켜졌을 때 허용된 X 게시물만 공식 SDK로 표시합니다. 외부 연결과 외부 코드 실행이 발생합니다.', 'en' => 'With social smart cards enabled, display allowlisted X posts using the official SDK. Connects to the provider and executes external code.'],
+                'required' => false,
+            ],
+            'facebookEmbed' => [
+                'type' => 'boolean', 'default' => true,
+                'label' => ['ko' => 'Facebook 공식 게시물 삽입', 'en' => 'Official Facebook post embeds'],
+                'hint' => ['ko' => 'SNS 스마트카드가 켜졌을 때 허용된 Facebook 공개 게시물만 공식 SDK로 표시합니다. 비공개·지역 제한 게시물은 지원하지 않습니다.', 'en' => 'With social smart cards enabled, display allowlisted public Facebook posts using the official SDK. Private or region-restricted posts are not supported.'],
+                'required' => false,
+            ],
             'smartCardImages' => [
                 'type' => 'boolean',
                 'default' => false,

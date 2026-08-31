@@ -121,6 +121,17 @@ ${policy.classTokens.image
 .jw-card-tiktok { border-inline-start: 0.25rem solid #25f4ee; }
 .jw-card-facebook { border-inline-start: 0.25rem solid #1877f2; }
 .jw-card-threads { border-inline-start: 0.25rem solid #000; }
+.jw-social-surface { max-width: 550px; margin-inline: auto; }
+.jw-social-viewport { position: relative; overflow: auto; max-height: 1400px; width: 100%; }
+.jw-social-frame { display: block; border: 0; transform-origin: top left; background: #fff; }
+.jw-social-status { margin: 0; padding: 10px 12px; color: #64748b; font-size: 12px; }
+.jw-social-footer { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 8px 12px; border-top: 1px solid #e2e8f0; }
+.jw-social-footer a { color: #2563eb; font-size: 13px; text-decoration: underline; }
+.jw-social-footer button { min-height: 44px; border: 1px solid #cbd5e1; border-radius: 6px; padding: 8px 12px; background: #f8fafc; color: #334155; cursor: pointer; }
+.jw-social-footer button[hidden] { display: none; }
+.jwsoft-social-node { width: min(100%, 42rem); margin: 1rem auto; }
+.jwsoft-social-node .jw-card { margin: 0; width: 100%; }
+.jwsoft-social-node.ProseMirror-selectednode .jw-card { outline: 2px solid #2563eb; outline-offset: 3px; }
 `.trim();
 
 function phpQuote(value) {

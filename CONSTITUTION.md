@@ -33,6 +33,8 @@ MVP 저장 정본은 canonical HTML입니다. 기존 게시글·상품·페이�
 
 런타임 CDN 의존을 금지합니다. JavaScript, CSS, 번역과 폰트는 릴리스 패키지에 포함하거나 G7 자산 계약으로 제공합니다. 의존성은 lockfile로 고정하고 CI에서 advisory와 라이선스를 검사합니다. Tiptap Pro 기능은 별도 상용 결정과 ADR 없이는 도입하지 않습니다.
 
+ADR-0014의 사용자 승인 예외로, 화이트리스트의 X·Facebook 게시물 표시에 한해 고정된 공식 SDK를 허용합니다. 제공자 설정·외부 로드 설정·CSP·실패 처리를 적용하고 실행 DOM은 저장하지 않습니다. same-origin 외부 코드 실행의 공급망 위험을 명시하며 일반 CDN이나 임의 HTML 허용으로 확대하지 않습니다.
+
 ## 제7조 — CKEditor 완전 대체
 
 stable 릴리스는 `docs/acceptance/sirsoft-ckeditor5-parity.md`의 필수 항목을 모두 증명해야 합니다. 편집 기능뿐 아니라 이미지 업로드·저장·관리·정리, 설정, 권한, 훅, 다국어, read-only, 설치·업데이트·비활성화·롤백까지 포함합니다.

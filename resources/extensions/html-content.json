@@ -75,6 +75,10 @@
           {
             "handler": "jwsoft-tiptap-editor.injectContentStyles",
             "params": {
+              "smartCards": "{{_global.plugins['jwsoft-tiptap-editor']?.smartCards ?? false}}",
+              "socialCards": "{{_global.plugins['jwsoft-tiptap-editor']?.socialCards ?? true}}",
+              "xEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.xEmbed ?? true}}",
+              "facebookEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.facebookEmbed ?? true}}",
               "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'immediate'}}",
               "mediaAutoplay": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaAutoplay ?? false}}"
             }
