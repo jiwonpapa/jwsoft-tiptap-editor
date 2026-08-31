@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Translation\ArrayLoader;
 use Illuminate\Translation\Translator;
+use Illuminate\Translation\FileLoader;
+use Illuminate\Filesystem\Filesystem;
 use Illuminate\Validation\Factory;
 use Plugins\Jwsoft\TiptapEditor\Generated\EditorPolicy;
 use Plugins\Jwsoft\TiptapEditor\Http\Middleware\CanonicalizeBoardPostHtml;
@@ -82,6 +84,15 @@ assertG7Middleware(
 );
 
 $middleware = new CanonicalizeEditorHtml();
+$translations = new FileLoader(new Filesystem(), $projectRoot.'/lang');
+$translations->addNamespace('jwsoft-tiptap-editor', $projectRoot.'/lang');
+$translator = new Translator($translations, 'ko');
+assertG7Middleware($translator->get('jwsoft-tiptap-editor::messages.upload.invalid')
+    === 'JPEG, PNG, GIF, WebP, AVIF 이미지만 업로드할 수 있습니다.', 'image rejection must be translated');
+assertG7Middleware(! str_contains($translator->get('jwsoft-tiptap-editor::messages.upload.too_large', ['max' => 2]), '{{'),
+    'API translations must replace frontend-style parameters');
+assertG7Middleware(str_contains($translator->get('jwsoft-tiptap-editor::messages.upload.too_large', ['max' => 2], 'en'), '2'),
+    'English API size limit must contain the configured value');
 $next = static fn (Request $request): JsonResponse => new JsonResponse([
     'content' => $request->input('content'),
     'description' => $request->input('description'),

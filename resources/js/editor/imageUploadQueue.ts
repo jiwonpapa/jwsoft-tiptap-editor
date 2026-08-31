@@ -71,7 +71,11 @@ export function createImageUploadQueue(options: {
             ? "Ready to insert"
             : "삽입 준비 완료"
           : item.state === "uploading"
-            ? `${percent}%`
+            ? percent === 100
+              ? en
+                ? "Processing image…"
+                : "이미지 처리 중…"
+              : `${en ? "Uploading" : "업로드 중"} ${percent}%`
             : en
               ? "Ready to upload"
               : "업로드 대기";
@@ -94,8 +98,12 @@ export function createImageUploadQueue(options: {
           },
         },
       );
-      if (disposed || !items.includes(item) || item.controller.signal.aborted)
+      if (disposed || !items.includes(item)) return;
+      if (item.controller.signal.aborted) {
+        item.state = "pending";
+        update(item);
         return;
+      }
       item.result = result;
       item.state = "done";
       update(item, 100);
@@ -136,6 +144,11 @@ export function createImageUploadQueue(options: {
       const img = document.createElement("img");
       img.src = preview;
       img.alt = file.name;
+      img.addEventListener(
+        "error",
+        () => img.replaceWith(editorIcon("image")),
+        { once: true },
+      );
       const body = document.createElement("div");
       const name = document.createElement("strong");
       name.textContent = file.name;
@@ -224,18 +237,27 @@ export function createImageUploadQueue(options: {
         unmount = mountG7FilePicker(host, {
           maxSizeMb: options.maxSizeMb,
           onFiles: addFiles,
+          onReady: (ready) => {
+            fallback.hidden = ready;
+          },
+          onError: (message) => {
+            error.textContent = message;
+            error.hidden = false;
+          },
         });
       } catch {
         host.remove();
       }
-      if (unmount) fallback.hidden = true;
-      else host.remove();
+      if (!unmount) host.remove();
     },
     get count() {
       return items.length;
     },
     get busy() {
       return items.some((item) => item.state === "uploading");
+    },
+    get ready() {
+      return items.length > 0 && items.every((item) => item.state === "done");
     },
     uploadAll: async () => {
       uploading = true;

@@ -42,6 +42,12 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
         MediaServeService::class => 'media',
     ];
 
+    protected function loadExtensionTranslations(): void
+    {
+        // Resolve from this source, not the G7 namespace compatibility subclass.
+        $this->loadTranslationsFrom(dirname(__DIR__, 2).'/lang', $this->pluginIdentifier);
+    }
+
     public function boot(): void
     {
         parent::boot();

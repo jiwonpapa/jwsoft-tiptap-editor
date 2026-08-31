@@ -538,10 +538,22 @@ function createImageDialog(
     maxSizeMb,
     locale,
     onChange: () => {
-      apply.disabled = queue.busy;
+      refreshImageAction();
     },
   });
   let mode: "file" | "url" = uploadEnabled ? "file" : "url";
+  const refreshImageAction = () => {
+    apply.disabled = queue.busy || (mode === "file" && queue.count === 0);
+    apply.textContent = queue.busy
+      ? en
+        ? "Uploading…"
+        : "업로드 중…"
+      : mode === "file" && !queue.ready
+        ? en
+          ? "Upload & insert"
+          : "업로드 후 삽입"
+        : editorText(locale, editing ? "이미지 적용" : "이미지 삽입");
+  };
   const selectMode = (value: "file" | "url") => {
     mode = value;
     queue.element.hidden = mode !== "file";
@@ -549,6 +561,7 @@ function createImageDialog(
     fileTab.setAttribute("aria-selected", String(mode === "file"));
     urlTab.setAttribute("aria-selected", String(mode === "url"));
     if (mode === "url") src.focus();
+    refreshImageAction();
   };
   fileTab.addEventListener("click", () => selectMode("file"));
   urlTab.addEventListener("click", () => selectMode("url"));
@@ -585,10 +598,7 @@ function createImageDialog(
     selectMode(editing || !uploadEnabled ? "url" : "file");
     preview.hidden = !editing;
     if (editing) preview.src = src.value;
-    apply.textContent = editorText(
-      locale,
-      editing ? "이미지 적용" : "이미지 삽입",
-    );
+    refreshImageAction();
     if (uploadEnabled) queue.mountNative();
   });
   form.addEventListener("submit", async (event) => {

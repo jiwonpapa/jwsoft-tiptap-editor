@@ -806,7 +806,7 @@ test("image upload supports caption alignment size and responsive output", async
   await dialog.locator("summary").click();
   await dialog.getByLabel("대체 텍스트").fill("업로드 증빙");
   await dialog.getByLabel("캡션").fill("초기 캡션");
-  await dialog.getByRole("button", { name: "이미지 삽입" }).click();
+  await dialog.getByRole("button", { name: "업로드 후 삽입" }).click();
 
   const figure = page.locator(".jwsoft-tiptap-editable figure.jw-image");
   const image = page.locator(".jwsoft-tiptap-editable img");

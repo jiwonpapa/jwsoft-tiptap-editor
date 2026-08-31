@@ -158,12 +158,13 @@ html.dark .jwsoft-popover-header, html.dark .jwsoft-menu-section { border-color:
 .jwsoft-upload-list:empty { margin: 0; }
 .jwsoft-upload-item { display: flex; align-items: center; gap: 12px; border: 1px solid #e5e9f0; border-radius: 9px; padding: 10px; }
 .jwsoft-upload-item > img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+.jwsoft-upload-item > .jwsoft-icon { width: 50px; height: 50px; flex-shrink: 0; padding: 10px; color: #74829a; }
 .jwsoft-upload-item > div { flex: 1; min-width: 0; }
-.jwsoft-upload-item strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 550; }
-.jwsoft-upload-item span { display: block; margin-top: 4px; font-size: 11px; color: #7b8595; }
+.jwsoft-upload-item strong { display: block; overflow-wrap: anywhere; font-size: 13px; font-weight: 550; }
+.jwsoft-upload-item span { display: block; margin-top: 4px; font-size: 13px; color: #556174; }
 .jwsoft-upload-item[data-state=error] { border-color: #fca5a5; }
 .jwsoft-upload-item[data-state=error] span { color: #b91c1c; }
-.jwsoft-upload-item progress { display: block; width: 100%; height: 5px; margin-top: 7px; accent-color: #2563eb; }
+.jwsoft-upload-item progress { display: block; width: 100%; height: 8px; margin-top: 7px; accent-color: #2563eb; }
 .jwsoft-upload-item > button { display: grid; place-items: center; min-width: 32px; height: 32px; border: 0; border-radius: 6px; background: transparent; color: #64748b; cursor: pointer; }
 .jwsoft-upload-item > button:hover { background: #f1f5f9; }
 .jwsoft-image-preview { display: block; width: 100%; max-height: 240px; object-fit: contain; margin-top: 14px; border-radius: 8px; background: #f8fafc; }
