@@ -64,6 +64,7 @@ async function checkSave({
   immediate = false,
   multilingual = false,
   empty = false,
+  rapidLocales = false,
 }) {
   const errors = [];
   const console = new VirtualConsole();
@@ -178,6 +179,15 @@ async function checkSave({
     });
     editor.commands.setContent("<p>새로 입력한 본문을 저장합니다</p>");
     if (empty) editor.commands.clearContent();
+    if (rapidLocales) {
+      w.EditorUnderTest.syncEditorValue({
+        core,
+        name: "content",
+        locale: "en",
+        value: "<p>New English</p>",
+        multilingual: true,
+      });
+    }
     editor.commands.setTextSelection(8);
     const selection = editor.state.selection.from;
     if (!immediate) await wait(400);
@@ -213,7 +223,11 @@ async function checkSave({
         saved.includes("새로 입력한 본문"),
         `${label}: fresh input must survive`,
       );
-    if (multilingual) assert.equal(submitted.content.en, "<p>Keep English</p>");
+    if (multilingual)
+      assert.equal(
+        submitted.content.en,
+        rapidLocales ? "<p>New English</p>" : "<p>Keep English</p>",
+      );
     assert.deepEqual(errors, [], `${label}: no DOM runtime errors`);
     return label;
   } finally {
@@ -229,6 +243,27 @@ for (const scenario of [
   { label: "edited document after resize", initial: "<p>이전 본문</p>" },
   { label: "immediate save flushes debounce", immediate: true, resize: false },
   { label: "localized content after resize", multilingual: true },
+  {
+    label: "rapid language switching preserves both pending locales",
+    multilingual: true,
+    rapidLocales: true,
+    immediate: true,
+    resize: false,
+  },
+  {
+    label: "rapid language switching settles both locales after resize",
+    multilingual: true,
+    rapidLocales: true,
+  },
+  {
+    label:
+      "clearing one locale then editing another preserves the cleared value",
+    multilingual: true,
+    rapidLocales: true,
+    empty: true,
+    immediate: true,
+    resize: false,
+  },
   {
     label: "delete all then immediate save submits empty",
     empty: true,

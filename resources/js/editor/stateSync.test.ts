@@ -6,6 +6,27 @@ import {
 import type { G7CoreApi } from "@/g7/types";
 
 describe("G7 state synchronization", () => {
+  it("uses separate debounce keys for pending language fields", () => {
+    const setLocal = vi.fn();
+    const core: G7CoreApi = {
+      state: {
+        getLocal: () => ({ form: { content: { ko: "old", en: "old" } } }),
+        setLocal,
+      },
+    };
+    for (const locale of ["ko", "en"])
+      syncEditorValue({
+        core,
+        name: "content",
+        locale,
+        value: locale,
+        multilingual: true,
+      });
+    expect(setLocal.mock.calls.map((call) => call[1].debounceKey)).toEqual([
+      "jwsoft-tiptap-sync-content.ko",
+      "jwsoft-tiptap-sync-content.en",
+    ]);
+  });
   it("replaces pending text when the user immediately deletes back to empty", () => {
     const setLocal = vi.fn();
     const core: G7CoreApi = {

@@ -90,7 +90,9 @@ export function syncEditorValue({
 
   state.setLocal(updates, {
     debounce: 300,
-    debounceKey: `jwsoft-tiptap-sync-${name}`,
+    // Each locale is a different field. A shared key cancels the previous
+    // language's pending write when another tab is edited before 300 ms.
+    debounceKey: `jwsoft-tiptap-sync-${key}`,
     // Refresh G7's submission snapshot when the debounce settles. Updating only
     // global state lets a later responsive render submit an older form value.
     render: true,

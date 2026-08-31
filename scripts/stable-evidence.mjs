@@ -59,7 +59,12 @@ export function validateMobileLayout(responsive) {
 }
 
 export function validateFunctionalAudit(data) {
-  const { emptyBody, images, mp4, urls } = data.observations ?? {};
+  const { emptyBody, images, mp4, urls, multilingual } =
+    data.observations ?? {};
+  requireValue(
+    multilingual?.rapidSwitchSavedBoth === true && multilingual?.productId > 0,
+    "actual rapid multilingual switching save proof is missing",
+  );
   requireValue(
     emptyBody?.rejectedRequests === 18 &&
       emptyBody?.contentHashesPreserved === true,

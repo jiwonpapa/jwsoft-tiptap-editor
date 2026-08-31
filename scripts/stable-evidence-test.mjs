@@ -21,6 +21,7 @@ import {
 test("actual functional audit rejects missing or non-playing media evidence", () => {
   const data = {
     observations: {
+      multilingual: { rapidSwitchSavedBoth: true, productId: 101 },
       emptyBody: { rejectedRequests: 18, contentHashesPreserved: true },
       images: {
         public: { postId: 1, loadedWidth: 640, savedAndReopened: true },
@@ -47,7 +48,7 @@ test("actual functional audit rejects missing or non-playing media evidence", ()
     },
   };
   validateFunctionalAudit(data);
-  assert.throws(() => validateFunctionalAudit({}), /HTTP rejection/);
+  assert.throws(() => validateFunctionalAudit({}), /multilingual/);
   data.observations.mp4.timeAfter = 0;
   assert.throws(() => validateFunctionalAudit(data), /playback/);
   data.observations.mp4.timeAfter = 5;
