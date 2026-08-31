@@ -54,6 +54,9 @@ $http->fake(function ($request) use ($http) {
     if ($request->url() === 'https://x.com/jwsoft/status/123') {
         return $http->response('rate limited', 429, ['Content-Type' => 'text/plain']);
     }
+    if ($request->url() === 'https://www.facebook.com/no-metadata') {
+        return $http->response('<html><title>Facebook</title></html>', 200, ['Content-Type' => 'text/html']);
+    }
     if ($request->url() === 'https://huge.example/page') {
         return $http->response(str_repeat('x', 524289), 200, ['Content-Type' => 'text/html']);
     }
@@ -72,12 +75,14 @@ assertLinkPreview($preview['description'] === 'Safe preview description', 'previ
 assertLinkPreview($preview['image_url'] === 'https://www.instagram.com/media/proof.jpg', 'same-host preview image should survive');
 assertLinkPreview($resolver->hosts === ['www.instagram.com', 'www.instagram.com'], 'page and image host must both pass public resolver');
 
-$fallback = $service->preview('https://x.com/jwsoft/status/123', [
-    'social' => true,
-    'generic' => true,
-    'images' => false,
-]);
-assertLinkPreview($fallback['provider'] === 'x' && $fallback['title'] === 'X', 'unavailable social metadata must fall back to a safe provider card');
+foreach (['https://x.com/jwsoft/status/123', 'https://www.facebook.com/no-metadata'] as $url) {
+    try {
+        $service->preview($url, ['social' => true, 'generic' => true, 'images' => false]);
+        throw new RuntimeException('unavailable social metadata must fail explicitly, not produce an empty successful card');
+    } catch (LinkPreviewException) {
+        // The client keeps the original URL and offers retry, without fabricating metadata.
+    }
+}
 
 try {
     $service->preview('https://example.com/article', ['social' => true, 'generic' => false, 'images' => false]);

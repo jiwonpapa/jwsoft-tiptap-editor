@@ -58,6 +58,45 @@ export function validateMobileLayout(responsive) {
   );
 }
 
+export function validateFunctionalAudit(data) {
+  const { emptyBody, images, mp4, urls } = data.observations ?? {};
+  requireValue(
+    emptyBody?.rejectedRequests === 18 &&
+      emptyBody?.contentHashesPreserved === true,
+    "actual empty-body HTTP rejection proof is missing",
+  );
+  for (const surface of ["public", "admin"]) {
+    const upload = images?.[surface];
+    requireValue(
+      upload?.postId > 0 &&
+        upload?.loadedWidth > 0 &&
+        upload?.savedAndReopened === true,
+      `actual ${surface} image upload/save/reopen proof is missing`,
+    );
+  }
+  requireValue(
+    images?.invalidRejected === true && images?.retryRejected === true,
+    "actual invalid image rejection/retry proof is missing",
+  );
+  requireValue(
+    mp4?.postId > 0 &&
+      /\.mp4$/i.test(mp4?.filename ?? "") &&
+      mp4?.controls === true &&
+      mp4?.duration > 0 &&
+      mp4?.timeAfter > mp4?.timeBefore &&
+      mp4?.rangeStatus === 206,
+    "actual MP4 upload, playback, filename or Range proof is missing",
+  );
+  requireValue(
+    urls?.typedYoutubeCount === 1 &&
+      urls?.savedAndReopened === true &&
+      urls?.socialCardCount === 1 &&
+      urls?.failedOriginalLinkCount === 1 &&
+      urls?.failedCardCount === 0,
+    "actual automatic URL success/failure roundtrip proof is missing",
+  );
+}
+
 export function currentPackage(context) {
   const data = read(context.root, "test-results/release/reproducibility.json");
   requireValue(
@@ -134,6 +173,14 @@ export function validateStableArtifact(context, relative) {
       "browser observation time is missing",
     );
     const filename = path.basename(relative);
+    if (filename === "functional-audit.json") {
+      requireValue(
+        data.sourceFingerprint === fingerprint &&
+          data.runtimeSha256 === runtimeSha256,
+        "functional audit source or runtime is stale",
+      );
+      validateFunctionalAudit(data);
+    }
     if (runtimeBrowserFiles.has(filename) || filename === "evidence.json") {
       requireValue(
         Boolean(runtimeSha256) && data.runtimeSha256 === runtimeSha256,

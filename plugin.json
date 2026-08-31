@@ -5,7 +5,7 @@
     "ko": "JWSoft Tiptap 에디터",
     "en": "JWSoft Tiptap Editor"
   },
-  "version": "0.1.0-rc.1",
+  "version": "0.1.0-rc.2",
   "license": "Proprietary",
   "description": {
     "ko": "그누보드7용 Tiptap 에디터 개발용 alpha입니다. CKEditor가 활성화되어 있으면 먼저 비활성화한 뒤 JWSoft를 활성화하십시오. 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않으며, 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.",

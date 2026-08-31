@@ -38,7 +38,10 @@
       "id": "editor.state-sync",
       "gate": "unit",
       "requirement": "G7 debounce와 최신 상태 동기화",
-      "artifacts": ["test-results/parity/unit.json"]
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/functional-audit.json"
+      ]
     },
     {
       "id": "editor.toolbar-profiles",

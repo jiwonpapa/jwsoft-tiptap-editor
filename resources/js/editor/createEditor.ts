@@ -36,7 +36,7 @@ interface CreateEditorOptions {
   onPasteSanitized?: () => void;
   onImageFilesDropped?: (files: File[], position: number) => void;
   onImageFilesPasted?: (files: File[], position: number) => void;
-  onPlainUrlPasted?: (url: string, position: number) => boolean;
+  onPlainUrlPasted?: (url: string, position: number, end?: number) => boolean;
 }
 
 function imageFiles(files: FileList | null | undefined): File[] {
@@ -137,6 +137,41 @@ export function createEditor(options: CreateEditorOptions): Editor {
           options.onPasteSanitized?.();
         }
         view.dispatch(view.state.tr.replaceSelection(slice).scrollIntoView());
+        return true;
+      },
+      handleKeyDown: (view, event) => {
+        if (
+          event.key !== "Enter" ||
+          event.shiftKey ||
+          event.ctrlKey ||
+          event.metaKey ||
+          event.altKey ||
+          event.isComposing ||
+          view.composing ||
+          !options.onPlainUrlPasted
+        )
+          return false;
+        const { selection } = view.state;
+        const paragraph = selection.$from.parent;
+        const url = paragraph.textContent;
+        if (
+          !selection.empty ||
+          paragraph.type.name !== "paragraph" ||
+          selection.$from.parentOffset !== paragraph.content.size ||
+          !url ||
+          /\s/u.test(url) ||
+          selection.$from.marks().some((mark) => mark.type.name === "code")
+        )
+          return false;
+        if (
+          !options.onPlainUrlPasted(
+            url,
+            selection.$from.start(),
+            selection.$from.end(),
+          )
+        )
+          return false;
+        event.preventDefault();
         return true;
       },
     },

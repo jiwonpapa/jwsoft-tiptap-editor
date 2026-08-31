@@ -15,7 +15,45 @@ import {
   integrationTests,
   validateMobileLayout,
   validateStableArtifact,
+  validateFunctionalAudit,
 } from "./stable-evidence.mjs";
+
+test("actual functional audit rejects missing or non-playing media evidence", () => {
+  const data = {
+    observations: {
+      emptyBody: { rejectedRequests: 18, contentHashesPreserved: true },
+      images: {
+        public: { postId: 1, loadedWidth: 640, savedAndReopened: true },
+        admin: { postId: 1, loadedWidth: 640, savedAndReopened: true },
+        invalidRejected: true,
+        retryRejected: true,
+      },
+      mp4: {
+        postId: 2,
+        filename: "clip.mp4",
+        controls: true,
+        duration: 12,
+        timeBefore: 0,
+        timeAfter: 5,
+        rangeStatus: 206,
+      },
+      urls: {
+        typedYoutubeCount: 1,
+        socialCardCount: 1,
+        savedAndReopened: true,
+        failedOriginalLinkCount: 1,
+        failedCardCount: 0,
+      },
+    },
+  };
+  validateFunctionalAudit(data);
+  assert.throws(() => validateFunctionalAudit({}), /HTTP rejection/);
+  data.observations.mp4.timeAfter = 0;
+  assert.throws(() => validateFunctionalAudit(data), /playback/);
+  data.observations.mp4.timeAfter = 5;
+  data.observations.urls.failedCardCount = 1;
+  assert.throws(() => validateFunctionalAudit(data), /URL/);
+});
 
 function fixture(run) {
   const root = fs.realpathSync(

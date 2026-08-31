@@ -25,7 +25,11 @@ import {
   type MediaEmbedOptions,
 } from "@/editor/mediaEmbed";
 import { uploadEditorMedia } from "@/editor/mediaUpload";
-import { fetchLinkPreview, insertSmartCard } from "@/editor/smartCard";
+import {
+  fetchLinkPreview,
+  insertSmartCard,
+  isSmartCardUrl,
+} from "@/editor/smartCard";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -958,10 +962,24 @@ function createSmartCardDialog(
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = editorText(locale, "링크 카드 삽입");
+  const fallback = document.createElement("button");
+  fallback.type = "button";
+  fallback.className = "jwsoft-tiptap-dialog-secondary";
+  fallback.textContent =
+    locale === "en" ? "Insert original link" : "원본 링크로 삽입";
+  fallback.hidden = true;
+  const hint = document.createElement("p");
+  hint.className = "jwsoft-tiptap-dialog-hint";
+  hint.textContent =
+    locale === "en"
+      ? "Public metadata becomes a link preview card. Private or blocked posts may be unavailable."
+      : "공개 정보를 링크 미리보기 카드로 삽입합니다. 비공개·조회 제한 게시물은 지원되지 않을 수 있습니다.";
   form.append(
     formField(editorText(locale, "HTTPS 주소"), url),
+    hint,
     progress,
     error,
+    fallback,
     apply,
   );
   const handle = createDialog({
@@ -978,6 +996,28 @@ function createSmartCardDialog(
     controller = null;
     apply.disabled = false;
     progress.hidden = true;
+    url.disabled = false;
+    fallback.hidden = true;
+    apply.textContent = editorText(locale, "링크 카드 삽입");
+  });
+  url.addEventListener("input", () => {
+    fallback.hidden = true;
+    error.hidden = true;
+    apply.textContent = editorText(locale, "링크 카드 삽입");
+  });
+  fallback.addEventListener("click", () => {
+    if (controller || !isSmartCardUrl(url.value) || editor.isDestroyed) return;
+    editor
+      .chain()
+      .focus()
+      .insertContent({
+        type: "text",
+        text: url.value,
+        marks: [{ type: "link", attrs: { href: url.value } }],
+      })
+      .run();
+    form.reset();
+    handle.close();
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -986,6 +1026,8 @@ function createSmartCardDialog(
     const request = new AbortController();
     controller = request;
     error.hidden = true;
+    fallback.hidden = true;
+    url.disabled = true;
     progress.hidden = false;
     progress.textContent = editorText(
       locale,
@@ -1014,11 +1056,16 @@ function createSmartCardDialog(
           : editorText(locale, "링크 미리보기를 가져오지 못했습니다.");
       error.hidden = false;
       progress.hidden = true;
+      fallback.hidden = !isSmartCardUrl(url.value);
+      apply.textContent =
+        locale === "en" ? "Retry preview" : "미리보기 다시 시도";
+      url.disabled = false;
       url.focus();
     } finally {
       if (controller === request) {
         controller = null;
         apply.disabled = false;
+        url.disabled = false;
       }
     }
   });

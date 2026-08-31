@@ -34,27 +34,7 @@ class LinkPreviewService
             throw new LinkPreviewException('preview_provider_disabled');
         }
 
-        try {
-            [$finalUrl, $html] = $this->fetchHtml($url);
-        } catch (LinkPreviewException $exception) {
-            if ($provider === 'generic' || ! in_array($exception->getMessage(), [
-                'preview_http_failed',
-                'preview_content_type_rejected',
-                'preview_body_too_large',
-                'preview_html_invalid',
-            ], true)) {
-                throw $exception;
-            }
-
-            return [
-                'url' => $url,
-                'provider' => $provider,
-                'provider_label' => $this->providerLabel($provider, (string) parse_url($url, PHP_URL_HOST)),
-                'title' => $this->providerLabel($provider, ''),
-                'description' => '',
-                'image_url' => null,
-            ];
-        }
+        [$finalUrl, $html] = $this->fetchHtml($url);
         $finalProvider = $this->providerFor($finalUrl);
         if (($finalProvider === 'generic' && ! $options['generic'])
             || ($finalProvider !== 'generic' && ! $options['social'])) {
@@ -62,6 +42,11 @@ class LinkPreviewService
         }
         $metadata = $this->metadata($html);
         $host = (string) parse_url($finalUrl, PHP_URL_HOST);
+        $rawTitle = $this->cleanText($metadata['title'], 160);
+        if ($rawTitle === '' || ($finalProvider !== 'generic'
+            && in_array(strtolower($rawTitle), [strtolower($host), strtolower($this->providerLabel($finalProvider, $host))], true))) {
+            throw new LinkPreviewException('preview_metadata_unavailable');
+        }
         $title = $this->cleanText($metadata['title'] ?: $host, 160);
         $description = $this->cleanText($metadata['description'], 300);
         $imageUrl = $options['images']

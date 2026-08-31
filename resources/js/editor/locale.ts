@@ -78,6 +78,10 @@ const ENGLISH_COPY: Record<string, string> = {
   "링크 미리보기를 가져오는 중입니다…": "Fetching link preview…",
   "링크 미리보기를 가져오지 못했습니다.": "Could not fetch link preview.",
   "링크 카드를 삽입했습니다.": "Link card inserted.",
+  "URL이 변경되어 자동 변환을 취소했습니다.":
+    "Automatic conversion was cancelled because the URL changed.",
+  "미리보기를 가져오지 못해 원래 URL을 유지했습니다. 링크 카드 메뉴에서 다시 시도할 수 있습니다.":
+    "Could not fetch the preview. The original URL is kept; retry from the Link card menu.",
   "미리보기를 가져오지 못해 원래 URL을 삽입했습니다.":
     "Could not fetch the preview, so the original URL was inserted.",
   "허용된 YouTube·Vimeo·MP4 URL을 입력하십시오.":
