@@ -56,14 +56,15 @@ async function mountEditor(
   smartCards = false,
   content = "<p>선택 영역 테스트</p>",
   origin = "http://jwsoft.test",
+  hostForm = false,
 ): Promise<void> {
   await page.route(`${origin}/`, (route) =>
     route.fulfill({
       contentType: "text/html",
       body: `<!doctype html>
         <html lang="ko">
-          <head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
-          <body><main><div id="jwsoft-tiptap-content" class="jwsoft-tiptap-wrapper"></div></main></body>
+          <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+          <body><main>${hostForm ? '<form><input name="title" aria-label="제목">' : ""}<div id="jwsoft-tiptap-content" class="jwsoft-tiptap-wrapper"></div>${hostForm ? '<button type="button">등록</button></form>' : ""}</main></body>
         </html>`,
     }),
   );
@@ -144,6 +145,54 @@ async function mountEditor(
     },
   );
 }
+
+test("title Enter keeps the document and title, requires body and leaves explicit save usable", async ({
+  page,
+}) => {
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    "<p></p>",
+    "http://jwsoft.test",
+    true,
+  );
+  const title = page.getByRole("textbox", { name: "제목", exact: true });
+  await title.fill("Enter 회귀검사");
+  await title.press("Enter");
+  await expect(page).toHaveURL("http://jwsoft.test/");
+  await expect(title).toHaveValue("Enter 회귀검사");
+  await expect(page.getByRole("alert")).toHaveText("본문을 입력해 주세요.");
+  const body = page.getByRole("textbox", {
+    name: "JWSoft Tiptap editor",
+    exact: true,
+  });
+  await expect(body).toBeFocused();
+  await body.fill("본문 내용");
+  await expect(body).not.toHaveAttribute("aria-invalid", "true");
+  await title.press("Enter");
+  await expect(page).toHaveURL("http://jwsoft.test/");
+  await expect(title).toHaveValue("Enter 회귀검사");
+  await expect(page.locator(".jwsoft-tiptap-status")).toHaveText(
+    "본문 편집 후 등록 버튼을 눌러 주세요.",
+  );
+  await page
+    .getByRole("button", { name: "등록", exact: true })
+    .evaluate((button) => {
+      button.addEventListener("click", () => {
+        button.textContent = "저장 액션 실행";
+      });
+    });
+  const save = page.getByRole("button", { name: "등록", exact: true });
+  await save.focus();
+  await save.press("Enter");
+  await expect(
+    page.getByRole("button", { name: "저장 액션 실행", exact: true }),
+  ).toBeVisible();
+});
 
 async function insertTool(page: Page, name: string) {
   const direct = page

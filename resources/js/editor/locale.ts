@@ -1,4 +1,9 @@
 const ENGLISH_COPY: Record<string, string> = {
+  "본문을 입력해 주세요.": "Please enter the body content.",
+  "본문 편집 후 등록 버튼을 눌러 주세요.":
+    "Use the save button after editing the body.",
+  "본문의 편집 가능 여부를 먼저 확인해 주세요.":
+    "Check whether the body is editable first.",
   한국어: "Korean",
   "안전한 HTML 저장 정책 적용": "Safe HTML storage policy applied",
   "이 편집기는 현재 읽기 전용입니다.": "This editor is read-only.",

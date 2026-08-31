@@ -10,6 +10,7 @@ import {
 import { createEditor } from "@/editor/createEditor";
 import { insertAutomaticUrl } from "@/editor/automaticUrl";
 import { editorRegistry } from "@/editor/editorRegistry";
+import { installFormSubmitGuard } from "@/editor/formSubmitGuard";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
 import { uploadEditorImage } from "@/editor/imageUpload";
@@ -284,6 +285,7 @@ function mountLocaleEditor(options: {
         : undefined,
   });
   editorRegistry.set(options.containerId, options.locale, editor);
+  installFormSubmitGuard(editor, options.status, options.locale);
 
   if (!options.editable) return;
 
