@@ -16,6 +16,7 @@ export const integrationTests = [
   "tests/integration/g7_image_subsystem_test.php",
   "tests/integration/g7_media_subsystem_test.php",
   "tests/integration/g7_link_preview_test.php",
+  "tests/integration/g7_state_sync_test.mjs",
 ];
 
 const runtimeBrowserFiles = new Set([

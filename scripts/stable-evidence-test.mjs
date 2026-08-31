@@ -263,7 +263,7 @@ test("untracked inputs, deleted tracked code and packaged text change the finger
     assert.notEqual(sourceFingerprint(root), newSource);
   }));
 
-test("all six unique current G7 checks are required", () =>
+test("all declared unique current G7 checks are required", () =>
   fixture(({ context, write }) => {
     const file = "test-results/parity/integration.json";
     const checks = integrationTests.map((testFile) => ({

@@ -72,7 +72,9 @@ export function syncEditorValue({
   state.setLocal(updates, {
     debounce: 300,
     debounceKey: `jwsoft-tiptap-sync-${name}`,
-    render: false,
+    // Refresh G7's submission snapshot when the debounce settles. Updating only
+    // global state lets a later responsive render submit an older form value.
+    render: true,
     selfManaged: true,
   });
   return true;

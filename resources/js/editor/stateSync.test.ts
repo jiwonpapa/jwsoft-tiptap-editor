@@ -6,7 +6,7 @@ import {
 import type { G7CoreApi } from "@/g7/types";
 
 describe("G7 state synchronization", () => {
-  it("uses G7 debounce options and marks user changes", () => {
+  it("debounces changes and refreshes the G7 submission snapshot", () => {
     const setLocal = vi.fn();
     const core: G7CoreApi = {
       state: {
@@ -33,7 +33,7 @@ describe("G7 state synchronization", () => {
       {
         debounce: 300,
         debounceKey: "jwsoft-tiptap-sync-content",
-        render: false,
+        render: true,
         selfManaged: true,
       },
     );
