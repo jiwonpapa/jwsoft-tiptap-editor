@@ -159,6 +159,10 @@ html.dark .jwsoft-popover-header, html.dark .jwsoft-menu-section { border-color:
 .jwsoft-upload-item { display: flex; align-items: center; gap: 12px; border: 1px solid #e5e9f0; border-radius: 9px; padding: 10px; }
 .jwsoft-upload-item > img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
 .jwsoft-upload-item > .jwsoft-icon { width: 50px; height: 50px; flex-shrink: 0; padding: 10px; color: #74829a; }
+.jwsoft-video-file-name { overflow-wrap: anywhere; font-size: 14px; font-weight: 550; }
+.jwsoft-video-progress { display: grid; gap: 10px; padding: 16px; border-radius: 8px; background: #f1f5f9; color: #334155; font-size: 14px; }
+.jwsoft-video-progress progress { width: 100%; height: 10px; accent-color: #2563eb; }
+html.dark .jwsoft-video-progress { background: #252c36; color: #e2e8f0; }
 .jwsoft-upload-item > div { flex: 1; min-width: 0; }
 .jwsoft-upload-item strong { display: block; overflow-wrap: anywhere; font-size: 13px; font-weight: 550; }
 .jwsoft-upload-item span { display: block; margin-top: 4px; font-size: 13px; color: #556174; }

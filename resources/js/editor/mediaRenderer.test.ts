@@ -1,7 +1,49 @@
-import { enhanceContentMedia } from "@/editor/mediaRenderer";
+import {
+  enhanceContentMedia,
+  startContentMediaObserver,
+  stopContentMediaObserver,
+} from "@/editor/mediaRenderer";
 
 describe("content media renderer", () => {
   beforeEach(() => document.body.replaceChildren());
+  afterEach(() => stopContentMediaObserver());
+
+  it("enhances late G7 content and the same figure after a host rerender", async () => {
+    startContentMediaObserver();
+    document.body.innerHTML = '<div class="jwsoft-tiptap-content"></div>';
+    await Promise.resolve();
+    const container = document.querySelector(".jwsoft-tiptap-content")!;
+    const source =
+      '<a class="jw-media-source" href="/api/plugins/jwsoft-tiptap-editor/media/abcdef123456">actual-file.mp4</a>';
+    container.innerHTML = `<figure class="jw-media jw-media-mp4">${source}</figure>`;
+    await Promise.resolve();
+    expect(container.querySelector("video")?.controls).toBe(true);
+    expect(container.querySelector("video")?.getAttribute("aria-label")).toBe(
+      "actual-file.mp4",
+    );
+    const figure = container.querySelector("figure")!;
+    figure.innerHTML = source;
+    await Promise.resolve();
+    expect(figure.querySelectorAll("video")).toHaveLength(1);
+    expect(enhanceContentMedia()).toBe(0);
+  });
+
+  it("keeps a safe original link and retry action after MP4 load failure", () => {
+    document.body.innerHTML =
+      '<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-mp4"><a class="jw-media-source" href="/api/plugins/jwsoft-tiptap-editor/media/abcdef123456">clip.mp4</a></figure></div>';
+    enhanceContentMedia();
+    document.querySelector("video")!.dispatchEvent(new Event("error"));
+    expect(document.querySelector("[role=alert]")?.textContent).toContain(
+      "불러오지 못했습니다",
+    );
+    expect(
+      document
+        .querySelector<HTMLAnchorElement>(".jw-media-original")
+        ?.getAttribute("href"),
+    ).toContain("abcdef123456");
+    document.querySelector<HTMLButtonElement>("[role=alert] button")!.click();
+    expect(document.querySelector("video")).not.toBeNull();
+  });
 
   it("loads an allowlisted player only after a click by default", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">영상</a></figure></div>`;

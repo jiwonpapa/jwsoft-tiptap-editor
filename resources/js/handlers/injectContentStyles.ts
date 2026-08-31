@@ -1,6 +1,6 @@
 import { injectContentStyles } from "@/editor/editorStyles";
 import {
-  enhanceContentMedia,
+  startContentMediaObserver,
   type ExternalMediaLoadMode,
 } from "@/editor/mediaRenderer";
 import { booleanParam } from "@/editor/content";
@@ -15,7 +15,7 @@ export function injectContentStylesHandler(
   const loadMode: ExternalMediaLoadMode =
     params.externalMediaLoadMode === "immediate" ? "immediate" : "click";
   queueMicrotask(() => {
-    enhanceContentMedia({
+    startContentMediaObserver({
       loadMode,
       autoplay: booleanParam(params.mediaAutoplay),
     });

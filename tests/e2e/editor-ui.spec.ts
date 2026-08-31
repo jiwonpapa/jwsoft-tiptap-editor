@@ -983,9 +983,10 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
       111, 109, 109, 112, 52, 49, 0, 0, 0, 8, 109, 100, 97, 116,
     ]),
   });
-  await dialog.getByRole("button", { name: "동영상 삽입" }).click();
+  await dialog.getByRole("button", { name: "업로드 후 삽입" }).click();
 
   const media = page.locator(".jwsoft-tiptap-editable figure.jw-media-mp4");
+  await expect(media.locator("a.jw-media-source")).toHaveText("proof.mp4");
   await expect(media.locator("a.jw-media-source")).toHaveAttribute(
     "href",
     "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",

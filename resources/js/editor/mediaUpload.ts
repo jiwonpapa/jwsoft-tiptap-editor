@@ -26,7 +26,8 @@ export interface MediaUploadOptions {
   maxSizeMb: number;
   locale?: string;
   request?: typeof fetch;
-  onProgress?: (completed: number, total: number) => void;
+  onProgress?: (uploadedBytes: number, totalBytes: number) => void;
+  onPhase?: (phase: "starting" | "uploading" | "processing") => void;
   signal?: AbortSignal;
 }
 
@@ -266,10 +267,19 @@ async function putPart(
       );
       if (response.status < 500) break;
     } catch (error) {
+      // DOMException may originate from another realm and fail instanceof Error.
+      if (
+        error &&
+        typeof error === "object" &&
+        "name" in error &&
+        error.name === "AbortError"
+      )
+        throw error;
       lastError =
         error instanceof Error
           ? error
           : new Error(editorText(locale, "동영상 청크 업로드에 실패했습니다."));
+      if (lastError.name === "AbortError") throw lastError;
     }
   }
   throw (
@@ -302,6 +312,45 @@ export function validateEditorMediaFile(
   }
 }
 
+function uploadPartWithProgress(
+  url: string,
+  form: FormData,
+  signal: AbortSignal | undefined,
+  onProgress: (fraction: number) => void,
+): Promise<Response> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest();
+    const abort = () => xhr.abort();
+    const cleanup = () => signal?.removeEventListener("abort", abort);
+    if (signal?.aborted) {
+      reject(new DOMException("Aborted", "AbortError"));
+      return;
+    }
+    xhr.open("PUT", url);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader("Accept", "application/json");
+    for (const [key, value] of Object.entries(authorizationHeaders()))
+      xhr.setRequestHeader(key, value);
+    xhr.upload.onprogress = (event) => {
+      if (event.lengthComputable) onProgress(event.loaded / event.total);
+    };
+    xhr.onload = () => {
+      cleanup();
+      resolve(new Response(xhr.responseText, { status: xhr.status }));
+    };
+    xhr.onerror = () => {
+      cleanup();
+      reject(new Error("Network error"));
+    };
+    xhr.onabort = () => {
+      cleanup();
+      reject(new DOMException("Aborted", "AbortError"));
+    };
+    signal?.addEventListener("abort", abort, { once: true });
+    xhr.send(form);
+  });
+}
+
 export async function uploadEditorMedia(
   file: File,
   options: MediaUploadOptions,
@@ -317,6 +366,7 @@ export async function uploadEditorMedia(
     });
   };
   validateEditorMediaFile(file, options.maxSizeMb, locale);
+  options.onPhase?.("starting");
   let session = await resumeSession(file, request);
   session ??= await beginSession(file, request, locale);
   if (session.totalParts !== Math.ceil(file.size / session.chunkSize)) {
@@ -326,19 +376,52 @@ export async function uploadEditorMedia(
     );
   }
 
-  let completed = session.receivedParts.size;
-  options.onProgress?.(completed, session.totalParts);
+  let completed = [...session.receivedParts].reduce(
+    (bytes, part) =>
+      bytes + Math.min(session.chunkSize, file.size - part * session.chunkSize),
+    0,
+  );
+  options.onPhase?.("uploading");
+  options.onProgress?.(completed, file.size);
   for (let part = 0; part < session.totalParts; part += 1) {
     if (session.receivedParts.has(part)) continue;
     const chunk = file.slice(
       part * session.chunkSize,
       Math.min(file.size, (part + 1) * session.chunkSize),
     );
-    await putPart(request, session, part, chunk, await sha256(chunk), locale);
-    completed += 1;
-    options.onProgress?.(completed, session.totalParts);
+    const partRequest: typeof fetch = (input, init) => {
+      if (
+        options.onProgress &&
+        !options.request &&
+        init?.body instanceof FormData
+      ) {
+        return uploadPartWithProgress(
+          String(input),
+          init.body,
+          options.signal,
+          (fraction) => {
+            options.onProgress?.(
+              completed + Math.round(chunk.size * fraction),
+              file.size,
+            );
+          },
+        );
+      }
+      return request(input, init);
+    };
+    await putPart(
+      partRequest,
+      session,
+      part,
+      chunk,
+      await sha256(chunk),
+      locale,
+    );
+    completed += chunk.size;
+    options.onProgress?.(completed, file.size);
   }
 
+  options.onPhase?.("processing");
   const response = await request(`${ENDPOINT}/${session.token}/complete`, {
     method: "POST",
     credentials: "same-origin",

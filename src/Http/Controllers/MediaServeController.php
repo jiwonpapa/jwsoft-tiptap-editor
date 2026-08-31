@@ -6,13 +6,13 @@ use App\Helpers\ResponseHelper;
 use App\Http\Controllers\Api\Base\PublicBaseController;
 use Illuminate\Http\JsonResponse;
 use Plugins\Jwsoft\TiptapEditor\Services\MediaServeService;
-use Symfony\Component\HttpFoundation\StreamedResponse;
+use Symfony\Component\HttpFoundation\Response;
 
 class MediaServeController extends PublicBaseController
 {
     public function __construct(private readonly MediaServeService $service) {}
 
-    public function serve(string $hash): StreamedResponse|JsonResponse
+    public function serve(string $hash): Response
     {
         $media = $this->service->findByHash($hash);
         if ($media === null || ($response = $this->service->serve($media)) === null) {

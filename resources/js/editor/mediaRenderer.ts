@@ -2,7 +2,7 @@ import { normalizeMediaUrl, type MediaProvider } from "@/editor/mediaEmbed";
 
 export type ExternalMediaLoadMode = "click" | "immediate";
 
-const enhancedFigures = new WeakSet<HTMLElement>();
+const enhancedFigures = new WeakMap<HTMLElement, HTMLElement>();
 
 function providerFrom(figure: HTMLElement): MediaProvider | null {
   if (figure.classList.contains("jw-media-youtube")) return "youtube";
@@ -24,6 +24,7 @@ function playerFor(
     video.controls = true;
     video.playsInline = true;
     video.preload = "metadata";
+    video.setAttribute("aria-label", title);
     if (autoplay) {
       video.autoplay = true;
       video.muted = true;
@@ -34,7 +35,8 @@ function playerFor(
   const iframe = document.createElement("iframe");
   const url = new URL(playerUrl);
   url.searchParams.set("autoplay", autoplay ? "1" : "0");
-  if (autoplay) url.searchParams.set("muted", "1");
+  if (autoplay)
+    url.searchParams.set(provider === "youtube" ? "mute" : "muted", "1");
   if (provider === "youtube") url.searchParams.set("playsinline", "1");
   iframe.className = "jw-media-player";
   iframe.src = url.toString();
@@ -61,27 +63,57 @@ export function enhanceContentMedia(
   for (const figure of root.querySelectorAll<HTMLElement>(
     ".jwsoft-tiptap-content figure.jw-media",
   )) {
-    if (enhancedFigures.has(figure)) continue;
+    if (figure.closest(".jwsoft-tiptap-editable")) continue;
+    if (enhancedFigures.get(figure)?.parentElement === figure) continue;
     const provider = providerFrom(figure);
     const source = figure.querySelector<HTMLAnchorElement>("a.jw-media-source");
     const media = source
       ? normalizeMediaUrl(source.getAttribute("href") ?? "")
       : null;
     if (!provider || !media || media.provider !== provider) continue;
-    enhancedFigures.add(figure);
     enhanced += 1;
 
+    const title = source?.textContent?.trim() || media.title;
+    const fallback = document.createElement("a");
+    fallback.className = "jw-media-original";
+    fallback.href = media.sourceUrl;
+    fallback.target = "_blank";
+    fallback.rel = "noopener noreferrer";
+    fallback.textContent = `${title} · 원본 열기`;
+
     const mountPlayer = (): void => {
-      figure.replaceChildren(
-        playerFor(
-          provider,
-          media.playerUrl,
-          source?.textContent?.trim() || media.title,
-          Boolean(options.autoplay),
-        ),
+      const player = playerFor(
+        provider,
+        media.playerUrl,
+        title,
+        Boolean(options.autoplay),
       );
+      enhancedFigures.set(figure, player);
+      player.addEventListener(
+        "error",
+        () => {
+          const message = document.createElement("p");
+          message.className = "jw-media-error";
+          message.setAttribute("role", "alert");
+          message.textContent =
+            "영상을 불러오지 못했습니다. 원본 링크를 확인하거나 다시 시도하십시오.";
+          const retry = document.createElement("button");
+          retry.type = "button";
+          retry.textContent = "다시 시도";
+          retry.addEventListener("click", mountPlayer, { once: true });
+          message.append(retry);
+          enhancedFigures.set(figure, message);
+          figure.replaceChildren(message, fallback);
+        },
+        { once: true },
+      );
+      figure.replaceChildren(player, fallback);
     };
-    if (loadMode === "immediate") {
+    const localUpload =
+      provider === "mp4" &&
+      new URL(media.sourceUrl, window.location.origin).origin ===
+        window.location.origin;
+    if (loadMode === "immediate" || localUpload) {
       mountPlayer();
       continue;
     }
@@ -91,8 +123,60 @@ export function enhanceContentMedia(
     button.className = "jw-media-load";
     button.textContent = `${provider === "mp4" ? "MP4" : provider === "youtube" ? "YouTube" : "Vimeo"} 플레이어 불러오기`;
     button.addEventListener("click", mountPlayer, { once: true });
-    figure.replaceChildren(button);
+    enhancedFigures.set(figure, button);
+    figure.replaceChildren(button, fallback);
   }
 
   return enhanced;
+}
+
+let contentObserver: MutationObserver | null = null;
+let lifecycleInstalled = false;
+let currentOptions: { loadMode?: ExternalMediaLoadMode; autoplay?: boolean } =
+  {};
+
+/** G7 mounts the extension before asynchronous body data and may replace its HTML later. */
+export function startContentMediaObserver(
+  options: typeof currentOptions = {},
+): void {
+  currentOptions = options;
+  if (!lifecycleInstalled) {
+    lifecycleInstalled = true;
+    window.addEventListener("pagehide", stopContentMediaObserver);
+    window.addEventListener("pageshow", (event) => {
+      if (event.persisted) startContentMediaObserver(currentOptions);
+    });
+  }
+  if (!contentObserver) {
+    contentObserver = new MutationObserver((records) => {
+      const relevant = records.some((record) => {
+        const target =
+          record.target instanceof Element
+            ? record.target
+            : record.target.parentElement;
+        return (
+          target?.closest(".jwsoft-tiptap-content") ||
+          [...record.addedNodes].some(
+            (node) =>
+              node instanceof Element &&
+              (node.matches(".jwsoft-tiptap-content") ||
+                node.querySelector(".jwsoft-tiptap-content")),
+          )
+        );
+      });
+      if (relevant) enhanceContentMedia(currentOptions);
+    });
+    contentObserver.observe(document.documentElement, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ["class", "href"],
+    });
+  }
+  enhanceContentMedia(currentOptions);
+}
+
+export function stopContentMediaObserver(): void {
+  contentObserver?.disconnect();
+  contentObserver = null;
 }

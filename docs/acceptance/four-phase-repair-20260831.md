@@ -26,9 +26,18 @@
 - 화면 증거: `.build/four-phase-repair-20260831/image-rejection.png`, `image-admin-saved.png`.
 - `make check` 107건 및 `make integration-check` 통과. 손상 이미지의 깨진 미리보기는 이미지 아이콘으로 대체합니다.
 
+## 3차 — 영상 업로드와 게시글 플레이어
+
+- G7의 비동기 본문/동일 노드 재렌더를 관찰하여 조회 화면에 플레이어를 연결합니다. 에디터 내부 저장 구조는 canonical figure/link 그대로 유지합니다.
+- 원본 파일명·MB/백분율·서버 확인 상태를 표시합니다. 한 파일의 내부 청크 수를 파일 개수처럼 표시하지 않습니다. 원본 링크와 감지 가능한 로드 오류의 재시도도 제공합니다.
+- 실제 1,235,246바이트 MP4를 1MB 청크 설정으로 업로드하여 글 234 저장. 원래 `feature-audit-playable-20260831.mp4` 이름과 native controls/playsinline, 640px 영상·duration 12초를 확인했습니다. 실제 재생 후 currentTime=12/ended=true, 키보드 탐색도 확인했습니다.
+- 로컬 MP4 구간 요청 bytes=0-1023은 HTTP 206, Content-Length 1024, Content-Range와 원본 파일명의 Content-Disposition을 반환합니다. G7 StorageInterface 경로·disk 계약을 통해서만 로컬 파일을 읽습니다. 원격 스토리지는 기존 스트리밍 계약을 유지하며 별도 원격 Range 실증은 하지 않았습니다.
+- 글 225 YouTube는 실제 외부 플레이어의 제목·썸네일·재생 버튼까지 로드됐고, 글 226 Vimeo는 실제 외부 컨트롤·61초 길이까지 확인했습니다. 외부 iframe 생성/로딩과 실제 시간 증가 확인은 구분합니다. 공급자의 임베드 금지·로그인·광고 제한을 우회하지 않습니다.
+- 자동 회귀: 늦은 본문/재렌더, 로드 오류 재시도, byte 단위 청크 재개, 중단 후 재시도 금지, HTTP Range와 경로 이탈 방어. 취소 검사에서 다른 realm DOMException이 일반 오류로 바뀌던 결함을 추가 수정했습니다.
+- `make check` 단위 111건, `make build`, `make integration-check` 통과. 화면 증거: `.build/four-phase-repair-20260831/mp4-saved-playback.png`, `youtube-player.png`, `vimeo-player.png`.
+
 ## 남은 차수
 
-3. 영상 파일명·진행률·취소/재시도, 비동기 본문 출력 뒤 실제 플레이어와 재생.
 4. URL 입력/붙여넣기·SNS 성공/실패 처리, 미검증 회귀·릴리스와 배포 게이트.
 
 ## 배포

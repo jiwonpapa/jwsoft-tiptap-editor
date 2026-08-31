@@ -721,6 +721,7 @@ function createMediaDialog(
     fileName.textContent = selected
       ? `${selected.name} · ${(selected.size / 1024 / 1024).toFixed(1)} MB`
       : "";
+    refreshVideoAction();
   };
   dropzone.addEventListener("click", () => file.click());
   file.addEventListener("change", () => selectFile(file.files?.[0]));
@@ -742,11 +743,33 @@ function createMediaDialog(
   progress.setAttribute("role", "status");
   progress.setAttribute("aria-live", "polite");
   progress.hidden = true;
+  const progressLabel = document.createElement("strong");
+  const progressBar = document.createElement("progress");
+  progressBar.max = 100;
+  progressBar.setAttribute(
+    "aria-label",
+    locale === "en" ? "Video upload progress" : "동영상 업로드 진행률",
+  );
+  const progressBytes = document.createElement("span");
+  progress.append(progressLabel, progressBar, progressBytes);
+  progress.classList.add("jwsoft-video-progress");
   const error = formError();
   const apply = document.createElement("button");
   apply.type = "submit";
   apply.className = "jwsoft-tiptap-dialog-primary";
   apply.textContent = editorText(locale, "동영상 삽입");
+  const refreshVideoAction = () => {
+    apply.disabled = Boolean(controller) || (mode === "file" && !selectedFile);
+    apply.textContent = controller
+      ? locale === "en"
+        ? "Uploading…"
+        : "업로드 중…"
+      : mode === "file"
+        ? locale === "en"
+          ? "Upload & insert"
+          : "업로드 후 삽입"
+        : editorText(locale, "동영상 삽입");
+  };
   const tabs = document.createElement("div");
   tabs.className = "jwsoft-dialog-tabs";
   tabs.setAttribute("role", "tablist");
@@ -768,10 +791,12 @@ function createMediaDialog(
         if (controller) return;
         mode = value;
         urlPanel.hidden = mode !== "url";
+        url.disabled = mode !== "url";
         filePanel.hidden = mode !== "file";
         for (const other of tabs.querySelectorAll("button"))
           other.setAttribute("aria-selected", String(other === tab));
         error.hidden = true;
+        refreshVideoAction();
       });
       tabs.append(tab);
     }
@@ -799,6 +824,7 @@ function createMediaDialog(
     file.disabled = false;
     dropzone.disabled = false;
     progress.hidden = true;
+    refreshVideoAction();
   });
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -816,6 +842,7 @@ function createMediaDialog(
     if (selected && uploadEnabled) {
       const request = new AbortController();
       controller = request;
+      refreshVideoAction();
       apply.disabled = true;
       file.disabled = true;
       dropzone.disabled = true;
@@ -826,11 +853,33 @@ function createMediaDialog(
           locale,
           signal: request.signal,
           onProgress: (completed, total) => {
-            progress.textContent = editorText(
-              locale,
-              "동영상 청크 {{current}}/{{total}} 업로드 중…",
-              { current: completed, total },
+            if (request.signal.aborted) return;
+            const percent = Math.min(
+              100,
+              Math.floor((completed / total) * 100),
             );
+            progressLabel.textContent = `${locale === "en" ? "Uploading" : "업로드 중"} ${percent}%`;
+            progressBar.value = percent;
+            progressBytes.textContent = `${(completed / 1024 / 1024).toFixed(1)} / ${(total / 1024 / 1024).toFixed(1)} MB`;
+          },
+          onPhase: (phase) => {
+            if (request.signal.aborted) return;
+            progressLabel.textContent =
+              phase === "starting"
+                ? locale === "en"
+                  ? "Preparing upload…"
+                  : "업로드 준비 중…"
+                : phase === "processing"
+                  ? locale === "en"
+                    ? "Processing video…"
+                    : "업로드 완료 · 영상 확인 중…"
+                  : locale === "en"
+                    ? "Uploading…"
+                    : "업로드 중…";
+            if (phase === "starting") {
+              progressBar.value = 0;
+              progressBytes.textContent = "";
+            }
           },
         });
         if (
@@ -862,6 +911,7 @@ function createMediaDialog(
           apply.disabled = false;
           file.disabled = false;
           dropzone.disabled = false;
+          refreshVideoAction();
         }
       }
     }
@@ -875,6 +925,7 @@ function createMediaDialog(
       url.focus();
       return;
     }
+    if (selected) media.title = selected.name;
     insertMediaEmbed(editor, media);
     selectFile();
     form.reset();

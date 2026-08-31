@@ -83,7 +83,11 @@ describe("MP4 chunk upload", () => {
       "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
     );
     expect(putAttempts).toBe(2);
-    expect(progress).toEqual(["0/1", "1/1"]);
+    expect(progress).toEqual([
+      `0/${mp4.byteLength}`,
+      `${mp4.byteLength}/${mp4.byteLength}`,
+    ]);
+    expect(uploaded.originalName).toBe("sample.mp4");
     expect(window.sessionStorage.length).toBe(0);
   });
 
@@ -149,5 +153,70 @@ describe("MP4 chunk upload", () => {
         1,
       ),
     ).toThrow("1MB");
+  });
+
+  it("counts resumed short final chunks in bytes and reports processing separately", async () => {
+    const source = file();
+    window.sessionStorage.setItem(
+      `jwsoft-tiptap-media:${source.name}:${source.size}:${source.lastModified}`,
+      token,
+    );
+    const progress: number[] = [];
+    const phases: string[] = [];
+    const request = vi.fn(async (input: RequestInfo | URL) => {
+      const url = String(input);
+      if (url.endsWith(`/uploads/${token}`))
+        return response({
+          success: true,
+          data: {
+            upload_token: token,
+            chunk_size: 24,
+            total_parts: 2,
+            received_parts: [1],
+          },
+        });
+      if (url.endsWith("/parts/0")) return response({ success: true });
+      if (url.endsWith("/complete"))
+        return response({
+          success: true,
+          data: {
+            download_url:
+              "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
+          },
+        });
+      throw new Error(url);
+    });
+    await uploadEditorMedia(source, {
+      maxSizeMb: 200,
+      request,
+      onProgress: (bytes) => progress.push(bytes),
+      onPhase: (phase) => phases.push(phase),
+    });
+    expect(progress).toEqual([8, 32]);
+    expect(phases).toEqual(["starting", "uploading", "processing"]);
+    expect(
+      request.mock.calls.some(([url]) => String(url).endsWith("/parts/1")),
+    ).toBe(false);
+  });
+
+  it("does not retry or complete an aborted upload", async () => {
+    const request = vi.fn(async (input: RequestInfo | URL) => {
+      if (String(input).endsWith("/uploads"))
+        return response({
+          success: true,
+          data: {
+            upload_token: token,
+            chunk_size: 32,
+            total_parts: 1,
+            received_parts: [],
+          },
+        });
+      throw new DOMException("Aborted", "AbortError");
+    });
+    await expect(
+      uploadEditorMedia(file(), { maxSizeMb: 200, request }),
+    ).rejects.toThrow("Aborted");
+    expect(request).toHaveBeenCalledTimes(2);
+    expect(window.sessionStorage.length).toBe(1);
   });
 });
