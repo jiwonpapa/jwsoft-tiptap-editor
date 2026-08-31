@@ -106,6 +106,7 @@ ${policy.classTokens.image
 .jw-media-source, .jw-media-load { display: grid; place-items: center; border: 0; padding: 1rem; background: #111827; color: #fff; text-align: center; text-decoration: none; cursor: pointer; }
 .jw-media-source:hover, .jw-media-load:hover { background: #1f2937; }
 .jw-media-player { border: 0; background: #000; }
+.jw-media-surface { position: absolute; inset: 0; }
 .jw-media-original { position: absolute; z-index: 1; top: 8px; right: 8px; max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 6px 9px; border-radius: 5px; background: #111827dd; color: #fff; font-size: 12px; text-decoration: underline; }
 .jw-media-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px; text-align: center; }
 .jw-media-error button { min-height: 44px; padding: 8px 16px; border: 1px solid #64748b; border-radius: 6px; background: #1e293b; color: #fff; cursor: pointer; }

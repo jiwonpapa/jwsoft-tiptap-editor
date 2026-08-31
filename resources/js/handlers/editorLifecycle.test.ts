@@ -37,6 +37,42 @@ describe("G7 editor lifecycle", () => {
     return container;
   }
 
+  it.each([false, true])(
+    "passes shared playback settings through single and multilingual mounts (%s)",
+    async (multilingual) => {
+      const container = addContainer();
+      const html =
+        '<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://youtu.be/dQw4w9WgXcQ">Video</a></figure>';
+      await initEditorHandler(
+        {
+          params: {
+            name: "content",
+            multilingual,
+            content: multilingual ? { ko: html, en: html } : html,
+            externalMediaLoadMode: "click",
+            mediaAutoplay: "true",
+          },
+        },
+        undefined,
+      );
+      expect(container.querySelector("iframe")).toBeNull();
+      container.querySelector<HTMLButtonElement>(".jw-media-load")!.click();
+      expect(container.querySelector("iframe")?.src).toContain(
+        "autoplay=1&mute=1",
+      );
+      if (multilingual) {
+        container
+          .querySelectorAll<HTMLButtonElement>(".jwsoft-tiptap-locale-tab")[1]
+          .click();
+        expect(container.querySelector("iframe")).toBeNull();
+        container.querySelector<HTMLButtonElement>(".jw-media-load")!.click();
+        expect(container.querySelector("iframe")?.src).toContain(
+          "autoplay=1&mute=1",
+        );
+      }
+    },
+  );
+
   it("mounts one server-policy-backed Tiptap instance and destroys it on unmount", async () => {
     const container = addContainer();
     await initEditorHandler(

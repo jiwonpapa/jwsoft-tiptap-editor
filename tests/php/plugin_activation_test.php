@@ -124,7 +124,7 @@ namespace {
         || ($settings['videoMaxSizeMb']['default'] ?? null) !== 200
         || ($settings['videoChunkSizeMb']['default'] ?? null) !== 5
         || ($settings['mediaAutoplay']['default'] ?? null) !== false
-        || ($settings['externalMediaLoadMode']['default'] ?? null) !== 'click'
+        || ($settings['externalMediaLoadMode']['default'] ?? null) !== 'immediate'
         || ($settings['smartCards']['default'] ?? null) !== false
         || ($settings['autoSmartCards']['default'] ?? null) !== false
         || ($settings['socialCards']['default'] ?? null) !== true

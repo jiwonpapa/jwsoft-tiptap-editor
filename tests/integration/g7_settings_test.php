@@ -212,6 +212,8 @@ $frontendEditorSettings = [
     'mp4Embed',
     'videoUpload',
     'videoMaxSizeMb',
+    'mediaAutoplay',
+    'externalMediaLoadMode',
     'smartCards',
     'autoSmartCards',
     'editorHeight',

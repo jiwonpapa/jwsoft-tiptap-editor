@@ -64,6 +64,8 @@ export interface InitEditorParams {
   mp4Embed?: boolean | string;
   videoUpload?: boolean | string;
   videoMaxSizeMb?: number | string;
+  externalMediaLoadMode?: string;
+  mediaAutoplay?: boolean | string;
   smartCards?: boolean | string;
   autoSmartCards?: boolean | string;
   imageMaxSizeMb?: number | string;

@@ -1,4 +1,6 @@
 import { Node, type Editor } from "@tiptap/core";
+import { mediaNodeView } from "@/editor/mediaView";
+import type { MediaPlaybackOptions } from "@/editor/mediaPlayer";
 
 export type MediaProvider = "youtube" | "vimeo" | "mp4";
 export type MediaRatio = "16x9" | "9x16";
@@ -139,12 +141,20 @@ export function insertMediaEmbed(
     .run();
 }
 
-export const MediaEmbedExtension = Node.create({
+export const MediaEmbedExtension = Node.create<MediaPlaybackOptions>({
   name: "mediaEmbed",
   group: "block",
   atom: true,
   draggable: true,
   selectable: true,
+
+  addOptions() {
+    return { loadMode: "immediate", autoplay: false };
+  },
+
+  addNodeView() {
+    return mediaNodeView(this.options);
+  },
 
   addAttributes() {
     return {

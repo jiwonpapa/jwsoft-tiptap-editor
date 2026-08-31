@@ -75,7 +75,7 @@
           {
             "handler": "jwsoft-tiptap-editor.injectContentStyles",
             "params": {
-              "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'click'}}",
+              "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'immediate'}}",
               "mediaAutoplay": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaAutoplay ?? false}}"
             }
           }

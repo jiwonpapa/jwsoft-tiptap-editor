@@ -31,6 +31,8 @@
               "mp4Embed": "{{_global.plugins['jwsoft-tiptap-editor']?.mp4Embed ?? true}}",
               "videoUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.videoUpload ?? false}}",
               "videoMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.videoMaxSizeMb ?? 200}}",
+              "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'immediate'}}",
+              "mediaAutoplay": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaAutoplay ?? false}}",
               "smartCards": "{{_global.plugins['jwsoft-tiptap-editor']?.smartCards ?? false}}",
               "autoSmartCards": "{{_global.plugins['jwsoft-tiptap-editor']?.autoSmartCards ?? false}}",
               "imageMaxSizeMb": "{{_global.plugins['jwsoft-tiptap-editor']?.imageMaxSizeMb ?? 2}}",

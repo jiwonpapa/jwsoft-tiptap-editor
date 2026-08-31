@@ -57,7 +57,7 @@ G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve
 
 ### 6. Media embed subsystem
 
-YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합니다. iframe·video·provider script는 저장하지 않으며, 출력 handler가 URL과 provider를 다시 검사한 뒤 자체 번들 코드로 반응형 player DOM을 만듭니다. 기본 동작은 클릭 후 로드이고 자동재생은 꺼져 있습니다. 상세 결정은 [ADR 0007](adr/0007-safe-media-embeds.md)을 따릅니다.
+YouTube·Vimeo·MP4는 `figure > a` 형태의 canonical media node로 저장합니다. iframe·video·provider script는 저장하지 않으며, 편집 NodeView와 출력 handler가 같은 자체 번들 renderer로 반응형 player DOM을 만듭니다. URL과 provider를 다시 검사하며 새 기본값은 즉시 로드, 자동재생 OFF입니다. 기존 명시적 클릭 후 로드 설정은 유지합니다. 편집기에서 문단을 수정해도 같은 영상 DOM을 유지하며 삭제·종료 시 재생 자원을 정리합니다. 상세 결정은 [ADR 0007](adr/0007-safe-media-embeds.md)을 따릅니다.
 
 ### 7. MP4 chunk upload subsystem
 

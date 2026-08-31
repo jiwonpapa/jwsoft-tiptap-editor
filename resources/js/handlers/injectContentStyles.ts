@@ -1,9 +1,6 @@
 import { injectContentStyles } from "@/editor/editorStyles";
-import {
-  startContentMediaObserver,
-  type ExternalMediaLoadMode,
-} from "@/editor/mediaRenderer";
-import { booleanParam } from "@/editor/content";
+import { startContentMediaObserver } from "@/editor/mediaRenderer";
+import { mediaPlaybackOptions } from "@/editor/mediaPlayer";
 import type { G7Action } from "@/g7/types";
 
 export function injectContentStylesHandler(
@@ -12,12 +9,9 @@ export function injectContentStylesHandler(
 ): void {
   injectContentStyles();
   const params = action.params ?? {};
-  const loadMode: ExternalMediaLoadMode =
-    params.externalMediaLoadMode === "immediate" ? "immediate" : "click";
   queueMicrotask(() => {
-    startContentMediaObserver({
-      loadMode,
-      autoplay: booleanParam(params.mediaAutoplay),
-    });
+    startContentMediaObserver(
+      mediaPlaybackOptions(params.externalMediaLoadMode, params.mediaAutoplay),
+    );
   });
 }

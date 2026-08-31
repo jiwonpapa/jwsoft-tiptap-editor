@@ -62,7 +62,7 @@
 - 사용자가 붙여넣은 iframe·video·embed·script는 계속 제거합니다.
 - 저장 정본에는 allowlist class와 정규 URL을 가진 `figure > a`만 허용합니다.
 - 출력 handler는 YouTube·Vimeo·MP4 형식을 완전 일치로 다시 확인하고 고정 속성 player만 생성합니다.
-- 외부 player는 기본적으로 클릭 후 로드하며 자동재생은 관리자 opt-in이어도 음소거를 강제합니다.
+- 외부 player는 편집·조회에서 같은 설정을 따릅니다. 신규 기본값은 즉시 로드이며 외부 연결을 미루는 클릭 후 로드도 선택할 수 있습니다. 기존 클릭 후 로드 설정은 유지하고, 자동재생은 기본 OFF이며 관리자 opt-in이어도 음소거를 강제합니다.
 - 기능을 꺼도 기존 canonical node를 삭제하거나 일괄 변환하지 않습니다.
 
 ## MP4 업로드

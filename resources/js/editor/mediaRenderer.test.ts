@@ -5,8 +5,15 @@ import {
 } from "@/editor/mediaRenderer";
 
 describe("content media renderer", () => {
-  beforeEach(() => document.body.replaceChildren());
-  afterEach(() => stopContentMediaObserver());
+  beforeEach(() => {
+    document.body.replaceChildren();
+    vi.spyOn(HTMLMediaElement.prototype, "pause").mockImplementation(() => {});
+    vi.spyOn(HTMLMediaElement.prototype, "load").mockImplementation(() => {});
+  });
+  afterEach(() => {
+    stopContentMediaObserver();
+    vi.restoreAllMocks();
+  });
 
   it("enhances late G7 content and the same figure after a host rerender", async () => {
     startContentMediaObserver();
@@ -45,9 +52,9 @@ describe("content media renderer", () => {
     expect(document.querySelector("video")).not.toBeNull();
   });
 
-  it("loads an allowlisted player only after a click by default", () => {
+  it("respects explicit click-to-load without enabling autoplay", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">영상</a></figure></div>`;
-    expect(enhanceContentMedia()).toBe(1);
+    expect(enhanceContentMedia({ loadMode: "click" })).toBe(1);
     const button = document.querySelector<HTMLButtonElement>(".jw-media-load");
     expect(button?.textContent).toContain("YouTube");
     expect(document.querySelector("iframe")).toBeNull();
@@ -55,6 +62,13 @@ describe("content media renderer", () => {
     const iframe = document.querySelector<HTMLIFrameElement>("iframe");
     expect(iframe?.src).toContain("youtube-nocookie.com/embed/dQw4w9WgXcQ");
     expect(iframe?.src).toContain("autoplay=0");
+  });
+
+  it("displays external players immediately by default without autoplay", () => {
+    document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-youtube"><a class="jw-media-source" href="https://youtu.be/dQw4w9WgXcQ">영상</a></figure></div>`;
+    expect(enhanceContentMedia()).toBe(1);
+    expect(document.querySelector(".jw-media-load")).toBeNull();
+    expect(document.querySelector("iframe")?.src).toContain("autoplay=0");
   });
 
   it("creates a muted responsive MP4 player in immediate autoplay mode", () => {

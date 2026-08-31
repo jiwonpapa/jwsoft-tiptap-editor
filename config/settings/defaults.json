@@ -16,7 +16,7 @@
     "videoMaxSizeMb": 200,
     "videoChunkSizeMb": 5,
     "mediaAutoplay": false,
-    "externalMediaLoadMode": "click",
+    "externalMediaLoadMode": "immediate",
     "smartCards": false,
     "autoSmartCards": false,
     "socialCards": true,

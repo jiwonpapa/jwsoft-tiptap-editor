@@ -12,8 +12,8 @@ YouTube·Vimeo·MP4 URL을 붙여넣거나 선택해 반응형 플레이어를 �
 
 - DB에는 제공자별 class token과 정규 URL을 가진 canonical `figure > a`만 저장합니다.
 - iframe과 video는 저장 HTML에서 계속 금지합니다.
-- 자체 번들 renderer가 허용된 URL을 다시 검증한 뒤 출력 DOM에만 iframe 또는 video를 생성합니다.
-- 외부 플레이어는 기본적으로 클릭 후 로드하며 자동재생은 기본 꺼짐입니다.
+- 자체 번들 공통 renderer가 허용된 URL을 다시 검증한 뒤 편집 NodeView와 조회 DOM에만 iframe 또는 video를 생성합니다. 저장 HTML은 바뀌지 않습니다.
+- 2026-08-31 편집·조회 플레이어 동일 표시 요청에 따라 RC4부터 신규 기본값은 즉시 로드입니다. 기존 명시적 클릭 후 로드 설정은 유지하며 두 화면에 같은 값을 적용합니다. 자동재생은 기본 꺼짐이고 켜면 음소거합니다. 같은 사이트의 업로드 MP4는 항상 즉시 표시합니다.
 - YouTube는 `youtube-nocookie.com`, Vimeo는 `player.vimeo.com`, MP4는 HTTPS 또는 플러그인 공개 경로만 사용합니다.
 - 설정을 끄면 새 삽입을 막고 기존 canonical HTML을 삭제하거나 재작성하지 않습니다.
 

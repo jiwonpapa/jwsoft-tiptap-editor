@@ -872,10 +872,9 @@ test("image upload supports caption alignment size and responsive output", async
   });
 });
 
-test("media URL creates safe canonical HTML and a click-to-load responsive player", async ({
+test("media URL displays the same immediate responsive player in editor and content", async ({
   page,
-}, testInfo) => {
-  test.skip(testInfo.project.name !== "chromium-desktop");
+}) => {
   await mountEditor(page, "standard", false, true);
   await insertTool(page, "동영상");
   const dialog = page.getByRole("dialog", { name: "동영상" });
@@ -884,11 +883,12 @@ test("media URL creates safe canonical HTML and a click-to-load responsive playe
 
   const media = page.locator(".jwsoft-tiptap-editable figure.jw-media-youtube");
   await expect(media).toBeVisible();
-  await expect(media.locator("a.jw-media-source")).toHaveAttribute(
+  await expect(media.locator("a.jw-media-original")).toHaveAttribute(
     "href",
     "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
   );
-  await expect(media.locator("iframe, video")).toHaveCount(0);
+  await expect(media.locator("iframe")).toHaveAttribute("src", /autoplay=0/);
+  await expect(media.locator(".jw-media-load")).toHaveCount(0);
 
   await page.evaluate(async () => {
     const runtime = window as typeof window & {
@@ -896,31 +896,59 @@ test("media URL creates safe canonical HTML and a click-to-load responsive playe
         string,
         (action: Record<string, unknown>, context: unknown) => unknown
       >;
+      __e2eStateUpdates: Array<{ updates: Record<string, unknown> }>;
     };
     const output = document.createElement("div");
     output.className = "jwsoft-tiptap-content";
-    output.innerHTML = `<figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">YouTube video</a></figure>`;
+    const updates = runtime.__e2eStateUpdates.filter(
+      ({ updates }) => typeof updates["form.content"] === "string",
+    );
+    const saved = updates[updates.length - 1].updates["form.content"] as string;
+    if (/<(?:iframe|video|button|svg)\b|jwsoft-media-node/.test(saved))
+      throw new Error("Presentation DOM leaked into canonical HTML");
+    output.innerHTML = saved;
     document.body.appendChild(output);
     await runtime.__e2eHandlers["jwsoft-tiptap-editor.injectContentStyles"](
-      { params: { externalMediaLoadMode: "click", mediaAutoplay: false } },
+      { params: { externalMediaLoadMode: "immediate", mediaAutoplay: false } },
       undefined,
     );
     await Promise.resolve();
   });
   const output = page.locator(".jwsoft-tiptap-content figure.jw-media");
-  await output.getByRole("button", { name: /YouTube 플레이어/ }).click();
   await expect(output.locator("iframe")).toHaveAttribute(
     "src",
     /youtube-nocookie\.com\/embed\/dQw4w9WgXcQ/,
   );
   const box = await output.boundingBox();
   expect((box?.width ?? 0) / (box?.height ?? 1)).toBeCloseTo(16 / 9, 1);
+  expect(await media.locator(".jw-media-surface").innerHTML()).toBe(
+    await output.locator(".jw-media-surface").innerHTML(),
+  );
+  const editorBox = await media.boundingBox();
+  expect((editorBox?.width ?? 0) / (editorBox?.height ?? 1)).toBeCloseTo(
+    16 / 9,
+    1,
+  );
+  await page
+    .getByRole("button", { name: "동영상 선택·이동", exact: true })
+    .click();
+  await expect(page.locator(".jwsoft-media-node")).toHaveClass(
+    /ProseMirror-selectednode/,
+  );
+  await page.getByRole("button", { name: "동영상 삭제", exact: true }).click();
+  await expect(media).toHaveCount(0);
 });
 
 test("MP4 file uses the chunk protocol and inserts a canonical responsive media node", async ({
   page,
-}, testInfo) => {
-  test.skip(testInfo.project.name !== "chromium-desktop");
+}) => {
+  const playable = fs.readFileSync(
+    path.join(root, "tests/fixtures/playable.mp4"),
+  );
+  await page.route(
+    "http://jwsoft.test/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
+    (route) => route.fulfill({ contentType: "video/mp4", body: playable }),
+  );
   const token = "0123456789abcdef0123456789abcdef";
   let partRequests = 0;
   await page.route(
@@ -936,7 +964,7 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
             success: true,
             data: {
               upload_token: token,
-              chunk_size: 32,
+              chunk_size: playable.length,
               total_parts: 1,
               received_parts: [],
             },
@@ -947,7 +975,9 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
       if (url.endsWith("/parts/0")) {
         partRequests += 1;
         expect(request.method()).toBe("PUT");
-        expect(request.postDataBuffer()?.length).toBeGreaterThan(32);
+        expect(request.postDataBuffer()?.length).toBeGreaterThan(
+          playable.length,
+        );
         await route.fulfill({
           contentType: "application/json",
           body: JSON.stringify({ success: true, data: {} }),
@@ -978,20 +1008,33 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
   await dialog.getByLabel("MP4 파일").setInputFiles({
     name: "proof.mp4",
     mimeType: "video/mp4",
-    buffer: Buffer.from([
-      0, 0, 0, 24, 102, 116, 121, 112, 105, 115, 111, 109, 0, 0, 0, 0, 105, 115,
-      111, 109, 109, 112, 52, 49, 0, 0, 0, 8, 109, 100, 97, 116,
-    ]),
+    buffer: playable,
   });
   await dialog.getByRole("button", { name: "업로드 후 삽입" }).click();
 
   const media = page.locator(".jwsoft-tiptap-editable figure.jw-media-mp4");
-  await expect(media.locator("a.jw-media-source")).toHaveText("proof.mp4");
-  await expect(media.locator("a.jw-media-source")).toHaveAttribute(
+  await expect(media.locator("a.jw-media-original")).toHaveText(
+    "proof.mp4 · 원본 열기",
+  );
+  await expect(media.locator("a.jw-media-original")).toHaveAttribute(
     "href",
     "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
   );
-  await expect(media.locator("iframe, video")).toHaveCount(0);
+  const video = media.locator("video");
+  await expect(video).toHaveAttribute("controls", "");
+  await expect
+    .poll(() => video.evaluate((element: HTMLVideoElement) => element.duration))
+    .toBe(3);
+  await video.evaluate((element: HTMLVideoElement) => element.play());
+  await expect
+    .poll(() =>
+      video.evaluate((element: HTMLVideoElement) => element.currentTime),
+    )
+    .toBeGreaterThan(0);
+  await video.evaluate((element: HTMLVideoElement) => element.pause());
+  await expect(
+    page.locator(".jwsoft-tiptap-editable .jw-media-load"),
+  ).toHaveCount(0);
   expect(partRequests).toBe(1);
 });
 

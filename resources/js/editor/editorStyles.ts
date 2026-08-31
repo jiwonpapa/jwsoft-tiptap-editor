@@ -218,6 +218,17 @@ ${EDITOR_TOKEN_CSS}
 .jwsoft-tiptap-editable .jwsoft-image-node img { display: block; width: 100%; height: auto; }
 .jwsoft-image-resize { display: none; position: absolute; right: -6px; bottom: -6px; width: 18px; height: 18px; padding: 0; border: 2px solid #fff; border-radius: 5px; background: #2563eb; box-shadow: 0 0 0 1px #2563eb; cursor: ew-resize; touch-action: none; }
 .jwsoft-image-node.ProseMirror-selectednode { outline: 2px solid #2563eb; outline-offset: 3px; }
+.jwsoft-media-node { width: min(100%, 60rem); margin: 1rem auto; }
+.jwsoft-media-node.jwsoft-media-portrait { width: min(100%, 26rem); }
+.jwsoft-media-node > .jw-media { width: 100%; margin: 0; }
+.jwsoft-media-node.ProseMirror-selectednode > .jw-media { outline: 2px solid #2563eb; outline-offset: 3px; }
+.jwsoft-media-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px; }
+.jwsoft-media-actions[hidden] { display: none; }
+.jwsoft-media-actions button { display: inline-grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--jw-subtle, #64748b); cursor: pointer; }
+.jwsoft-media-actions button[draggable="true"] { cursor: grab; }
+.jwsoft-media-actions button:hover { background: var(--jw-muted, #f1f5f9); color: var(--jw-ink, #111827); }
+.jwsoft-media-actions button:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+@media (pointer: coarse) { .jwsoft-media-actions button { width: 44px; height: 44px; } }
 .jwsoft-image-node.ProseMirror-selectednode .jwsoft-image-resize:not(:disabled), .jwsoft-image-node:focus-within .jwsoft-image-resize:not(:disabled) { display: block; }
 .jwsoft-tiptap-editable .jwsoft-task-node { display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
 .jwsoft-tiptap-editable .jwsoft-task-node::before { display: none; }

@@ -115,9 +115,9 @@ class Plugin extends AbstractPlugin
             'externalMediaLoadMode' => [
                 'type' => 'enum',
                 'options' => ['click', 'immediate'],
-                'default' => 'click',
+                'default' => 'immediate',
                 'label' => ['ko' => '외부 플레이어 로드', 'en' => 'External player loading'],
-                'hint' => ['ko' => '클릭 후 로드를 권장합니다. 즉시 로드는 페이지 표시와 함께 외부 제공자에 연결합니다.', 'en' => 'Click-to-load is recommended. Immediate mode connects to providers when content renders.'],
+                'hint' => ['ko' => '편집·글보기에서 같은 설정을 적용합니다. 즉시 로드는 플레이어만 표시하며 자동재생은 별도입니다. 외부 연결을 미루려면 클릭 후 로드를 선택하십시오.', 'en' => 'Shared by editing and viewing. Immediate mode displays the player; autoplay is separate. Choose click-to-load to defer external connections.'],
                 'required' => false,
             ],
             'smartCards' => [

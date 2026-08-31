@@ -15,6 +15,10 @@ import { editorText } from "@/editor/locale";
 import { uploadEditorImage } from "@/editor/imageUpload";
 import { DEFAULT_IMAGE_CLASS_TOKENS } from "@/editor/imageNode";
 import type { MediaEmbedOptions } from "@/editor/mediaEmbed";
+import {
+  mediaPlaybackOptions,
+  type MediaPlaybackOptions,
+} from "@/editor/mediaPlayer";
 import { isEditorWriteEnabled } from "@/editor/runtimeGate";
 import {
   createEditorToolbar,
@@ -216,6 +220,7 @@ function mountLocaleEditor(options: {
   mediaEmbed: boolean;
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
+  mediaPlayback: MediaPlaybackOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
   smartCards: boolean;
@@ -245,6 +250,7 @@ function mountLocaleEditor(options: {
     content: options.content,
     placeholder: options.placeholder,
     editable: false,
+    mediaPlayback: options.mediaPlayback,
     onUpdate: (value) => {
       syncEditorValue({
         core: window.G7Core,
@@ -342,6 +348,7 @@ function mountMultilingualEditors(options: {
   mediaEmbed: boolean;
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
+  mediaPlayback: MediaPlaybackOptions;
   videoUpload: boolean;
   videoMaxSizeMb: number;
   smartCards: boolean;
@@ -378,6 +385,7 @@ function mountMultilingualEditors(options: {
       mediaEmbed: options.mediaEmbed,
       autoEmbedUrls: options.autoEmbedUrls,
       mediaOptions: options.mediaOptions,
+      mediaPlayback: options.mediaPlayback,
       videoUpload: options.videoUpload,
       videoMaxSizeMb: options.videoMaxSizeMb,
       smartCards: options.smartCards,
@@ -475,6 +483,10 @@ export async function initEditorHandler(
   const pasteImageUpload = booleanParam(params.pasteImageUpload);
   const mediaEmbed = booleanParam(params.mediaEmbed);
   const autoEmbedUrls = booleanParam(params.autoEmbedUrls);
+  const mediaPlayback = mediaPlaybackOptions(
+    params.externalMediaLoadMode,
+    params.mediaAutoplay,
+  );
   const mediaOptions: MediaEmbedOptions = {
     youtube: booleanParam(params.youtubeEmbed),
     vimeo: booleanParam(params.vimeoEmbed),
@@ -503,6 +515,7 @@ export async function initEditorHandler(
       mediaEmbed,
       autoEmbedUrls,
       mediaOptions,
+      mediaPlayback,
       videoUpload,
       videoMaxSizeMb,
       smartCards,
@@ -531,6 +544,7 @@ export async function initEditorHandler(
     mediaEmbed,
     autoEmbedUrls,
     mediaOptions,
+    mediaPlayback,
     videoUpload,
     videoMaxSizeMb,
     smartCards,
