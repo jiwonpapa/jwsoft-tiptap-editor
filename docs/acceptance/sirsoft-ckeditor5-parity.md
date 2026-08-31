@@ -10,6 +10,8 @@
 
 2026-08-31에는 플러그인의 공개 상태 API 호출을 보완하고 실제 G7 엔진과 에디터 소스의 DOM 통합 회귀 5개를 확인했습니다. 이후 제품 소유자의 QA 승인을 받아 동일 RC1 ZIP으로 실제 G7 6종 화면, 저장·재조회, 이미지 업로드·이미지 전용 글과 다국어 본문 보존을 확인해 후보 사전 57/57을 통과했습니다. [본문 동기화 보완과 실제 저장 검증](g7-state-sync-regression.md)에 기록하며, 후보 사전 통과를 GitHub 수명주기나 원격 배포 완료로 표현하지 않습니다.
 
+후속 GitHub 설치 수명주기 3개를 통과한 뒤, 동일 RC1 ZIP으로 승인된 staging과 production을 각각 실제 적용하고 smoke를 확인했습니다. 두 단계는 소유자가 승인한 동일 대상이며 환경 격리 검증은 아닙니다. 런타임 7개 파일, 공개 JS 응답과 본문 70,014건 보존을 확인했습니다. [배포 검증](../09-deployment.md)의 RC1 기록을 따르며 정식 `0.1.0` 버전 검증으로 확대하지 않습니다.
+
 ## A. 편집기 교체
 
 - [x] `html_editor` replace extension 제공 <!-- p0:editor.extensions.html -->
@@ -100,4 +102,4 @@
 - [x] reproducible build 또는 산출물 checksum 동일성 <!-- p0:supply-chain.reproducible -->
 - [x] package manifest·vendor·dist 포함 <!-- p0:supply-chain.package -->
 - [x] staging 배포와 smoke <!-- p0:deploy.staging -->
-- [ ] production은 staging과 동일 checksum <!-- p0:deploy.production-checksum -->
+- [x] production은 staging과 동일 checksum <!-- p0:deploy.production-checksum -->

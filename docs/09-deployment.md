@@ -101,3 +101,13 @@ production 증거는 staging JSON의 SHA-256과 적용 시각을 연결하며 st
 - 승인 staging의 `--apply` 업데이트와 health smoke가 성공했습니다. JWSoft alpha.21 active / CKEditor inactive, APP_DEBUG=false, health·공개 홈페이지 HTTP 200을 확인했습니다.
 - 원격 주요 런타임 7개 파일의 SHA-256이 릴리스 입력과 일치하고, 페이지 6건·게시글 50,005건·상품 20,000건, 합계 70,011건의 본문 해시가 배포 전후 동일합니다. 로컬 상세 증거는 `test-results/deploy/alpha21-runtime.json`과 `staging.json`입니다.
 - staging 항목은 위 배포·health·활성 상태·런타임 확인 범위로 완료했습니다. 최신 인증 G7 화면 6종과 production 동일 checksum 배포는 별도 미완료입니다. staging을 production으로 재분류하지 않았으며, 전용 G7의 기존 코어 변경 상태도 유지했습니다.
+
+## RC1 동일 ZIP 운영 배포 검증 — 2026-08-31
+
+- 전용 G7 실제 화면 6종과 신규·수정·답글·이미지 업로드·이미지 전용 글·한영 상품 본문 저장을 확인했습니다. 후보 57/57, 실제 GitHub 수명주기 후 배포 사전 60/60을 통과했습니다.
+- `v0.1.0-rc.1` 공개 asset, 전용 G7 검증, staging 및 production에 사용한 ZIP SHA-256은 모두 `2e22fd25aad73e9d716f47e57467de69975694d48c78ca58c535ddd4ddcacb14`입니다. ZIP을 재생성하거나 공개 파일을 교체하지 않았습니다.
+- staging 적용·smoke 후 production 사전 61/61을 통과했고, 확인 토큰·`--apply`로 production 적용과 별도 smoke를 완료했습니다. 소유자가 승인한 동일 대상 승격이므로 두 환경의 격리를 검증한 것으로 표현하지 않습니다.
+- JWSoft RC1 active / CKEditor inactive, production 모드·debug OFF, 주요 런타임 7개 파일과 공개 HTTP JS 응답의 일치를 확인했습니다.
+- 배포 전후 페이지 6건·게시글 50,008건·상품 20,000건, 총 70,014건의 본문 해시, 기존 설정값과 코어 변경 상태가 보존됐습니다. 운영 콘텐츠 작성·수정은 하지 않았습니다.
+- 브라우저에서 운영 공개 홈페이지를 확인했고 전용 QA 계정의 관리자 권한·토큰을 회수했습니다. 실제 G7의 IME 조합 이벤트·실기기 키보드 재검증과 독립 Chromium 조합 입력 회귀의 증거 경계는 [저장 검증 기록](acceptance/g7-state-sync-regression.md)을 따릅니다.
+- `production.json`에는 staging 증거 해시·적용 시각·동일 checksum 연결이 기록됐습니다. 전체 최종 게이트는 `make release-check`로 확인합니다. RC1 검증이며 정식 `0.1.0` 버전 출시를 뜻하지 않습니다.
