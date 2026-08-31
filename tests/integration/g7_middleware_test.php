@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Facades\Facade;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Translation\ArrayLoader;
+use Illuminate\Translation\Translator;
+use Illuminate\Validation\Factory;
 use Plugins\Jwsoft\TiptapEditor\Generated\EditorPolicy;
 use Plugins\Jwsoft\TiptapEditor\Http\Middleware\CanonicalizeBoardPostHtml;
 use Plugins\Jwsoft\TiptapEditor\Http\Middleware\CanonicalizeEditorHtml;
@@ -204,5 +207,37 @@ assertG7Middleware(
     $response->getStatusCode() === 200 && $payload['content']['ko'] === '<script>텍스트로 보존</script>',
     'text mode content must remain owned by the G7 text renderer',
 );
+
+$validator = new Factory(new Translator(new ArrayLoader(), 'ko'));
+$requiredBody = static function (Request $request) use ($validator): JsonResponse {
+    $validation = $validator->make($request->all(), ['content' => ['required', 'string']]);
+    return new JsonResponse(['errors' => $validation->errors()->toArray()], $validation->fails() ? 422 : 200);
+};
+foreach (['', '<p></p>', '<p><br></p>', '<p> &nbsp;&#8203;&#65279;&#65039; </p>',
+    '<blockquote><p></p></blockquote><hr>', '<table><tbody><tr><td><p></p></td></tr></tbody></table>',
+    '<img alt="not content">'] as $emptyBody) {
+    foreach (['POST', 'PUT'] as $method) {
+        $request = Request::create('/api/modules/sirsoft-board/boards/free/posts', $method, [
+            'content_mode' => 'html', 'content' => $emptyBody,
+            'jwsoft_editor_policy_ack' => EditorPolicy::SHA256,
+        ]);
+        assertG7Middleware($middleware->handle($request, $requiredBody)->getStatusCode() === 422,
+            'server must reject semantic empty HTML even with valid policy acknowledgement');
+    }
+}
+foreach (['<p>0</p>', '<p>&amp;nbsp;</p>', '<img src="/storage/a.png" alt="">',
+    '<figure class="jw-media jw-media-mp4 jw-media-ratio-16x9"><a href="https://example.com/a.mp4">영상</a></figure>'] as $body) {
+    $request = Request::create('/posts', 'POST', [
+        'content_mode' => 'html', 'content' => $body, 'jwsoft_editor_policy_ack' => EditorPolicy::SHA256,
+    ]);
+    assertG7Middleware($middleware->handle($request, $requiredBody)->getStatusCode() === 200,
+        'valid text, image-only and media-only body must remain savable');
+}
+$optional = Request::create('/pages', 'PUT', [
+    'content_mode' => 'html', 'content' => ['ko' => '<p></p>', 'en' => null, 'ja' => '<p>本文</p>'],
+    'jwsoft_editor_policy_ack' => EditorPolicy::SHA256,
+]);
+assertG7Middleware(g7MiddlewarePayload($middleware->handle($optional, $next))['content']
+    === ['ko' => '', 'en' => null, 'ja' => '<p>本文</p>'], 'optional translations must remain optional');
 
 echo "[jwsoft] G7 editor write route and middleware test passed\n";

@@ -63,6 +63,7 @@ async function checkSave({
   resize = true,
   immediate = false,
   multilingual = false,
+  empty = false,
 }) {
   const errors = [];
   const console = new VirtualConsole();
@@ -176,6 +177,7 @@ async function checkSave({
         }),
     });
     editor.commands.setContent("<p>새로 입력한 본문을 저장합니다</p>");
+    if (empty) editor.commands.clearContent();
     editor.commands.setTextSelection(8);
     const selection = editor.state.selection.from;
     if (!immediate) await wait(400);
@@ -203,13 +205,14 @@ async function checkSave({
     const saved = multilingual ? submitted?.content?.ko : submitted?.content;
     assert.equal(
       saved,
-      editor.getHTML(),
+      empty ? "" : editor.getHTML(),
       `${label}: submitted content must equal editor HTML`,
     );
-    assert(
-      saved.includes("새로 입력한 본문"),
-      `${label}: fresh input must survive`,
-    );
+    if (!empty)
+      assert(
+        saved.includes("새로 입력한 본문"),
+        `${label}: fresh input must survive`,
+      );
     if (multilingual) assert.equal(submitted.content.en, "<p>Keep English</p>");
     assert.deepEqual(errors, [], `${label}: no DOM runtime errors`);
     return label;
@@ -226,6 +229,17 @@ for (const scenario of [
   { label: "edited document after resize", initial: "<p>이전 본문</p>" },
   { label: "immediate save flushes debounce", immediate: true, resize: false },
   { label: "localized content after resize", multilingual: true },
+  {
+    label: "delete all then immediate save submits empty",
+    empty: true,
+    immediate: true,
+    resize: false,
+  },
+  {
+    label: "empty localized content retains other languages",
+    empty: true,
+    multilingual: true,
+  },
 ]) {
   process.stdout.write(`[jwsoft] ${await checkSave(scenario)}: pass\n`);
 }

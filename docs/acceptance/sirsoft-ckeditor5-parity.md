@@ -1,5 +1,7 @@
 # sirsoft-ckeditor5 완전 대체 동등성
 
+> 2026-08-31 실제 기능 감사에서 공개 이미지 파일 선택, 빈 본문 차단, MP4·YouTube·Vimeo 게시글 플레이어 출력 실패가 재현됐습니다. 아래 과거 통과 이력으로 현재 제품 완료를 주장할 수 없습니다. [현재 실패·통과·미검증 결과](g7-feature-audit-20260831.md)를 우선 확인하십시오.
+
 이 문서의 `P0` 항목이 모두 자동화 증거와 함께 통과해야 stable을 출시할 수 있습니다. 각 체크 항목의 `p0` ID는 `harness/contracts/stable-readiness.json`과 연결되며, 단순 체크 표시만으로 완료 처리되지 않습니다.
 
 공개 `alpha.18`은 전용 G7 7.0.9에서 GitHub 설치·업데이트·롤백과 주요 화면을 검증했습니다. 그러나 과거의 `60/62` 집계는 서로 다른 버전의 통과 JSON을 함께 인정했으므로 **최신 checkout의 stable 승인 수치가 아닙니다**. 현재 완료 수는 `make stable-readiness-gate`가 생성하는 `test-results/release/stable-readiness.json`에서 확인합니다.

@@ -9,6 +9,7 @@ use InvalidArgumentException;
 use Plugins\Jwsoft\TiptapEditor\Exceptions\PolicyViolationException;
 use Plugins\Jwsoft\TiptapEditor\Generated\EditorPolicy;
 use Plugins\Jwsoft\TiptapEditor\Services\EditorSanitizer;
+use Plugins\Jwsoft\TiptapEditor\Services\EditorContent;
 use Symfony\Component\HttpFoundation\Response;
 use Throwable;
 
@@ -95,7 +96,7 @@ class CanonicalizeEditorHtml
         if (is_string($value)) {
             $result = $this->sanitizer->sanitize($value);
 
-            return [$result->canonicalHtml, $result->changed];
+            return [EditorContent::normalizeEmpty($result->canonicalHtml), $result->changed];
         }
 
         if (! is_array($value)) {
@@ -115,7 +116,7 @@ class CanonicalizeEditorHtml
             }
 
             $result = $this->sanitizer->sanitize($html);
-            $canonicalValue[$locale] = $result->canonicalHtml;
+            $canonicalValue[$locale] = EditorContent::normalizeEmpty($result->canonicalHtml);
             $changed = $changed || $result->changed;
         }
 

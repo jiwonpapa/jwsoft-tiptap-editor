@@ -6,6 +6,22 @@ import {
 import type { G7CoreApi } from "@/g7/types";
 
 describe("G7 state synchronization", () => {
+  it("replaces pending text when the user immediately deletes back to empty", () => {
+    const setLocal = vi.fn();
+    const core: G7CoreApi = {
+      state: { getLocal: () => ({ form: { content: "" } }), setLocal },
+    };
+    const options = {
+      core,
+      name: "content",
+      locale: "ko",
+      multilingual: false,
+    };
+    syncEditorValue({ ...options, value: "<p>pending</p>" });
+    syncEditorValue({ ...options, value: "<p></p>" });
+    expect(setLocal).toHaveBeenCalledTimes(2);
+    expect(setLocal.mock.lastCall?.[0]["form.content"]).toBe("");
+  });
   it("debounces changes and refreshes the G7 submission snapshot", () => {
     const setLocal = vi.fn();
     const core: G7CoreApi = {
