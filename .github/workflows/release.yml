@@ -26,13 +26,11 @@ jobs:
           coverage: none
       - run: npm ci
       - run: composer install --no-interaction --prefer-dist
-      - name: Release candidate gate (57 current requirements)
-        if: contains(github.ref_name, '-')
-        run: |
-          make release-candidate-check
-      - name: Stable release gate
-        if: ${{ !contains(github.ref_name, '-') }}
-        run: make release-check
+      # A public tag is required before G7 can exercise the GitHub update path.
+      # Deployment-bound requirements are therefore promoted locally in order:
+      # GitHub lifecycle 60 -> staging 61 -> production/final 62.
+      - name: Tagged artifact gate (57 current requirements)
+        run: make release-candidate-check
       - name: Publish candidate tagged release
         if: startsWith(github.ref, 'refs/tags/') && contains(github.ref_name, '-')
         env:
