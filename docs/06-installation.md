@@ -1,8 +1,8 @@
 # 설치 문서
 
-> 현재 alpha는 전용 G7 하네스 검증용이며 운영 설치를 지원하지 않습니다. 아래 절차는 parity gate와 staging gate 통과 후 릴리스 패키지에 적용합니다.
+> 공개 릴리스는 버전·checksum·단계별 57/60/61/62 증거가 일치할 때만 운영 설치 대상으로 승인합니다.
 
-## GitHub 온라인 설치 — 개발·staging 전용
+## GitHub 온라인 설치
 
 G7 관리자 `플러그인 → 플러그인 설치 → GitHub에서 설치`에서 아래 공개 저장소 URL을 입력합니다.
 
@@ -12,9 +12,7 @@ https://github.com/jiwonpapa/jwsoft-tiptap-editor
 
 G7은 공개 GitHub의 최신 릴리스 또는 `main` 아카이브를 내려받습니다. 이 저장소는 온라인 설치에 필요한 `dist/js/plugin.iife.js`, `vendor-bundle.zip`, `vendor-bundle.json`을 함께 제공합니다. 공개 열람은 오픈소스 허가가 아니며 사용·복제·배포에는 별도 서면 계약이 필요합니다.
 
-현재 `alpha` 온라인 설치는 개발·staging 검증 전용입니다. stable·운영 설치 승인으로 해석하지 않습니다.
-
-G7 7.0.9의 `GithubHelper`는 `releases/latest`가 반환하는 source archive를 우선 사용하며 GitHub의 prerelease는 선택하지 않습니다. 따라서 이 개발 저장소의 alpha 온라인 설치 릴리스는 Latest 목록에 등록하되, 버전명의 `-alpha.N`과 개발·staging 전용 안내를 유지합니다. GitHub의 Latest 표시는 이 제품의 stable 승인이나 운영 사용 승인이 아닙니다. `alpha.21`은 이 경로의 최초 설치·이전 버전에서의 업데이트를 실제 전용 G7에서 확인했습니다.
+G7 7.0.9의 `GithubHelper`는 `releases/latest`가 반환하는 source archive를 우선 사용하며 GitHub의 prerelease는 선택하지 않습니다. 정식 설치는 검증된 stable 태그와 GitHub Release를 사용합니다. `alpha`·`rc`는 버전명과 릴리스 안내에 후보임을 명시하며 별도 승인 없이 stable로 해석하지 않습니다.
 
 ## 요구사항
 
@@ -42,7 +40,7 @@ php artisan plugin:install jwsoft-tiptap-editor --vendor-mode=bundled
 6. 관리자 `플러그인` 목록에서 CKEditor가 활성화되어 있으면 **CKEditor 비활성화 → JWSoft 활성화** 순서로 전환합니다. 동시 활성화를 시도하면 현재 에디터와 이 절차를 안내하며, 기존 에디터를 자동으로 끄지 않습니다. JWSoft 활성화에 실패하면 CKEditor를 다시 활성화하십시오.
 7. 활성화 후 `플러그인 → JWSoft Tiptap 에디터 → 설정`을 엽니다. 활성화 전 별도의 위험 확인 스위치는 필요하지 않습니다.
    이미지 파일 드롭과 클립보드 업로드는 각각 `이미지 드래그·드롭 업로드`, `클립보드 이미지 업로드`에서 켜거나 끌 수 있습니다.
-   동영상은 `동영상 플레이어 삽입`을 먼저 켠 뒤 YouTube·Vimeo·MP4 제공자와 URL 자동 변환을 선택합니다. RC4부터 새 외부 로드 기본값은 `즉시 로드`, 자동재생은 기본 꺼짐이며 편집·조회에 동일하게 적용됩니다. 기존에 `클릭 후 로드`가 저장되어 있으면 이를 보존하므로 즉시 플레이어를 표시하려면 설정을 변경하십시오.
+   동영상은 `동영상 플레이어 삽입`을 먼저 켠 뒤 YouTube·Vimeo·MP4 제공자와 URL 자동 변환을 선택합니다. `0.1.0`의 새 외부 로드 기본값은 `즉시 로드`, 자동재생은 기본 꺼짐이며 편집·조회에 동일하게 적용됩니다. 기존에 `클릭 후 로드`가 저장되어 있으면 이를 보존하므로 즉시 플레이어를 표시하려면 설정을 변경하십시오.
    MP4 파일 업로드가 필요하면 `동영상 파일 업로드`를 별도로 켜고 최대 용량과 1~10MB 청크 크기를 정합니다. PHP `upload_max_filesize`와 `post_max_size`는 선택한 청크 크기보다 커야 합니다.
    URL 카드는 `링크 스마트카드`를 켠 뒤 자동 변환, SNS, 일반 링크, 대표 이미지를 각각 선택합니다. 대표 이미지는 개인정보·외부 요청을 줄이기 위해 기본 꺼짐입니다.
    CLI에서 전환할 때도 같은 순서입니다.

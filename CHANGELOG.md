@@ -4,6 +4,17 @@
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-09-01
+
+### Changed
+
+- 승인된 G7 `sirsoft-ckeditor5` 대체 범위를 기능 동결하고 `0.1.0` 정식 릴리스 검증을 시작
+- Office·Google Docs 문서 변환, 협업·댓글·버전 비교, AI 작성, 페이지 빌더, 임의 외부 실행 HTML과 legacy inline style 일괄 마이그레이션은 제품 범위 밖임을 유지
+
+### Security
+
+- canonical HTML 서버 정제, class token 화이트리스트, URL·업로드·SSRF 검증 및 X·Facebook 공식 게시물 화이트리스트 정책 유지
+
 ## [0.1.0-rc.4] - 2026-08-31
 
 ### Fixed
