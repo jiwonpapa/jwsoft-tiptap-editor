@@ -6,6 +6,55 @@ export interface MediaPlaybackOptions {
   autoplay?: boolean;
 }
 
+export interface MediaIntrinsicSize {
+  width: number;
+  height: number;
+}
+
+type MediaFit = "landscape" | "square" | "portrait";
+
+const MEDIA_FIT_CLASSES = [
+  "jw-media-fit-landscape",
+  "jw-media-fit-square",
+  "jw-media-fit-portrait",
+] as const;
+
+export function resetIntrinsicMediaLayout(
+  figure: HTMLElement,
+  widthTarget: HTMLElement = figure,
+): void {
+  figure.classList.remove("jw-media-intrinsic");
+  figure.style.removeProperty("aspect-ratio");
+  if (figure.getAttribute("style") === "") figure.removeAttribute("style");
+  widthTarget.classList.remove(...MEDIA_FIT_CLASSES);
+}
+
+/** Presentation-only sizing. No dimensions or runtime classes enter canonical HTML. */
+export function applyIntrinsicMediaLayout(
+  figure: HTMLElement,
+  size: MediaIntrinsicSize,
+  widthTarget: HTMLElement = figure,
+): boolean {
+  const width = Math.round(size.width);
+  const height = Math.round(size.height);
+  if (
+    !Number.isFinite(width) ||
+    !Number.isFinite(height) ||
+    width <= 0 ||
+    height <= 0
+  ) {
+    return false;
+  }
+  const ratio = width / height;
+  const fit: MediaFit =
+    ratio < 0.8 ? "portrait" : ratio <= 1.2 ? "square" : "landscape";
+  resetIntrinsicMediaLayout(figure, widthTarget);
+  figure.classList.add("jw-media-intrinsic");
+  figure.style.aspectRatio = `${width} / ${height}`;
+  widthTarget.classList.add(`jw-media-fit-${fit}`);
+  return true;
+}
+
 export function mediaPlaybackOptions(
   loadMode: unknown,
   autoplay: unknown,
@@ -20,6 +69,7 @@ export function mediaPlaybackOptions(
 export function createMediaPlayer(
   media: NormalizedMedia,
   options: MediaPlaybackOptions = {},
+  onIntrinsicSize?: (size: MediaIntrinsicSize) => void,
 ): { dom: HTMLElement; destroy: () => void } {
   const dom = document.createElement("div");
   dom.className = "jw-media-surface";
@@ -47,6 +97,16 @@ export function createMediaPlayer(
     let player: HTMLVideoElement | HTMLIFrameElement;
     if (media.provider === "mp4") {
       video = document.createElement("video");
+      video.addEventListener(
+        "loadedmetadata",
+        () => {
+          if (disposed || !video) return;
+          const width = video.videoWidth;
+          const height = video.videoHeight;
+          if (width > 0 && height > 0) onIntrinsicSize?.({ width, height });
+        },
+        { once: true },
+      );
       video.src = media.playerUrl;
       video.controls = true;
       video.playsInline = true;

@@ -102,10 +102,12 @@ ${policy.classTokens.image
 .jw-media { position: relative; width: min(100%, 60rem); margin: 1rem auto; overflow: hidden; border-radius: 0.625rem; background: #111827; color: #fff; }
 .jw-media-16x9 { aspect-ratio: 16 / 9; }
 .jw-media-9x16 { width: min(100%, 26rem); aspect-ratio: 9 / 16; }
+.jw-media.jw-media-fit-square { width: min(100%, 40rem); }
+.jw-media.jw-media-fit-portrait { width: min(100%, 26rem); }
 .jw-media-source, .jw-media-load, .jw-media-player { position: absolute; inset: 0; box-sizing: border-box; width: 100%; height: 100%; }
 .jw-media-source, .jw-media-load { display: grid; place-items: center; border: 0; padding: 1rem; background: #111827; color: #fff; text-align: center; text-decoration: none; cursor: pointer; }
 .jw-media-source:hover, .jw-media-load:hover { background: #1f2937; }
-.jw-media-player { border: 0; background: #000; }
+.jw-media-player { border: 0; background: #000; object-fit: contain; }
 .jw-media-surface { position: absolute; inset: 0; }
 .jw-media-original { position: absolute; z-index: 1; top: 8px; right: 8px; max-width: 75%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; padding: 6px 9px; border-radius: 5px; background: #111827dd; color: #fff; font-size: 12px; text-decoration: underline; }
 .jw-media-error { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px; padding: 32px; text-align: center; }

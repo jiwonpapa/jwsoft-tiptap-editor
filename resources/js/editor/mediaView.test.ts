@@ -95,6 +95,46 @@ describe("editor and read-view media parity", () => {
     expect(editor.getHTML()).not.toContain("<video");
   });
 
+  it("fits uploaded MP4 to its intrinsic portrait ratio without saving runtime styles", () => {
+    const editor = mount();
+    insertMediaEmbed(editor, {
+      ...normalizeMediaUrl(
+        "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
+      )!,
+      title: "portrait.mp4",
+    });
+    const node =
+      editor.view.dom.querySelector<HTMLElement>(".jwsoft-media-node")!;
+    const figure = node.querySelector<HTMLElement>("figure.jw-media")!;
+    const video = figure.querySelector<HTMLVideoElement>("video")!;
+    Object.defineProperties(video, {
+      videoWidth: { configurable: true, value: 1080 },
+      videoHeight: { configurable: true, value: 1920 },
+    });
+    video.dispatchEvent(new Event("loadedmetadata"));
+
+    expect(node.classList.contains("jw-media-fit-portrait")).toBe(true);
+    expect(figure.style.aspectRatio).toBe("1080 / 1920");
+    const html = editor.getHTML();
+    expect(html).toContain("portrait.mp4");
+    expect(html).not.toMatch(/jw-media-(?:intrinsic|fit-)|style=/u);
+
+    const output = document.createElement("div");
+    output.className = "jwsoft-tiptap-content";
+    output.innerHTML = html;
+    document.body.append(output);
+    enhanceContentMedia();
+    const outputVideo = output.querySelector<HTMLVideoElement>("video")!;
+    Object.defineProperties(outputVideo, {
+      videoWidth: { configurable: true, value: 1080 },
+      videoHeight: { configurable: true, value: 1920 },
+    });
+    outputVideo.dispatchEvent(new Event("loadedmetadata"));
+    const outputFigure = output.querySelector<HTMLElement>("figure.jw-media")!;
+    expect(outputFigure.classList.contains("jw-media-fit-portrait")).toBe(true);
+    expect(outputFigure.style.aspectRatio).toBe(figure.style.aspectRatio);
+  });
+
   it("respects click mode for external providers but immediately shows local MP4", () => {
     const editor = mount({ loadMode: "click" });
     insertMediaEmbed(

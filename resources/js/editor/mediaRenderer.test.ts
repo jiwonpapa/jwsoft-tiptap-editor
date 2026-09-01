@@ -83,6 +83,20 @@ describe("content media renderer", () => {
     expect(video?.getAttribute("playsinline")).not.toBeNull();
   });
 
+  it("uses decoded MP4 dimensions for a compact exact-ratio public player", () => {
+    document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-16x9 jw-media-mp4"><a class="jw-media-source" href="https://cdn.example.com/portrait.mp4">portrait.mp4</a></figure></div>`;
+    enhanceContentMedia();
+    const figure = document.querySelector<HTMLElement>("figure.jw-media")!;
+    const video = figure.querySelector<HTMLVideoElement>("video")!;
+    Object.defineProperties(video, {
+      videoWidth: { configurable: true, value: 720 },
+      videoHeight: { configurable: true, value: 1280 },
+    });
+    video.dispatchEvent(new Event("loadedmetadata"));
+    expect(figure.classList.contains("jw-media-fit-portrait")).toBe(true);
+    expect(figure.style.aspectRatio).toBe("720 / 1280");
+  });
+
   it("does not enhance a mismatched provider URL", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-youtube"><a class="jw-media-source" href="https://evil.example/video">영상</a></figure></div>`;
     expect(enhanceContentMedia()).toBe(0);

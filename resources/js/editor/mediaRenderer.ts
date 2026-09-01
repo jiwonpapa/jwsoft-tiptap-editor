@@ -1,6 +1,8 @@
 import { normalizeMediaUrl, type MediaProvider } from "@/editor/mediaEmbed";
 import {
+  applyIntrinsicMediaLayout,
   createMediaPlayer,
+  resetIntrinsicMediaLayout,
   type MediaPlaybackOptions,
 } from "@/editor/mediaPlayer";
 export type { ExternalMediaLoadMode } from "@/editor/mediaPlayer";
@@ -35,9 +37,11 @@ export function enhanceContentMedia(
       ? normalizeMediaUrl(source.getAttribute("href") ?? "")
       : null;
     if (!provider || !media || media.provider !== provider) continue;
+    resetIntrinsicMediaLayout(figure);
     const player = createMediaPlayer(
       { ...media, title: source?.textContent?.trim() || media.title },
       options,
+      (size) => applyIntrinsicMediaLayout(figure, size),
     );
     enhancedFigures.set(figure, player);
     figure.replaceChildren(player.dom);

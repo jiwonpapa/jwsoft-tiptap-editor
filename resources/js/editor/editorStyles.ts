@@ -220,6 +220,8 @@ ${EDITOR_TOKEN_CSS}
 .jwsoft-image-node.ProseMirror-selectednode { outline: 2px solid #2563eb; outline-offset: 3px; }
 .jwsoft-media-node { width: min(100%, 60rem); margin: 1rem auto; }
 .jwsoft-media-node.jwsoft-media-portrait { width: min(100%, 26rem); }
+.jwsoft-media-node.jw-media-fit-square { width: min(100%, 40rem); }
+.jwsoft-media-node.jw-media-fit-portrait { width: min(100%, 26rem); }
 .jwsoft-media-node > .jw-media { width: 100%; margin: 0; }
 .jwsoft-media-node.ProseMirror-selectednode > .jw-media { outline: 2px solid #2563eb; outline-offset: 3px; }
 .jwsoft-media-actions { display: flex; justify-content: flex-end; gap: 4px; margin-top: 4px; }

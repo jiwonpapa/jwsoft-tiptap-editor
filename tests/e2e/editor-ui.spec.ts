@@ -994,11 +994,11 @@ test("media URL displays the same immediate responsive player in editor and cont
   await expect(media).toHaveCount(0);
 });
 
-test("MP4 file uses the chunk protocol and inserts a canonical responsive media node", async ({
+test("portrait MP4 keeps its decoded ratio responsively in editor and content", async ({
   page,
 }) => {
   const playable = fs.readFileSync(
-    path.join(root, "tests/fixtures/playable.mp4"),
+    path.join(root, "tests/fixtures/playable-portrait.mp4"),
   );
   await page.route(
     "http://jwsoft.test/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
@@ -1080,6 +1080,35 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
   await expect
     .poll(() => video.evaluate((element: HTMLVideoElement) => element.duration))
     .toBe(3);
+  await expect
+    .poll(() =>
+      video.evaluate((element: HTMLVideoElement) => ({
+        width: element.videoWidth,
+        height: element.videoHeight,
+      })),
+    )
+    .toEqual({ width: 180, height: 320 });
+  await expect(media).toHaveClass(/jw-media-intrinsic/);
+  const editorBox = await media.boundingBox();
+  expect((editorBox?.width ?? 0) / (editorBox?.height ?? 1)).toBeCloseTo(
+    180 / 320,
+    2,
+  );
+  const editorLayout = await media.evaluate((element) => ({
+    figureWidth: element.getBoundingClientRect().width,
+    editorWidth:
+      element.closest(".jwsoft-tiptap-editable")?.getBoundingClientRect()
+        .width ?? 0,
+    pageWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(editorLayout.figureWidth).toBeLessThanOrEqual(
+    editorLayout.editorWidth,
+  );
+  expect(editorLayout.figureWidth).toBeLessThanOrEqual(416);
+  expect(editorLayout.pageWidth).toBeLessThanOrEqual(
+    editorLayout.viewportWidth,
+  );
   await video.evaluate((element: HTMLVideoElement) => element.play());
   await expect
     .poll(() =>
@@ -1090,6 +1119,71 @@ test("MP4 file uses the chunk protocol and inserts a canonical responsive media 
   await expect(
     page.locator(".jwsoft-tiptap-editable .jw-media-load"),
   ).toHaveCount(0);
+
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const runtime = window as typeof window & {
+          __e2eStateUpdates: Array<{ updates: Record<string, unknown> }>;
+        };
+        return runtime.__e2eStateUpdates.some(
+          ({ updates }) =>
+            typeof updates["form.content"] === "string" &&
+            updates["form.content"].includes("proof.mp4"),
+        );
+      }),
+    )
+    .toBe(true);
+  await page.evaluate(async () => {
+    const runtime = window as typeof window & {
+      __e2eHandlers: Record<
+        string,
+        (action: Record<string, unknown>, context: unknown) => unknown
+      >;
+      __e2eStateUpdates: Array<{ updates: Record<string, unknown> }>;
+    };
+    const saved = [...runtime.__e2eStateUpdates]
+      .reverse()
+      .find(({ updates }) =>
+        String(updates["form.content"] ?? "").includes("proof.mp4"),
+      )?.updates["form.content"];
+    if (typeof saved !== "string")
+      throw new Error("MP4 canonical HTML missing");
+    if (/<(?:video|iframe)\b|jw-media-(?:intrinsic|fit-)|style=/u.test(saved))
+      throw new Error(
+        "Presentation-only MP4 layout leaked into canonical HTML",
+      );
+    const output = document.createElement("div");
+    output.className = "jwsoft-tiptap-content";
+    output.innerHTML = saved;
+    document.body.append(output);
+    await runtime.__e2eHandlers["jwsoft-tiptap-editor.injectContentStyles"](
+      { params: { externalMediaLoadMode: "immediate", mediaAutoplay: false } },
+      undefined,
+    );
+  });
+  const output = page.locator(".jwsoft-tiptap-content figure.jw-media-mp4");
+  await expect(output).toHaveClass(/jw-media-intrinsic/);
+  const outputBox = await output.boundingBox();
+  expect((outputBox?.width ?? 0) / (outputBox?.height ?? 1)).toBeCloseTo(
+    180 / 320,
+    2,
+  );
+  const outputLayout = await output.evaluate((element) => ({
+    figureWidth: element.getBoundingClientRect().width,
+    contentWidth:
+      element.closest(".jwsoft-tiptap-content")?.getBoundingClientRect()
+        .width ?? 0,
+    pageWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(outputLayout.figureWidth).toBeLessThanOrEqual(
+    outputLayout.contentWidth,
+  );
+  expect(outputLayout.figureWidth).toBeLessThanOrEqual(416);
+  expect(outputLayout.pageWidth).toBeLessThanOrEqual(
+    outputLayout.viewportWidth,
+  );
   expect(partRequests).toBe(1);
 });
 

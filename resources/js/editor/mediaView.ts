@@ -2,7 +2,9 @@ import type { NodeViewRenderer } from "@tiptap/core";
 import { createElement, GripVertical, Trash2 } from "lucide";
 import { normalizeMediaUrl } from "@/editor/mediaEmbed";
 import {
+  applyIntrinsicMediaLayout,
   createMediaPlayer,
+  resetIntrinsicMediaLayout,
   type MediaPlaybackOptions,
 } from "@/editor/mediaPlayer";
 
@@ -82,6 +84,7 @@ export const mediaNodeView =
       if (signature === nextSignature) return;
       signature = nextSignature;
       player?.destroy();
+      resetIntrinsicMediaLayout(figure, dom);
       const media = normalizeMediaUrl(String(current.attrs.sourceUrl ?? ""));
       if (!media || media.provider !== current.attrs.provider) {
         figure.replaceChildren();
@@ -93,6 +96,7 @@ export const mediaNodeView =
       player = createMediaPlayer(
         { ...media, title: String(current.attrs.title || media.title) },
         options,
+        (size) => applyIntrinsicMediaLayout(figure, size, dom),
       );
       figure.replaceChildren(player.dom);
     };
