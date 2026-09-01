@@ -1,5 +1,11 @@
 # 배포 하네스
 
+## 0.1.0 stable 배포 — 2026-09-01
+
+- 정식 `v0.1.0` 공개와 동일 ZIP의 local staging·production 배포를 완료했습니다.
+- 후보 57/57, GitHub 설치 생명주기 60/60, staging 61/61, 최종 62/62를 순서대로 통과했습니다.
+- 기능·콘텐츠 보존·런타임·smoke의 상세 범위는 [0.1.0 stable 마감](acceptance/stable-0.1.0-closeout.md)에 기록합니다.
+
 ## 최신 RC3 배포 — 2026-08-31
 
 - [4차 결함 개선과 실제 검증](acceptance/four-phase-repair-20260831.md)을 완료한 코드 `8a19b23`, 공개 태그 `v0.1.0-rc.3`을 배포했습니다. 정식 `0.1.0` 태그가 아닙니다.
