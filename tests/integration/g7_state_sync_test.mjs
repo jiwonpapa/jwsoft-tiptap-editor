@@ -13,15 +13,18 @@ const coreSource = fs.readFileSync(
   path.join(g7Root, "public/build/core/template-engine.min.js"),
   "utf8",
 );
-const postForm = JSON.parse(
-  fs.readFileSync(
-    path.join(
-      g7Root,
-      "templates/sirsoft-basic/layouts/partials/board/form/_post_form.json",
-    ),
-    "utf8",
-  ),
+const postFormCandidates = [
+  "templates/sirsoft-basic/layouts/partials/board/form/_post_form.json",
+  "templates/_bundled/sirsoft-basic/layouts/partials/board/form/_post_form.json",
+];
+const postFormPath = postFormCandidates
+  .map((candidate) => path.join(g7Root, candidate))
+  .find((candidate) => fs.existsSync(candidate));
+assert(
+  postFormPath,
+  `G7 board form template not found: ${postFormCandidates.join(", ")}`,
 );
+const postForm = JSON.parse(fs.readFileSync(postFormPath, "utf8"));
 function findSaveSequence(value) {
   if (!value || typeof value !== "object") return undefined;
   if (
