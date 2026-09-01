@@ -5,7 +5,7 @@
     "ko": "JWSoft Tiptap 에디터",
     "en": "JWSoft Tiptap Editor"
   },
-  "version": "0.1.0",
+  "version": "0.1.1-rc.1",
   "license": "Proprietary",
   "description": {
     "ko": "그누보드7의 CKEditor 플러그인을 코어 수정 없이 대체하는 정책 기반 Tiptap 에디터입니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않으며, 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.",
