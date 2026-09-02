@@ -13,12 +13,10 @@ from .security import check_secrets
 
 LEGACY_TESTS = (
     "license-audit",
-    "deploy-contract-test",
     "deploy-evidence-test",
     "stable-evidence-test",
     "release-phases-test",
     "remote-deploy-preflight-test",
-    "remote-deploy-transaction-test",
     "vendor-bundle-manifest-test",
 )
 PHP_TESTS = (

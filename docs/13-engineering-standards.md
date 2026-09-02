@@ -41,6 +41,8 @@ CI는 check/build/audit/browser를 필수로 실행합니다. 분리한 UI suite
 
 check/integration/browser의 성공 기록은 Python 실행기가 소유합니다. 명령 종료 코드·로그 해시·실행 중 소스 불변·실행 이후 생성된 결과를 묶으며, 단독 check/integration pass 기록기는 폐기했습니다. 출시 소비자도 실행 영수증을 확인합니다. 브라우저는 `harness/contracts/browser-execution.json`의 이름·프로젝트별 필수 케이스와 허용 skip을 대조하고 24시간 내 실행만 인정합니다. 실제 G7 화면 관측의 추적 실행기가 없는 항목은 옛 JSON으로 통과시키지 않고 계속 미검증으로 남깁니다.
 
+배포 Shell은 설정·계획과 Python 트랜잭션 연결만 담당합니다. Python 직접 실행도 `--apply`·production 확인값·동일 staging SHA·배포 gate를 다시 요구합니다. update 전 `.build/jwsoft-tiptap-editor-이전버전.zip` 전체 파일 해시가 현재 설치와 일치해야 합니다. 적용·활성 상태·파일·HTTP 검사 중 실패하면 그 ZIP과 이전 활성 상태로 복구하고 HTTP를 재검사합니다. 복구 실패는 별도 critical 오류이고 배포 pass를 기록하지 않습니다. DB 덤프는 하지 않습니다.
+
 ## 관측과 출시
 
 GitHub `main` 보호의 선언은 `harness/governance/main-protection.json`입니다. PR 경로, GitHub Actions의 `validate` 필수 통과, 최신 기준 브랜치, 대화 해결, 관리자 포함 보호, 강제 푸시/삭제 금지를 요구합니다. 필수 승인 리뷰 수는 현재 0이며 이를 2인 리뷰 강제로 표현하지 않습니다. 보호 설정은 서버에 별도로 적용·재조회해야 하며 파일 존재만으로 적용 완료라고 하지 않습니다.

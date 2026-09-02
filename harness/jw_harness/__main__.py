@@ -7,6 +7,7 @@ from pathlib import Path
 
 from .browser import run_browser
 from .clean import clean_caches
+from .deploy_entry import deploy_from_environment
 from .evidence import record_observation
 from .files import ROOT
 from .governance import check
@@ -33,6 +34,10 @@ def arguments() -> argparse.Namespace:
     receipt.add_argument("--root", type=Path, required=True)
     receipt.add_argument("--artifact", required=True)
     receipt.add_argument("--fingerprint", required=True)
+    deploy = sub.add_parser("deploy-transaction")
+    deploy.add_argument("--environment", choices=("staging", "production"), required=True)
+    deploy.add_argument("--artifact", type=Path, required=True)
+    deploy.add_argument("--apply", action="store_true")
     observation = sub.add_parser("record-observation")
     observation.add_argument("input")
     cleanup = sub.add_parser(
@@ -46,32 +51,34 @@ def arguments() -> argparse.Namespace:
     return parser.parse_args()
 
 
-def main() -> int:
-    args = arguments()
-    checks = {
-        "check": check_all,
-        "governance": check,
-        "audit": audit_dependencies,
-        "browser": run_browser,
+def dispatch(args: argparse.Namespace) -> None:
+    actions = {
+        "check": lambda: check_all(ROOT),
+        "governance": lambda: check(ROOT),
+        "audit": lambda: audit_dependencies(ROOT),
+        "browser": lambda: run_browser(ROOT),
+        "clean": lambda: print(clean_caches(ROOT, apply=args.apply)),
+        "publish-stable": lambda: publish_stable(
+            ROOT, args.tag, apply=args.apply, approval=args.approval
+        ),
+        "fingerprint": lambda: print(source_fingerprint(args.root)),
+        "record-observation": lambda: print(record_observation(ROOT, args.input)),
+        "host-check": lambda: validate_host(ROOT, args.root),
+        "integration": lambda: run_integration(ROOT, args.host),
+        "validate-execution": lambda: validate_artifact_execution(
+            args.root, args.artifact, args.fingerprint
+        ),
+        "deploy-transaction": lambda: deploy_from_environment(
+            ROOT, args.environment, args.artifact, apply=args.apply
+        ),
     }
+    actions[args.command]()
+
+
+def main() -> int:
     try:
-        if args.command in checks:
-            checks[args.command](ROOT)
-        elif args.command == "clean":
-            print(clean_caches(ROOT, apply=args.apply))
-        elif args.command == "publish-stable":
-            publish_stable(ROOT, args.tag, apply=args.apply, approval=args.approval)
-        elif args.command == "fingerprint":
-            print(source_fingerprint(args.root))
-        elif args.command == "record-observation":
-            print(record_observation(ROOT, args.input))
-        elif args.command == "host-check":
-            validate_host(ROOT, args.root)
-        elif args.command == "integration":
-            run_integration(ROOT, args.host)
-        elif args.command == "validate-execution":
-            validate_artifact_execution(args.root, args.artifact, args.fingerprint)
-    except (ValueError, OSError, subprocess.SubprocessError) as error:
+        dispatch(arguments())
+    except (ValueError, OSError, RuntimeError, subprocess.SubprocessError) as error:
         print(f"[jwsoft] BLOCKED: {error}", file=sys.stderr)
         return 1
     return 0

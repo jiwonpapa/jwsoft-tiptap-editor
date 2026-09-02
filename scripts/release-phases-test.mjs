@@ -52,10 +52,15 @@ for (const version of [
   );
 const deploy = fs.readFileSync(path.join(root, "scripts/deploy.sh"), "utf8");
 const apply = deploy.indexOf('[ "$action" = "--apply" ]');
-const gate = deploy.indexOf('scripts/deployment-gate.mjs"');
-const remote = deploy.indexOf('ssh "$DEPLOY_HOST"');
+const transaction = deploy.indexOf("-m harness.jw_harness deploy-transaction");
+const entry = fs.readFileSync(
+  path.join(root, "harness/jw_harness/deploy_entry.py"),
+  "utf8",
+);
+const gate = entry.indexOf('"scripts/deployment-gate.mjs"');
+const remote = entry.indexOf("remote = Remote(");
 assert.ok(
-  apply < gate && gate < remote,
+  apply >= 0 && apply < transaction && gate >= 0 && gate < remote,
   "current evidence must be checked after explicit apply and before any remote action",
 );
 console.log(
