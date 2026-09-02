@@ -8,6 +8,7 @@ from .dependencies import audit_python
 from .execution import Execution
 from .files import read_object
 from .governance import check
+from .license_source import validate_source_licenses
 from .process import run, tracked_inputs
 from .security import check_secrets
 
@@ -49,6 +50,7 @@ def execute_checks(root: Path, execution: Execution) -> None:
     validate_ci_tag(root)
     check(root)
     check_secrets(root)
+    validate_source_licenses(root)
     execution.run([sys.executable, "-m", "ruff", "check", "harness"])
     execution.run([sys.executable, "-m", "ruff", "format", "--check", "harness"])
     execution.run([sys.executable, "-m", "mypy"])

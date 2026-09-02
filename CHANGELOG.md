@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.2] - 2026-09-02
+
+### Fixed
+
+- 실제 GitHub URL 설치에서 확인된 제3자 라이선스 원문·manifest 누락 수정. ZIP과 source archive에 같은 생성 파일을 포함하고 Python 검사에서 lockfile 목록·원문 SHA를 확인. 0.1.1 후보는 운영 미배포·공개 보류이며 태그/ZIP을 덮어쓰지 않고 새 패치로 배포
+
 ## Audit execution safety (0.1.1)
 
 - Tracked authenticated G7 Chrome tests now execute all editor surfaces, actual HTTP rejection, media playback/Range and multilingual legacy approval; Python revokes run-owned identities on success and failure.
