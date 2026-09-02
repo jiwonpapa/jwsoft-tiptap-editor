@@ -17,6 +17,10 @@
 /output/
 /.phpunit.cache/
 /.DS_Store
+/.venv/
+/.mypy_cache/
+/.ruff_cache/
+__pycache__/
 *.log
 *.zip
 !/vendor-bundle.zip

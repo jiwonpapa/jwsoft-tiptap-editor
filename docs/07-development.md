@@ -16,6 +16,8 @@ cp .env.example .env
 # G7_ROOT를 전용 테스트 checkout 절대경로로 수정
 npm ci
 composer install
+python3 -m venv .venv
+.venv/bin/python -m pip install -r harness/requirements-dev.txt
 make doctor
 make check
 make build
@@ -42,4 +44,6 @@ make build
 
 ## 전용 G7 checkout
 
-`G7_ROOT`가 dirty이면 integration 하네스는 기본 실패합니다. 정말 필요한 경우에만 `ALLOW_DIRTY_G7=1`을 로컬 `.env`에 설정하며 CI와 배포에서는 금지합니다.
+`G7_ROOT`가 dirty이면 integration 하네스는 실패합니다. `ALLOW_DIRTY_G7` 우회는 더 이상 허용하지 않습니다. 승인된 전용 checkout에만 `.jw-editor-harness.json` 표식을 두며 내용은 `{"schemaVersion":1,"owner":"jwsoft-tiptap-editor","purpose":"dedicated-test"}`입니다. 표식은 해당 checkout의 로컬 Git exclude에 등록하고 커밋하지 않습니다. 일반 작업 저장소를 통과시키려고 표식을 자동 생성하지 않습니다.
+
+Python 주 하네스, typed lint, 코드 크기/예외 및 증거 작성 규칙은 [개발 규약](13-engineering-standards.md)을 따릅니다. 수동 관측 기록은 자동 통과 증거가 아닙니다.

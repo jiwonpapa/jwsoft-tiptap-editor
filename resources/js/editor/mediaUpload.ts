@@ -1,5 +1,6 @@
 import { editorText } from "@/editor/locale";
 import { normalizeMediaUrl } from "@/editor/mediaEmbed";
+import { authorizationHeaders } from "@/g7/authorization";
 
 const ENDPOINT = "/api/plugins/jwsoft-tiptap-editor/media/uploads";
 const RETRIES = 3;
@@ -29,15 +30,6 @@ export interface MediaUploadOptions {
   onProgress?: (uploadedBytes: number, totalBytes: number) => void;
   onPhase?: (phase: "starting" | "uploading" | "processing") => void;
   signal?: AbortSignal;
-}
-
-function authorizationHeaders(): HeadersInit {
-  try {
-    const token = window.localStorage.getItem("auth_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  } catch {
-    return {};
-  }
 }
 
 function storageKey(file: File): string {

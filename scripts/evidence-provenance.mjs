@@ -22,33 +22,11 @@ export function evidenceFile(root, relative) {
 
 /** Bind checks to code and package inputs; acceptance-only commits do not invalidate them. */
 export function sourceFingerprint(root) {
-  const files = execFileSync(
-    "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-    { cwd: root, encoding: "utf8" },
-  )
-    .split("\0")
-    .filter(
-      (file) =>
-        /^(resources|src|routes|database|lang|config|policy|scripts|tests)\//.test(
-          file,
-        ) ||
-        /^harness\/(contracts|fixtures)\//.test(file) ||
-        file === "NOTICE" ||
-        /^(plugin\.php|plugin\.json|components\.json|composer\.(json|lock)|package(-lock)?\.json|vite\.config\.ts|vitest\.config\.ts|playwright\.config\.ts|tsconfig\.json|Makefile|CHANGELOG\.md|LICENSE|THIRD_PARTY_NOTICES\.md|vendor-bundle\.(json|zip))$/.test(
-          file,
-        ),
-    );
-  const digest = crypto.createHash("sha256");
-  for (const file of [...new Set(files)].sort()) {
-    const absolute = path.join(root, file);
-    digest
-      .update(file)
-      .update("\0")
-      .update(fs.existsSync(absolute) ? hashFile(absolute) : "missing")
-      .update("\0");
-  }
-  return digest.digest("hex");
+  return execFileSync(
+    process.env.HARNESS_PYTHON ?? "python3",
+    ["-m", "harness.jw_harness", "fingerprint", "--root", root],
+    { cwd: path.resolve(import.meta.dirname, ".."), encoding: "utf8" },
+  ).trim();
 }
 
 export function recordCheckEvidence(root) {

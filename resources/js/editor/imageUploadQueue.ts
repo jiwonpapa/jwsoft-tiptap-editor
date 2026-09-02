@@ -1,10 +1,16 @@
 import { editorIcon } from "@/editor/icons";
+import { editorText } from "@/editor/locale";
 import {
   uploadEditorImage,
   validateEditorImageFile,
   type UploadedEditorImage,
 } from "@/editor/imageUpload";
 import { mountG7FilePicker } from "@/g7/filePicker";
+
+function showUploadFailure(target: HTMLElement, locale: string): void {
+  target.textContent = editorText(locale, "이미지 업로드에 실패했습니다.");
+  target.hidden = false;
+}
 
 interface QueueItem {
   file: File;
@@ -191,7 +197,8 @@ export function createImageUploadQueue(options: {
         options.onChange();
       });
       retry.addEventListener("click", () => {
-        if (!uploading) void upload(item);
+        if (!uploading)
+          upload(item).catch(() => showUploadFailure(error, options.locale));
       });
       row.append(img, body, retry, remove);
       list.append(row);

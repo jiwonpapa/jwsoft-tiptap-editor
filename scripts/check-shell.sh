@@ -4,6 +4,8 @@ set -Eeuo pipefail
 source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
 status=0
+require_command shellcheck
+shellcheck --severity=warning "$PROJECT_ROOT"/scripts/*.sh || status=1
 while IFS= read -r script; do
   bash -n "$script" || status=1
   if LC_ALL=C grep -q $'\r' "$script"; then

@@ -3,6 +3,7 @@ import { defineConfig, devices } from "@playwright/test";
 const baseURL = process.env.G7_BASE_URL ?? "http://127.0.0.1:8000";
 
 export default defineConfig({
+  forbidOnly: true,
   testDir: "./tests/e2e",
   outputDir: "test-results/playwright",
   reporter: [

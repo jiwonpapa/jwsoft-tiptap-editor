@@ -51,11 +51,11 @@ async function setup(
         locale: { current: () => "ko", supported: () => ["ko"] },
         state: {
           getLocal: () => ({ form: { content_mode: "html" } }),
-          setLocal: (value: unknown) => (window as any).updates.push(value),
+          setLocal: (value: unknown) => window.updates.push(value),
         },
         getActionDispatcher: () => ({
-          registerHandler: (name: string, fn: unknown) => {
-            (window as any).handlers[name] = fn;
+          registerHandler: (name: string, fn: Window["handlers"][string]) => {
+            window.handlers[name] = fn;
           },
         }),
       },
@@ -73,7 +73,7 @@ async function setup(
         facebookEmbed: !off,
         externalMediaLoadMode: click ? "click" : "immediate",
       };
-      const handlers = (window as any).handlers;
+      const handlers = window.handlers;
       await handlers["jwsoft-tiptap-editor.initEditor"]({ params });
       handlers["jwsoft-tiptap-editor.injectContentStyles"]({ params });
     },
@@ -121,15 +121,13 @@ test("official whitelist display is shared by editing/viewing, responsive, and n
   await expect(
     page.locator(".jwsoft-tiptap-editable iframe.jw-social-frame"),
   ).toHaveCount(1);
-  const values = await page.evaluate(() =>
-    JSON.stringify((window as any).updates),
-  );
+  const values = await page.evaluate(() => JSON.stringify(window.updates));
   expect(values).not.toMatch(
     /<iframe|<script|srcdoc|full public post|full post with body/,
   );
   expect(values).toContain("jw-card-facebook");
   await page.evaluate(() => {
-    (window as any).handlers["jwsoft-tiptap-editor.injectContentStyles"]({
+    window.handlers["jwsoft-tiptap-editor.injectContentStyles"]({
       params: { smartCards: false },
     });
   });

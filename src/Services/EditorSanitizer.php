@@ -349,13 +349,13 @@ final class EditorSanitizer
         if ($provider === 'youtube') {
             $id = '';
             if ($host === 'youtu.be') {
-                $id = explode('/', trim($path, '/'))[0] ?? '';
+                $id = explode('/', trim($path, '/'))[0];
             } elseif (in_array($host, ['youtube.com', 'm.youtube.com', 'music.youtube.com'], true)) {
                 $segments = explode('/', trim($path, '/'));
-                if (($segments[0] ?? '') === 'watch') {
+                if ($segments[0] === 'watch') {
                     parse_str((string) ($parts['query'] ?? ''), $query);
                     $id = (string) ($query['v'] ?? '');
-                } elseif (in_array($segments[0] ?? '', ['embed', 'shorts', 'live'], true)) {
+                } elseif (in_array($segments[0], ['embed', 'shorts', 'live'], true)) {
                     $id = $segments[1] ?? '';
                 }
             }
@@ -367,9 +367,9 @@ final class EditorSanitizer
                 return false;
             }
             $segments = explode('/', trim($path, '/'));
-            $id = $host === 'player.vimeo.com' && ($segments[0] ?? '') === 'video'
+            $id = $host === 'player.vimeo.com' && $segments[0] === 'video'
                 ? ($segments[1] ?? '')
-                : ($segments[0] ?? '');
+                : $segments[0];
 
             return preg_match('/^[0-9]{5,12}$/', $id) === 1;
         }
@@ -423,7 +423,7 @@ final class EditorSanitizer
             $nodes[] = $descendant;
         }
         foreach ($nodes as $node) {
-            if (! $node instanceof DOMElement || ! $node->hasAttribute('class')) {
+            if (! $node->hasAttribute('class')) {
                 continue;
             }
             $nodeClasses = preg_split('/\s+/u', trim($node->getAttribute('class'))) ?: [];

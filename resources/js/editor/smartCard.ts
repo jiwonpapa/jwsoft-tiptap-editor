@@ -2,6 +2,7 @@ import { Node, type Editor } from "@tiptap/core";
 import type { DOMOutputSpec } from "@tiptap/pm/model";
 
 import { editorText } from "@/editor/locale";
+import { authorizationHeaders } from "@/g7/authorization";
 import { socialNodeView } from "./socialView";
 import type { SocialOptions } from "./socialPolicy";
 
@@ -30,15 +31,6 @@ interface PreviewPayload {
   success?: boolean;
   message?: string;
   data?: Record<string, unknown>;
-}
-
-function authorizationHeaders(): HeadersInit {
-  try {
-    const token = window.localStorage.getItem("auth_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  } catch {
-    return {};
-  }
 }
 
 function safeHttpsUrl(value: unknown): string | null {

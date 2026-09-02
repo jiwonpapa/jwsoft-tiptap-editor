@@ -1,10 +1,10 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-02T03:17:22.000Z",
+  "generated_at": "1980-01-01T00:00:00.000Z",
   "generator": "jwsoft-tiptap-editor scripts/build-vendor-bundle.mjs",
   "target": "plugin:jwsoft-tiptap-editor",
-  "composer_json_sha256": "0d486ef8432501505d8699b8ff3c7964114682fa220c04899bc2bbc6ae08adbe",
-  "composer_lock_sha256": "5df2f46082ef6839e65149619d52d82a0a1ef9f6d7e3e4db596edcd1e537897f",
+  "composer_json_sha256": "7a5923af75cf7ac002096293fbd80cd80c9ad32a6bfd20c7f64e5f16a1e119a2",
+  "composer_lock_sha256": "61af67befec255d883248b7a4cf887c82a15366b5ef448c24717021faeab8ef6",
   "zip_sha256": "e2cf988e13b384b123a2afc46521fad88d40ca042317b62740e67dfcbe874d58",
   "zip_size": 252044,
   "package_count": 7,

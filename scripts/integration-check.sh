@@ -9,6 +9,7 @@ fi
 
 [ -n "${G7_ROOT:-}" ] || fail "G7_ROOT를 전용 G7 7.0.9+ 테스트 호스트로 설정하십시오."
 G7_ROOT="$(cd "$G7_ROOT" && pwd)"
+(cd "$PROJECT_ROOT" && "${HARNESS_PYTHON:-python3}" -m harness.jw_harness host-check --root "$G7_ROOT")
 [ "$G7_ROOT" != "$PROJECT_ROOT" ] || fail "제품 저장소와 G7 통합 호스트는 분리해야 합니다."
 [ -f "$G7_ROOT/artisan" ] || fail "G7 artisan을 찾을 수 없습니다: $G7_ROOT"
 [ -f "$G7_ROOT/config/app.php" ] || fail "G7 config/app.php가 없습니다."
