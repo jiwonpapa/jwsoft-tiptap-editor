@@ -18,7 +18,7 @@ from .lifecycle import run_lifecycle
 from .provenance import source_fingerprint
 from .quality import audit_dependencies, check_all
 from .receipt import validate_artifact_execution
-from .release import publish_stable
+from .release import publish_candidate, publish_stable
 
 
 def arguments() -> argparse.Namespace:
@@ -55,10 +55,11 @@ def arguments() -> argparse.Namespace:
         "clean", help="plan cache-only cleanup; evidence and packages preserved"
     )
     cleanup.add_argument("--apply", action="store_true")
-    publication = sub.add_parser("publish-stable", help="verify final 62/62, never rebuild")
-    publication.add_argument("--tag", required=True)
-    publication.add_argument("--apply", action="store_true")
-    publication.add_argument("--approval", default="")
+    for name in ("publish-candidate", "publish-stable"):
+        publication = sub.add_parser(name, help="verify current evidence, never rebuild")
+        publication.add_argument("--tag", required=True)
+        publication.add_argument("--apply", action="store_true")
+        publication.add_argument("--approval", default="")
     return parser.parse_args()
 
 
@@ -69,6 +70,9 @@ def dispatch(args: argparse.Namespace) -> None:
         "audit": lambda: audit_dependencies(ROOT),
         "browser": lambda: run_browser(ROOT),
         "clean": lambda: print(clean_caches(ROOT, apply=args.apply)),
+        "publish-candidate": lambda: publish_candidate(
+            ROOT, args.tag, apply=args.apply, approval=args.approval
+        ),
         "publish-stable": lambda: publish_stable(
             ROOT, args.tag, apply=args.apply, approval=args.approval
         ),

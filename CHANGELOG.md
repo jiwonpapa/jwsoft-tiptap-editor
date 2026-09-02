@@ -1,6 +1,6 @@
 # Changelog
 
-## Audit execution safety (unreleased)
+## Audit execution safety (0.1.1)
 
 - Tracked authenticated G7 Chrome tests now execute all editor surfaces, actual HTTP rejection, media playback/Range and multilingual legacy approval; Python revokes run-owned identities on success and failure.
 - ZIP/GitHub lifecycle orchestration moved from Shell to bounded Python modules, with original-file/editor-state recovery and execution-bound evidence. Standalone lifecycle pass writers are retired.
@@ -11,7 +11,7 @@
 
 모든 주요 변경은 이 파일에 기록합니다. 형식은 Keep a Changelog와 Semantic Versioning을 따릅니다.
 
-## [Unreleased]
+## [0.1.1] - 2026-09-02
 
 ### Added
 
@@ -21,6 +21,8 @@
 - README 제품 소개·설치·전환·지원 범위·확장 안내와 소개용 인트로 이미지
 
 ### Changed
+
+- ADR-0017/규약 v3: G7 공식 Latest 설치 경로의 순환을 해소하는 명시적 Python 후보 게시와 최종 승인 분리. 57 → 60 → 61 → 62 기준은 유지하고 태그 자동 게시·릴리스 덮어쓰기·승격 중 재빌드를 금지
 
 - 주 검사·소스 fingerprint·관측 기록·정식 게시 판단을 Python 모듈로 이전. 기존 Node 검증기는 명시된 이전 목록으로 관리하며 제품 TS/PHP 및 언어 전용 도구는 유지
 - UI 테스트를 공통 fixture와 5개 기능 suite로 분리하고 업로드/미리보기 인증 헤더를 G7 공통 어댑터로 통합
