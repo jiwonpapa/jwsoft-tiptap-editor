@@ -34,10 +34,17 @@ export function editorContainerId(name: string): string {
   return `jwsoft-tiptap-${name || "content"}`;
 }
 
-export function supportedLocales(core: G7CoreApi | undefined): string[] {
+export function supportedLocales(
+  core: G7CoreApi | undefined,
+  stored: Record<string, string> = {},
+): string[] {
   const current = currentLocale(core);
   const configured = core?.locale?.supported?.() ?? [];
-  return [...new Set([current, ...configured.filter(Boolean)])];
+  return [
+    ...new Set(
+      [current, ...configured, ...Object.keys(stored)].filter(Boolean),
+    ),
+  ];
 }
 
 export function currentLocale(core: G7CoreApi | undefined): string {

@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from .files import Object, object_value
+from .http import validate_http_url
 from .process import run
 
 
@@ -69,6 +70,7 @@ class Remote:
         print(self.script("remote-editor-command.sh", [self.root, self.php, action, plugin]))
 
     def smoke(self, url: str) -> None:
+        validate_http_url(url)
         run(
             [
                 "curl",
@@ -76,10 +78,15 @@ class Remote:
                 "--silent",
                 "--show-error",
                 "--location",
+                "--proto",
+                "=http,https",
+                "--proto-redir",
+                "=http,https",
                 "--max-time",
                 "20",
                 "--output",
                 "/dev/null",
+                "--",
                 url,
             ],
             self.project,

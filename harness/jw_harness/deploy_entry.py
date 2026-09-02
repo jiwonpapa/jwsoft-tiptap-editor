@@ -7,6 +7,7 @@ from pathlib import Path
 from .deploy_remote import Remote
 from .deploy_transaction import archive_manifest, deploy_transaction
 from .files import hash_file
+from .http import validate_http_url
 from .process import run
 
 
@@ -24,6 +25,7 @@ def deploy_from_environment(root: Path, environment: str, archive: Path, *, appl
     )
     if any(not values.get(key) for key in required):
         raise ValueError("Deployment environment is incomplete")
+    validate_http_url(values["SMOKE_URL"])
     checksum = hash_file(archive)
     version, _ = archive_manifest(archive)
     if environment == "production":

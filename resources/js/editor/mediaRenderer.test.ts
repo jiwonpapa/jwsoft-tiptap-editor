@@ -52,6 +52,28 @@ describe("content media renderer", () => {
     expect(document.querySelector("video")).not.toBeNull();
   });
 
+  it("restores canonical children when a detached figure is later reinserted", () => {
+    document.body.innerHTML =
+      '<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-mp4"><a class="jw-media-source" href="https://cdn.example.com/clip.mp4">clip.mp4</a></figure></div>';
+    const container = document.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-content",
+    )!;
+    const figure = container.querySelector<HTMLElement>("figure")!;
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      expect(enhanceContentMedia()).toBe(1);
+      expect(figure.querySelectorAll("video")).toHaveLength(1);
+      figure.remove();
+      enhanceContentMedia();
+      expect(figure.querySelector("a.jw-media-source")?.textContent).toBe(
+        "clip.mp4",
+      );
+      expect(figure.querySelector("video")).toBeNull();
+      container.append(figure);
+    }
+    expect(enhanceContentMedia()).toBe(1);
+    expect(figure.querySelectorAll("video")).toHaveLength(1);
+  });
+
   it("respects explicit click-to-load without enabling autoplay", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">영상</a></figure></div>`;
     expect(enhanceContentMedia({ loadMode: "click" })).toBe(1);

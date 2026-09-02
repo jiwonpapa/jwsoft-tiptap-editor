@@ -24,5 +24,6 @@ if (! $product || (int) $product->created_by !== $fixture['id']
 $db->table('ecommerce_products')->where('id', $id)->update(['description' => json_encode([
     'ko' => '<p style="color:red">Legacy '.$fixture['runId'].'</p>',
     'en' => '<p>English fixture</p>',
+    'ja' => '<p style="color:blue">Retired locale '.$fixture['runId'].'</p>',
 ], JSON_THROW_ON_ERROR)]);
 echo "Legacy fixture prepared for the run-owned product.\n";

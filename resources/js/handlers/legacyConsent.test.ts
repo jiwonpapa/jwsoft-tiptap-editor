@@ -80,6 +80,37 @@ it("keeps every unvisited locale and field unapproved until explicitly accepted"
   expect(state["form.jwsoft_editor_policy_ack"]).toBe(EDITOR_POLICY_HASH);
 });
 
+it("offers a consent tab for a stored locale no longer configured by G7", async () => {
+  const container = addContainer("content");
+  await initEditorHandler(
+    {
+      params: {
+        name: "content",
+        multilingual: true,
+        content: { ko: "<p>한국어</p>", ja: legacy },
+      },
+    },
+    undefined,
+  );
+  const tabs = [
+    ...container.querySelectorAll<HTMLButtonElement>(
+      ".jwsoft-tiptap-locale-tabs [role=tab]",
+    ),
+  ];
+  expect(tabs.map((button) => button.textContent)).toEqual([
+    "한국어",
+    "English",
+    "日本語",
+  ]);
+  expect(state["form.jwsoft_editor_policy_ack"]).toBeNull();
+  expect(state["form.content.ja"]).toBeUndefined();
+  tabs[2].click();
+  expect(editorRegistry.get(container.id, "ja")!.isEditable).toBe(false);
+  approve(container);
+  expect(state["form.content.ja"]).toBe("<p>기존 본문</p>");
+  expect(state["form.jwsoft_editor_policy_ack"]).toBe(EDITOR_POLICY_HASH);
+});
+
 it.each([{ readOnly: true }, { disabled: true }])(
   "never syncs read-only locales on tab navigation: %o",
   async (flags) => {

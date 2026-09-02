@@ -249,7 +249,7 @@ function mountMultilingualEditors(options: {
   consent: PolicyConsent;
 }): void {
   const core = window.G7Core;
-  const locales = supportedLocales(core);
+  const locales = supportedLocales(core, options.content);
   const initialLocale = currentLocale(core);
   const tabs = document.createElement("div");
   tabs.className = "jwsoft-tiptap-locale-tabs";

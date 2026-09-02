@@ -7,14 +7,23 @@ import {
 } from "@/editor/mediaPlayer";
 export type { ExternalMediaLoadMode } from "@/editor/mediaPlayer";
 
-const enhancedFigures = new Map<
-  HTMLElement,
-  {
-    player: ReturnType<typeof createMediaPlayer>;
-    original: Node[];
-    signature: string;
+interface EnhancedMedia {
+  player: ReturnType<typeof createMediaPlayer>;
+  original: Node[];
+  signature: string;
+}
+
+const enhancedFigures = new Map<HTMLElement, EnhancedMedia>();
+
+function releaseFigure(figure: HTMLElement, entry: EnhancedMedia): void {
+  const ownsContent = entry.player.dom.parentElement === figure;
+  entry.player.destroy();
+  if (ownsContent) {
+    figure.replaceChildren(...entry.original);
+    resetIntrinsicMediaLayout(figure);
   }
->();
+  enhancedFigures.delete(figure);
+}
 
 function providerFrom(figure: HTMLElement): MediaProvider | null {
   if (figure.classList.contains("jw-media-youtube")) return "youtube";
@@ -33,8 +42,7 @@ export function enhanceContentMedia(
   ]);
   for (const [figure, entry] of enhancedFigures) {
     if (figure.isConnected) continue;
-    entry.player.destroy();
-    enhancedFigures.delete(figure);
+    releaseFigure(figure, entry);
   }
   let enhanced = 0;
   for (const figure of root.querySelectorAll<HTMLElement>(
@@ -47,12 +55,7 @@ export function enhanceContentMedia(
       previous.signature === signature
     )
       continue;
-    if (previous) {
-      const ownsContent = previous.player.dom.parentElement === figure;
-      previous.player.destroy();
-      if (ownsContent) figure.replaceChildren(...previous.original);
-      enhancedFigures.delete(figure);
-    }
+    if (previous) releaseFigure(figure, previous);
     const provider = providerFrom(figure);
     const source = figure.querySelector<HTMLAnchorElement>("a.jw-media-source");
     const media = source
@@ -125,12 +128,6 @@ export function stopContentMediaObserver(): void {
   contentObserver?.disconnect();
   contentObserver = null;
   for (const [figure, entry] of enhancedFigures) {
-    const ownsContent = entry.player.dom.parentElement === figure;
-    entry.player.destroy();
-    if (ownsContent) {
-      figure.replaceChildren(...entry.original);
-      resetIntrinsicMediaLayout(figure);
-    }
+    releaseFigure(figure, entry);
   }
-  enhancedFigures.clear();
 }

@@ -88,6 +88,22 @@ export async function apiGet(c: Context, route: string): Promise<Observation> {
   return object(object(result).data);
 }
 
+async function saveLegacy(
+  c: Context,
+  api: string,
+  expected: number,
+): Promise<number> {
+  const [response] = await Promise.all([
+    c.page.waitForResponse(
+      (r) =>
+        new URL(r.url()).pathname === api && r.request().method() === "PUT",
+    ),
+    c.page.getByRole("button", { name: "저장", exact: true }).click(),
+  ]);
+  assert.equal(response.status(), expected);
+  return response.status();
+}
+
 export async function legacyConsent(
   c: Context,
   productId: number,
@@ -100,14 +116,7 @@ export async function legacyConsent(
   const before = (await apiGet(c, api)).description;
   await c.page.getByRole("tab", { name: "English", exact: true }).click();
   await editor(c).fill("English retained until explicit approval");
-  const [rejected] = await Promise.all([
-    c.page.waitForResponse(
-      (r) =>
-        new URL(r.url()).pathname === api && r.request().method() === "PUT",
-    ),
-    c.page.getByRole("button", { name: "저장", exact: true }).click(),
-  ]);
-  assert.equal(rejected.status(), 422);
+  const rejected = await saveLegacy(c, api, 422);
   assert.deepEqual((await apiGet(c, api)).description, before);
   const screenshots = [await shot(c, "legacy-unapproved-save")];
   await c.page.getByRole("tab", { name: "한국어", exact: true }).click();
@@ -116,21 +125,31 @@ export async function legacyConsent(
     .getByRole("button", { name: "위험 확인 후 편집 계속", exact: true })
     .click();
   assert.equal(await editor(c).getAttribute("contenteditable"), "true");
-  const [approved] = await Promise.all([
-    c.page.waitForResponse(
-      (r) =>
-        new URL(r.url()).pathname === api && r.request().method() === "PUT",
+  await saveLegacy(c, api, 422);
+  assert.deepEqual((await apiGet(c, api)).description, before);
+  assert.equal(
+    await c.page.evaluate(() =>
+      window.G7Core?.locale?.supported?.().includes("ja"),
     ),
-    c.page.getByRole("button", { name: "저장", exact: true }).click(),
-  ]);
-  assert.equal(approved.status(), 200);
+    false,
+  );
+  await c.page.getByRole("tab", { name: "日本語", exact: true }).click();
+  assert.equal(await editor(c).getAttribute("contenteditable"), "false");
+  screenshots.push(await shot(c, "legacy-unconfigured-locale"));
+  await c.page
+    .getByRole("button", { name: "위험 확인 후 편집 계속", exact: true })
+    .click();
+  assert.equal(await editor(c).getAttribute("contenteditable"), "true");
+  const approved = await saveLegacy(c, api, 200);
   const after = object((await apiGet(c, api)).description);
   assert.equal(after.ko, `<p>Legacy ${c.runId}</p>`);
   assert.equal(after.en, "<p>English retained until explicit approval</p>");
+  assert.equal(after.ja, `<p>Retired locale ${c.runId}</p>`);
   return {
-    rejectedStatus: rejected.status(),
+    rejectedStatus: rejected,
     preservedBeforeApproval: true,
-    approvedStatus: approved.status(),
+    approvedStatus: approved,
+    unconfiguredLocaleApproved: true,
     screenshots,
   };
 }
