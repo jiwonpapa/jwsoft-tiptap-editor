@@ -31,13 +31,30 @@ export async function openEditor(c: Context, route: string): Promise<void> {
   const started = performance.now();
   await c.page.goto(c.base + route);
   await editor(c).waitFor();
+  await c.page.locator("#g7-transition-overlay").waitFor({ state: "detached" });
   assert.equal(await editor(c).count(), 1);
   c.timings.push(performance.now() - started);
 }
 
 export async function shot(c: Context, name: string): Promise<string> {
   const file = path.join(c.output, `${name}.png`);
-  await c.page.screenshot({ path: file, fullPage: false });
+  await c.page.locator("#g7-transition-overlay").waitFor({ state: "detached" });
+  const candidates = [
+    c.page.getByRole("dialog").filter({ visible: true }),
+    c.page.locator(".jwsoft-tiptap-shell").filter({ visible: true }),
+    c.page.locator(".jwsoft-tiptap-content").filter({ visible: true }),
+  ];
+  for (const target of candidates) {
+    if (await target.count()) {
+      await target.first().screenshot({ path: file, animations: "disabled" });
+      return file;
+    }
+  }
+  await c.page.screenshot({
+    path: file,
+    fullPage: false,
+    animations: "disabled",
+  });
   return file;
 }
 

@@ -34,7 +34,7 @@ export async function createBoardPost(
       name: admin ? "게시글 제목을 입력하세요" : "제목을 입력하세요",
       exact: true,
     })
-    .fill(`JWSoft ${label} ${c.runId}`);
+    .fill(`JWSoft ${label} ${c.runId.slice(0, 8)}`);
 }
 
 export async function saveBoardPost(

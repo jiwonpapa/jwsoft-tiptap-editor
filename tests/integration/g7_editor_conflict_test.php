@@ -28,6 +28,11 @@ try {
     $blocked = ($result['success'] ?? true) === false;
 } catch (ValidationException) {
     $blocked = true;
+} catch (RuntimeException $error) {
+    if (! str_contains($error->getMessage(), '에디터는 하나만 활성화할 수 있습니다.')) {
+        throw $error;
+    }
+    $blocked = true;
 }
 if (! $blocked || $states() !== $before) {
     throw new RuntimeException('Concurrent editor activation was not safely refused.');

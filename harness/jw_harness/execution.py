@@ -53,7 +53,12 @@ class Execution:
                     check=False,
                     text=True,
                 )
-            print(log.read_text(), end="", flush=True)
+            output = log.read_text()
+            if len(output) > 6000:
+                output = (
+                    f"[jwsoft] Full execution log: {log.relative_to(self.root)}\n" + output[-4000:]
+                )
+            print(output, end="", flush=True)
             self.commands.append(
                 {
                     "argv": list(argv),

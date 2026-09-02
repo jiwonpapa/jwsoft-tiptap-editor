@@ -26,7 +26,7 @@ require $g7Root.'/vendor/autoload.php';
 $app = require $g7Root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 if (! $app->environment('local') || DB::connection()->getDatabaseName() !== 'g7_testing'
-    || ! in_array(config('database.connections.mysql.host'), ['127.0.0.1', 'localhost'], true)) {
+    || (array) DB::connection()->getConfig('host') !== ['127.0.0.1']) {
     failContentProbe('Lifecycle requires the disposable local database.');
 }
 

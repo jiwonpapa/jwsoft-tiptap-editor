@@ -38,6 +38,7 @@ export async function mobileAndLocale(c: Context): Promise<Observation> {
   await c.page.waitForFunction(
     () => document.documentElement.getAttribute("data-theme") === "dark",
   );
+  await c.page.locator("#g7-transition-overlay").waitFor({ state: "detached" });
   await editor(c).scrollIntoViewIfNeeded();
   const responsive = await c.page.evaluate(() => {
     const tools = document.querySelector<HTMLElement>("[role=toolbar]");
