@@ -102,27 +102,31 @@ describe("G7 editor lifecycle", () => {
     expect(container.childElementCount).toBe(0);
   });
 
-  it("destroys detached route editors without leaking instances", async () => {
-    startEditorLifecycleCleanup();
+  it.each(Array.from({ length: 10 }, (_, batch) => batch))(
+    "destroys detached route editors without leaking instances (batch %i)",
+    async (batch) => {
+      startEditorLifecycleCleanup();
 
-    for (let route = 0; route < 100; route += 1) {
-      const container = addContainer();
-      await initEditorHandler(
-        {
-          params: {
-            name: "content",
-            content: `<p>화면 ${route + 1}</p>`,
+      for (let route = batch * 10; route < (batch + 1) * 10; route += 1) {
+        const container = addContainer();
+        await initEditorHandler(
+          {
+            params: {
+              name: "content",
+              content: `<p>화면 ${route + 1}</p>`,
+            },
           },
-        },
-        undefined,
-      );
-      expect(editorRegistry.size).toBe(1);
+          undefined,
+        );
+        expect(editorRegistry.size).toBe(1);
 
-      container.remove();
-      await Promise.resolve();
-      expect(editorRegistry.size).toBe(0);
-    }
-  }, 10_000);
+        container.remove();
+        await Promise.resolve();
+        expect(editorRegistry.size).toBe(0);
+      }
+    },
+    10_000,
+  );
 
   it("keeps an editor that is synchronously reparented", async () => {
     startEditorLifecycleCleanup();
