@@ -65,6 +65,8 @@ rm -rf "$stage/vendor"
 # 내려받으므로 공개 저장소에도 자체 실행 가능한 런타임 번들을 동기화한다.
 cp "$stage/vendor-bundle.zip" "$PROJECT_ROOT/vendor-bundle.zip"
 cp "$stage/vendor-bundle.json" "$PROJECT_ROOT/vendor-bundle.json"
+mkdir -p "$PROJECT_ROOT/licenses"
+rsync -a "$stage/licenses/" "$PROJECT_ROOT/licenses/"
 
 find "$stage" -exec touch -t 198001010000 {} +
 (cd "$build_root" && find jwsoft-tiptap-editor -type f -o -type l | LC_ALL=C sort | zip -X -q "$artifact" -@)

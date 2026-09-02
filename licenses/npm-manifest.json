@@ -1,0 +1,548 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "name": "@tiptap/core",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/core/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-blockquote",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-blockquote/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-bold",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-bold/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-bullet-list",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-bullet-list/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-code",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-code/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-code-block",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-code-block/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-document",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-document/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-dropcursor",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-dropcursor/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-gapcursor",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-gapcursor/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-hard-break",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-hard-break/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-heading",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-heading/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-horizontal-rule",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-horizontal-rule/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-image",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-image/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-italic",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-italic/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-link",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-link/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-list",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-list/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-list-item",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-list-item/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-list-keymap",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-list-keymap/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-ordered-list",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-ordered-list/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-paragraph",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-paragraph/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-placeholder",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-placeholder/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-strike",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-strike/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-table",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-table/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-text",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-text/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-text-align",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-text-align/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extension-underline",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extension-underline/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/extensions",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/extensions/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/pm",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/pm/LICENSE",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@tiptap/starter-kit",
+      "version": "3.30.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@tiptap/starter-kit/LICENSE.md",
+          "sha256": "c96e5ecb55ac593157ad1d21d1f44a611187f494a0f04c235a1ae692c88d6ba9"
+        }
+      ]
+    },
+    {
+      "name": "@types/trusted-types",
+      "version": "2.0.7",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/@types/trusted-types/LICENSE",
+          "sha256": "c2cfccb812fe482101a8f04597dfc5a9991a6b2748266c47ac91b6a5aae15383"
+        }
+      ]
+    },
+    {
+      "name": "dompurify",
+      "version": "3.4.14",
+      "license": "(MPL-2.0 OR Apache-2.0)",
+      "files": [
+        {
+          "file": "licenses/npm/dompurify/LICENSE",
+          "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+        },
+        {
+          "file": "licenses/npm/dompurify/LICENSE-MPL",
+          "sha256": "fab3dd6bdab226f1c08630b1dd917e11fcb4ec5e1e020e2c16f83a0a13863e85"
+        }
+      ]
+    },
+    {
+      "name": "linkifyjs",
+      "version": "4.3.3",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/linkifyjs/LICENSE",
+          "sha256": "58e6f3677452cca096ce5328ebf7de37a1406bbeeb2f263c1b2ededc8c7d0228"
+        }
+      ]
+    },
+    {
+      "name": "lucide",
+      "version": "1.37.0",
+      "license": "ISC",
+      "files": [
+        {
+          "file": "licenses/npm/lucide/LICENSE",
+          "sha256": "b495047bd93a9b06913511076f504daba17d5bbeb3e0650f3bb53a4220329c57"
+        }
+      ]
+    },
+    {
+      "name": "orderedmap",
+      "version": "2.1.1",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/orderedmap/LICENSE",
+          "sha256": "869c30f368eb08735e779027b9f4bc9fea2f39624351856aebe42741f0bc0884"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-changeset",
+      "version": "2.4.2",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-changeset/LICENSE",
+          "sha256": "7543dfe82fa61d5bb2478c78cbd9dfb2cbd500b6ac2893b24ed925773b67fb70"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-commands",
+      "version": "1.7.2",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-commands/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-dropcursor",
+      "version": "1.8.3",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-dropcursor/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-gapcursor",
+      "version": "1.4.1",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-gapcursor/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-history",
+      "version": "1.5.0",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-history/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-inputrules",
+      "version": "1.5.1",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-inputrules/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-keymap",
+      "version": "1.2.3",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-keymap/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-model",
+      "version": "1.25.11",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-model/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-schema-list",
+      "version": "1.5.1",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-schema-list/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-state",
+      "version": "1.4.4",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-state/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-tables",
+      "version": "1.8.5",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-tables/LICENSE",
+          "sha256": "d1d2046ebbe6362f9ad8fd4d62e9074f2553f289c0e1de895a650f10ba5f4239"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-transform",
+      "version": "1.12.0",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-transform/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "prosemirror-view",
+      "version": "1.42.3",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/prosemirror-view/LICENSE",
+          "sha256": "ef0b452ced6304db2ce78ca66de1fc7b97bab05bc1750c95df359ed3fe1d65c8"
+        }
+      ]
+    },
+    {
+      "name": "rope-sequence",
+      "version": "1.3.4",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/rope-sequence/LICENSE",
+          "sha256": "530424aebdd0e73f53238d1f89df250057bc8d8ce090cf5954197fadce5bf226"
+        }
+      ]
+    },
+    {
+      "name": "w3c-keyname",
+      "version": "2.2.8",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/w3c-keyname/LICENSE",
+          "sha256": "869c30f368eb08735e779027b9f4bc9fea2f39624351856aebe42741f0bc0884"
+        }
+      ]
+    }
+  ]
+}

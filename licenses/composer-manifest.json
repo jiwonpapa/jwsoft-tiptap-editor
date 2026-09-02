@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "packages": [
+    {
+      "name": "league/uri",
+      "version": "7.8.1",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "league/uri-interfaces",
+      "version": "7.8.1",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "masterminds/html5",
+      "version": "2.11.0",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "psr/http-factory",
+      "version": "1.1.0",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "psr/http-message",
+      "version": "2.0",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "symfony/deprecation-contracts",
+      "version": "v3.7.1",
+      "license": [
+        "MIT"
+      ]
+    },
+    {
+      "name": "symfony/html-sanitizer",
+      "version": "v7.4.14",
+      "license": [
+        "MIT"
+      ]
+    }
+  ]
+}

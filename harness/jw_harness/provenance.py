@@ -7,6 +7,7 @@ from .files import hash_file
 from .process import tracked_inputs
 
 SOURCE_DIRS = (
+    "licenses/",
     "resources/",
     "src/",
     "routes/",
