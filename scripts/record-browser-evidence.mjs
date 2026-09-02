@@ -83,7 +83,7 @@ const instances = numberList("instances");
 if (instances.some((count) => !Number.isInteger(count) || count !== 1)) {
   throw new Error("every observed route must have exactly one editor instance");
 }
-if (args["editor-label"] !== "JWSoft Tiptap editor") {
+if (args["editor-label"] !== "jw-editor") {
   throw new Error("editor accessible label mismatch");
 }
 if (args["toolbar-label"] !== "standard editor tools") {
