@@ -136,11 +136,14 @@ function fixture(run) {
   }
 }
 
-test("current runtime proof passes; same-version stale bundle and missing provenance fail", () =>
+test("runtime proof alone is insufficient; stale bundle and missing provenance fail", () =>
   fixture(({ context, write, browser }) => {
     const file = "test-results/parity/browser/editor-ime.json";
     write(file, browser);
-    assert.equal(validateStableArtifact(context, file).status, "pass");
+    assert.throws(
+      () => validateStableArtifact(context, file),
+      /execution|browser-ui/i,
+    );
     write(file, { ...browser, runtimeSha256: "c".repeat(64) });
     assert.throws(
       () => validateStableArtifact(context, file),
@@ -192,7 +195,10 @@ test("G7 surface proof requires the current package, not only a matching JS bund
       screenshots,
       pluginPackageSha256: context.artifactSha256,
     });
-    validateStableArtifact(context, file);
+    assert.throws(
+      () => validateStableArtifact(context, file),
+      /execution|browser-|integration/i,
+    );
     assert.throws(
       () => validateStableArtifact({ ...context, artifactSha256: null }, file),
       /current reproducible package/,
@@ -278,7 +284,10 @@ test("current mobile G7 proof needs actual layout measurements and screenshots",
       ],
     };
     write(file, proof);
-    validateStableArtifact(context, file);
+    assert.throws(
+      () => validateStableArtifact(context, file),
+      /execution|browser-|integration/i,
+    );
     write(file, {
       ...proof,
       responsive: { ...responsive, toolbarScrollWidth: 800 },
@@ -289,37 +298,15 @@ test("current mobile G7 proof needs actual layout measurements and screenshots",
     );
   }));
 
-test("check stamps bind both source inputs and result content", () =>
-  fixture(({ root, write, read, context }) => {
-    execFileSync("git", ["init", "--quiet", root]);
-    write("src/fixture.php", "original");
-    const unit = "test-results/parity/unit.json";
-    const corpus = "test-results/parity/corpus.json";
-    write(unit, { success: true, numTotalTests: 1, numPassedTests: 1 });
-    write(corpus, { status: "pass" });
-    recordCheckEvidence(root);
-    context.fingerprint = sourceFingerprint(root);
-    validateStableArtifact(context, unit);
-    validateStableArtifact(context, corpus);
-    write("docs/acceptance.md", "documentation only");
-    assert.equal(sourceFingerprint(root), context.fingerprint);
-    write("src/fixture.php", "changed");
-    assert.notEqual(sourceFingerprint(root), context.fingerprint);
-    assert.throws(
-      () =>
-        validateStableArtifact(
-          { ...context, fingerprint: sourceFingerprint(root) },
-          unit,
-        ),
-      /stale source inputs/,
-    );
-    write(unit, { ...read(unit), numTotalTests: 2, numPassedTests: 2 });
-    assert.throws(
-      () => validateStableArtifact(context, unit),
-      /digest mismatch/,
-    );
-    write(unit, { success: false, numTotalTests: 2, numPassedTests: 1 });
-    assert.throws(() => recordCheckEvidence(root), /unit checks did not pass/);
+test("standalone check recorder cannot restamp existing passing results", () =>
+  fixture(({ root, write }) => {
+    write("test-results/parity/unit.json", {
+      success: true,
+      numTotalTests: 1,
+      numPassedTests: 1,
+    });
+    write("test-results/parity/corpus.json", { status: "pass" });
+    assert.throws(() => recordCheckEvidence(root), /Retired/);
   }));
 
 test("untracked inputs, deleted tracked code and packaged text change the fingerprint", () =>
@@ -353,7 +340,10 @@ test("all declared unique current G7 checks are required", () =>
       checks,
     };
     write(file, proof);
-    validateStableArtifact(context, file);
+    assert.throws(
+      () => validateStableArtifact(context, file),
+      /execution|browser-|integration/i,
+    );
     write(file, { ...proof, checks: Array(6).fill(checks[0]) });
     assert.throws(
       () => validateStableArtifact(context, file),

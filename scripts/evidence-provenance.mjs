@@ -29,36 +29,9 @@ export function sourceFingerprint(root) {
   ).trim();
 }
 
-export function recordCheckEvidence(root) {
-  const artifacts = [
-    "test-results/parity/unit.json",
-    "test-results/parity/corpus.json",
-  ];
-  const unit = JSON.parse(
-    fs.readFileSync(path.join(root, artifacts[0]), "utf8"),
-  );
-  if (
-    unit.success !== true ||
-    unit.numTotalTests < 1 ||
-    unit.numPassedTests !== unit.numTotalTests
-  )
-    throw new Error("unit checks did not pass");
-  const corpus = JSON.parse(
-    fs.readFileSync(path.join(root, artifacts[1]), "utf8"),
-  );
-  if (corpus.status !== "pass") throw new Error("corpus checks did not pass");
-  const result = {
-    schemaVersion: 1,
-    status: "pass",
-    sourceFingerprint: sourceFingerprint(root),
-    observedAt: new Date().toISOString(),
-    artifacts: Object.fromEntries(
-      artifacts.map((file) => [file, hashFile(path.join(root, file))]),
-    ),
-  };
-  fs.writeFileSync(
-    path.join(root, "test-results/parity/checks.json"),
-    `${JSON.stringify(result, null, 2)}\n`,
+export function recordCheckEvidence() {
+  throw new Error(
+    "Retired: check evidence requires make check execution; no restamping.",
   );
 }
 
@@ -66,6 +39,5 @@ if (
   process.argv[1] === import.meta.filename &&
   process.argv[2] === "record-checks"
 ) {
-  recordCheckEvidence(path.resolve(import.meta.dirname, ".."));
-  console.log("[jwsoft] check evidence bound to current source inputs");
+  recordCheckEvidence();
 }

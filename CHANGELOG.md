@@ -1,5 +1,11 @@
 # Changelog
 
+## Audit execution safety (unreleased)
+
+- Python owns check/integration/browser execution receipts; stale result restamping and unexecuted browser evidence are rejected by release consumers.
+- Required browser case/project coverage and allowed skips are explicit; execution logs, result hashes, run identity and source freshness are verified.
+- All lifecycle and direct install test entrypoints require a registered clean dedicated G7 checkout before mutation.
+
 모든 주요 변경은 이 파일에 기록합니다. 형식은 Keep a Changelog와 Semantic Versioning을 따릅니다.
 
 ## [Unreleased]

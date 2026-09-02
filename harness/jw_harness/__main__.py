@@ -11,8 +11,10 @@ from .evidence import record_observation
 from .files import ROOT
 from .governance import check
 from .host import validate_host
+from .integration import run_integration
 from .provenance import source_fingerprint
 from .quality import audit_dependencies, check_all
+from .receipt import validate_artifact_execution
 from .release import publish_stable
 
 
@@ -25,6 +27,12 @@ def arguments() -> argparse.Namespace:
     fingerprint.add_argument("--root", type=Path, default=ROOT)
     host = sub.add_parser("host-check")
     host.add_argument("--root", type=Path, required=True)
+    integration = sub.add_parser("integration")
+    integration.add_argument("--host", type=Path, required=True)
+    receipt = sub.add_parser("validate-execution")
+    receipt.add_argument("--root", type=Path, required=True)
+    receipt.add_argument("--artifact", required=True)
+    receipt.add_argument("--fingerprint", required=True)
     observation = sub.add_parser("record-observation")
     observation.add_argument("input")
     cleanup = sub.add_parser(
@@ -59,6 +67,10 @@ def main() -> int:
             print(record_observation(ROOT, args.input))
         elif args.command == "host-check":
             validate_host(ROOT, args.root)
+        elif args.command == "integration":
+            run_integration(ROOT, args.host)
+        elif args.command == "validate-execution":
+            validate_artifact_execution(args.root, args.artifact, args.fingerprint)
     except (ValueError, OSError, subprocess.SubprocessError) as error:
         print(f"[jwsoft] BLOCKED: {error}", file=sys.stderr)
         return 1

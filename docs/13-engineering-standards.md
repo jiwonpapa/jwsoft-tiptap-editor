@@ -39,6 +39,8 @@ make clean-apply        # 허용 캐시만 삭제; 패키지/증거/G7 보존
 
 CI는 check/build/audit/browser를 필수로 실행합니다. 분리한 UI suite를 모두 실행할 때 예전 `editor-ui.spec.ts` 하나만 지정하지 않습니다. `test-results/harness/browser-ui.json`은 실행 범위·성공/건너뜀 수·소스/번들/결과 해시를 보관합니다. 실패 시작 시 이전 성공 기록을 재사용하지 않습니다.
 
+check/integration/browser의 성공 기록은 Python 실행기가 소유합니다. 명령 종료 코드·로그 해시·실행 중 소스 불변·실행 이후 생성된 결과를 묶으며, 단독 check/integration pass 기록기는 폐기했습니다. 출시 소비자도 실행 영수증을 확인합니다. 브라우저는 `harness/contracts/browser-execution.json`의 이름·프로젝트별 필수 케이스와 허용 skip을 대조하고 24시간 내 실행만 인정합니다. 실제 G7 화면 관측의 추적 실행기가 없는 항목은 옛 JSON으로 통과시키지 않고 계속 미검증으로 남깁니다.
+
 ## 관측과 출시
 
 GitHub `main` 보호의 선언은 `harness/governance/main-protection.json`입니다. PR 경로, GitHub Actions의 `validate` 필수 통과, 최신 기준 브랜치, 대화 해결, 관리자 포함 보호, 강제 푸시/삭제 금지를 요구합니다. 필수 승인 리뷰 수는 현재 0이며 이를 2인 리뷰 강제로 표현하지 않습니다. 보호 설정은 서버에 별도로 적용·재조회해야 하며 파일 존재만으로 적용 완료라고 하지 않습니다.

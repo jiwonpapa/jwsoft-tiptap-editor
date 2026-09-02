@@ -5,10 +5,10 @@ import sys
 from pathlib import Path
 
 from .dependencies import audit_python
+from .execution import Execution
 from .files import read_object
 from .governance import check
 from .process import run, tracked_inputs
-from .provenance import source_fingerprint
 from .security import check_secrets
 
 LEGACY_TESTS = (
@@ -38,28 +38,34 @@ def validate_ci_tag(root: Path) -> None:
 
 
 def check_all(root: Path) -> None:
-    fingerprint = source_fingerprint(root)
+    execution = Execution(root, "test-results/parity/checks.json", "checks")
+    try:
+        execute_checks(root, execution)
+        execution.finish(["test-results/parity/unit.json", "test-results/parity/corpus.json"])
+    except BaseException:
+        execution.fail()
+        raise
+
+
+def execute_checks(root: Path, execution: Execution) -> None:
     validate_ci_tag(root)
     check(root)
     check_secrets(root)
-    run([sys.executable, "-m", "ruff", "check", "harness"], root)
-    run([sys.executable, "-m", "ruff", "format", "--check", "harness"], root)
-    run([sys.executable, "-m", "mypy"], root)
-    run([sys.executable, "-m", "unittest", "discover", "-s", "harness/tests", "-v"], root)
-    run(["npm", "run", "check"], root)
+    execution.run([sys.executable, "-m", "ruff", "check", "harness"])
+    execution.run([sys.executable, "-m", "ruff", "format", "--check", "harness"])
+    execution.run([sys.executable, "-m", "mypy"])
+    execution.run([sys.executable, "-m", "unittest", "discover", "-s", "harness/tests", "-v"])
+    execution.run(["npm", "run", "check"])
     for name in LEGACY_TESTS:
-        run(["node", f"scripts/{name}.mjs"], root)
-    run(["composer", "validate", "--strict", "--no-check-publish"], root)
-    run(["vendor/bin/phpstan", "analyse", "--no-progress"], root)
+        execution.run(["node", f"scripts/{name}.mjs"])
+    execution.run(["composer", "validate", "--strict", "--no-check-publish"])
+    execution.run(["vendor/bin/phpstan", "analyse", "--no-progress"])
     for name in PHP_TESTS:
-        run(["php", f"tests/php/{name}.php"], root)
+        execution.run(["php", f"tests/php/{name}.php"])
     for relative in tracked_inputs(root):
         if relative.endswith(".php"):
-            run(["php", "-l", relative], root)
-    run(["bash", "scripts/check-shell.sh"], root)
-    if fingerprint != source_fingerprint(root):
-        raise ValueError("Source changed during checks; rerun before recording pass evidence")
-    run(["node", "scripts/evidence-provenance.mjs", "record-checks"], root)
+            execution.run(["php", "-l", relative])
+    execution.run(["bash", "scripts/check-shell.sh"])
 
 
 def audit_dependencies(root: Path) -> None:

@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { execFileSync } from "node:child_process";
 import { evidenceFile, hashFile } from "./evidence-provenance.mjs";
 import { validateProductionVersion } from "./release-phases.mjs";
 
@@ -324,5 +325,29 @@ export function validateStableArtifact(context, relative) {
       );
     }
   } else throw new Error(`no freshness validator for ${relative}`);
+  if (
+    [
+      "test-results/parity/unit.json",
+      "test-results/parity/corpus.json",
+      "test-results/parity/integration.json",
+    ].includes(relative) ||
+    relative.startsWith("test-results/parity/browser/")
+  ) {
+    execFileSync(
+      process.env.HARNESS_PYTHON ?? "python3",
+      [
+        "-m",
+        "harness.jw_harness",
+        "validate-execution",
+        "--root",
+        root,
+        "--artifact",
+        relative,
+        "--fingerprint",
+        fingerprint,
+      ],
+      { cwd: path.resolve(import.meta.dirname, ".."), encoding: "utf8" },
+    );
+  }
   return data;
 }

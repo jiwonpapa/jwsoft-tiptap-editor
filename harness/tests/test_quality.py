@@ -1,21 +1,19 @@
+import tempfile
 import unittest
+from pathlib import Path
 from unittest.mock import patch
 
-from harness.jw_harness.files import ROOT
 from harness.jw_harness.quality import check_all
 
 
 class QualityTests(unittest.TestCase):
-    def test_source_change_during_checks_cannot_be_stamped_as_pass(self) -> None:
+    def test_failed_check_cannot_finish_receipt(self) -> None:
         with (
-            patch("harness.jw_harness.quality.check"),
-            patch("harness.jw_harness.quality.check_secrets"),
-            patch("harness.jw_harness.quality.tracked_inputs", return_value=[]),
-            patch("harness.jw_harness.quality.source_fingerprint", side_effect=["before", "after"]),
-            patch("harness.jw_harness.quality.run") as commands,
+            tempfile.TemporaryDirectory() as directory,
+            patch("harness.jw_harness.quality.Execution") as owner,
+            patch("harness.jw_harness.quality.execute_checks", side_effect=ValueError("failed")),
         ):
-            with self.assertRaisesRegex(ValueError, "Source changed during checks"):
-                check_all(ROOT)
-            self.assertFalse(
-                any("record-checks" in call.args[0] for call in commands.call_args_list)
-            )
+            with self.assertRaises(ValueError):
+                check_all(Path(directory))
+            owner.return_value.finish.assert_not_called()
+            owner.return_value.fail.assert_called_once()

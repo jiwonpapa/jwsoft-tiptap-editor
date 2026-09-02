@@ -30,6 +30,8 @@ try {
         throw new RuntimeException('예상 플러그인 버전이 필요합니다.');
     }
 
+    require_once __DIR__.'/require_dedicated_host.php';
+    requireDedicatedEditorHost($g7Root);
     require $g7Root.'/vendor/autoload.php';
     $app = require $g7Root.'/bootstrap/app.php';
     $app->make(Kernel::class)->bootstrap();

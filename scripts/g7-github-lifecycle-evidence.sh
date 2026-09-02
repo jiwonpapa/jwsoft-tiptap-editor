@@ -8,6 +8,7 @@ require_command jq
 
 [ "$#" -eq 5 ] || fail "사용법: $0 G7_ROOT PREVIOUS_ZIP PAGE_ID POST_ID PRODUCT_ID"
 g7_root="$(cd "$1" && pwd)"
+(cd "$PROJECT_ROOT" && "${HARNESS_PYTHON:-python3}" -m harness.jw_harness host-check --root "$g7_root")
 previous_artifact="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 page_id="$3"
 post_id="$4"

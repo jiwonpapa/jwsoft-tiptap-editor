@@ -5,6 +5,7 @@ source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
 [ "$#" -eq 6 ] || fail "사용법: $0 G7_ROOT PREVIOUS_ZIP CURRENT_ZIP PAGE_ID POST_ID PRODUCT_ID"
 g7_root="$(cd "$1" && pwd)"
+(cd "$PROJECT_ROOT" && "${HARNESS_PYTHON:-python3}" -m harness.jw_harness host-check --root "$g7_root")
 previous_artifact="$(cd "$(dirname "$2")" && pwd)/$(basename "$2")"
 current_artifact="$(cd "$(dirname "$3")" && pwd)/$(basename "$3")"
 page_id="$4"

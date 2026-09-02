@@ -35,7 +35,10 @@ export function recordBrowserEvidence(
     `${JSON.stringify(
       {
         schemaVersion: 1,
-        status: "pass",
+        status: process.env.JW_EXECUTION_RUN_ID ? "pass" : "unverified",
+        executionRunId: process.env.JW_EXECUTION_RUN_ID,
+        sourceFingerprint: process.env.JW_EXECUTION_FINGERPRINT,
+        execution: "test-results/harness/browser-ui.json",
         observedAt: new Date().toISOString(),
         browser,
         pluginVersion: manifest.version,
