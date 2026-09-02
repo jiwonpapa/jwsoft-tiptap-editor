@@ -7,9 +7,13 @@ import {
 } from "@/editor/mediaPlayer";
 export type { ExternalMediaLoadMode } from "@/editor/mediaPlayer";
 
-const enhancedFigures = new WeakMap<
+const enhancedFigures = new Map<
   HTMLElement,
-  ReturnType<typeof createMediaPlayer>
+  {
+    player: ReturnType<typeof createMediaPlayer>;
+    original: Node[];
+    signature: string;
+  }
 >();
 
 function providerFrom(figure: HTMLElement): MediaProvider | null {
@@ -23,14 +27,32 @@ export function enhanceContentMedia(
   options: MediaPlaybackOptions & { root?: ParentNode } = {},
 ): number {
   const root = options.root ?? document;
+  const signature = JSON.stringify([
+    options.loadMode ?? "immediate",
+    options.autoplay ?? false,
+  ]);
+  for (const [figure, entry] of enhancedFigures) {
+    if (figure.isConnected) continue;
+    entry.player.destroy();
+    enhancedFigures.delete(figure);
+  }
   let enhanced = 0;
   for (const figure of root.querySelectorAll<HTMLElement>(
     ".jwsoft-tiptap-content figure.jw-media",
   )) {
     if (figure.closest(".jwsoft-tiptap-editable")) continue;
     const previous = enhancedFigures.get(figure);
-    if (previous?.dom.parentElement === figure) continue;
-    previous?.destroy();
+    if (
+      previous?.player.dom.parentElement === figure &&
+      previous.signature === signature
+    )
+      continue;
+    if (previous) {
+      const ownsContent = previous.player.dom.parentElement === figure;
+      previous.player.destroy();
+      if (ownsContent) figure.replaceChildren(...previous.original);
+      enhancedFigures.delete(figure);
+    }
     const provider = providerFrom(figure);
     const source = figure.querySelector<HTMLAnchorElement>("a.jw-media-source");
     const media = source
@@ -43,7 +65,11 @@ export function enhanceContentMedia(
       options,
       (size) => applyIntrinsicMediaLayout(figure, size),
     );
-    enhancedFigures.set(figure, player);
+    enhancedFigures.set(figure, {
+      player,
+      signature,
+      original: [...figure.childNodes].map((node) => node.cloneNode(true)),
+    });
     figure.replaceChildren(player.dom);
     enhanced += 1;
   }
@@ -98,4 +124,13 @@ export function startContentMediaObserver(
 export function stopContentMediaObserver(): void {
   contentObserver?.disconnect();
   contentObserver = null;
+  for (const [figure, entry] of enhancedFigures) {
+    const ownsContent = entry.player.dom.parentElement === figure;
+    entry.player.destroy();
+    if (ownsContent) {
+      figure.replaceChildren(...entry.original);
+      resetIntrinsicMediaLayout(figure);
+    }
+  }
+  enhancedFigures.clear();
 }

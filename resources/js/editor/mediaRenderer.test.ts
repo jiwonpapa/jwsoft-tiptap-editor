@@ -102,4 +102,23 @@ describe("content media renderer", () => {
     expect(enhanceContentMedia()).toBe(0);
     expect(document.querySelector(".jw-media-source")).not.toBeNull();
   });
+
+  it("reapplies loading and autoplay changes on the same figure", () => {
+    document.body.innerHTML =
+      '<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-youtube"><a class="jw-media-source" href="https://youtu.be/dQw4w9WgXcQ">video</a></figure></div>';
+    enhanceContentMedia({ autoplay: true });
+    expect(document.querySelector("iframe")?.src).toContain("autoplay=1");
+    enhanceContentMedia({ loadMode: "click", autoplay: false });
+    expect(document.querySelector("iframe")).toBeNull();
+    document.querySelector<HTMLButtonElement>(".jw-media-load")!.click();
+    expect(document.querySelector("iframe")?.src).toContain("autoplay=0");
+    enhanceContentMedia({ loadMode: "immediate", autoplay: false });
+    expect(document.querySelectorAll("iframe")).toHaveLength(1);
+    expect(
+      enhanceContentMedia({ loadMode: "immediate", autoplay: false }),
+    ).toBe(0);
+    stopContentMediaObserver();
+    expect(document.querySelector("iframe")).toBeNull();
+    expect(document.querySelector("a.jw-media-source")).not.toBeNull();
+  });
 });

@@ -36,6 +36,8 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
 
     protected array $storageServices = [ImageServeService::class, ImageCleanupService::class];
 
+    protected array $cacheServices = [ImageCleanupService::class];
+
     protected array $storageCategoryServices = [
         ImageUploadService::class => 'images',
         MediaUploadService::class => 'media',

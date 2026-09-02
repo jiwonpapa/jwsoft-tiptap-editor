@@ -56,6 +56,6 @@ class PruneUnusedImagesCommand extends Command
             ));
         }
 
-        return self::SUCCESS;
+        return $result['failed'] > 0 ? self::FAILURE : self::SUCCESS;
     }
 }

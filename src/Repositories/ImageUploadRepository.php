@@ -45,11 +45,12 @@ class ImageUploadRepository implements ImageUploadRepositoryInterface
         return (bool) $upload->delete();
     }
 
-    public function findOlderThan(Carbon $threshold, int $limit): Collection
+    public function findOlderThan(Carbon $threshold, int $limit, int $afterId = 0): Collection
     {
         return $this->model->newQuery()
             ->where('created_at', '<', $threshold)
-            ->orderBy('created_at')->orderBy('id')
+            ->where('id', '>', $afterId)
+            ->orderBy('id')
             ->limit($limit)->get(self::COLUMNS);
     }
 

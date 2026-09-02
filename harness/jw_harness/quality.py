@@ -26,6 +26,7 @@ PHP_TESTS = (
     "plugin_double_load_test",
     "editor_sanitizer_test",
     "parity_corpus_test",
+    "upload_settings_test",
 )
 
 

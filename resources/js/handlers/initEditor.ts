@@ -28,14 +28,16 @@ import {
   normalizeToolbarProfile,
   type ToolbarProfile,
 } from "@/editor/toolbar";
-import {
-  ensureHtmlMode,
-  setEditorPolicyAcknowledgement,
-  syncEditorValue,
-} from "@/editor/stateSync";
+import { ensureHtmlMode, syncEditorValue } from "@/editor/stateSync";
 import type { G7Action, InitEditorParams } from "@/g7/types";
 import type { Editor } from "@tiptap/core";
-import { analyzeLegacyHtml, sanitizeClientHtml } from "@/policy/runtimePolicy";
+import { sanitizeClientHtml } from "@/policy/runtimePolicy";
+
+import {
+  createPolicyConsent,
+  type PolicyConsent,
+} from "@/editor/policyConsent";
+import { configureLegacyEditing } from "@/editor/legacyWarning";
 
 const LOCALE_LABELS: Record<string, string> = {
   ko: "한국어",
@@ -105,56 +107,6 @@ function showPasteLoss(status: HTMLElement, locale: string): void {
   );
 }
 
-function renderLegacyWarning(options: {
-  shell: HTMLElement;
-  mount: HTMLElement;
-  onContinue: () => void;
-  locale: string;
-}): void {
-  const warning = document.createElement("div");
-  warning.className = "jwsoft-tiptap-legacy-warning";
-  warning.setAttribute("role", "alert");
-
-  const message = document.createElement("div");
-  message.textContent = editorText(
-    options.locale,
-    "이 글에 inline style·전용 class·지원하지 않는 HTML 서식이 있습니다. 설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다. 이 글을 jw-editor에서 수정 후 저장할 때 서식이 달라질 수 있으며 자동 변환되지 않습니다. 확인 전에는 편집·저장이 차단됩니다. 원문을 유지하려면 읽기 전용을 선택하십시오. 문제가 있으면 저장하지 말고 jw-editor를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.",
-  );
-  warning.appendChild(message);
-
-  const actions = document.createElement("div");
-  actions.className = "jwsoft-tiptap-legacy-actions";
-
-  const continueButton = document.createElement("button");
-  continueButton.type = "button";
-  continueButton.className = "jwsoft-tiptap-legacy-action";
-  continueButton.dataset.primary = "true";
-  continueButton.textContent = editorText(
-    options.locale,
-    "위험 확인 후 편집 계속",
-  );
-  continueButton.addEventListener("click", () => {
-    options.onContinue();
-    warning.remove();
-  });
-
-  const keepReadOnlyButton = document.createElement("button");
-  keepReadOnlyButton.type = "button";
-  keepReadOnlyButton.className = "jwsoft-tiptap-legacy-action";
-  keepReadOnlyButton.textContent = editorText(options.locale, "읽기 전용 유지");
-  keepReadOnlyButton.addEventListener("click", () => {
-    keepReadOnlyButton.disabled = true;
-    message.textContent = editorText(
-      options.locale,
-      "읽기 전용으로 유지했습니다. 변경을 승인하기 전에는 저장이 차단됩니다.",
-    );
-  });
-
-  actions.append(continueButton, keepReadOnlyButton);
-  warning.appendChild(actions);
-  options.shell.insertBefore(warning, options.mount);
-}
-
 function mountLocaleEditor(options: {
   containerId: string;
   mount: HTMLElement;
@@ -179,6 +131,7 @@ function mountLocaleEditor(options: {
   autoSmartCards: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
+  consent: PolicyConsent;
 }): void {
   if (editorRegistry.has(options.containerId, options.locale)) return;
   const core = window.G7Core;
@@ -205,6 +158,7 @@ function mountLocaleEditor(options: {
     mediaPlayback: options.mediaPlayback,
     socialEmbeds: options.socialEmbeds,
     onUpdate: (value) => {
+      if (!editor.isEditable) return;
       syncEditorValue({
         core: window.G7Core,
         name: options.name,
@@ -267,36 +221,7 @@ function mountLocaleEditor(options: {
   options.mount.insertBefore(toolbar, editorMount);
 
   ensureHtmlMode(core, options.name);
-  const analysis = analyzeLegacyHtml(options.content, editor.getHTML());
-  if (!analysis.hasLoss) {
-    setEditorPolicyAcknowledgement(core, true);
-    editor.setEditable(true);
-    return;
-  }
-
-  setEditorPolicyAcknowledgement(core, false);
-  document
-    .getElementById(options.containerId)
-    ?.setAttribute("aria-readonly", "true");
-  renderLegacyWarning({
-    shell: options.mount,
-    mount: toolbar,
-    locale: options.locale,
-    onContinue: () => {
-      setEditorPolicyAcknowledgement(window.G7Core, true);
-      syncEditorValue({
-        core: window.G7Core,
-        name: options.name,
-        locale: options.locale,
-        value: analysis.canonicalEditorHtml,
-        multilingual: options.multilingual,
-      });
-      editor.setEditable(true);
-      document
-        .getElementById(options.containerId)
-        ?.setAttribute("aria-readonly", "false");
-    },
-  });
+  configureLegacyEditing({ ...options, editor, toolbar });
 }
 
 function mountMultilingualEditors(options: {
@@ -321,6 +246,7 @@ function mountMultilingualEditors(options: {
   autoSmartCards: boolean;
   imageMaxSizeMb: number;
   status: HTMLElement;
+  consent: PolicyConsent;
 }): void {
   const core = window.G7Core;
   const locales = supportedLocales(core);
@@ -359,6 +285,7 @@ function mountMultilingualEditors(options: {
       autoSmartCards: options.autoSmartCards,
       imageMaxSizeMb: options.imageMaxSizeMb,
       status: options.status,
+      consent: options.consent,
     });
   };
 
@@ -381,7 +308,7 @@ function mountMultilingualEditors(options: {
         options.containerId,
         activeLocale,
       );
-      if (previousEditor) {
+      if (previousEditor?.isEditable) {
         const value = sanitizeClientHtml(previousEditor.getHTML());
         contentByLocale.set(activeLocale, value);
         syncEditorValue({
@@ -391,8 +318,8 @@ function mountMultilingualEditors(options: {
           value,
           multilingual: true,
         });
-        editorRegistry.destroyLocale(options.containerId, activeLocale);
       }
+      editorRegistry.destroyLocale(options.containerId, activeLocale);
       for (const tab of tabs.querySelectorAll<HTMLButtonElement>("button")) {
         tab.setAttribute("aria-selected", String(tab === button));
       }
@@ -467,12 +394,18 @@ export async function initEditorHandler(
   container.setAttribute("aria-disabled", String(disabled));
   container.setAttribute("aria-readonly", String(!editable));
 
-  if (booleanParam(params.multilingual)) {
+  const multilingual = booleanParam(params.multilingual);
+  const content = multilingual
+    ? resolveMultilingualContent(params, window.G7Core)
+    : { [locale]: resolveSingleContent(params, window.G7Core) };
+  const consent = createPolicyConsent(window.G7Core, container, content);
+
+  if (multilingual) {
     mountMultilingualEditors({
       shell,
       containerId,
       name,
-      content: resolveMultilingualContent(params, window.G7Core),
+      content,
       placeholder: params.placeholder ?? "",
       editable,
       toolbar,
@@ -490,6 +423,7 @@ export async function initEditorHandler(
       autoSmartCards,
       imageMaxSizeMb,
       status,
+      consent,
     });
     return;
   }
@@ -501,7 +435,7 @@ export async function initEditorHandler(
     mount,
     name,
     locale,
-    content: resolveSingleContent(params, window.G7Core),
+    content: content[locale] ?? "",
     placeholder: params.placeholder ?? "",
     editable,
     multilingual: false,
@@ -520,5 +454,6 @@ export async function initEditorHandler(
     autoSmartCards,
     imageMaxSizeMb,
     status,
+    consent,
   });
 }
