@@ -33,13 +33,19 @@ make bootstrap          # venv + 고정 Python 도구 + npm/composer
 make check              # Python이 전체 오프라인 검사 조합
 make audit              # npm/composer/Python 취약점; 네트워크/오류 시 실패
 make browser-check      # UI 5개 + 결정적 SNS suite, 독립 headless
+make g7-browser-check G7_ROOT=/dedicated/checkout G7_BASE_URL=http://127.0.0.1:8765
+# 실제 G7 관리자/공개 화면 저장·재조회; 전용 local g7_testing DB만 허용
 make clean              # 캐시 정리 계획만
 make clean-apply        # 허용 캐시만 삭제; 패키지/증거/G7 보존
 ```
 
 CI는 check/build/audit/browser를 필수로 실행합니다. 분리한 UI suite를 모두 실행할 때 예전 `editor-ui.spec.ts` 하나만 지정하지 않습니다. `test-results/harness/browser-ui.json`은 실행 범위·성공/건너뜀 수·소스/번들/결과 해시를 보관합니다. 실패 시작 시 이전 성공 기록을 재사용하지 않습니다.
 
-check/integration/browser의 성공 기록은 Python 실행기가 소유합니다. 명령 종료 코드·로그 해시·실행 중 소스 불변·실행 이후 생성된 결과를 묶으며, 단독 check/integration pass 기록기는 폐기했습니다. 출시 소비자도 실행 영수증을 확인합니다. 브라우저는 `harness/contracts/browser-execution.json`의 이름·프로젝트별 필수 케이스와 허용 skip을 대조하고 24시간 내 실행만 인정합니다. 실제 G7 화면 관측의 추적 실행기가 없는 항목은 옛 JSON으로 통과시키지 않고 계속 미검증으로 남깁니다.
+check/integration/browser/lifecycle의 성공 기록은 Python 실행기가 소유합니다. 명령 종료 코드·로그 해시·실행 중 소스 불변·실행 이후 생성된 결과를 묶으며, 단독 pass 기록기는 폐기했습니다. 출시 소비자도 실행 기록을 확인합니다. 브라우저는 `harness/contracts/browser-execution.json`의 이름·프로젝트별 필수 케이스와 허용 skip을 대조하고 24시간 내 실행만 인정합니다.
+
+실제 G7 검사는 `g7_browser.py`가 독립 Chrome headless의 `tests/g7-browser/`를 실행합니다. 공개/관리자 게시판, 페이지, 상품, 잘못된 이미지 재시도, MP4 실제 재생/Range/모바일 종횡비, URL 저장·재조회, 제목 Enter, 다국어/다크/반응형, 직접 HTML fallback 및 언어별 legacy 승인 등 11개 필수 케이스를 `g7-browser-execution.json`과 대조합니다. 빈 본문 18개 HTTP 거부와 이미지 OFF 실제 HTTP 거부도 필수입니다. 전용 계정을 만들고 성공·실패 모두 관리자 권한·토큰을 회수하며 계정 파일의 비밀번호를 제거합니다. 이 검사는 운영 서버 검증이 아니며, 공개 SNS 제공자의 네트워크 실패를 mock 성공으로 대체하지 않습니다.
+
+ZIP/GitHub lifecycle Shell은 Python `lifecycle` 명령만 연결합니다. 현재 ZIP 전체 해시·활성 상태와 전용 local DB를 확인한 뒤 실제 설치·업데이트·에디터 전환·데이터 보존 uninstall을 수행합니다. 실패하면 원래 ZIP 파일과 활성 상태를 복구하고 본문 해시를 재확인합니다. 복구 실패는 critical이며 성공 증거가 생성되지 않습니다. `test-results/harness/lifecycle.json` 및 `github-lifecycle.json`은 실제 명령 로그와 스냅샷 해시에 연결됩니다.
 
 배포 Shell은 설정·계획과 Python 트랜잭션 연결만 담당합니다. Python 직접 실행도 `--apply`·production 확인값·동일 staging SHA·배포 gate를 다시 요구합니다. update 전 `.build/jwsoft-tiptap-editor-이전버전.zip` 전체 파일 해시가 현재 설치와 일치해야 합니다. 적용·활성 상태·파일·HTTP 검사 중 실패하면 그 ZIP과 이전 활성 상태로 복구하고 HTTP를 재검사합니다. 복구 실패는 별도 critical 오류이고 배포 pass를 기록하지 않습니다. DB 덤프는 하지 않습니다.
 
@@ -56,7 +62,7 @@ GitHub `main` 보호의 선언은 `harness/governance/main-protection.json`입�
 
 ## 아직 남는 작업
 
-기존 Node 검증기 실제 이전, toolbar/writingTools 등 대형 책임 분리, G7 실제 화면/저장 관측의 추적되는 실행기 이전, 호스트 의존 PHP 정적 분석은 단계적으로 남습니다. 만료되는 기술 부채를 정상 통과 수치로 감추지 않습니다.
+기존 Node 검증기의 나머지 이전, toolbar/writingTools 등 대형 책임 분리, 호스트 의존 PHP 정적 분석은 단계적으로 남습니다. 만료되는 기술 부채를 정상 통과 수치로 감추지 않습니다. 실행기 구현과 해당 버전의 검사 통과·배포는 별도로 판정합니다.
 
 ## 도구 근거
 

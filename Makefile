@@ -27,6 +27,10 @@ audit:
 browser-check:
 	$(HARNESS) browser
 
+.PHONY: g7-browser-check
+g7-browser-check:
+	$(HARNESS) g7-browser --host "$(G7_ROOT)" --base "$(G7_BASE_URL)"
+
 build:
 	npm run build
 

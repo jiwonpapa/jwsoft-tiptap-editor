@@ -32,14 +32,20 @@ class Execution:
         }
         write_object(self.receipt, self.data)
 
-    def run(self, argv: Sequence[str], *, environment: Mapping[str, str] | None = None) -> None:
+    def run(
+        self,
+        argv: Sequence[str],
+        *,
+        environment: Mapping[str, str] | None = None,
+        cwd: Path | None = None,
+    ) -> Path:
         log = self.directory / f"{len(self.commands):03d}.log"
         started = time.monotonic_ns()
         try:
             with log.open("w") as stream:
                 result = subprocess.run(  # noqa: S603 -- fixed runner plans, no shell
                     list(argv),
-                    cwd=self.root,
+                    cwd=cwd or self.root,
                     stdout=stream,
                     stderr=subprocess.STDOUT,
                     env=environment,
@@ -51,6 +57,7 @@ class Execution:
             self.commands.append(
                 {
                     "argv": list(argv),
+                    "cwd": str(cwd or self.root),
                     "exitCode": result.returncode,
                     "durationNs": time.monotonic_ns() - started,
                     "log": str(log.relative_to(self.root)),
@@ -59,6 +66,7 @@ class Execution:
             )
             if result.returncode != 0:
                 raise subprocess.CalledProcessError(result.returncode, list(argv))
+            return log
         except BaseException:
             self.fail()
             raise

@@ -13,7 +13,12 @@ JW = "jwsoft-tiptap-editor"
 CK = "sirsoft-ckeditor5"
 
 
-class DeploymentTarget(Protocol):
+class EditorTarget(Protocol):
+    def state(self) -> Object: ...
+    def command(self, action: str, plugin: str = "") -> None: ...
+
+
+class DeploymentTarget(EditorTarget, Protocol):
     @property
     def project(self) -> Path: ...
     def state(self) -> Object: ...
@@ -51,7 +56,7 @@ def verify_archive(state: Object, version: str, files: Object) -> None:
         raise ValueError("Installed plugin files differ from verified archive")
 
 
-def activate_state(remote: DeploymentTarget, jw: bool, ck: bool) -> None:
+def activate_state(remote: EditorTarget, jw: bool, ck: bool) -> None:
     if jw and ck:
         raise ValueError("Two active editors are not an allowed target")
     for key, identifier, wanted in (("jwActive", JW, jw), ("ckActive", CK, ck)):

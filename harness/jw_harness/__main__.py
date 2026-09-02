@@ -10,9 +10,11 @@ from .clean import clean_caches
 from .deploy_entry import deploy_from_environment
 from .evidence import record_observation
 from .files import ROOT
+from .g7_browser import run_g7_browser
 from .governance import check
 from .host import validate_host
 from .integration import run_integration
+from .lifecycle import run_lifecycle
 from .provenance import source_fingerprint
 from .quality import audit_dependencies, check_all
 from .receipt import validate_artifact_execution
@@ -30,6 +32,15 @@ def arguments() -> argparse.Namespace:
     host.add_argument("--root", type=Path, required=True)
     integration = sub.add_parser("integration")
     integration.add_argument("--host", type=Path, required=True)
+    g7_browser = sub.add_parser("g7-browser")
+    g7_browser.add_argument("--host", type=Path, required=True)
+    g7_browser.add_argument("--base", required=True)
+    lifecycle = sub.add_parser("lifecycle")
+    lifecycle.add_argument("--host", type=Path, required=True)
+    lifecycle.add_argument("--previous", type=Path, required=True)
+    lifecycle.add_argument("--current", type=Path)
+    lifecycle.add_argument("--records", type=int, nargs=3, required=True)
+    lifecycle.add_argument("--github", action="store_true")
     receipt = sub.add_parser("validate-execution")
     receipt.add_argument("--root", type=Path, required=True)
     receipt.add_argument("--artifact", required=True)
@@ -65,6 +76,15 @@ def dispatch(args: argparse.Namespace) -> None:
         "record-observation": lambda: print(record_observation(ROOT, args.input)),
         "host-check": lambda: validate_host(ROOT, args.root),
         "integration": lambda: run_integration(ROOT, args.host),
+        "g7-browser": lambda: run_g7_browser(ROOT, args.host, args.base),
+        "lifecycle": lambda: run_lifecycle(
+            ROOT,
+            args.host,
+            args.previous,
+            args.records,
+            github=args.github,
+            explicit_current=args.current,
+        ),
         "validate-execution": lambda: validate_artifact_execution(
             args.root, args.artifact, args.fingerprint
         ),

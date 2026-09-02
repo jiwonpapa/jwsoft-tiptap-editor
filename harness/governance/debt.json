@@ -228,9 +228,9 @@
     "scripts/validate-manifest.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/validate-policy.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/vendor-bundle-manifest-test.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
-    "scripts/write-github-lifecycle-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
+    "scripts/write-github-lifecycle-evidence.mjs": "retired; Python owns actual execution and verified recovery",
     "scripts/write-integration-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
-    "scripts/write-lifecycle-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
+    "scripts/write-lifecycle-evidence.mjs": "retired; Python owns actual execution and verified recovery",
     "scripts/write-release-candidate-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts"
   },
   "nativeNode": {

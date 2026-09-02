@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "phases": {
+    "surfaces": [
+      "public-board",
+      "admin-board",
+      "page",
+      "ecommerce",
+      "invalid-images",
+      "mp4",
+      "urls",
+      "empty-title-enter",
+      "mobile-dark-i18n",
+      "fallback"
+    ],
+    "legacy": ["legacy-consent"]
+  },
+  "httpTests": [
+    "tests/integration/g7_empty_body_http_test.php",
+    "tests/integration/g7_image_off_http_test.php"
+  ]
+}

@@ -20,9 +20,15 @@ if (min($pageId, $postId, $productId) < 1) {
     failContentProbe('page, post, product ID가 필요합니다.');
 }
 
+require_once __DIR__.'/require_dedicated_host.php';
+requireDedicatedEditorHost($g7Root);
 require $g7Root.'/vendor/autoload.php';
 $app = require $g7Root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
+if (! $app->environment('local') || DB::connection()->getDatabaseName() !== 'g7_testing'
+    || ! in_array(config('database.connections.mysql.host'), ['127.0.0.1', 'localhost'], true)) {
+    failContentProbe('Lifecycle requires the disposable local database.');
+}
 
 $records = [
     'page' => DB::table('pages')->where('id', $pageId)->value('content'),

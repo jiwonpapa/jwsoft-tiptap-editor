@@ -368,7 +368,10 @@ test("lifecycle rejects old versions, old archives and missing preservation proo
       conflictActivationBlocked: true,
     };
     write(file, proof);
-    validateStableArtifact(context, file);
+    assert.throws(
+      () => validateStableArtifact(context, file),
+      /execution|harness\/lifecycle/i,
+    );
     write(file, { ...proof, restored: { version: "0.1.0-alpha.18" } });
     assert.throws(
       () => validateStableArtifact(context, file),

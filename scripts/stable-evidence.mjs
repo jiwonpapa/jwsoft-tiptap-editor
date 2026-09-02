@@ -330,6 +330,8 @@ export function validateStableArtifact(context, relative) {
       "test-results/parity/unit.json",
       "test-results/parity/corpus.json",
       "test-results/parity/integration.json",
+      "test-results/parity/lifecycle/evidence.json",
+      "test-results/parity/github-lifecycle/evidence.json",
     ].includes(relative) ||
     relative.startsWith("test-results/parity/browser/")
   ) {

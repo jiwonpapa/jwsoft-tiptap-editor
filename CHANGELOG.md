@@ -2,6 +2,8 @@
 
 ## Audit execution safety (unreleased)
 
+- Tracked authenticated G7 Chrome tests now execute all editor surfaces, actual HTTP rejection, media playback/Range and multilingual legacy approval; Python revokes run-owned identities on success and failure.
+- ZIP/GitHub lifecycle orchestration moved from Shell to bounded Python modules, with original-file/editor-state recovery and execution-bound evidence. Standalone lifecycle pass writers are retired.
 - Python owns check/integration/browser execution receipts; stale result restamping and unexecuted browser evidence are rejected by release consumers.
 - Required browser case/project coverage and allowed skips are explicit; execution logs, result hashes, run identity and source freshness are verified.
 - All lifecycle and direct install test entrypoints require a registered clean dedicated G7 checkout before mutation.
