@@ -6,36 +6,18 @@ import {
 } from "@/editor/editorLifecycle";
 import { destroyEditorHandler } from "@/handlers/destroyEditor";
 import { initEditorHandler } from "@/handlers/initEditor";
+import {
+  addContainer,
+  resetEditorHandlerFixture,
+} from "../../../tests/helpers/editorHandlerFixture";
 
 describe("G7 editor lifecycle", () => {
-  beforeEach(() => {
-    editorRegistry.destroyAll();
-    document.body.replaceChildren();
-    document.head
-      .querySelectorAll("[id^='jwsoft-tiptap-']")
-      .forEach((node) => node.remove());
-    window.__SirsoftCkeditor5 = undefined;
-    window.CKEDITOR = undefined;
-    window.G7Core = {
-      locale: { current: () => "ko", supported: () => ["ko", "en"] },
-      state: {
-        getLocal: () => ({ form: { content_mode: "html" } }),
-        setLocal: vi.fn(),
-      },
-    };
-  });
+  beforeEach(resetEditorHandlerFixture);
 
   afterEach(() => {
     stopEditorLifecycleCleanup();
     editorRegistry.destroyAll();
   });
-
-  function addContainer(name = "content"): HTMLElement {
-    const container = document.createElement("div");
-    container.id = editorContainerId(name);
-    document.body.appendChild(container);
-    return container;
-  }
 
   it.each([false, true])(
     "passes shared playback settings through single and multilingual mounts (%s)",
