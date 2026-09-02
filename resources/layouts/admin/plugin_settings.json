@@ -28,7 +28,9 @@
         "name": "Div",
         "dataKey": "form",
         "trackChanges": true,
-        "props": { "className": "admin-page-content-responsive" },
+        "props": {
+          "className": "admin-page-content-responsive jwsoft-tiptap-admin"
+        },
         "children": [
           {
             "id": "page_header",
@@ -728,7 +730,7 @@
                       {
                         "type": "basic",
                         "name": "P",
-                        "props": { "className": "text-sm text-gray-500" },
+                        "props": { "className": "form-hint" },
                         "text": "$t:jwsoft-tiptap-editor.settings.fields.external_embeds.hint"
                       }
                     ]

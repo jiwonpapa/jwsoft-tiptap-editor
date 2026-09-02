@@ -104,6 +104,8 @@ $controlNames = array_values(array_unique($controlNames));
 sort($controlNames);
 assertSettingsContract($controlNames === $editorMediaSettings, 'settings layout controls do not match the editor/media schema surface');
 assertSettingsContract($putTargetFound, 'settings layout is missing authenticated PUT save action');
+assertSettingsContract(str_contains($layout['slots']['content'][0]['props']['className'] ?? '', 'jwsoft-tiptap-admin'), 'settings must opt in to plugin-scoped theme styles');
+assertSettingsContract(! str_contains(file_get_contents($layoutPath), 'text-gray-500'), 'settings hints must use theme-aware form-hint');
 
 $routes = json_decode(file_get_contents($projectRoot.'/resources/routes.json'), true, flags: JSON_THROW_ON_ERROR);
 $settingsRoute = array_values(array_filter($routes['routes'], fn (array $route): bool => $route['path'] === '*/admin/plugins/jwsoft-tiptap-editor/settings'));

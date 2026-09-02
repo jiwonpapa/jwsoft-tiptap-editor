@@ -1,4 +1,5 @@
 import { destroyEditorHandler } from "@/handlers/destroyEditor";
+import { injectAdminStyles } from "@/admin/adminStyles";
 import { initEditorHandler } from "@/handlers/initEditor";
 import { injectContentStylesHandler } from "@/handlers/injectContentStyles";
 import {
@@ -24,6 +25,7 @@ export const handlerMap: HandlerMap = {
 };
 
 export function initPlugin(): void {
+  injectAdminStyles();
   startEditorLifecycleCleanup();
   startHandlerRegistration(handlerMap);
 }

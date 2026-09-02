@@ -1,5 +1,6 @@
 import { EDITOR_TOKEN_CSS } from "@/generated/editorPolicy";
 import { DOCUMENT_CSS } from "@/editor/documentStyles";
+import { withThemeSelectors } from "@/theme";
 
 export const EDITOR_STYLE_ID = "jwsoft-tiptap-editor-styles";
 export const CONTENT_STYLE_ID = "jwsoft-tiptap-content-styles";
@@ -244,7 +245,7 @@ function injectStyle(id: string, css: string): void {
   if (document.getElementById(id)) return;
   const style = document.createElement("style");
   style.id = id;
-  style.textContent = css;
+  style.textContent = withThemeSelectors(css);
   document.head.appendChild(style);
 }
 
