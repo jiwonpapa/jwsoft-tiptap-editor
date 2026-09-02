@@ -8,6 +8,7 @@ import {
   supportedLocales,
 } from "@/editor/content";
 import { createEditor } from "@/editor/createEditor";
+import { createEditorFooter } from "@/editor/editorFooter";
 import { insertAutomaticUrl } from "@/editor/automaticUrl";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { installFormSubmitGuard } from "@/editor/formSubmitGuard";
@@ -169,7 +170,7 @@ function renderLegacyWarning(options: {
   const message = document.createElement("div");
   message.textContent = editorText(
     options.locale,
-    "이 글에 inline style·전용 class·지원하지 않는 HTML 서식이 있습니다. 설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다. 이 글을 JWSoft에서 수정 후 저장할 때 서식이 달라질 수 있으며 자동 변환되지 않습니다. 확인 전에는 편집·저장이 차단됩니다. 원문을 유지하려면 읽기 전용을 선택하십시오. 문제가 있으면 저장하지 말고 JWSoft를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.",
+    "이 글에 inline style·전용 class·지원하지 않는 HTML 서식이 있습니다. 설치·활성화·조회만으로 저장된 원문은 바뀌지 않습니다. 이 글을 jw-editor에서 수정 후 저장할 때 서식이 달라질 수 있으며 자동 변환되지 않습니다. 확인 전에는 편집·저장이 차단됩니다. 원문을 유지하려면 읽기 전용을 선택하십시오. 문제가 있으면 저장하지 말고 jw-editor를 비활성화한 뒤 CKEditor를 다시 활성화하십시오.",
   );
   warning.appendChild(message);
 
@@ -289,6 +290,7 @@ function mountLocaleEditor(options: {
   });
   editorRegistry.set(options.containerId, options.locale, editor);
   installFormSubmitGuard(editor, options.status, options.locale);
+  options.mount.append(createEditorFooter(editor, options.locale));
 
   if (!options.editable) return;
 
@@ -468,7 +470,7 @@ export async function initEditorHandler(
       container,
       editorText(
         locale,
-        "sirsoft-ckeditor5가 함께 로드되어 JWSoft Tiptap 에디터 시작을 차단했습니다.",
+        "sirsoft-ckeditor5가 함께 로드되어 jw-editor 시작을 차단했습니다.",
       ),
     );
     return;

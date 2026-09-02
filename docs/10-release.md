@@ -31,7 +31,7 @@ GitHub `Release gate`는 `self-hosted`, `linux`, `g7-integration` 라벨을 가�
 
 ## 공개
 
-- [x] 제품 라이선스 결정: Proprietary
+- [x] 제품 라이선스 결정: Apache-2.0 (ADR-0015)
 - [x] Tiptap·ProseMirror·DOMPurify·Symfony NOTICE와 원문 라이선스 포함
 - [x] GitHub visibility 승인 및 public 전환
 - [x] 공개 `main` GitHub 온라인 설치 원본·설치 문서

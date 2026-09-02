@@ -34,6 +34,7 @@ export function sourceFingerprint(root) {
           file,
         ) ||
         /^harness\/(contracts|fixtures)\//.test(file) ||
+        file === "NOTICE" ||
         /^(plugin\.php|plugin\.json|components\.json|composer\.(json|lock)|package(-lock)?\.json|vite\.config\.ts|vitest\.config\.ts|playwright\.config\.ts|tsconfig\.json|Makefile|CHANGELOG\.md|LICENSE|THIRD_PARTY_NOTICES\.md|vendor-bundle\.(json|zip))$/.test(
           file,
         ),

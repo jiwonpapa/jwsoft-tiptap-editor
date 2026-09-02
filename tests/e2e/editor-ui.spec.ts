@@ -11,6 +11,9 @@ const root = path.resolve(
   "../..",
 );
 const bundlePath = path.join(root, "dist/js/plugin.iife.js");
+const pluginVersion: string = JSON.parse(
+  fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
+).version;
 
 function recordBrowserEvidence(
   file: string,
@@ -173,7 +176,7 @@ test("title Enter keeps the document and title, requires body and leaves explici
   await expect(title).toHaveValue("Enter 회귀검사");
   await expect(page.getByRole("alert")).toHaveText("본문을 입력해 주세요.");
   const body = page.getByRole("textbox", {
-    name: "JWSoft Tiptap editor",
+    name: "jw-editor",
     exact: true,
   });
   await expect(body).toBeFocused();
@@ -1000,9 +1003,7 @@ test("document typography and explicit tokens match editor and public content", 
   const content =
     '<p>본문</p><h2>제목 2</h2><h3>제목 3</h3><h4>제목 4</h4><blockquote><p>인용문</p></blockquote><p><span class="jw-color-blue jw-highlight-yellow jw-font-24">색상 조합</span></p><p class="jw-text-lg jw-space-relaxed">문단 토큰</p><ul class="jw-task-list"><li class="jw-task-item jw-task-checked"><p>완료한 항목</p></li></ul><table class="jw-table jw-table-borderless"><tbody><tr><td class="jw-cell-blue jw-cell-middle" colspan="1" rowspan="1"><p>셀</p></td></tr></tbody></table><hr><p>끝</p>';
   await mountEditor(page, "standard", false, false, false, false, content);
-  await expect(
-    page.getByRole("textbox", { name: "JWSoft Tiptap editor" }),
-  ).toBeEditable();
+  await expect(page.getByRole("textbox", { name: "jw-editor" })).toBeEditable();
   await expect(page.locator(".jwsoft-tiptap-legacy-warning")).toHaveCount(0);
   await page.evaluate(async (saved) => {
     const output = document.createElement("div");
@@ -1112,7 +1113,7 @@ test("Enter after a completed task creates an unchecked task and empty Enter exi
     false,
     '<ul class="jw-task-list"><li class="jw-task-item jw-task-checked"><p>완료한 항목</p></li></ul>',
   );
-  const editable = page.getByRole("textbox", { name: "JWSoft Tiptap editor" });
+  const editable = page.getByRole("textbox", { name: "jw-editor" });
   await editable.getByText("완료한 항목", { exact: true }).click();
   await page.keyboard.press(
     process.platform === "darwin" ? "Meta+ArrowRight" : "End",
@@ -1643,4 +1644,57 @@ test("closing a pending link preview modal does not insert late content", async 
   await dialog.getByRole("button", { name: "닫기" }).click();
   await page.waitForTimeout(350);
   await expect(page.locator(".jwsoft-tiptap-editable .jw-card")).toHaveCount(0);
+});
+
+test("product footer exposes the package version and accessible read-only help", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(
+    page,
+    "minimal",
+    false,
+    false,
+    false,
+    false,
+    "<p>도움말 본문</p>",
+  );
+  const footer = page.locator(".jwsoft-editor-footer");
+  await expect(footer).toHaveCount(1);
+  await expect(footer).toContainText("jw-editor");
+  await expect(footer).toContainText(`v${pluginVersion}`);
+  await expect(footer).toContainText("6자");
+  const help = footer.getByRole("button", { name: "jw-editor 도움말" });
+  await help.click();
+  const dialog = page.getByRole("dialog", { name: "jw-editor 도움말" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog).toContainText("설치만으로 기존 글은 바뀌지 않습니다.");
+  await dialog.getByText("HTML 소스 보기 (읽기 전용)").click();
+  const source = dialog.getByRole("textbox", { name: "읽기 전용 HTML 소스" });
+  await expect(source).toHaveAttribute("readonly", "");
+  await expect(source).toHaveValue("<p>도움말 본문</p>");
+  await expect(dialog.locator("script, iframe")).toHaveCount(0);
+  const before = await page.locator(".jwsoft-tiptap-editable").innerHTML();
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(help).toBeFocused();
+  expect(await page.locator(".jwsoft-tiptap-editable").innerHTML()).toBe(
+    before,
+  );
+  const layout = await footer.evaluate((element) => ({
+    width: element.getBoundingClientRect().width,
+    scrollWidth: element.scrollWidth,
+    viewport: document.documentElement.clientWidth,
+  }));
+  expect(layout.width).toBeLessThanOrEqual(layout.viewport);
+  expect(layout.scrollWidth).toBeLessThanOrEqual(Math.ceil(layout.width));
+  recordBrowserEvidence(
+    `editor-product-footer-${testInfo.project.name}.json`,
+    testInfo.project.name,
+    {
+      product: "jw-editor",
+      version: pluginVersion,
+      sourceReadOnly: true,
+      responsive: true,
+    },
+  );
 });

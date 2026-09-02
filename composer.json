@@ -1,8 +1,8 @@
 {
   "name": "jwsoft/tiptap-editor",
-  "description": "Core-free Tiptap editor plugin for Gnuboard 7",
+  "description": "jw-editor: rich-text and media editor for Gnuboard 7",
   "type": "library",
-  "license": "proprietary",
+  "license": "Apache-2.0",
   "require": {
     "php": "^8.2",
     "symfony/html-sanitizer": "^7.4.12"

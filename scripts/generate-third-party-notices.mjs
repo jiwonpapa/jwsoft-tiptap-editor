@@ -45,7 +45,7 @@ const table = (packages) =>
 
 const source = `# Third-Party Notices
 
-This product is proprietary software. The components below retain their own licenses; inclusion does not change the product license.
+jw-editor is licensed under Apache-2.0. The components below retain their own licenses and copyright notices; inclusion does not relicense those components.
 
 Release ZIP files preserve the exact JavaScript license texts under \`licenses/npm/\`. PHP dependency license files remain inside \`vendor-bundle.zip\`, with package manifests at \`licenses/npm-manifest.json\` and \`licenses/composer-manifest.json\`.
 
