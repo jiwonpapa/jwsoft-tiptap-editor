@@ -55,10 +55,11 @@ GitHub `main` 보호의 선언은 `harness/governance/main-protection.json`입�
 
 ```bash
 .venv/bin/python -m harness.jw_harness record-observation path/to/observations.json
+.venv/bin/python -m harness.jw_harness publish-candidate --tag vX.Y.Z
 .venv/bin/python -m harness.jw_harness publish-stable --tag vX.Y.Z
 ```
 
-첫 명령은 `unverified` 관측만 기록합니다. 두 번째는 현재 최종 62개 조건을 실제 재검사하는 게시 계획이며, 태그/ZIP의 버전을 바꾸지 않습니다. 실제 게시는 동일 명령에 `--apply --approval publish-verified-jw-editor-stable`이 필요합니다. 먼저 검증한 commit에 로컬·원격 태그가 일치해야 합니다. 자동 게시 작업은 버전 문자열과 관계없이 항상 prerelease 후보로만 게시합니다. Python은 후보의 ZIP을 다시 내려받아 배포한 ZIP과 대조한 뒤 기존 릴리스의 prerelease 표시만 해제합니다. CLI 구현의 존재는 새 버전의 검증·배포·게시 완료가 아닙니다.
+첫 명령은 `unverified` 관측만 기록합니다. 게시 명령은 계획이 기본이며 후보는 현재 57개, 최종은 62개를 재검사합니다. 후보 적용은 `--apply --approval publish-verified-jw-editor-candidate`, 최종은 `--apply --approval publish-verified-jw-editor-stable`이 필요합니다. ADR-0017에 따라 후보는 공개 main과 동일한 commit의 태그·Latest로 전달하되 제목·설명에 최종 승인 전임을 표시합니다. 태그 자동 게시는 없습니다. 최종 명령은 로컬·원격 태그, 후보의 commit/checksum 표식, 재다운로드 ZIP과 두 배포 ZIP을 대조한 뒤 같은 릴리스의 검증 완료 표시만 갱신합니다. 재빌드나 자산 덮어쓰기는 하지 않습니다. CLI 구현의 존재는 실행 완료가 아닙니다.
 
 ## 아직 남는 작업
 
