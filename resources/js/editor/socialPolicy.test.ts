@@ -1,8 +1,26 @@
 import { describe, expect, it } from "vitest";
 import { normalizeSocialUrl, socialOptions } from "./socialPolicy";
 import { socialDocument } from "./socialDocument";
+import facebookUrls from "../../../tests/fixtures/facebook-urls.json";
 
 describe("external execution whitelist", () => {
+  it.each(facebookUrls.allowed)(
+    "normalizes a Facebook URL without losing its identifiers: $url",
+    ({ url, canonical }) => {
+      expect(normalizeSocialUrl(url)).toEqual({
+        provider: "facebook",
+        url: canonical,
+        id: "",
+      });
+      expect(normalizeSocialUrl(canonical)?.url).toBe(canonical);
+    },
+  );
+  it.each(facebookUrls.rejected)(
+    "rejects an invalid, ambiguous or non-post Facebook URL: %s",
+    (url) => {
+      expect(normalizeSocialUrl(url)).toBeNull();
+    },
+  );
   it.each([
     [
       "https://www.facebook.com/ISS/posts/nasa-astronaut-megan-mcarthur/1194948136005111/",

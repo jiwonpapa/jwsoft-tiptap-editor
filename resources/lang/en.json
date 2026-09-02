@@ -146,6 +146,8 @@
     "preview": {
       "created": "Link preview created.",
       "rejected": "The link preview could not be fetched safely.",
+      "facebook_unsupported": "Use a direct Facebook post, photo, or video URL. Profile, home, and group listing URLs cannot be embedded as posts. Your original link is preserved.",
+      "facebook_unavailable": "The original post for this Facebook share link could not be verified. Use the public post's permalink. Your original link is preserved.",
       "failed": "Link preview creation failed."
     },
     "uploads": {

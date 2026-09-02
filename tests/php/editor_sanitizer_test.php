@@ -82,6 +82,13 @@ assertEditorPolicy(str_contains($card->canonicalHtml, 'jw-card-instagram'), 'all
 assertEditorPolicy(str_contains($card->canonicalHtml, 'rel="noopener noreferrer"'), 'smart card must force safe rel');
 assertEditorPolicy(str_contains($card->canonicalHtml, 'target="_blank"'), 'smart card must force blank target');
 
+$photo = $sanitizer->sanitize(
+    '<figure class="jw-card jw-card-facebook"><a class="jw-card-link" href="https://www.facebook.com/photo.php?fbid=1667074674776577"><strong>Facebook post</strong></a><iframe src="https://www.facebook.com/plugins/post.php"></iframe><script>bad()</script></figure>',
+);
+assertEditorPolicy(str_contains($photo->canonicalHtml, 'href="https://www.facebook.com/photo.php?fbid=1667074674776577"'), 'photo ID must survive canonical server storage');
+assertEditorPolicy(! preg_match('/<iframe|<script|bad\(\)/', $photo->canonicalHtml), 'photo runtime frames and scripts must never be stored');
+assertEditorPolicy($sanitizer->sanitize($photo->canonicalHtml)->canonicalHtml === $photo->canonicalHtml, 'Facebook photo canonical HTML must round-trip');
+
 $spoofedCard = $sanitizer->sanitize(
     '<figure class="jw-card jw-card-instagram"><a class="jw-card-link" href="https://evil.example/post"><strong>Spoof</strong></a></figure>',
 );

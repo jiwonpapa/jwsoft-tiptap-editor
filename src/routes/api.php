@@ -12,7 +12,7 @@ Route::post('upload', [ImageUploadController::class, 'upload'])
     ->name('api.jwsoft-tiptap-editor.upload');
 
 Route::post('link-preview', [LinkPreviewController::class, 'preview'])
-    ->middleware('throttle:10,1')
+    ->middleware('throttle:10,1,jwsoft-link-preview:')
     ->name('api.jwsoft-tiptap-editor.link-preview');
 
 Route::get('images/{hash}', [ImageServeController::class, 'serve'])
