@@ -1,4 +1,5 @@
 import { EDITOR_TOKEN_CSS } from "@/generated/editorPolicy";
+import { DOCUMENT_CSS } from "@/editor/documentStyles";
 
 export const EDITOR_STYLE_ID = "jwsoft-tiptap-editor-styles";
 export const CONTENT_STYLE_ID = "jwsoft-tiptap-content-styles";
@@ -41,17 +42,6 @@ const editorCss = `
 .jwsoft-tiptap-editable { min-height: var(--jwsoft-tiptap-height, 400px); padding: 1rem; outline: none; line-height: 1.7; }
 .jwsoft-tiptap-editable[contenteditable="false"] { background: #f9fafb; cursor: not-allowed; }
 .jwsoft-tiptap-editable p.is-editor-empty:first-child::before { content: attr(data-placeholder); float: left; height: 0; color: #9ca3af; pointer-events: none; }
-.jwsoft-tiptap-editable h2, .jwsoft-tiptap-editable h3, .jwsoft-tiptap-editable h4 { margin-block: 1.25em 0.5em; font-weight: 700; line-height: 1.3; }
-.jwsoft-tiptap-editable h2 { font-size: 1.5rem; }
-.jwsoft-tiptap-editable h3 { font-size: 1.25rem; }
-.jwsoft-tiptap-editable h4 { font-size: 1.125rem; }
-.jwsoft-tiptap-editable blockquote { margin-inline: 0; border-left: 3px solid #bfdbfe; padding-left: 0.875rem; color: #4b5563; }
-.jwsoft-tiptap-editable ul { list-style: disc; padding-left: 2rem; }
-.jwsoft-tiptap-editable ol { list-style: decimal; padding-left: 2rem; }
-.jwsoft-tiptap-editable pre { overflow-x: auto; border-radius: 0.375rem; background: #111827; color: #f9fafb; padding: 0.75rem; }
-.jwsoft-tiptap-editable table { width: 100%; border-collapse: collapse; }
-.jwsoft-tiptap-editable th, .jwsoft-tiptap-editable td { min-width: 4rem; border: 1px solid #d1d5db; padding: 0.5rem; vertical-align: top; }
-.jwsoft-tiptap-editable img { max-width: 100%; height: auto; }
 .jwsoft-tiptap-locale-tabs { display: flex; gap: 0.5rem; padding: 0.75rem; border-bottom: 1px solid #e5e7eb; }
 .jwsoft-tiptap-locale-tab { min-height: 2.25rem; border: 1px solid transparent; border-radius: 0.375rem; background: transparent; color: #4b5563; padding: 0.375rem 0.75rem; font-size: 0.75rem; cursor: pointer; }
 .jwsoft-tiptap-locale-tab[aria-selected="true"] { border-color: #bfdbfe; background: #eff6ff; color: #1d4ed8; }
@@ -71,7 +61,6 @@ html.dark .jwsoft-tiptap-dialog-header, html.dark .jwsoft-tiptap-field { color: 
 html.dark .jwsoft-tiptap-dialog input, html.dark .jwsoft-tiptap-dialog button { border-color: #4b5563; background: #111827; color: #f3f4f6; }
 html.dark .jwsoft-tiptap-upload-hint { color: #9ca3af; }
 html.dark .jwsoft-tiptap-upload-status { border-color: #60a5fa; background: #172554; color: #bfdbfe; }
-html.dark .jwsoft-tiptap-editable { color: #f3f4f6; }
 html.dark .jwsoft-tiptap-editable[contenteditable="false"] { background: #111827; }
 html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937; color: #d1d5db; }
 @media (max-width: 640px) {
@@ -94,13 +83,6 @@ html.dark .jwsoft-tiptap-locale-tab { border-color: #4b5563; background: #1f2937
 .jwsoft-tiptap-tool[data-tooltip]:hover::after { content: attr(data-tooltip); position: absolute; pointer-events: none; z-index: 30; top: calc(100% + 8px); left: 50%; transform: translateX(-50%); background: #20242b; color: #fff; font: 12px/1.4 system-ui; border-radius: 5px; padding: 6px 9px; white-space: nowrap; box-shadow: 0 3px 12px #0002; }
 .jwsoft-tiptap-tool[aria-expanded=true]:hover::after { display: none; }
 .jwsoft-tiptap-editable { padding: 28px 32px; color: var(--jw-ink); font-size: 16px; line-height: 1.75; overflow-wrap: anywhere; caret-color: #2563eb; }
-.jwsoft-tiptap-editable > :first-child { margin-top: 0; }
-.jwsoft-tiptap-editable p { margin-block: .55em; }
-.jwsoft-tiptap-editable h2, .jwsoft-tiptap-editable h3, .jwsoft-tiptap-editable h4 { line-height: 1.3; letter-spacing: -.02em; margin: 1.4em 0 .5em; font-weight: 650; }
-.jwsoft-tiptap-editable h2 { font-size: 1.65em; }
-.jwsoft-tiptap-editable h3 { font-size: 1.35em; }
-.jwsoft-tiptap-editable h4 { font-size: 1.15em; }
-.jwsoft-tiptap-editable blockquote { border-inline-start: 3px solid #cbd5e1; margin: 1em 0; padding: .25em 1.1em; color: #606978; }
 .jwsoft-tiptap-popover { position: fixed; inset: auto; margin: 0; box-sizing: border-box; width: max-content; max-width: calc(100vw - 16px); max-height: calc(100dvh - 24px); overflow: auto; border: 1px solid #e5e7eb; border-radius: 10px; padding: 10px; background: #fff; color: #20242b; box-shadow: 0 10px 40px #14223a24; z-index: 1000; }
 .jwsoft-tiptap-popover:popover-open, .jwsoft-tiptap-popover[open] { display: flex; flex-direction: column; gap: 6px; animation: jwsoft-reveal .13s ease-out; }
 .jwsoft-tiptap-popover .jwsoft-tiptap-tool-group { border: 0; padding: 5px 0; flex-wrap: wrap; max-width: 330px; }
@@ -200,6 +182,7 @@ html.dark .jwsoft-upload-item { border-color: #414b5b; }
   .jwsoft-tiptap-tool[data-tooltip]:hover::after { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .jwsoft-tiptap-dialog[open], .jwsoft-tiptap-popover:popover-open { animation: none; } .jwsoft-tiptap-tool, .jwsoft-upload-dropzone { transition: none; } }
+${DOCUMENT_CSS}
 ${EDITOR_TOKEN_CSS}
 .jwsoft-format-row { display: flex; align-items: center; justify-content: space-between; gap: 24px; font-size: 12px; color: #5d697b; }
 .jwsoft-menu-label { margin: 8px 0 0; font-size: 11px; color: #798497; }
@@ -232,7 +215,7 @@ ${EDITOR_TOKEN_CSS}
 .jwsoft-media-actions button:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
 @media (pointer: coarse) { .jwsoft-media-actions button { width: 44px; height: 44px; } }
 .jwsoft-image-node.ProseMirror-selectednode .jwsoft-image-resize:not(:disabled), .jwsoft-image-node:focus-within .jwsoft-image-resize:not(:disabled) { display: block; }
-.jwsoft-tiptap-editable .jwsoft-task-node { display: flex; align-items: flex-start; gap: 10px; padding-left: 0; }
+.jwsoft-tiptap-editable .jwsoft-task-node.jw-task-item { display: flex; align-items: flex-start; gap: 10px; padding-inline-start: 0; }
 .jwsoft-tiptap-editable .jwsoft-task-node::before { display: none; }
 .jwsoft-task-node > input { flex: 0 0 auto; margin-top: 9px; width: 16px; height: 16px; accent-color: #2563eb; cursor: pointer; }
 .jwsoft-task-content { flex: 1; min-width: 0; }
@@ -253,13 +236,7 @@ html.dark .jwsoft-format-row { color: #bdc7d5; }
 `;
 
 const contentCss = `
-.jwsoft-tiptap-content { line-height: 1.7; overflow-wrap: anywhere; }
-.jwsoft-tiptap-content ul { list-style: disc; padding-left: 2rem; }
-.jwsoft-tiptap-content ol { list-style: decimal; padding-left: 2rem; }
-.jwsoft-tiptap-content pre { overflow-x: auto; border-radius: 0.375rem; background: #111827; color: #f9fafb; padding: 0.75rem; }
-.jwsoft-tiptap-content table { width: 100%; border-collapse: collapse; }
-.jwsoft-tiptap-content th, .jwsoft-tiptap-content td { border: 1px solid #d1d5db; padding: 0.5rem; }
-.jwsoft-tiptap-content img { max-width: 100%; height: auto; }
+${DOCUMENT_CSS}
 ${EDITOR_TOKEN_CSS}
 `;
 

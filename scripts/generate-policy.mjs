@@ -43,17 +43,17 @@ const tokenCss = `
 .jw-align-right { text-align: right; }
 .jw-align-justify { text-align: justify; }
 ${policy.classTokens.inlineSize.map((token) => `.${token} { font-size: ${token.split("-").at(-1)}px; }`).join("\n")}
+.jw-highlight-yellow { background-color: #fef08a; color: #20242b; }
+.jw-highlight-green { background-color: #bbf7d0; color: #20242b; }
+.jw-highlight-blue { background-color: #bfdbfe; color: #20242b; }
+.jw-highlight-pink { background-color: #fbcfe8; color: #20242b; }
+.jw-highlight-purple { background-color: #e9d5ff; color: #20242b; }
 .jw-color-gray { color: #64748b; }
 .jw-color-red { color: #b91c1c; }
 .jw-color-orange { color: #c2410c; }
 .jw-color-green { color: #15803d; }
 .jw-color-blue { color: #1d4ed8; }
 .jw-color-purple { color: #7e22ce; }
-.jw-highlight-yellow { background-color: #fef08a; color: #20242b; }
-.jw-highlight-green { background-color: #bbf7d0; color: #20242b; }
-.jw-highlight-blue { background-color: #bfdbfe; color: #20242b; }
-.jw-highlight-pink { background-color: #fbcfe8; color: #20242b; }
-.jw-highlight-purple { background-color: #e9d5ff; color: #20242b; }
 .jw-task-list { list-style: none; padding-inline-start: 0; }
 .jw-task-item { position: relative; padding-inline-start: 1.75em; }
 .jw-task-item::before { content: '☐'; position: absolute; inset-inline-start: 0; }
@@ -136,6 +136,20 @@ ${policy.classTokens.image
 .jwsoft-social-node.ProseMirror-selectednode .jw-card { outline: 2px solid #2563eb; outline-offset: 3px; }
 `.trim();
 
+// Policy tokens must win over the shared element defaults and remain confined
+// to editor/content surfaces, not the surrounding G7 interface.
+const scopedTokenCss = tokenCss.replace(
+  /(^|\n)([^{}\n]+) \{/g,
+  (_match, prefix, selectors) =>
+    `${prefix}${selectors
+      .split(",")
+      .map(
+        (selector) =>
+          `:is(.jwsoft-tiptap-editable, .jwsoft-tiptap-content) ${selector.trim()}`,
+      )
+      .join(", ")} {`,
+);
+
 function phpQuote(value) {
   return `'${String(value).replaceAll("\\", "\\\\").replaceAll("'", "\\'")}'`;
 }
@@ -166,7 +180,7 @@ export const EDITOR_ALLOWED_TAGS = ${JSON.stringify(allowedTags)} as const;
 export const EDITOR_ALLOWED_ATTRIBUTES = ${JSON.stringify(allowedAttributes)} as const;
 export const EDITOR_CLASS_TOKENS = ${JSON.stringify(classTokens)} as const;
 export const EDITOR_DOMPURIFY_CONFIG = ${JSON.stringify(domPurifyConfig)} as const;
-export const EDITOR_TOKEN_CSS = ${JSON.stringify(tokenCss)} as const;
+export const EDITOR_TOKEN_CSS = ${JSON.stringify(scopedTokenCss)} as const;
 `,
   { parser: "typescript" },
 );

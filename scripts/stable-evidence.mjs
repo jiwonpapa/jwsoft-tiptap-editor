@@ -24,7 +24,36 @@ const runtimeBrowserFiles = new Set([
   "editor-indentation.json",
   "editor-image-layout.json",
   "editor-ime.json",
+  "editor-document-appearance-chromium-desktop.json",
+  "editor-document-appearance-chromium-mobile.json",
 ]);
+
+export function validateDocumentAppearance(data) {
+  for (const theme of ["light", "dark"]) {
+    const sample = data.themes?.find((entry) => entry.theme === theme);
+    const styles = sample?.content;
+    requireValue(
+      styles && JSON.stringify(styles) === JSON.stringify(sample.editor),
+      `document ${theme} editor/view presentation differs or is missing`,
+    );
+    requireValue(
+      parseFloat(styles.h2?.fontSize) > parseFloat(styles.h3?.fontSize) &&
+        parseFloat(styles.h3?.fontSize) > parseFloat(styles.h4?.fontSize) &&
+        parseFloat(styles.h4?.fontSize) > 16 &&
+        styles["span.jw-color-blue"]?.color === "rgb(29, 78, 216)" &&
+        styles["span.jw-color-blue"]?.backgroundColor ===
+          "rgb(254, 240, 138)" &&
+        styles["p.jw-text-lg"]?.fontSize === "18px" &&
+        styles["p.jw-text-lg"]?.lineHeight === "36px" &&
+        styles["ul.jw-task-list"]?.listStyleType === "none" &&
+        styles["ul.jw-task-list"]?.paddingInlineStart === "0px" &&
+        styles["td.jw-cell-middle"]?.verticalAlign === "middle" &&
+        styles["td.jw-cell-middle"]?.borderTopColor === "rgba(0, 0, 0, 0)" &&
+        styles.hr?.borderTopWidth === "1px",
+      `document ${theme} headings or explicit tokens are not rendered`,
+    );
+  }
+}
 
 export function validateMobileLayout(responsive) {
   const {
@@ -178,6 +207,8 @@ export function validateStableArtifact(context, relative) {
       "browser observation time is missing",
     );
     const filename = path.basename(relative);
+    if (filename.startsWith("editor-document-appearance-"))
+      validateDocumentAppearance(data);
     if (filename === "functional-audit.json") {
       requireValue(
         data.sourceFingerprint === fingerprint &&

@@ -994,6 +994,161 @@ test("media URL displays the same immediate responsive player in editor and cont
   await expect(media).toHaveCount(0);
 });
 
+test("document typography and explicit tokens match editor and public content", async ({
+  page,
+}, testInfo) => {
+  const content =
+    '<p>본문</p><h2>제목 2</h2><h3>제목 3</h3><h4>제목 4</h4><blockquote><p>인용문</p></blockquote><p><span class="jw-color-blue jw-highlight-yellow jw-font-24">색상 조합</span></p><p class="jw-text-lg jw-space-relaxed">문단 토큰</p><ul class="jw-task-list"><li class="jw-task-item jw-task-checked"><p>완료한 항목</p></li></ul><table class="jw-table jw-table-borderless"><tbody><tr><td class="jw-cell-blue jw-cell-middle" colspan="1" rowspan="1"><p>셀</p></td></tr></tbody></table><hr><p>끝</p>';
+  await mountEditor(page, "standard", false, false, false, false, content);
+  await expect(
+    page.getByRole("textbox", { name: "JWSoft Tiptap editor" }),
+  ).toBeEditable();
+  await expect(page.locator(".jwsoft-tiptap-legacy-warning")).toHaveCount(0);
+  await page.evaluate(async (saved) => {
+    const output = document.createElement("div");
+    output.className = "jwsoft-tiptap-content prose";
+    output.innerHTML = saved;
+    document.body.appendChild(output);
+    await (window as any).__e2eHandlers[
+      "jwsoft-tiptap-editor.injectContentStyles"
+    ]({ params: {} });
+  }, content);
+  await page.addStyleTag({
+    content:
+      "h2,h3,h4{font-size:inherit;font-weight:inherit;margin:0} .prose :where(h2,h3,h4){font-size:inherit} body{margin:8px} html.dark body{background:#111827} *{box-sizing:border-box}",
+  });
+  const themes = [];
+  for (const theme of ["light", "dark"]) {
+    await page.evaluate(
+      (dark) => document.documentElement.classList.toggle("dark", dark),
+      theme === "dark",
+    );
+    const measurements = await page.evaluate(() => {
+      const selectors = [
+        "h2",
+        "h3",
+        "h4",
+        "blockquote",
+        "span.jw-color-blue",
+        "p.jw-text-lg",
+        "ul.jw-task-list",
+        "td.jw-cell-middle",
+        "hr",
+      ];
+      const sample = (root: Element) =>
+        Object.fromEntries(
+          selectors.map((selector) => {
+            const style = getComputedStyle(root.querySelector(selector)!);
+            return [
+              selector,
+              Object.fromEntries(
+                [
+                  "fontSize",
+                  "fontWeight",
+                  "color",
+                  "backgroundColor",
+                  "lineHeight",
+                  "listStyleType",
+                  "paddingInlineStart",
+                  "verticalAlign",
+                  "borderTopWidth",
+                  "borderTopColor",
+                ].map((key) => [key, style[key as keyof CSSStyleDeclaration]]),
+              ),
+            ];
+          }),
+        );
+      return {
+        editor: sample(document.querySelector(".jwsoft-tiptap-editable")!),
+        content: sample(document.querySelector(".jwsoft-tiptap-content")!),
+      };
+    });
+    expect(measurements.content).toEqual(measurements.editor);
+    const styles = measurements.content;
+    expect(parseFloat(styles.h2.fontSize as string)).toBeGreaterThan(
+      parseFloat(styles.h3.fontSize as string),
+    );
+    expect(parseFloat(styles.h3.fontSize as string)).toBeGreaterThan(
+      parseFloat(styles.h4.fontSize as string),
+    );
+    expect(parseFloat(styles.h4.fontSize as string)).toBeGreaterThan(16);
+    expect(styles["span.jw-color-blue"].color).toBe("rgb(29, 78, 216)");
+    expect(styles["span.jw-color-blue"].backgroundColor).toBe(
+      "rgb(254, 240, 138)",
+    );
+    expect(styles["p.jw-text-lg"].fontSize).toBe("18px");
+    expect(styles["p.jw-text-lg"].lineHeight).toBe("36px");
+    expect(styles["ul.jw-task-list"].listStyleType).toBe("none");
+    expect(styles["ul.jw-task-list"].paddingInlineStart).toBe("0px");
+    await expect(page.locator(".jwsoft-task-node")).toHaveCSS(
+      "padding-inline-start",
+      "0px",
+    );
+    expect(styles["td.jw-cell-middle"].verticalAlign).toBe("middle");
+    expect(styles["td.jw-cell-middle"].borderTopColor).toBe("rgba(0, 0, 0, 0)");
+    expect(styles.hr.borderTopWidth).toBe("1px");
+    themes.push({ theme, ...measurements });
+  }
+  recordBrowserEvidence(
+    `editor-document-appearance-${testInfo.project.name}.json`,
+    testInfo.project.name,
+    { themes },
+  );
+  await page.screenshot({
+    path: testInfo.outputPath("document-appearance.png"),
+    fullPage: true,
+  });
+});
+
+test("Enter after a completed task creates an unchecked task and empty Enter exits the list", async ({
+  page,
+}) => {
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    '<ul class="jw-task-list"><li class="jw-task-item jw-task-checked"><p>완료한 항목</p></li></ul>',
+  );
+  const editable = page.getByRole("textbox", { name: "JWSoft Tiptap editor" });
+  await editable.getByText("완료한 항목", { exact: true }).click();
+  await page.keyboard.press(
+    process.platform === "darwin" ? "Meta+ArrowRight" : "End",
+  );
+  await expect
+    .poll(() =>
+      page.evaluate(() => {
+        const selection = document.getSelection();
+        return {
+          text: selection?.anchorNode?.textContent,
+          offset: selection?.anchorOffset,
+          modelOffset: (
+            document.querySelector(".jwsoft-tiptap-editable") as HTMLElement & {
+              editor: import("@tiptap/core").Editor;
+            }
+          ).editor.state.selection.$from.parentOffset,
+        };
+      }),
+    )
+    .toEqual({ text: "완료한 항목", offset: 6, modelOffset: 6 });
+  await page.keyboard.press("Enter");
+  await page.keyboard.insertText("새 항목");
+  const checks = editable.getByRole("checkbox");
+  await expect(checks).toHaveCount(2);
+  await expect(checks.nth(0)).toBeChecked();
+  await expect(checks.nth(1)).not.toBeChecked();
+  await expect(editable.locator("li p")).toHaveText(["완료한 항목", "새 항목"]);
+  await page.keyboard.press("Enter");
+  await page.keyboard.press("Enter");
+  await page.keyboard.insertText("목록 밖 본문");
+  await expect(
+    editable.locator(":scope > p").filter({ hasText: "목록 밖 본문" }),
+  ).toHaveCount(1);
+  await expect(checks).toHaveCount(2);
+});
+
 test("portrait MP4 keeps its decoded ratio responsively in editor and content", async ({
   page,
 }) => {

@@ -51,9 +51,13 @@
     },
     {
       "id": "editor.text-formatting",
-      "gate": "unit",
-      "requirement": "제목 문단과 inline mark",
-      "artifacts": ["test-results/parity/unit.json"]
+      "gate": "unit-browser",
+      "requirement": "제목 문단과 inline mark 및 편집·조회 표시 동등성",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/editor-document-appearance-chromium-desktop.json",
+        "test-results/parity/browser/editor-document-appearance-chromium-mobile.json"
+      ]
     },
     {
       "id": "editor.indentation",
@@ -67,9 +71,13 @@
     },
     {
       "id": "editor.table",
-      "gate": "unit",
-      "requirement": "표 생성과 편집",
-      "artifacts": ["test-results/parity/unit.json"]
+      "gate": "unit-browser",
+      "requirement": "표 생성과 편집 및 셀 표시 토큰",
+      "artifacts": [
+        "test-results/parity/unit.json",
+        "test-results/parity/browser/editor-document-appearance-chromium-desktop.json",
+        "test-results/parity/browser/editor-document-appearance-chromium-mobile.json"
+      ]
     },
     {
       "id": "editor.image-layout",

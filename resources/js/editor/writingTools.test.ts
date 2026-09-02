@@ -61,6 +61,23 @@ describe("policy-safe writing tools", () => {
     expect(editor.getHTML()).not.toMatch(/input|data-|style=/);
     cleanup();
   });
+  it.each([false, true])(
+    "starts a new task unchecked when splitting a task with checked=%s",
+    (checked) => {
+      const { editor, cleanup } = mount(
+        `<ul class="jw-task-list"><li class="jw-task-item${checked ? " jw-task-checked" : ""}"><p>완료한 항목</p></li></ul>`,
+      );
+      editor.commands.setTextSelection(9);
+      expect(editor.commands.splitListItem("taskItem")).toBe(true);
+      const list = editor.state.doc.firstChild!;
+      expect(list.childCount).toBe(2);
+      expect(list.child(0).attrs.checked).toBe(checked);
+      expect(list.child(1).attrs.checked).toBe(false);
+      expect(list.child(0).textContent).toBe("완료한 항목");
+      expect(editor.getHTML()).not.toMatch(/input|data-|style=/);
+      cleanup();
+    },
+  );
   it("allows subscript and superscript without nesting them", () => {
     const { editor, cleanup } = mount("<p>H2O</p>");
     editor.commands.setTextSelection({ from: 2, to: 3 });

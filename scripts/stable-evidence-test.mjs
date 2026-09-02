@@ -16,7 +16,44 @@ import {
   validateMobileLayout,
   validateStableArtifact,
   validateFunctionalAudit,
+  validateDocumentAppearance,
 } from "./stable-evidence.mjs";
+
+test("document presentation proof rejects matching-but-broken and mismatched styles", () => {
+  const styles = {
+    h2: { fontSize: "26.4px" },
+    h3: { fontSize: "21.6px" },
+    h4: { fontSize: "18.4px" },
+    "span.jw-color-blue": {
+      color: "rgb(29, 78, 216)",
+      backgroundColor: "rgb(254, 240, 138)",
+    },
+    "p.jw-text-lg": { fontSize: "18px", lineHeight: "36px" },
+    "ul.jw-task-list": { listStyleType: "none", paddingInlineStart: "0px" },
+    "td.jw-cell-middle": {
+      verticalAlign: "middle",
+      borderTopColor: "rgba(0, 0, 0, 0)",
+    },
+    hr: { borderTopWidth: "1px" },
+  };
+  const data = {
+    themes: ["light", "dark"].map((theme) => ({
+      theme,
+      editor: structuredClone(styles),
+      content: structuredClone(styles),
+    })),
+  };
+  validateDocumentAppearance(data);
+  assert.throws(() => validateDocumentAppearance({}), /missing/);
+  const mismatch = structuredClone(data);
+  mismatch.themes[1].content.h2.fontSize = "16px";
+  assert.throws(() => validateDocumentAppearance(mismatch), /differs/);
+  for (const theme of data.themes) {
+    theme.editor["span.jw-color-blue"].color = "rgb(32, 36, 43)";
+    theme.content["span.jw-color-blue"].color = "rgb(32, 36, 43)";
+  }
+  assert.throws(() => validateDocumentAppearance(data), /not rendered/);
+});
 
 test("actual functional audit rejects missing or non-playing media evidence", () => {
   const data = {

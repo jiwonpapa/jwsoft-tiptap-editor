@@ -22,6 +22,7 @@ export const PolicyTaskItem = Node.create({
     return {
       checked: {
         default: false,
+        keepOnSplit: false,
         parseHTML: (element: HTMLElement) =>
           element.classList.contains("jw-task-checked"),
         renderHTML: () => ({}),
