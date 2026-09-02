@@ -113,14 +113,14 @@ export async function productSurface(c: Context): Promise<Observation> {
   const id = positive(created.id);
   assert.equal(text(created.product_code), code);
   canonical(created.description);
-  await c.page.goto(c.base + `/admin/ecommerce/products/${code}/edit`);
+  await c.page.goto(c.base + `/admin/ecommerce/products/${id}/edit`);
   await c.page.getByRole("tab", { name: "상세설명", exact: true }).click();
   const ko = `jw-editor 빠른 전환 저장 ${c.runId}`;
   const en = `jw-editor rapid switching ${c.runId}`;
   await languages(c, ko, en);
   const saved = await submit(
     c,
-    `/api/modules/sirsoft-ecommerce/admin/products/${code}`,
+    `/api/modules/sirsoft-ecommerce/admin/products/${id}`,
     "PUT",
     "저장",
   );
@@ -134,7 +134,7 @@ export async function productSurface(c: Context): Promise<Observation> {
   await c.page.getByRole("tab", { name: "English", exact: true }).click();
   await editor(c).getByText(en, { exact: true }).waitFor();
   screenshots.push(await shot(c, "product-en"));
-  await c.page.goto(c.base + `/shop/products/${code}`);
+  await c.page.goto(c.base + `/shop/products/${id}`);
   await c.page.getByText(ko, { exact: true }).waitFor();
   screenshots.push(await shot(c, "product-public"));
   return {

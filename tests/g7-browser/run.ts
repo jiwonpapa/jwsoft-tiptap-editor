@@ -4,7 +4,7 @@ import path from "node:path";
 import { chromium } from "playwright";
 import { fallback, mobileAndLocale } from "./auxiliary.ts";
 import { boardSurface } from "./boards.ts";
-import { object, text } from "./context.ts";
+import { object, positive, text } from "./context.ts";
 import type { Context, Observation } from "./context.ts";
 import { media, urls } from "./media.ts";
 import { pageSurface } from "./pages.ts";
@@ -76,7 +76,13 @@ try {
     await test("mobile-dark-i18n", () => mobileAndLocale(c));
     await test("fallback", () => fallback(c));
   } else {
-    await test("legacy-consent", () => legacyConsent(c, `JW-${c.runId}`));
+    const surfaces = object(
+      JSON.parse(fs.readFileSync(path.join(output, "surfaces.json"), "utf8")),
+    );
+    const productId = positive(
+      object(object(surfaces.observations).ecommerce).productId,
+    );
+    await test("legacy-consent", () => legacyConsent(c, productId));
   }
   fs.writeFileSync(
     report,

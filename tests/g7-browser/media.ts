@@ -12,18 +12,12 @@ import type { Context, Observation } from "./context.ts";
 async function playback(c: Context, selector: string): Promise<Observation> {
   const video = c.page.locator(selector).first();
   await video.waitFor();
+  await c.page.waitForFunction((query) => {
+    const node = document.querySelector<HTMLVideoElement>(query);
+    return node && (node.readyState > 0 || node.error !== null);
+  }, selector);
   await video.evaluate(async (node: HTMLVideoElement) => {
-    if (!node.readyState)
-      await new Promise<void>((resolve, reject) => {
-        node.addEventListener("loadedmetadata", () => resolve(), {
-          once: true,
-        });
-        node.addEventListener(
-          "error",
-          () => reject(new Error("Video metadata failed")),
-          { once: true },
-        );
-      });
+    if (node.error) throw new Error("Video metadata failed");
     node.muted = true;
     await node.play();
   });

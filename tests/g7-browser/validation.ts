@@ -61,7 +61,7 @@ export async function emptyTitleEnter(c: Context): Promise<Observation> {
       .getByRole("textbox", { name: "제목을 입력하세요", exact: true })
       .press("Enter");
     await c.page
-      .getByText("내용을 입력하세요.", { exact: true })
+      .getByText("본문을 입력해 주세요.", { exact: true })
       .first()
       .waitFor();
     assert.equal(c.page.url(), before);
@@ -90,10 +90,10 @@ export async function apiGet(c: Context, route: string): Promise<Observation> {
 
 export async function legacyConsent(
   c: Context,
-  code: string,
+  productId: number,
 ): Promise<Observation> {
-  const api = `/api/modules/sirsoft-ecommerce/admin/products/${code}`;
-  await c.page.goto(c.base + `/admin/ecommerce/products/${code}/edit`);
+  const api = `/api/modules/sirsoft-ecommerce/admin/products/${productId}`;
+  await c.page.goto(c.base + `/admin/ecommerce/products/${productId}/edit`);
   await c.page.getByRole("tab", { name: "상세설명", exact: true }).click();
   await editor(c).waitFor();
   assert.equal(await editor(c).getAttribute("contenteditable"), "false");
