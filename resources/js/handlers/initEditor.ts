@@ -12,6 +12,7 @@ import { createEditorFooter } from "@/editor/editorFooter";
 import { insertAutomaticUrl } from "@/editor/automaticUrl";
 import { editorRegistry } from "@/editor/editorRegistry";
 import { installFormSubmitGuard } from "@/editor/formSubmitGuard";
+import { installEditorSaveSync } from "@/editor/saveSync";
 import { socialOptions, type SocialOptions } from "@/editor/socialPolicy";
 import { injectEditorStyles } from "@/editor/editorStyles";
 import { editorText } from "@/editor/locale";
@@ -293,6 +294,16 @@ function mountLocaleEditor(options: {
   options.mount.append(createEditorFooter(editor, options.locale));
 
   if (!options.editable) return;
+
+  installEditorSaveSync(editor, () =>
+    syncEditorValue({
+      core: window.G7Core,
+      name: options.name,
+      locale: options.locale,
+      value: sanitizeClientHtml(editor.getHTML()),
+      multilingual: options.multilingual,
+    }),
+  );
 
   const toolbar = createEditorToolbar({
     editor,
