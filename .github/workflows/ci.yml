@@ -11,6 +11,9 @@ permissions:
 jobs:
   validate:
     runs-on: ubuntu-latest
+    env:
+      # Keep the 100-mount leak test's 10s budget independent of other JSDOM suites.
+      VITEST_MAX_WORKERS: "1"
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
