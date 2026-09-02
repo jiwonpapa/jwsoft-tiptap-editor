@@ -1,5 +1,6 @@
 import tseslint from "typescript-eslint";
 import fs from "node:fs";
+import { editorRules } from "./scripts/eslint-rules.mjs";
 
 const debt = JSON.parse(
   fs.readFileSync(
@@ -39,7 +40,7 @@ export default [
       ],
       "@typescript-eslint/no-misused-promises": [
         "error",
-        { checksVoidReturn: false },
+        { checksVoidReturn: true },
       ],
       "@typescript-eslint/await-thenable": "error",
       "@typescript-eslint/ban-ts-comment": "error",
@@ -49,12 +50,12 @@ export default [
   {
     files: ["resources/js/**/*.ts"],
     ignores: ["**/*.test.ts"],
-    rules: { "max-lines-per-function": ["error", { max: 80 }] },
+    plugins: { "jw-editor": editorRules(debt) },
+    rules: {
+      "jw-editor/bounded-functions": "error",
+      "jw-editor/layer-imports": "error",
+    },
   },
-  ...Object.entries(debt.functions).map(([file, exception]) => ({
-    files: [file],
-    rules: { "max-lines-per-function": ["error", { max: exception.maxLines }] },
-  })),
   {
     files: ["resources/js/editor/**/*.ts"],
     ignores: ["**/*.test.ts"],

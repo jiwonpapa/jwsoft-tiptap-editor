@@ -1,3 +1,4 @@
+import { installSourceCopy } from "@/editor/asyncEvent";
 import type { Editor } from "@tiptap/core";
 import { createDialog } from "@/editor/dialog";
 import { sanitizeClientHtml } from "@/policy/runtimePolicy";
@@ -73,26 +74,16 @@ export function createEditorFooter(
   const message = document.createElement("span");
   message.setAttribute("role", "status");
   const refresh = () => {
-    if (!editor.isDestroyed)
-      source.value = sanitizeClientHtml(editor.getHTML());
+    if (editor.isDestroyed) return;
+    const html = sanitizeClientHtml(editor.getHTML());
+    if (source.value === html) return;
+    source.value = html;
     message.textContent = "";
   };
   details.addEventListener("toggle", () => {
     if (details.open) refresh();
   });
-  copy.addEventListener("click", async () => {
-    refresh();
-    try {
-      await navigator.clipboard.writeText(source.value);
-      message.textContent = en ? "Copied." : "복사했습니다.";
-    } catch {
-      source.focus();
-      source.select();
-      message.textContent = en
-        ? "Press Ctrl/⌘ + C to copy the selection."
-        : "선택된 내용을 Ctrl/⌘ + C로 복사하세요.";
-    }
-  });
+  installSourceCopy(copy, source, message, refresh, en);
   const actions = document.createElement("div");
   actions.className = "jwsoft-editor-source-actions";
   actions.append(copy, message);

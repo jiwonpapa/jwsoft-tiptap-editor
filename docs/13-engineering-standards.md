@@ -18,7 +18,7 @@ HTTP 인증은 `resources/js/g7/authorization.ts`, HTML 정책은 `policy/editor
 
 - Python: Ruff(복잡도 10), mypy strict, 파일 300줄/함수 80줄, shell 실행 차단.
 - TypeScript: typed ESLint의 explicit-any/floating-promises/await-thenable, strict tsc, 제품 함수 80줄. 정책 계층→UI 및 editor→handlers/admin 역방향 import 차단.
-- 일반 소스 450줄/테스트 650줄; 기존 초과는 `harness/governance/debt.json` 상한·만료 검사. 파일별 기존 함수 예외는 새 설계의 허가가 아닙니다.
+- 일반 소스 450줄/테스트 650줄; 기존 초과는 `harness/governance/debt.json` 상한·만료 검사. 함수 예외는 AST의 기존 함수 식별자별로 한 번만 적용하고 신규 함수에는 적용하지 않습니다.
 - PHP: `php -l` 및 PHPStan level 5의 독립 정책/정제 영역. 호스트 의존 영역은 현재 별도 통합 검사이며 전수 PHPStan이라고 보고하지 않습니다.
 - Shell: bash 문법 + ShellCheck warning 이상 오류.
 - Vitest 전역 하한: statements 70%, branches 59%, functions 69%, lines 72%. 새 코드의 테스트를 생략해도 좋다는 뜻이 아니며 하한 하향은 승인 대상입니다.
@@ -32,7 +32,7 @@ HTTP 인증은 `resources/js/g7/authorization.ts`, HTML 정책은 `policy/editor
 make bootstrap          # venv + 고정 Python 도구 + npm/composer
 make check              # Python이 전체 오프라인 검사 조합
 make audit              # npm/composer/Python 취약점; 네트워크/오류 시 실패
-make browser-check      # 추적되는 UI suite 5개, 독립 headless
+make browser-check      # UI 5개 + 결정적 SNS suite, 독립 headless
 make clean              # 캐시 정리 계획만
 make clean-apply        # 허용 캐시만 삭제; 패키지/증거/G7 보존
 ```

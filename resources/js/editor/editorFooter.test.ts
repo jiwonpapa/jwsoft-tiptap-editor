@@ -129,11 +129,12 @@ describe("jw-editor product footer", () => {
     footer
       .querySelector<HTMLButtonElement>(".jwsoft-editor-source-actions button")!
       .click();
-    await Promise.resolve();
     const source = footer.querySelector("textarea")!;
-    expect(source.selectionEnd - source.selectionStart).toBe(
-      source.value.length,
-    );
+    await vi.waitFor(() => {
+      expect(source.selectionEnd - source.selectionStart).toBe(
+        source.value.length,
+      );
+    });
     expect(footer.querySelector('[role="status"]')?.textContent).toContain(
       "Ctrl/⌘ + C",
     );

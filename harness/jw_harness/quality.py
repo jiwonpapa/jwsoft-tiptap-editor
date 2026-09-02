@@ -54,9 +54,8 @@ def check_all(root: Path) -> None:
     for name in PHP_TESTS:
         run(["php", f"tests/php/{name}.php"], root)
     for relative in tracked_inputs(root):
-        if relative.startswith(("src/", "tests/php/", "tests/integration/")):
-            if relative.endswith(".php"):
-                run(["php", "-l", relative], root)
+        if relative.endswith(".php"):
+            run(["php", "-l", relative], root)
     run(["bash", "scripts/check-shell.sh"], root)
     if fingerprint != source_fingerprint(root):
         raise ValueError("Source changed during checks; rerun before recording pass evidence")

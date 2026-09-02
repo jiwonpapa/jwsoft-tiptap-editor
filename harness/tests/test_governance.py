@@ -21,9 +21,26 @@ class GovernanceTests(unittest.TestCase):
         self.assertTrue(any("300 lines" in error for error in errors))
 
     def test_new_javascript_harness_is_rejected(self) -> None:
-        for suffix in ("js", "mjs", "ts"):
-            errors = inspect_source(f"scripts/new-glue.{suffix}", "console.log(1);", self.policy)
-            self.assertTrue(any("use Python" in error for error in errors))
+        for prefix in ("scripts", "harness", "harness/nested"):
+            for suffix in ("js", "mjs", "cjs", "ts", "tsx"):
+                errors = inspect_source(
+                    f"{prefix}/new-glue.{suffix}", "console.log(1);", self.policy
+                )
+                self.assertTrue(any("use Python" in error for error in errors))
+
+    def test_root_and_other_first_party_files_are_scanned(self) -> None:
+        from unittest.mock import patch
+
+        from harness.jw_harness.files import ROOT
+        from harness.jw_harness.governance import check
+
+        with patch("harness.jw_harness.governance.tracked_inputs", return_value=["plugin.php"]):
+            with patch(
+                "harness.jw_harness.governance.inspect_source", return_value=["sentinel"]
+            ) as scan:
+                with self.assertRaisesRegex(ValueError, "sentinel"):
+                    check(ROOT)
+                scan.assert_called_once()
 
     def test_ignored_type_errors_are_rejected(self) -> None:
         errors = inspect_source("resources/js/bad.ts", "// @ts-ignore\ncall();", self.policy)

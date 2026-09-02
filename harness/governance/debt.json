@@ -36,103 +36,165 @@
       "maxLines": 116,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "insertAutomaticUrl": 116
+      }
     },
     "resources/js/editor/createEditor.ts": {
       "maxLines": 107,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createEditor": 107
+      }
     },
     "resources/js/editor/dialog.ts": {
       "maxLines": 126,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createDialog": 126
+      }
     },
     "resources/js/editor/editorFooter.ts": {
       "maxLines": 125,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createEditorFooter": 125
+      }
     },
     "resources/js/editor/findReplace.ts": {
       "maxLines": 117,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createFindReplace": 117
+      }
     },
     "resources/js/editor/imageUploadQueue.ts": {
       "maxLines": 267,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createImageUploadQueue": 267,
+        "createImageUploadQueue/addFiles": 82
+      }
     },
     "resources/js/editor/imageView.ts": {
       "maxLines": 155,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "resizableImageView: NodeViewRenderer": 155
+      }
     },
     "resources/js/editor/mediaPlayer.ts": {
       "maxLines": 121,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createMediaPlayer": 121
+      }
     },
     "resources/js/editor/mediaUpload.ts": {
       "maxLines": 96,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "uploadEditorMedia": 96
+      }
     },
     "resources/js/editor/mediaView.ts": {
       "maxLines": 120,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "mediaNodeView": 120,
+        "mediaNodeView/ArrowFunctionExpression": 119
+      }
     },
     "resources/js/editor/popover.ts": {
       "maxLines": 256,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createPopover": 256
+      }
     },
     "resources/js/editor/socialPlayer.ts": {
       "maxLines": 131,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createSocialPlayer": 131
+      }
     },
     "resources/js/editor/socialView.ts": {
       "maxLines": 85,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "socialNodeView": 85,
+        "socialNodeView/ArrowFunctionExpression": 84
+      }
     },
     "resources/js/editor/toolbar.ts": {
       "maxLines": 275,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "createLinkDialog": 87,
+        "createImageDialog": 231,
+        "createMediaDialog": 262,
+        "createMediaDialog/call:bindAsyncForm:4": 109,
+        "createSmartCardDialog": 130,
+        "createEditorToolbar": 275
+      }
     },
     "resources/js/editor/writingTools.ts": {
       "maxLines": 429,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "installWritingTools": 429,
+        "installWritingTools/rebuildContext": 101
+      }
     },
     "resources/js/handlers/initEditor.ts": {
       "maxLines": 143,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "mountLocaleEditor": 116,
+        "mountMultilingualEditors": 111,
+        "initEditorHandler": 121
+      }
     },
     "resources/js/policy/runtimePolicy.ts": {
       "maxLines": 111,
       "owner": "jw-editor maintainers",
       "expires": "2026-10-17",
-      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally."
+      "reason": "Legacy function-size ceiling; do not increase; extract responsibilities incrementally.",
+      "symbols": {
+        "normalizeElement": 111
+      }
     }
   },
   "legacyNode": {
@@ -170,5 +232,8 @@
     "scripts/write-integration-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/write-lifecycle-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/write-release-candidate-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts"
+  },
+  "nativeNode": {
+    "scripts/eslint-rules.mjs": "Language-native ESLint AST rules, not generic orchestration (ADR-0016)."
   }
 }

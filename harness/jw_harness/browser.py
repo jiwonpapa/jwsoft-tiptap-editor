@@ -26,8 +26,9 @@ def run_browser(root: Path) -> None:
     }
     write_object(receipt, started)
     suites = sorted(root.glob("tests/e2e/editor-*.spec.ts"))
-    if len(suites) != 5:
-        raise ValueError("The five tracked UI suites are required")
+    suites.append(root / "tests/e2e/social-embeds.spec.ts")
+    if len(suites) != 6 or not all(file.is_file() for file in suites):
+        raise ValueError("The five editor suites and deterministic social suite are required")
     try:
         run(["npm", "run", "build"], root)
         environment = dict(os.environ)

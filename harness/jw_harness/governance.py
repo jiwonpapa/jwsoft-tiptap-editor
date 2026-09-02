@@ -9,13 +9,16 @@ from pathlib import Path
 from .files import Object, object_value, read_object, string_value
 from .process import tracked_inputs
 
-SOURCE_ROOTS = ("resources/js/", "src/", "scripts/", "tests/", "harness/")
-GENERATED = {"resources/js/generated/editorPolicy.ts", "src/Generated/EditorPolicy.php"}
-EXTENSIONS = {".ts", ".js", ".mjs", ".py", ".php", ".sh"}
+GENERATED = {
+    "resources/js/generated/editorPolicy.ts",
+    "src/Generated/EditorPolicy.php",
+    "dist/js/plugin.iife.js",
+}
+EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".php", ".sh"}
 
 
 def file_limit(relative: str) -> int:
-    if relative.startswith("harness/jw_harness/"):
+    if relative.endswith(".py") and not relative.startswith("harness/tests/"):
         return 300
     if "/tests/" in relative or relative.startswith("tests/") or ".test." in relative:
         return 650
@@ -61,17 +64,21 @@ def inspect_source(relative: str, text: str, policy: Object) -> list[str]:
     maximum = object_value(debt[relative])["maxLines"] if relative in debt else file_limit(relative)
     if isinstance(maximum, int) and len(text.splitlines()) > maximum:
         errors.append(f"File exceeds {maximum} lines: {relative}")
-    if relative.startswith(("scripts/", "harness/jw_harness/")) and relative.endswith(
-        (".js", ".mjs", ".ts")
+    if relative.startswith(("scripts/", "harness/")) and relative.endswith(
+        (".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx")
     ):
-        if relative not in object_value(policy["legacyNode"]):
+        allowed = {
+            **object_value(policy["legacyNode"]),
+            **object_value(policy.get("nativeNode", {})),
+        }
+        if relative not in allowed:
             errors.append(f"New generic JS harness forbidden; use Python: {relative}")
     if re.search(
         r"(?m)^\s*(?://|#|/\*|\*)[^\n]*(?:@ts-(?:ignore|nocheck)|@phpstan-ignore|eslint-disable)",
         text,
     ):
         errors.append(f"Unreviewed checker suppression: {relative}")
-    if relative.startswith("harness/jw_harness/"):
+    if relative.endswith(".py"):
         errors.extend(python_errors(relative, text))
     return errors
 
@@ -85,7 +92,7 @@ def check(root: Path) -> None:
         errors.append("Legacy Node harness migration has expired")
     inputs = tracked_inputs(root)
     for relative in inputs:
-        if not relative.startswith(SOURCE_ROOTS) or relative in GENERATED:
+        if relative in GENERATED:
             continue
         path = root / relative
         if path.suffix in EXTENSIONS and path.is_file():
