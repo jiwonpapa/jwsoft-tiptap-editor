@@ -6,36 +6,18 @@ import {
 } from "@/editor/editorLifecycle";
 import { destroyEditorHandler } from "@/handlers/destroyEditor";
 import { initEditorHandler } from "@/handlers/initEditor";
+import {
+  addContainer,
+  resetEditorHandlerFixture,
+} from "../../../tests/helpers/editorHandlerFixture";
 
 describe("G7 editor lifecycle", () => {
-  beforeEach(() => {
-    editorRegistry.destroyAll();
-    document.body.replaceChildren();
-    document.head
-      .querySelectorAll("[id^='jwsoft-tiptap-']")
-      .forEach((node) => node.remove());
-    window.__SirsoftCkeditor5 = undefined;
-    window.CKEDITOR = undefined;
-    window.G7Core = {
-      locale: { current: () => "ko", supported: () => ["ko", "en"] },
-      state: {
-        getLocal: () => ({ form: { content_mode: "html" } }),
-        setLocal: vi.fn(),
-      },
-    };
-  });
+  beforeEach(resetEditorHandlerFixture);
 
   afterEach(() => {
     stopEditorLifecycleCleanup();
     editorRegistry.destroyAll();
   });
-
-  function addContainer(name = "content"): HTMLElement {
-    const container = document.createElement("div");
-    container.id = editorContainerId(name);
-    document.body.appendChild(container);
-    return container;
-  }
 
   it.each([false, true])(
     "passes shared playback settings through single and multilingual mounts (%s)",
@@ -102,27 +84,31 @@ describe("G7 editor lifecycle", () => {
     expect(container.childElementCount).toBe(0);
   });
 
-  it("destroys detached route editors without leaking instances", async () => {
-    startEditorLifecycleCleanup();
+  it.each(Array.from({ length: 10 }, (_, batch) => batch))(
+    "destroys detached route editors without leaking instances (batch %i)",
+    async (batch) => {
+      startEditorLifecycleCleanup();
 
-    for (let route = 0; route < 100; route += 1) {
-      const container = addContainer();
-      await initEditorHandler(
-        {
-          params: {
-            name: "content",
-            content: `<p>화면 ${route + 1}</p>`,
+      for (let route = batch * 10; route < (batch + 1) * 10; route += 1) {
+        const container = addContainer();
+        await initEditorHandler(
+          {
+            params: {
+              name: "content",
+              content: `<p>화면 ${route + 1}</p>`,
+            },
           },
-        },
-        undefined,
-      );
-      expect(editorRegistry.size).toBe(1);
+          undefined,
+        );
+        expect(editorRegistry.size).toBe(1);
 
-      container.remove();
-      await Promise.resolve();
-      expect(editorRegistry.size).toBe(0);
-    }
-  }, 10_000);
+        container.remove();
+        await Promise.resolve();
+        expect(editorRegistry.size).toBe(0);
+      }
+    },
+    10_000,
+  );
 
   it("keeps an editor that is synchronously reparented", async () => {
     startEditorLifecycleCleanup();

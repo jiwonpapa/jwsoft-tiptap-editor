@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   release:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: [self-hosted, linux, g7-integration]
     env:
       G7_ROOT: ${{ vars.G7_INTEGRATION_ROOT }}
@@ -20,6 +21,12 @@ jobs:
         with:
           node-version: 24.15.0
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m venv .venv
+      - run: .venv/bin/python -m pip install -r harness/requirements-dev.txt
+      - run: command -v shellcheck
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
@@ -32,17 +39,13 @@ jobs:
       - name: Tagged artifact gate (57 current requirements)
         run: make release-candidate-check
       - name: Publish candidate tagged release
-        if: startsWith(github.ref, 'refs/tags/') && contains(github.ref_name, '-')
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           GH_TOKEN: ${{ github.token }}
         run: >-
           gh release create "${GITHUB_REF_NAME}"
           .build/*.zip .build/SHA256SUMS
           --verify-tag
+          --prerelease
           --title "${GITHUB_REF_NAME} (development validation)"
           --notes "G7 7.0.9 후보 검증용 릴리스입니다. 최종 62/62 검증이나 운영 배포 완료를 의미하지 않습니다. 운영 적용은 별도 사전 게이트와 명시적 승인이 필요합니다."
-      - name: Publish stable tagged release
-        if: startsWith(github.ref, 'refs/tags/') && !contains(github.ref_name, '-')
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create "${GITHUB_REF_NAME}" .build/*.zip .build/SHA256SUMS --verify-tag --generate-notes

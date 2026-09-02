@@ -17,6 +17,8 @@ if ($g7Root === false || ! is_file($g7Root.'/artisan')) {
     failRemotePluginAction('전용 G7 루트를 찾을 수 없습니다.');
 }
 
+require_once __DIR__.'/require_dedicated_host.php';
+requireDedicatedEditorHost($g7Root);
 require $g7Root.'/vendor/autoload.php';
 $app = require $g7Root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();

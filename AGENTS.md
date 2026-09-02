@@ -21,6 +21,10 @@
 
 ## 구현 규칙
 
+- 주 하네스는 Python 3.12+, 간단한 배포 명령 연결은 Shell입니다. 제품은 TypeScript/PHP를 유지합니다. ADR-0016과 `docs/13-engineering-standards.md`를 따릅니다.
+- 새 범용 Node 하네스·`.build` 일회성 검증·수동 입력의 pass 승격·검사 우회·부채 상한/만료 임의 연장을 금지합니다.
+- Python은 파일 300줄/함수 80줄/복잡도 10. 기존 초과 코드는 명시된 만료 부채이며 정상 완료로 표현하지 않습니다.
+
 - 플러그인 식별자: `jwsoft-tiptap-editor`
 - 네임스페이스: `Plugins\\Jwsoft\\TiptapEditor`
 - 저장 정본: 서버에서 정제한 canonical HTML
@@ -33,6 +37,7 @@
 ## 완료 판단
 
 - 환경 단계: `make check`와 `make build` 통과.
+- 인프라 단계: `make audit`와 `make browser-check`; 타입/증거/출시/정리의 금지 사례 회귀. headless 격리 UI와 실제 G7/운영 검증을 구분합니다.
 - 구현 단계: `make integration-check` 통과.
 - 릴리스 단계: `make release-check` 통과 및 parity evidence 생성.
 - 배포 단계: staging smoke 통과 후에만 production 적용 가능.

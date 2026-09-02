@@ -13,7 +13,7 @@ interface ImageUploadRepositoryInterface
     public function findById(int $id): ?JwsoftTiptapImageUpload;
     public function create(array $data): JwsoftTiptapImageUpload;
     public function delete(JwsoftTiptapImageUpload $upload): bool;
-    public function findOlderThan(Carbon $threshold, int $limit): Collection;
+    public function findOlderThan(Carbon $threshold, int $limit, int $afterId = 0): Collection;
     public function paginateForAdmin(array $filters, int $perPage, int $page): LengthAwarePaginator;
     public function findScanWindow(array $filters, int $limit): Collection;
     public function findManyByIds(array $ids): Collection;

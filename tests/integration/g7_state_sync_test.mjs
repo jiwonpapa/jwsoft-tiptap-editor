@@ -48,7 +48,7 @@ const apiIndex = sequence.actions.findIndex(
 const editorSource = await build({
   stdin: {
     contents:
-      'export { createEditor } from "./resources/js/editor/createEditor.ts"; export { syncEditorValue } from "./resources/js/editor/stateSync.ts";',
+      'export { createEditor } from "./resources/js/editor/createEditor.ts"; export { syncEditorValue } from "./resources/js/editor/stateSync.ts"; export { installEditorSaveSync } from "./resources/js/editor/saveSync.ts";',
     resolveDir: root,
   },
   tsconfig: path.join(root, "tsconfig.json"),
@@ -68,6 +68,7 @@ async function checkSave({
   multilingual = false,
   empty = false,
   rapidLocales = false,
+  staleResponse = false,
 }) {
   const errors = [];
   const console = new VirtualConsole();
@@ -180,6 +181,15 @@ async function checkSave({
           multilingual,
         }),
     });
+    w.EditorUnderTest.installEditorSaveSync(editor, () =>
+      w.EditorUnderTest.syncEditorValue({
+        core,
+        name: "content",
+        locale: "ko",
+        value: editor.getHTML(),
+        multilingual,
+      }),
+    );
     editor.commands.setContent("<p>새로 입력한 본문을 저장합니다</p>");
     if (empty) editor.commands.clearContent();
     if (rapidLocales) {
@@ -194,6 +204,12 @@ async function checkSave({
     editor.commands.setTextSelection(8);
     const selection = editor.state.selection.from;
     if (!immediate) await wait(400);
+    if (staleResponse) {
+      // Mirrors the late check-slug response observed in the authenticated G7
+      // page form: old local state replaces a settled self-managed field.
+      app.setGlobalState({ _local: baseline });
+      await wait(100);
+    }
     if (resize) {
       w.innerWidth = 412;
       w.dispatchEvent(new w.Event("resize"));
@@ -241,6 +257,16 @@ async function checkSave({
 }
 
 for (const scenario of [
+  {
+    label: "late unrelated response cannot clear an edited body",
+    staleResponse: true,
+    resize: false,
+  },
+  {
+    label: "late unrelated response cannot clear localized content",
+    staleResponse: true,
+    multilingual: true,
+  },
   { label: "new document without resize", resize: false },
   { label: "new document after resize" },
   { label: "edited document after resize", initial: "<p>이전 본문</p>" },

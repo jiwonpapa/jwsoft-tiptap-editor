@@ -68,3 +68,26 @@ click 전 네트워크 없음·가로 넘침을 검증한다. 네트워크 모�
 - [Facebook embedded posts](https://developers.facebook.com/docs/plugins/embedded-posts/)
 
 Meta 문서 조회가 429를 반환했으므로 SDK v23.0 동작은 실제 브라우저 검증을 별도로 요구한다.
+
+## 2026-09-02 사진 주소 누락 보완 (정책 1.6.1)
+
+소유자가 제보한 Facebook 사진 및 일반 주소 누락을 수정한다. 기존 Facebook 호스트
+안에서 `/photo`, `/photo/`, `/photo.php`의 단일 숫자 `fbid`, `permalink.php`와
+`story.php`의 `story_fbid`/`id`, Watch의 `v`, Reel의 숫자 ID를 추가로 허용한다.
+식별자는 보존하고 앨범·locale·추적 파라미터는 SDK에 전달하지 않는다. 중복 ID,
+배열형 ID, 잘못된 숫자, 위장 호스트·포트·경로는 실행 대상에서 제외한다.
+
+`/share/p|v|r/토큰` 및 `fb.watch/토큰`은 실행 URL이 아니다. 서버가 해당 고정
+Facebook 호스트의 공개 IP를 DNS 검증·연결 고정한 HEAD 요청으로만 따라가고, 기존
+리디렉션 횟수/시간 제한 안에서 최종 허용 게시물 경로가 확인되면 정규화한다.
+외부 사이트·사설 IP·로그인 화면·확인 불가 주소로 넘어가면 중단한다. SDK에 공유
+wrapper를 그대로 전달하거나 페이지 HTML을 수집해 게시물로 위조하지 않는다.
+기존 SDK·CSP·설정·canonical HTML 구조와 실행 호스트는 늘리지 않는다. 서버의
+주소 확인에만 `fb.watch`를 허용하며 임의 iframe이나 기존 글 일괄 변경은 없다.
+
+링크 미리보기의 `throttle:10,1`은 사용자 단위 카운터가 일반 G7 요청과 충돌하므로
+`jwsoft-link-preview:` 접두사로 분리한다. 10회/분 제한을 늘리거나 끄지 않는다.
+
+TS/PHP 공통 fixture로 정규화 동등성을 검사하고, 실제 공개 사진의 편집·조회·재편집
+표시 및 모바일 넘침을 별도로 확인한다. URL 인식 통과를 제공자 표시 성공으로
+대체하지 않는다.

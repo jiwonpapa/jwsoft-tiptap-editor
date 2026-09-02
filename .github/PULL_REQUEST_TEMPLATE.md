@@ -7,6 +7,10 @@
 
 - [ ] `make check`
 - [ ] `make build`
+- [ ] `make audit` 및 `make browser-check`
+- [ ] Python 주 하네스 / 단순 Shell / 언어 전용 도구 경계 준수
+- [ ] 검사 해제·상한 증가·만료 연장·커버리지 하향 없음 (있다면 별도 승인 근거)
+- [ ] 실행 증거와 수동 관측, 미실행·건너뜀을 구분
 - [ ] 관련 G7 surface 증거
 - [ ] 보안 정책과 헌법 준수
 - [ ] CKEditor 동등성 계약 영향 확인

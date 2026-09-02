@@ -349,14 +349,6 @@ export function installWritingTools(
       );
     }
   };
-  const count = document.createElement("div");
-  count.className = "jwsoft-editor-footer";
-  region.parentElement?.append(count);
-  // Region is inserted by the G7 adapter after this function returns.
-  queueMicrotask(() => {
-    if (!editor.isDestroyed && !count.isConnected)
-      region.parentElement?.append(count);
-  });
   const update = () => {
     const attributes = editor.getAttributes("jwTextStyle");
     size.value = attributes.inlineSize ?? "";
@@ -367,10 +359,6 @@ export function installWritingTools(
       );
     for (const { control, mark } of markButtons)
       control.setAttribute("aria-pressed", String(editor.isActive(mark)));
-    const length = Array.from(editor.state.doc.textContent).length;
-    count.textContent = en
-      ? `${length.toLocaleString()} characters`
-      : `${length.toLocaleString()}자`;
     for (const control of [
       ...panel.querySelectorAll<HTMLButtonElement | HTMLSelectElement>(
         "button:not(.jwsoft-popover-close), select",
@@ -439,7 +427,6 @@ export function installWritingTools(
     editor.off("update", safeUpdate);
     formatting.destroy();
     context.remove();
-    count.remove();
     document.removeEventListener("keydown", escapeFullscreen, true);
     window.removeEventListener("resize", safeUpdate);
     window.removeEventListener("scroll", safeUpdate, true);

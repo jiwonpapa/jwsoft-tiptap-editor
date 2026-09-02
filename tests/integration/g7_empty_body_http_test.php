@@ -14,6 +14,8 @@ if (getenv('JWSOFT_DISPOSABLE_G7_TEST') !== '1' || ! $root
     throw new RuntimeException('Explicit disposable G7 root and loopback HTTP endpoint required.');
 }
 require $root.'/vendor/autoload.php';
+require_once __DIR__.'/require_dedicated_host.php';
+requireDedicatedEditorHost($root);
 $app = require $root.'/bootstrap/app.php';
 $app->make(Kernel::class)->bootstrap();
 $db = DB::connection();

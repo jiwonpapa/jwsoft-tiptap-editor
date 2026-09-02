@@ -22,64 +22,16 @@ export function evidenceFile(root, relative) {
 
 /** Bind checks to code and package inputs; acceptance-only commits do not invalidate them. */
 export function sourceFingerprint(root) {
-  const files = execFileSync(
-    "git",
-    ["ls-files", "--cached", "--others", "--exclude-standard", "-z"],
-    { cwd: root, encoding: "utf8" },
-  )
-    .split("\0")
-    .filter(
-      (file) =>
-        /^(resources|src|routes|database|lang|config|policy|scripts|tests)\//.test(
-          file,
-        ) ||
-        /^harness\/(contracts|fixtures)\//.test(file) ||
-        /^(plugin\.php|plugin\.json|components\.json|composer\.(json|lock)|package(-lock)?\.json|vite\.config\.ts|vitest\.config\.ts|playwright\.config\.ts|tsconfig\.json|Makefile|CHANGELOG\.md|LICENSE|THIRD_PARTY_NOTICES\.md|vendor-bundle\.(json|zip))$/.test(
-          file,
-        ),
-    );
-  const digest = crypto.createHash("sha256");
-  for (const file of [...new Set(files)].sort()) {
-    const absolute = path.join(root, file);
-    digest
-      .update(file)
-      .update("\0")
-      .update(fs.existsSync(absolute) ? hashFile(absolute) : "missing")
-      .update("\0");
-  }
-  return digest.digest("hex");
+  return execFileSync(
+    process.env.HARNESS_PYTHON ?? "python3",
+    ["-m", "harness.jw_harness", "fingerprint", "--root", root],
+    { cwd: path.resolve(import.meta.dirname, ".."), encoding: "utf8" },
+  ).trim();
 }
 
-export function recordCheckEvidence(root) {
-  const artifacts = [
-    "test-results/parity/unit.json",
-    "test-results/parity/corpus.json",
-  ];
-  const unit = JSON.parse(
-    fs.readFileSync(path.join(root, artifacts[0]), "utf8"),
-  );
-  if (
-    unit.success !== true ||
-    unit.numTotalTests < 1 ||
-    unit.numPassedTests !== unit.numTotalTests
-  )
-    throw new Error("unit checks did not pass");
-  const corpus = JSON.parse(
-    fs.readFileSync(path.join(root, artifacts[1]), "utf8"),
-  );
-  if (corpus.status !== "pass") throw new Error("corpus checks did not pass");
-  const result = {
-    schemaVersion: 1,
-    status: "pass",
-    sourceFingerprint: sourceFingerprint(root),
-    observedAt: new Date().toISOString(),
-    artifacts: Object.fromEntries(
-      artifacts.map((file) => [file, hashFile(path.join(root, file))]),
-    ),
-  };
-  fs.writeFileSync(
-    path.join(root, "test-results/parity/checks.json"),
-    `${JSON.stringify(result, null, 2)}\n`,
+export function recordCheckEvidence() {
+  throw new Error(
+    "Retired: check evidence requires make check execution; no restamping.",
   );
 }
 
@@ -87,6 +39,5 @@ if (
   process.argv[1] === import.meta.filename &&
   process.argv[2] === "record-checks"
 ) {
-  recordCheckEvidence(path.resolve(import.meta.dirname, ".."));
-  console.log("[jwsoft] check evidence bound to current source inputs");
+  recordCheckEvidence();
 }

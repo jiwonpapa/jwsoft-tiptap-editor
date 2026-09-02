@@ -31,7 +31,9 @@ $projectRoot = $argv[2] ?? '';
 require $g7Root.'/vendor/autoload.php';
 require $projectRoot.'/vendor/autoload.php';
 
-$container = new Illuminate\Container\Container();
+$container = new class extends Illuminate\Container\Container {
+    public function runningUnitTests(): bool { return true; }
+};
 $container->instance('events', new Dispatcher($container));
 $container->instance('log', new class {
     public function warning(string $message, array $context = []): void {}
@@ -163,7 +165,10 @@ final class TestImageRepository implements ImageUploadRepositoryInterface
 
         return true;
     }
-    public function findOlderThan(Carbon $threshold, int $limit): Collection { return new Collection(array_values($this->records)); }
+    public function findOlderThan(Carbon $threshold, int $limit, int $afterId = 0): Collection
+    {
+        return new Collection(array_slice(array_values(array_filter($this->records, fn ($row) => $row->id > $afterId)), 0, $limit));
+    }
     public function paginateForAdmin(array $filters, int $perPage, int $page): LengthAwarePaginator { throw new LogicException('unused'); }
     public function findScanWindow(array $filters, int $limit): Collection { return new Collection(array_values($this->records)); }
     public function findManyByIds(array $ids): Collection { return new Collection(array_values($this->records)); }
@@ -244,7 +249,11 @@ $scanner = new class extends ImageReferenceScanService {
     public function hasPotentiallyMissingSources(): bool { return false; }
     public function mapReferenced(iterable $uploads): array { return []; }
 };
-$cleanup = new ImageCleanupService($cleanupRepository, $scanner, new TestImageStorage());
+$cache = new class('jwsoft-tiptap-editor', 'array') extends App\Extension\Cache\PluginCacheDriver {
+    private ?Illuminate\Cache\Repository $memory = null;
+    protected function store(): Illuminate\Cache\Repository { return $this->memory ??= new Illuminate\Cache\Repository(new Illuminate\Cache\ArrayStore()); }
+};
+$cleanup = new ImageCleanupService($cleanupRepository, $scanner, new TestImageStorage(), $cache);
 assertImageSubsystem($cleanup->deleteUpload($cleanupRecord), 'missing physical file should clean the orphan record');
 assertImageSubsystem($cleanupRepository->deleted, 'orphan record must be deleted');
 
@@ -260,9 +269,46 @@ $preserved = $preservedRepository->create([
 $undeletableStorage = new TestImageStorage();
 $undeletableStorage->files['images/2026/08/preserve.png'] = 'x';
 $undeletableStorage->deleteSucceeds = false;
-$cleanup = new ImageCleanupService($preservedRepository, $scanner, $undeletableStorage);
+$cleanup = new ImageCleanupService($preservedRepository, $scanner, $undeletableStorage, $cache);
 assertImageSubsystem(! $cleanup->deleteUpload($preserved), 'physical delete failure must fail closed');
 assertImageSubsystem(! $preservedRepository->deleted, 'record must be preserved when physical delete fails');
+
+// The first referenced page must not starve a later unused upload.
+$queueRepository = new TestImageRepository();
+for ($id = 1; $id <= 3; $id++) {
+    $queueRepository->create([
+        'original_name' => 'cleanup.png', 'file_path' => 'images/cleanup-'.$id.'.png',
+        'storage_disk' => 'test-public', 'file_size' => 1,
+    ]);
+}
+$queueScanner = new class extends ImageReferenceScanService {
+    public function __construct() {}
+    public function hasPotentiallyMissingSources(): bool { return false; }
+    public function mapReferenced(iterable $uploads): array
+    {
+        $result = [];
+        foreach ($uploads as $upload) { $result[(int) $upload->id] = $upload->id <= 2; }
+        return $result;
+    }
+};
+$cache->forget('image-cleanup-cursor:30');
+$queue = new ImageCleanupService($queueRepository, $queueScanner, new TestImageStorage(), $cache);
+assertImageSubsystem($queue->pruneUnused(30, 2)['referenced'] === 2, 'first window must preserve referenced images');
+assertImageSubsystem($queue->pruneUnused(30, 2, true)['referenced'] === 2, 'dry-run must not consume cursor');
+assertImageSubsystem($queue->pruneUnused(30, 2)['deleted'] === 1, 'second window must reach the unused image');
+assertImageSubsystem($queue->pruneUnused(30, 2)['referenced'] === 2, 'finished cursor must wrap safely');
+
+$failedScanner = new class extends ImageReferenceScanService {
+    public function __construct() {}
+    public function hasPotentiallyMissingSources(): bool { return false; }
+    public function mapReferenced(iterable $uploads): array { return [1 => false]; }
+};
+$failedCleanup = new ImageCleanupService($preservedRepository, $failedScanner, $undeletableStorage, $cache);
+$command = new Plugins\Jwsoft\TiptapEditor\Console\Commands\PruneUnusedImagesCommand($failedCleanup);
+$command->setLaravel($container);
+$tester = new Symfony\Component\Console\Tester\CommandTester($command);
+assertImageSubsystem($tester->execute(['--days' => 1, '--limit' => 1]) === 1, 'failed delete must fail the command');
+assertImageSubsystem(! $preservedRepository->deleted, 'failed command must keep its record');
 
 $capsule = new Capsule($container);
 $capsule->addConnection([
@@ -343,7 +389,7 @@ $capsule->table('pages')->insert([
 $adminService = new ImageUploadAdminService(
     $databaseRepository,
     $adminScanner,
-    new ImageCleanupService($databaseRepository, $adminScanner, $databaseStorage),
+    new ImageCleanupService($databaseRepository, $adminScanner, $databaseStorage, $cache),
 );
 $pageTwo = $adminService->paginate([], 1, 2);
 assertImageSubsystem($pageTwo['pagination']['current_page'] === 2, 'admin pagination must honor the requested page');

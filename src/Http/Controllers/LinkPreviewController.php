@@ -29,8 +29,13 @@ class LinkPreviewController extends AdminBaseController
             ]);
 
             return ResponseHelper::success('messages.preview.created', $preview, domain: 'jwsoft-tiptap-editor');
-        } catch (LinkPreviewException) {
-            return ResponseHelper::error('messages.preview.rejected', 422, domain: 'jwsoft-tiptap-editor');
+        } catch (LinkPreviewException $exception) {
+            $message = match ($exception->getMessage()) {
+                'preview_facebook_unsupported' => 'messages.preview.facebook_unsupported',
+                'preview_facebook_unavailable' => 'messages.preview.facebook_unavailable',
+                default => 'messages.preview.rejected',
+            };
+            return ResponseHelper::error($message, 422, domain: 'jwsoft-tiptap-editor');
         } catch (Throwable $exception) {
             Log::error('JWSoft Tiptap 링크 미리보기 생성 실패', ['exception' => $exception::class]);
 

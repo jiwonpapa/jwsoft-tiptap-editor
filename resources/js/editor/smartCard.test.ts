@@ -6,6 +6,8 @@ import {
   insertSmartCard,
   isSmartCardUrl,
 } from "@/editor/smartCard";
+import { normalizeSocialUrl } from "@/editor/socialPolicy";
+import photoUrls from "../../../tests/fixtures/facebook-urls.json";
 
 const editors: ReturnType<typeof createEditor>[] = [];
 
@@ -26,6 +28,31 @@ function editor() {
 }
 
 describe("smart cards", () => {
+  it("preserves a Facebook photo ID through insert, serialization and reopening", () => {
+    const instance = editor();
+    const photo = photoUrls.allowed.find(({ url }) =>
+      url.includes("/photo/?fbid=1667074674776577"),
+    )!;
+    const url = normalizeSocialUrl(photo.url)!.url;
+    insertSmartCard(instance, {
+      url,
+      provider: "facebook",
+      providerLabel: "Facebook",
+      title: "Facebook post",
+      description: "",
+      imageUrl: null,
+    });
+    const html = instance.getHTML();
+    expect(html).toContain(`href="${photo.canonical}"`);
+    expect(html).not.toMatch(/<iframe|<script|data-href|locale=|set=/);
+    const reopened = editor();
+    reopened.commands.setContent(html);
+    expect(reopened.getHTML()).toBe(html);
+    expect(
+      normalizeSocialUrl(reopened.getJSON().content![0].attrs!.url)?.url,
+    ).toBe(url);
+  });
+
   it("serializes only safe canonical card markup", () => {
     const instance = editor();
     insertSmartCard(instance, {

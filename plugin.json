@@ -2,14 +2,14 @@
   "identifier": "jwsoft-tiptap-editor",
   "vendor": "jwsoft",
   "name": {
-    "ko": "JWSoft Tiptap 에디터",
-    "en": "JWSoft Tiptap Editor"
+    "ko": "jw-editor",
+    "en": "jw-editor"
   },
-  "version": "0.1.1-rc.2",
-  "license": "Proprietary",
+  "version": "0.1.1",
+  "license": "Apache-2.0",
   "description": {
-    "ko": "그누보드7의 CKEditor 플러그인을 코어 수정 없이 대체하는 정책 기반 Tiptap 에디터입니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않으며, 기존 글을 JWSoft에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.",
-    "en": "A policy-based Tiptap editor that replaces the Gnuboard 7 CKEditor plugin without core changes. Installing, activating, or viewing does not rewrite stored content. Unsupported formatting may change when an existing document is edited and saved with JWSoft."
+    "ko": "그누보드7의 CKEditor 플러그인을 코어 수정 없이 대체하는 정책 기반 리치 텍스트 에디터입니다. 설치·활성화·조회만으로 기존 글의 저장된 본문은 바뀌지 않으며, 기존 글을 jw-editor에서 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.",
+    "en": "A policy-based rich-text editor that replaces the Gnuboard 7 CKEditor plugin without core changes. Installing, activating, or viewing does not rewrite stored content. Unsupported formatting may change when an existing document is edited and saved with jw-editor."
   },
   "g7_version": ">=7.0.9",
   "dependencies": {

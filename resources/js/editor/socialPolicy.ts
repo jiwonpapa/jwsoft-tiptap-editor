@@ -17,6 +17,14 @@ export interface SocialOptions {
   loadMode: ExternalMediaLoadMode;
 }
 
+function queryId(url: URL, name: string, pattern: string): string | null {
+  const values = url.searchParams.getAll(name);
+  return values.length === 1 &&
+    values[0].match(new RegExp(pattern))?.[0] === values[0]
+    ? values[0]
+    : null;
+}
+
 export function socialOptions(params: Record<string, unknown>): SocialOptions {
   const enabled =
     booleanParam(params.smartCards) && booleanParam(params.socialCards);
@@ -49,6 +57,41 @@ export function normalizeSocialUrl(value: unknown): SocialEmbed | null {
     for (const provider of ["x", "facebook"] as const) {
       const policy = EDITOR_POLICY.externalEmbeds[provider];
       if (!(policy.hosts as readonly string[]).includes(url.hostname)) continue;
+      if (provider === "facebook") {
+        const facebook = EDITOR_POLICY.externalEmbeds.facebook;
+        for (const format of [
+          facebook.photo,
+          facebook.permalink,
+          facebook.watch,
+        ]) {
+          if (!(format.paths as readonly string[]).includes(url.pathname))
+            continue;
+          const id = queryId(url, format.idParameter, format.idPattern);
+          if (!id) return null;
+          let query = `${format.idParameter}=${id}`;
+          if ("ownerParameter" in format) {
+            const owner = queryId(
+              url,
+              format.ownerParameter,
+              format.ownerPattern,
+            );
+            if (!owner) return null;
+            query += `&${format.ownerParameter}=${owner}`;
+          }
+          return {
+            provider,
+            url: `https://${policy.canonicalHost}${format.canonicalPath}?${query}`,
+            id: "",
+          };
+        }
+        const reel = url.pathname.match(new RegExp(facebook.reelPattern));
+        if (reel)
+          return {
+            provider,
+            url: `https://${policy.canonicalHost}/reel/${reel[1]}`,
+            id: "",
+          };
+      }
       const match = url.pathname.match(new RegExp(policy.pathPattern));
       if (!match) return null;
       return {

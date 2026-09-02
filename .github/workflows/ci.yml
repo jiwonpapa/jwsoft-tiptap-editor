@@ -20,14 +20,32 @@ jobs:
         with:
           node-version: 24.15.0
           cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: python3 -m venv .venv
+      - run: .venv/bin/python -m pip install -r harness/requirements-dev.txt
+      - run: sudo apt-get update && sudo apt-get install -y shellcheck
       - uses: shivammathur/setup-php@v2
         with:
           php-version: "8.2"
           coverage: none
       - run: npm ci
       - run: composer install --no-interaction --prefer-dist
+      - run: make audit
       - run: make check
       - run: make build
+      - run: npx playwright install --with-deps chromium
+      - run: make browser-check
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: verification-evidence
+          path: |
+            test-results/harness
+            test-results/playwright
+            coverage/coverage-summary.json
+          retention-days: 14
       - name: Verify committed GitHub install assets
         run: |
           git diff --exit-code -- dist/js/plugin.iife.js

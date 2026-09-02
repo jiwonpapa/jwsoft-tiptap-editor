@@ -1,6 +1,7 @@
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 import { editorText } from "@/editor/locale";
+import { authorizationHeaders } from "@/g7/authorization";
 
 const ENDPOINT = "/api/plugins/jwsoft-tiptap-editor/upload";
 
@@ -38,15 +39,6 @@ export function validateEditorImageFile(
         ? `Images must be ${Math.round(maximum / 1024 / 1024)} MB or smaller.`
         : `이미지는 ${Math.round(maximum / 1024 / 1024)}MB 이하여야 합니다.`,
     );
-  }
-}
-
-function authorizationHeaders(): HeadersInit {
-  try {
-    const token = window.localStorage.getItem("auth_token");
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  } catch {
-    return {};
   }
 }
 

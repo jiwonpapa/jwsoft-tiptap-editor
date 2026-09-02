@@ -17,14 +17,20 @@ const notices = fs.readFileSync(
   "utf8",
 );
 
-if (npm.private !== true || npm.license !== "UNLICENSED") {
-  throw new Error("npm package must remain private and UNLICENSED");
+if (npm.private !== true || npm.license !== "Apache-2.0") {
+  throw new Error("npm package must remain private with Apache-2.0 metadata");
 }
-if (plugin.license !== "Proprietary" || composer.license !== "proprietary") {
-  throw new Error("product license metadata must be Proprietary");
+if (plugin.license !== "Apache-2.0" || composer.license !== "Apache-2.0") {
+  throw new Error("product license metadata must be Apache-2.0");
 }
-if (!fs.existsSync(path.join(root, "LICENSE"))) {
-  throw new Error("product LICENSE is missing");
+const license = fs.readFileSync(path.join(root, "LICENSE"), "utf8");
+if (
+  !license.includes("Apache License") ||
+  !license.includes("Version 2.0, January 2004") ||
+  !license.includes("END OF TERMS AND CONDITIONS") ||
+  !fs.existsSync(path.join(root, "NOTICE"))
+) {
+  throw new Error("Apache-2.0 LICENSE or product NOTICE is missing");
 }
 
 const runtimeNpm = Object.entries(npmLock.packages)
@@ -90,6 +96,7 @@ if (process.argv.includes("--artifact")) {
   }).split("\n");
   const required = [
     "jwsoft-tiptap-editor/LICENSE",
+    "jwsoft-tiptap-editor/NOTICE",
     "jwsoft-tiptap-editor/THIRD_PARTY_NOTICES.md",
     "jwsoft-tiptap-editor/licenses/npm-manifest.json",
     "jwsoft-tiptap-editor/licenses/composer-manifest.json",
@@ -106,7 +113,7 @@ if (process.argv.includes("--artifact")) {
 const evidence = {
   schemaVersion: 1,
   status: "pass",
-  productLicense: "Proprietary",
+  productLicense: "Apache-2.0",
   npmRuntimePackages: runtimeNpm.length,
   composerRuntimePackages: composerLock.packages.length,
   tiptapProPackages: 0,

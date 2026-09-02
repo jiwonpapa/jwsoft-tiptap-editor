@@ -148,6 +148,74 @@
           "items": { "type": "string", "pattern": "^[a-z0-9.-]+$" }
         },
         "pathPattern": { "type": "string" },
+        "photo": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paths", "idParameter", "idPattern", "canonicalPath"],
+          "properties": {
+            "paths": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["/photo", "/photo/", "/photo.php"] }
+            },
+            "idParameter": { "const": "fbid" },
+            "idPattern": { "const": "^[1-9][0-9]{0,24}$" },
+            "canonicalPath": { "const": "/photo.php" }
+          }
+        },
+        "permalink": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "paths",
+            "idParameter",
+            "idPattern",
+            "ownerParameter",
+            "ownerPattern",
+            "canonicalPath"
+          ],
+          "properties": {
+            "paths": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["/permalink.php", "/story.php"] }
+            },
+            "idParameter": { "const": "story_fbid" },
+            "idPattern": { "type": "string" },
+            "ownerParameter": { "const": "id" },
+            "ownerPattern": { "const": "^[1-9][0-9]{0,24}$" },
+            "canonicalPath": { "const": "/permalink.php" }
+          }
+        },
+        "watch": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["paths", "idParameter", "idPattern", "canonicalPath"],
+          "properties": {
+            "paths": {
+              "type": "array",
+              "minItems": 1,
+              "uniqueItems": true,
+              "items": { "enum": ["/watch", "/watch/"] }
+            },
+            "idParameter": { "const": "v" },
+            "idPattern": { "const": "^[1-9][0-9]{0,24}$" },
+            "canonicalPath": { "const": "/watch/" }
+          }
+        },
+        "reelPattern": { "type": "string" },
+        "redirects": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["pathPattern", "shortHost", "shortPathPattern"],
+          "properties": {
+            "pathPattern": { "type": "string" },
+            "shortHost": { "const": "fb.watch" },
+            "shortPathPattern": { "type": "string" }
+          }
+        },
         "canonicalHost": { "type": "string", "pattern": "^[a-z0-9.-]+$" },
         "sdkUrl": { "type": "string", "pattern": "^https://" },
         "scriptOrigins": { "$ref": "#/$defs/origins" },

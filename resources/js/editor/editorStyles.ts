@@ -193,7 +193,26 @@ ${EDITOR_TOKEN_CSS}
 .jwsoft-context-tools { position: fixed; inset: auto; margin: 0; padding: 5px; max-width: calc(100vw - 16px); box-sizing: border-box; border: 1px solid #dce2eb; border-radius: 10px; background: #fff; color: #334155; box-shadow: 0 5px 20px #172b4d26; }
 .jwsoft-context-tools:popover-open { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; width: max-content; max-width: min(590px, calc(100vw - 16px)); }
 .jwsoft-context-tools .jwsoft-tiptap-select { max-width: 105px; }
-.jwsoft-editor-footer { text-align: right; padding: 8px 16px; font-size: 11px; color: var(--jw-subtle, #8590a2); background: var(--jw-surface, #fff); border-top: 1px solid var(--jw-border, #edf0f4); }
+.jwsoft-editor-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 4px 12px; font-size: 11px; color: var(--jw-subtle, #687080); background: var(--jw-surface, #fff); border-top: 1px solid var(--jw-border, #edf0f4); border-radius: 0 0 12px 12px; }
+.jwsoft-editor-identity { display: flex; align-items: center; gap: 8px; }
+.jwsoft-editor-identity > span:first-child { font-weight: 650; color: var(--jw-ink); }
+.jwsoft-editor-count { margin-inline-start: auto; }
+.jwsoft-editor-help-button { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; color: inherit; background: transparent; font: inherit; font-size: 14px; font-weight: 600; line-height: 1; cursor: pointer; }
+.jwsoft-editor-help-button:hover { background: var(--jw-muted); color: var(--jw-ink); }
+.jwsoft-editor-help-button:focus-visible, .jwsoft-editor-help :is(summary, button, a, textarea):focus-visible { outline: 2px solid #2563eb; outline-offset: 2px; }
+.jwsoft-editor-help { padding: 20px 24px 24px; font-size: 14px; line-height: 1.7; text-align: left; }
+.jwsoft-editor-help > p { margin: 0 0 12px; font-size: 12px; }
+.jwsoft-editor-help ul { margin: 0 0 20px; padding-inline-start: 20px; }
+.jwsoft-editor-help li + li { margin-top: 8px; }
+.jwsoft-editor-help details { padding-block: 12px; margin-bottom: 16px; border-block: 1px solid var(--jw-border, #e5e7eb); }
+.jwsoft-editor-help summary { cursor: pointer; font-weight: 600; }
+.jwsoft-editor-help details p { font-size: 12px; }
+.jwsoft-editor-help textarea { box-sizing: border-box; display: block; width: 100%; min-height: 160px; max-height: 45dvh; resize: vertical; padding: 12px; border: 1px solid var(--jw-border, #e5e7eb); border-radius: 6px; background: var(--jw-muted, #f7f8fa); color: inherit; font: 12px/1.6 ui-monospace, monospace; }
+.jwsoft-editor-source-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; margin-top: 8px; font-size: 12px; }
+.jwsoft-editor-source-actions button { min-height: 40px; padding: 6px 12px; border: 1px solid var(--jw-border, #e5e7eb); border-radius: 6px; background: var(--jw-muted, #f7f8fa); color: inherit; cursor: pointer; }
+.jwsoft-editor-help > a { color: var(--jw-accent, #2563eb); text-decoration: underline; }
+html.dark .jwsoft-editor-help > a { color: #93b4ff; }
+@media (max-width: 640px) { .jwsoft-editor-help-button { width: 44px; height: 44px; } .jwsoft-editor-help { padding: 16px; } }
 .jwsoft-editor-fullscreen { position: fixed !important; inset: 12px !important; z-index: 9999; display: flex; flex-direction: column; margin: 0 !important; height: auto !important; max-height: none !important; }
 .jwsoft-editor-fullscreen .jwsoft-tiptap-editor-frame { flex: 1; min-height: 0; overflow: auto; }
 .jwsoft-editor-fullscreen .jwsoft-tiptap-editable { min-height: calc(100dvh - 200px) !important; max-height: none !important; }

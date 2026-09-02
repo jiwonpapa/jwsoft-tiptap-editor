@@ -3,6 +3,7 @@
 namespace Plugins\Jwsoft\TiptapEditor\Services;
 
 use App\Contracts\Extension\StorageInterface;
+use App\Contracts\Extension\CacheInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
 use Plugins\Jwsoft\TiptapEditor\Models\JwsoftTiptapImageUpload;
@@ -10,10 +11,13 @@ use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\ImageUploadRepositoryInte
 
 class ImageCleanupService
 {
+    private const CURSOR_TTL = 60 * 60 * 24 * 30;
+
     public function __construct(
         private readonly ImageUploadRepositoryInterface $repository,
         private readonly ImageReferenceScanService $scanner,
         private readonly StorageInterface $storage,
+        private readonly CacheInterface $cache,
     ) {}
 
     /** @return array{scanned:int, referenced:int, deleted:int, failed:int, items:array, skipped_reason?:string} */
@@ -25,7 +29,14 @@ class ImageCleanupService
             return ['scanned' => 0, 'referenced' => 0, 'deleted' => 0, 'failed' => 0, 'items' => [], 'skipped_reason' => 'sources_incomplete'];
         }
 
-        $candidates = $this->repository->findOlderThan(Carbon::now()->subDays(max(1, $days)), max(1, $limit));
+        $key = 'image-cleanup-cursor:'.max(1, $days);
+        $afterId = $dryRun ? 0 : max(0, (int) $this->cache->get($key, 0));
+        $threshold = Carbon::now()->subDays(max(1, $days));
+        $candidates = $this->repository->findOlderThan($threshold, max(1, $limit), $afterId);
+        if ($candidates->isEmpty() && $afterId > 0) {
+            $candidates = $this->repository->findOlderThan($threshold, max(1, $limit));
+        }
+        $nextId = (int) ($candidates->last()?->id ?? 0);
         $references = $this->scanner->mapReferenced($candidates);
         $result = ['scanned' => $candidates->count(), 'referenced' => 0, 'deleted' => 0, 'failed' => 0, 'items' => []];
 
@@ -43,6 +54,12 @@ class ImageCleanupService
                 $result['failed']++;
                 $result['items'][] = $this->describe($upload, 'failed');
             }
+        }
+
+        // A bounded scan must advance even when every candidate is still referenced.
+        // Failures remain in storage and are retried after the cursor wraps.
+        if (! $dryRun && ! $this->cache->put($key, $nextId, self::CURSOR_TTL)) {
+            throw new \RuntimeException('Image cleanup cursor could not be persisted.');
         }
 
         return $result;

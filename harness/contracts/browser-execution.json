@@ -1,0 +1,293 @@
+{
+  "schemaVersion": 1,
+  "cases": [
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "link quote lists alignment and indentation use policy-safe controls",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "document typography and explicit tokens match editor and public content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "Enter after a completed task creates an unchecked task and empty Enter exits the list",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "inline appearance find-replace checklist and fullscreen stay policy-safe",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "table context controls and image resize are usable on the rendered editor",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "product footer exposes the package version and accessible read-only help",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "link quote lists alignment and indentation use policy-safe controls",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "document typography and explicit tokens match editor and public content",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "Enter after a completed task creates an unchecked task and empty Enter exits the list",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "inline appearance find-replace checklist and fullscreen stay policy-safe",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "table context controls and image resize are usable on the rendered editor",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-formatting.spec.ts",
+      "title": "product footer exposes the package version and accessible read-only help",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "Chromium Korean IME paste undo and redo preserve canonical content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "100 route replacements leave no detached editor instances",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "Chromium Korean IME paste undo and redo preserve canonical content",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "100 route replacements leave no detached editor instances",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "pasted SNS URL becomes a safe canonical smart card",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "link card toolbar inserts a generic HTTPS preview",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "failed automatic preview preserves the original URL as a link",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "closing a pending link preview modal does not insert late content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "pasted SNS URL becomes a safe canonical smart card",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "link card toolbar inserts a generic HTTPS preview",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "failed automatic preview preserves the original URL as a link",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "closing a pending link preview modal does not insert late content",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "image upload supports caption alignment size and responsive output",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "media URL displays the same immediate responsive player in editor and content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "portrait MP4 keeps its decoded ratio responsively in editor and content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "image upload supports caption alignment size and responsive output",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "media URL displays the same immediate responsive player in editor and content",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-media.spec.ts",
+      "title": "portrait MP4 keeps its decoded ratio responsively in editor and content",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "title Enter keeps the document and title, requires body and leaves explicit save usable",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "focused menus expose named tools and keyboard actions without mixing categories",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "toolbar keeps history visible at 360 390 768 and 1280 pixels",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "mobile formatting sheet preserves selection traps focus and returns to visible triggers",
+      "project": "chromium-desktop",
+      "required": false
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "desktop toolbar keeps selection commands and keyboard focus usable",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "mobile toolbar uses grouped menus and a non-reflowing modal",
+      "project": "chromium-desktop",
+      "required": false
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "title Enter keeps the document and title, requires body and leaves explicit save usable",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "focused menus expose named tools and keyboard actions without mixing categories",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "toolbar keeps history visible at 360 390 768 and 1280 pixels",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "mobile formatting sheet preserves selection traps focus and returns to visible triggers",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "desktop toolbar keeps selection commands and keyboard focus usable",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-ui.spec.ts",
+      "title": "mobile toolbar uses grouped menus and a non-reflowing modal",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "official whitelist display is shared by editing/viewing, responsive, and never serialized",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "OFF has no external execution; click mode defers it and failed SDK has a small retry state",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "live official providers render in both surfaces",
+      "project": "chromium-desktop",
+      "required": false
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "official whitelist display is shared by editing/viewing, responsive, and never serialized",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "OFF has no external execution; click mode defers it and failed SDK has a small retry state",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "social-embeds.spec.ts",
+      "title": "live official providers render in both surfaces",
+      "project": "chromium-mobile",
+      "required": false
+    }
+  ]
+}

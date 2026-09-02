@@ -233,7 +233,7 @@ class Plugin extends AbstractPlugin
     public function getPermissions(): array
     {
         return [
-            'name' => ['ko' => 'JWSoft Tiptap 에디터', 'en' => 'JWSoft Tiptap Editor'],
+            'name' => ['ko' => 'jw-editor', 'en' => 'jw-editor'],
             'description' => ['ko' => '에디터 업로드 이미지 관리 권한', 'en' => 'Editor upload management permissions'],
             'categories' => [[
                 'identifier' => 'uploads',
@@ -354,7 +354,7 @@ class Plugin extends AbstractPlugin
 
                 if (in_array($activeIdentifier, self::CONFLICTING_PLUGINS, true)) {
                     return $this->failWith(
-                        '현재 CKEditor (sirsoft-ckeditor5)가 활성화되어 있습니다. 에디터는 하나만 활성화할 수 있습니다. 관리자 → 플러그인에서 CKEditor를 먼저 비활성화한 뒤 JWSoft Tiptap 에디터의 활성화를 다시 누르십시오. 기존 에디터는 자동으로 꺼지지 않았습니다. 전환에 실패하면 CKEditor를 다시 활성화하십시오. 설치·활성화만으로 기존 글의 저장된 본문은 변경되지 않습니다.'
+                        '현재 CKEditor (sirsoft-ckeditor5)가 활성화되어 있습니다. 에디터는 하나만 활성화할 수 있습니다. 관리자 → 플러그인에서 CKEditor를 먼저 비활성화한 뒤 jw-editor의 활성화를 다시 누르십시오. 기존 에디터는 자동으로 꺼지지 않았습니다. 전환에 실패하면 CKEditor를 다시 활성화하십시오. 설치·활성화만으로 기존 글의 저장된 본문은 변경되지 않습니다.'
                     );
                 }
             }

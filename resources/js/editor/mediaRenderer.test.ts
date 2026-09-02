@@ -52,6 +52,28 @@ describe("content media renderer", () => {
     expect(document.querySelector("video")).not.toBeNull();
   });
 
+  it("restores canonical children when a detached figure is later reinserted", () => {
+    document.body.innerHTML =
+      '<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-mp4"><a class="jw-media-source" href="https://cdn.example.com/clip.mp4">clip.mp4</a></figure></div>';
+    const container = document.querySelector<HTMLElement>(
+      ".jwsoft-tiptap-content",
+    )!;
+    const figure = container.querySelector<HTMLElement>("figure")!;
+    for (let cycle = 0; cycle < 3; cycle += 1) {
+      expect(enhanceContentMedia()).toBe(1);
+      expect(figure.querySelectorAll("video")).toHaveLength(1);
+      figure.remove();
+      enhanceContentMedia();
+      expect(figure.querySelector("a.jw-media-source")?.textContent).toBe(
+        "clip.mp4",
+      );
+      expect(figure.querySelector("video")).toBeNull();
+      container.append(figure);
+    }
+    expect(enhanceContentMedia()).toBe(1);
+    expect(figure.querySelectorAll("video")).toHaveLength(1);
+  });
+
   it("respects explicit click-to-load without enabling autoplay", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-16x9 jw-media-youtube"><a class="jw-media-source" href="https://www.youtube.com/watch?v=dQw4w9WgXcQ">영상</a></figure></div>`;
     expect(enhanceContentMedia({ loadMode: "click" })).toBe(1);
@@ -101,5 +123,24 @@ describe("content media renderer", () => {
     document.body.innerHTML = `<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-youtube"><a class="jw-media-source" href="https://evil.example/video">영상</a></figure></div>`;
     expect(enhanceContentMedia()).toBe(0);
     expect(document.querySelector(".jw-media-source")).not.toBeNull();
+  });
+
+  it("reapplies loading and autoplay changes on the same figure", () => {
+    document.body.innerHTML =
+      '<div class="jwsoft-tiptap-content"><figure class="jw-media jw-media-youtube"><a class="jw-media-source" href="https://youtu.be/dQw4w9WgXcQ">video</a></figure></div>';
+    enhanceContentMedia({ autoplay: true });
+    expect(document.querySelector("iframe")?.src).toContain("autoplay=1");
+    enhanceContentMedia({ loadMode: "click", autoplay: false });
+    expect(document.querySelector("iframe")).toBeNull();
+    document.querySelector<HTMLButtonElement>(".jw-media-load")!.click();
+    expect(document.querySelector("iframe")?.src).toContain("autoplay=0");
+    enhanceContentMedia({ loadMode: "immediate", autoplay: false });
+    expect(document.querySelectorAll("iframe")).toHaveLength(1);
+    expect(
+      enhanceContentMedia({ loadMode: "immediate", autoplay: false }),
+    ).toBe(0);
+    stopContentMediaObserver();
+    expect(document.querySelector("iframe")).toBeNull();
+    expect(document.querySelector("a.jw-media-source")).not.toBeNull();
   });
 });

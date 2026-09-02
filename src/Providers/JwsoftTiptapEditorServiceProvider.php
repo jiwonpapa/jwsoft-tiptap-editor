@@ -36,6 +36,8 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
 
     protected array $storageServices = [ImageServeService::class, ImageCleanupService::class];
 
+    protected array $cacheServices = [ImageCleanupService::class];
+
     protected array $storageCategoryServices = [
         ImageUploadService::class => 'images',
         MediaUploadService::class => 'media',
@@ -70,7 +72,7 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
     {
         if ($pluginIdentifier === 'sirsoft-ckeditor5' && $this->isActive()) {
             throw new RuntimeException(
-                '현재 JWSoft Tiptap 에디터가 활성화되어 있습니다. 에디터는 하나만 활성화할 수 있습니다. 관리자 → 플러그인에서 JWSoft Tiptap 에디터를 먼저 비활성화한 뒤 CKEditor (sirsoft-ckeditor5)의 활성화를 다시 누르십시오. 기존 에디터는 자동으로 꺼지지 않았습니다.',
+                '현재 jw-editor가 활성화되어 있습니다. 에디터는 하나만 활성화할 수 있습니다. 관리자 → 플러그인에서 jw-editor를 먼저 비활성화한 뒤 CKEditor (sirsoft-ckeditor5)의 활성화를 다시 누르십시오. 기존 에디터는 자동으로 꺼지지 않았습니다.',
             );
         }
     }
@@ -93,7 +95,7 @@ class JwsoftTiptapEditorServiceProvider extends BasePluginServiceProvider
         }
 
         throw new RuntimeException(
-            '현재 JWSoft Tiptap 에디터가 활성화되어 있어 CKEditor (sirsoft-ckeditor5)의 동시 활성화를 되돌렸습니다. 관리자 → 플러그인에서 JWSoft Tiptap 에디터를 먼저 비활성화한 뒤 CKEditor의 활성화를 다시 누르십시오.',
+            '현재 jw-editor가 활성화되어 있어 CKEditor (sirsoft-ckeditor5)의 동시 활성화를 되돌렸습니다. 관리자 → 플러그인에서 jw-editor를 먼저 비활성화한 뒤 CKEditor의 활성화를 다시 누르십시오.',
         );
     }
 

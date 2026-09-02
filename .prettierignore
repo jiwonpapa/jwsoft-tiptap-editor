@@ -2,3 +2,6 @@ dist/
 vendor-bundle.json
 output/
 .playwright-cli/
+.venv/
+.mypy_cache/
+.ruff_cache/

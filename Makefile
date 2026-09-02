@@ -1,8 +1,14 @@
 SHELL := /bin/bash
+HARNESS_PYTHON ?= .venv/bin/python
+HARNESS = $(HARNESS_PYTHON) -m harness.jw_harness
+export HARNESS_PYTHON
 
 .PHONY: bootstrap doctor check build test integration-check parity-evidence parity-gate package license-check license-evidence reproducible-package release-candidate-evidence release-candidate-check stable-readiness-gate release-check deploy-plan deploy clean
+.PHONY: governance-check audit browser-check clean-apply
 
 bootstrap:
+	python3 -m venv .venv
+	$(HARNESS_PYTHON) -m pip install -r harness/requirements-dev.txt
 	npm ci
 	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer install --no-interaction --prefer-dist
 
@@ -10,23 +16,20 @@ doctor:
 	./scripts/doctor.sh
 
 check:
-	npm run check
-	node scripts/license-audit.mjs
-	node scripts/deploy-contract-test.mjs
-	node scripts/deploy-evidence-test.mjs
-	node scripts/stable-evidence-test.mjs
-	node scripts/release-phases-test.mjs
-	node scripts/remote-deploy-preflight-test.mjs
-	node scripts/remote-deploy-transaction-test.mjs
-	COMPOSER_ROOT_VERSION=$$(node -p "require('./package.json').version") composer validate --strict --no-check-publish
-	php tests/php/plugin_activation_test.php
-	php tests/php/plugin_double_load_test.php
-	php tests/php/editor_sanitizer_test.php
-	php tests/php/parity_corpus_test.php
-	node scripts/vendor-bundle-manifest-test.mjs
-	find src tests/php tests/integration -name '*.php' -print0 | xargs -0 -n1 php -l
-	./scripts/check-shell.sh
-	node scripts/evidence-provenance.mjs record-checks
+	$(HARNESS) check
+
+governance-check:
+	$(HARNESS) governance
+
+audit:
+	$(HARNESS) audit
+
+browser-check:
+	$(HARNESS) browser
+
+.PHONY: g7-browser-check
+g7-browser-check:
+	$(HARNESS) g7-browser --host "$(G7_ROOT)" --base "$(G7_BASE_URL)"
 
 build:
 	npm run build
@@ -62,6 +65,7 @@ release-candidate-evidence:
 	node scripts/write-release-candidate-evidence.mjs
 
 release-candidate-check:
+	$(MAKE) audit
 	$(MAKE) check
 	$(MAKE) build
 	$(MAKE) integration-check
@@ -84,4 +88,7 @@ deploy:
 	./scripts/deploy.sh "$(ENV)" --apply
 
 clean:
-	rm -rf .build dist coverage playwright-report test-results
+	$(HARNESS) clean
+
+clean-apply:
+	$(HARNESS) clean --apply

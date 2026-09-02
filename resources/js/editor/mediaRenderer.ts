@@ -7,10 +7,23 @@ import {
 } from "@/editor/mediaPlayer";
 export type { ExternalMediaLoadMode } from "@/editor/mediaPlayer";
 
-const enhancedFigures = new WeakMap<
-  HTMLElement,
-  ReturnType<typeof createMediaPlayer>
->();
+interface EnhancedMedia {
+  player: ReturnType<typeof createMediaPlayer>;
+  original: Node[];
+  signature: string;
+}
+
+const enhancedFigures = new Map<HTMLElement, EnhancedMedia>();
+
+function releaseFigure(figure: HTMLElement, entry: EnhancedMedia): void {
+  const ownsContent = entry.player.dom.parentElement === figure;
+  entry.player.destroy();
+  if (ownsContent) {
+    figure.replaceChildren(...entry.original);
+    resetIntrinsicMediaLayout(figure);
+  }
+  enhancedFigures.delete(figure);
+}
 
 function providerFrom(figure: HTMLElement): MediaProvider | null {
   if (figure.classList.contains("jw-media-youtube")) return "youtube";
@@ -23,14 +36,26 @@ export function enhanceContentMedia(
   options: MediaPlaybackOptions & { root?: ParentNode } = {},
 ): number {
   const root = options.root ?? document;
+  const signature = JSON.stringify([
+    options.loadMode ?? "immediate",
+    options.autoplay ?? false,
+  ]);
+  for (const [figure, entry] of enhancedFigures) {
+    if (figure.isConnected) continue;
+    releaseFigure(figure, entry);
+  }
   let enhanced = 0;
   for (const figure of root.querySelectorAll<HTMLElement>(
     ".jwsoft-tiptap-content figure.jw-media",
   )) {
     if (figure.closest(".jwsoft-tiptap-editable")) continue;
     const previous = enhancedFigures.get(figure);
-    if (previous?.dom.parentElement === figure) continue;
-    previous?.destroy();
+    if (
+      previous?.player.dom.parentElement === figure &&
+      previous.signature === signature
+    )
+      continue;
+    if (previous) releaseFigure(figure, previous);
     const provider = providerFrom(figure);
     const source = figure.querySelector<HTMLAnchorElement>("a.jw-media-source");
     const media = source
@@ -43,7 +68,11 @@ export function enhanceContentMedia(
       options,
       (size) => applyIntrinsicMediaLayout(figure, size),
     );
-    enhancedFigures.set(figure, player);
+    enhancedFigures.set(figure, {
+      player,
+      signature,
+      original: [...figure.childNodes].map((node) => node.cloneNode(true)),
+    });
     figure.replaceChildren(player.dom);
     enhanced += 1;
   }
@@ -98,4 +127,7 @@ export function startContentMediaObserver(
 export function stopContentMediaObserver(): void {
   contentObserver?.disconnect();
   contentObserver = null;
+  for (const [figure, entry] of enhancedFigures) {
+    releaseFigure(figure, entry);
+  }
 }

@@ -8,7 +8,7 @@ class ImageUploadRequest extends FormRequest
 {
     public function authorize(): bool
     {
-        return true;
+        return (bool) plugin_setting('jwsoft-tiptap-editor', 'imageUpload', true);
     }
 
     public function rules(): array

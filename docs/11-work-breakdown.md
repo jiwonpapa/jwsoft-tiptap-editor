@@ -66,7 +66,7 @@ Epic 3의 게시판·상품·페이지 전체 편집 저장 sanitizer가 연결�
 
 ## Epic 6 — 출시
 
-- [x] Proprietary 제품 라이선스 결정
+- [x] Apache-2.0 제품 라이선스 결정 (ADR-0015)
 - [x] third-party notices와 런타임 원문 라이선스 패키징
 - [x] alpha release-candidate package reproducibility
 - [ ] staging 검증

@@ -32,11 +32,15 @@ if (plugin.assets?.js?.output !== "dist/js/plugin.iife.js")
   fail("IIFE 출력 계약이 다릅니다.");
 if (plugin.github_url !== "https://github.com/jiwonpapa/jwsoft-tiptap-editor")
   fail("GitHub URL이 제품 저장소와 다릅니다.");
-if (npmManifest.private !== true || npmManifest.license !== "UNLICENSED")
-  fail("npm 레지스트리 배포 금지를 위해 private/UNLICENSED여야 합니다.");
-if (composer.license !== "proprietary")
-  fail("Composer 라이선스는 proprietary여야 합니다.");
-if (plugin.license !== "Proprietary")
-  fail("플러그인 제품 라이선스는 Proprietary여야 합니다.");
+if (npmManifest.private !== true)
+  fail("npm 레지스트리 배포는 허용하지 않습니다.");
+if (
+  [npmManifest.license, composer.license, plugin.license].some(
+    (license) => license !== "Apache-2.0",
+  )
+)
+  fail("제품 라이선스는 Apache-2.0이어야 합니다.");
+if (plugin.name.ko !== "jw-editor" || plugin.name.en !== "jw-editor")
+  fail("공식 제품명은 jw-editor여야 합니다.");
 
 if (!process.exitCode) console.log("[jwsoft] Manifest 계약 검사 통과");

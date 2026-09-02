@@ -31,7 +31,7 @@ rm -rf "$build_root"
 rm -f "$artifact"
 mkdir -p "$stage"
 
-for file in plugin.php plugin.json components.json composer.json composer.lock CHANGELOG.md LICENSE THIRD_PARTY_NOTICES.md; do
+for file in plugin.php plugin.json components.json composer.json composer.lock CHANGELOG.md LICENSE NOTICE THIRD_PARTY_NOTICES.md; do
   [ -f "$PROJECT_ROOT/$file" ] || fail "runtime 파일 누락: $file"
   rsync -a "$PROJECT_ROOT/$file" "$stage/$file"
 done

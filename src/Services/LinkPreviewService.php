@@ -6,6 +6,7 @@ use DOMDocument;
 use DOMXPath;
 use GuzzleHttp\Psr7\Uri;
 use GuzzleHttp\Psr7\UriResolver;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Http\Client\Factory;
 use Illuminate\Http\Client\Response;
 use Plugins\Jwsoft\TiptapEditor\Exceptions\LinkPreviewException;
@@ -22,12 +23,16 @@ class LinkPreviewService
     ) {}
 
     /**
-     * @param array{social: bool, generic: bool, images: bool} $options
+     * @param array{social: bool, generic: bool, images: bool, embeds?: array{x?: bool, facebook?: bool}} $options
      * @return array{url: string, provider: string, provider_label: string, title: string, description: string, image_url: ?string}
      */
     public function preview(string $value, array $options): array
     {
         $embed = SocialEmbedPolicy::normalize($value);
+        if (!$embed && $options['social'] && ($options['embeds']['facebook'] ?? false)) {
+            $redirect = SocialEmbedPolicy::facebookRedirectUrl($value);
+            if ($redirect !== null) $embed = $this->resolveFacebookRedirect($redirect);
+        }
         if ($embed && $options['social'] && ($options['embeds'][$embed['provider']] ?? false)) {
             $label = $this->providerLabel($embed['provider'], '');
             // This is a validated embed descriptor, not fetched/fabricated post metadata.
@@ -39,6 +44,9 @@ class LinkPreviewService
         if (($provider === 'generic' && ! $options['generic'])
             || ($provider !== 'generic' && ! $options['social'])) {
             throw new LinkPreviewException('preview_provider_disabled');
+        }
+        if ($provider === 'facebook' && ($options['embeds']['facebook'] ?? false)) {
+            throw new LinkPreviewException('preview_facebook_unsupported');
         }
 
         [$finalUrl, $html] = $this->fetchHtml($url);
@@ -117,6 +125,35 @@ class LinkPreviewService
         }
 
         throw new LinkPreviewException('preview_redirect_limit');
+    }
+
+    /** Resolve only Facebook share hops; stop before requesting the canonical post. */
+    private function resolveFacebookRedirect(string $url): array
+    {
+        for ($redirect = 0; $redirect <= self::MAX_REDIRECTS; $redirect++) {
+            $host = (string) parse_url($url, PHP_URL_HOST);
+            $address = $this->resolver->resolve($host);
+            $resolveAddress = str_contains($address, ':') ? '['.$address.']' : $address;
+            try {
+                $response = $this->http
+                    ->withHeaders(['Accept' => 'text/html', 'User-Agent' => 'JWSoft-Tiptap-LinkPreview/1.0'])
+                    ->withOptions(['allow_redirects' => false, 'curl' => [CURLOPT_RESOLVE => ["{$host}:443:{$resolveAddress}"]]])
+                    ->connectTimeout(3)->timeout(6)->head($url);
+            } catch (ConnectionException $exception) {
+                throw new LinkPreviewException('preview_facebook_unavailable', previous: $exception);
+            }
+            if (!in_array($response->status(), [301, 302, 303, 307, 308], true)) {
+                throw new LinkPreviewException('preview_facebook_unavailable');
+            }
+            $location = $response->header('Location');
+            if (!is_string($location) || $location === '') throw new LinkPreviewException('preview_facebook_unavailable');
+            $next = $this->normalizeUrl((string) UriResolver::resolve(new Uri($url), new Uri($location)));
+            $embed = SocialEmbedPolicy::normalize($next);
+            if ($embed !== null && $embed['provider'] === 'facebook') return $embed;
+            $url = SocialEmbedPolicy::facebookRedirectUrl($next);
+            if ($url === null) throw new LinkPreviewException('preview_facebook_unavailable');
+        }
+        throw new LinkPreviewException('preview_facebook_unavailable');
     }
 
     private function readBody(Response $response): string

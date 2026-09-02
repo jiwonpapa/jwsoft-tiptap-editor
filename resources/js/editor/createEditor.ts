@@ -1,42 +1,20 @@
 import { Editor } from "@tiptap/core";
-import Placeholder from "@tiptap/extension-placeholder";
-import { Table, TableKit } from "@tiptap/extension-table";
 import {
   DOMParser as ProseMirrorDOMParser,
   DOMSerializer,
-  type DOMOutputSpec,
 } from "@tiptap/pm/model";
-import StarterKit from "@tiptap/starter-kit";
-
-import { ClassTokenExtension } from "@/editor/classTokens";
-import { PolicyImage } from "@/editor/imageNode";
 import {
-  PolicyTextStyle,
-  PolicySubscript,
-  PolicySuperscript,
-} from "@/editor/inlineStyle";
-import { PolicyTaskItem, PolicyTaskList } from "@/editor/taskList";
-import { MediaEmbedExtension } from "@/editor/mediaEmbed";
-import type { MediaPlaybackOptions } from "@/editor/mediaPlayer";
-import { SmartCardExtension } from "@/editor/smartCard";
-import type { SocialOptions } from "@/editor/socialPolicy";
+  createEditorExtensions,
+  type EditorModuleOptions,
+} from "@/editor/modules";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
 import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
-const PolicyTable = Table.extend({
-  renderHTML({ HTMLAttributes }): DOMOutputSpec {
-    return ["table", HTMLAttributes, ["tbody", 0]];
-  },
-});
-
-interface CreateEditorOptions {
+interface CreateEditorOptions extends EditorModuleOptions {
   element: HTMLElement;
   content: string;
-  placeholder: string;
   editable: boolean;
   onUpdate: (html: string) => void;
-  mediaPlayback?: MediaPlaybackOptions;
-  socialEmbeds?: SocialOptions;
   onPasteSanitized?: () => void;
   onImageFilesDropped?: (files: File[], position: number) => void;
   onImageFilesPasted?: (files: File[], position: number) => void;
@@ -52,41 +30,13 @@ export function createEditor(options: CreateEditorOptions): Editor {
     element: options.element,
     content: options.content,
     editable: options.editable,
-    extensions: [
-      StarterKit.configure({
-        heading: { levels: [2, 3, 4] },
-        link: {
-          defaultProtocol: "https",
-          openOnClick: false,
-          protocols: ["https", "mailto", "tel"],
-          HTMLAttributes: {
-            target: null,
-            rel: null,
-            class: null,
-          },
-        },
-      }),
-      PolicyImage.configure({ allowBase64: false }),
-      TableKit.configure({ table: false }),
-      PolicyTable.configure({ resizable: false, View: null }),
-      ClassTokenExtension,
-      PolicyTextStyle,
-      PolicySubscript,
-      PolicySuperscript,
-      PolicyTaskList,
-      PolicyTaskItem,
-      MediaEmbedExtension.configure(options.mediaPlayback ?? {}),
-      SmartCardExtension.configure(options.socialEmbeds ?? {}),
-      Placeholder.configure({
-        placeholder: options.placeholder,
-      }),
-    ],
+    extensions: createEditorExtensions(options),
     editorProps: {
       attributes: {
         class: "jwsoft-tiptap-editable",
         role: "textbox",
         "aria-multiline": "true",
-        "aria-label": "JWSoft Tiptap editor",
+        "aria-label": "jw-editor",
       },
       handleDrop: (view, event) => {
         const files = imageFiles(event.dataTransfer?.files);

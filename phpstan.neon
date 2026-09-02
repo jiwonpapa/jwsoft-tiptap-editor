@@ -1,0 +1,10 @@
+parameters:
+    level: 5
+    paths:
+        - src/Services/EditorSanitizer.php
+        - src/Services/EditorContent.php
+        - src/Services/SocialEmbedPolicy.php
+        - src/Policy
+        - src/ValueObjects
+        - src/Exceptions
+    tmpDir: .build/phpstan-cache

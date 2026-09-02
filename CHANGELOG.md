@@ -1,8 +1,54 @@
 # Changelog
 
+## Audit execution safety (unreleased)
+
+- Tracked authenticated G7 Chrome tests now execute all editor surfaces, actual HTTP rejection, media playback/Range and multilingual legacy approval; Python revokes run-owned identities on success and failure.
+- ZIP/GitHub lifecycle orchestration moved from Shell to bounded Python modules, with original-file/editor-state recovery and execution-bound evidence. Standalone lifecycle pass writers are retired.
+- Python owns check/integration/browser execution receipts; stale result restamping and unexecuted browser evidence are rejected by release consumers.
+- Required browser case/project coverage and allowed skips are explicit; execution logs, result hashes, run identity and source freshness are verified.
+- All lifecycle and direct install test entrypoints require a registered clean dedicated G7 checkout before mutation.
+- Deployment now binds application update, file verification and HTTP smoke in one Python transaction. Failure restores the verified prior ZIP and prior editor activation state; recovery failure is a separate critical error. No database backup is taken.
+
 모든 주요 변경은 이 파일에 기록합니다. 형식은 Keep a Changelog와 Semantic Versioning을 따릅니다.
 
 ## [Unreleased]
+
+### Added
+
+- ADR-0016/규약 v2: Python 주 하네스, Ruff·mypy, typed ESLint, 제한 범위 PHPStan, ShellCheck, 코드 크기/만료 부채 검사와 금지 사례 회귀. npm/composer 취약점 검사 및 커버리지 하한을 CI/릴리스 경로에 연결
+
+- 공식 명칭 `jw-editor`, 모든 툴바 프로필과 읽기 전용 모드의 하단 실제 패키지 버전·도움말·글자 수. 도움말 모달에서 사용 요약과 읽기 전용 HTML 조회·복사 제공
+- README 제품 소개·설치·전환·지원 범위·확장 안내와 소개용 인트로 이미지
+
+### Changed
+
+- 주 검사·소스 fingerprint·관측 기록·정식 게시 판단을 Python 모듈로 이전. 기존 Node 검증기는 명시된 이전 목록으로 관리하며 제품 TS/PHP 및 언어 전용 도구는 유지
+- UI 테스트를 공통 fixture와 5개 기능 suite로 분리하고 업로드/미리보기 인증 헤더를 G7 공통 어댑터로 통합
+- `make clean`은 계획만 출력하며 명시 적용도 캐시에 한정. 패키지·증거·백업·전용 G7 checkout을 보존
+
+- 소유자 승인으로 제품 라이선스를 Apache-2.0으로 전환하고 NOTICE·패키지 라이선스 검사·제3자 고지를 동기화 (ADR-0015). 플러그인 ID와 저장소 URL·DB·저장 형식은 유지
+- 기본 편집·이미지·표·미디어·SNS의 번들 내부 확장 factory를 분리. 동적 외부 모듈 로더나 임의 HTML 편집은 추가하지 않음
+
+### Fixed
+
+- 최종 PR 검토: Python 직접 배포에서도 HTTP(S) smoke URL과 리다이렉트 protocol을 제한하고 curl 옵션 주입을 차단. 설정에서 빠진 저장 언어에도 명시적 서식 전환 승인 탭을 제공하며, 분리 후 재삽입되는 미디어의 canonical 자식을 복원
+
+- 감사 AUD-08/09/12: 비동기 이벤트 콜백 오류 처리 강제, 해석된 import 경계 검사, 기존 함수별 크기 예외로 신규 대형 함수 차단. 루트 PHP/전체 하네스 경로·CJS 규약 검사와 결정적 SNS CI 실행 추가
+
+- 감사 AUD-01/02/06/07/10/11: 미승인 다국어·읽기 전용 원문은 탭 전환으로 동기화하지 않고 필드/언어별 승인 상태를 합산. 이미지 업로드 OFF 서버 거부, 비동기 이미지 드롭 위치 추적·해제 취소, 기존 미디어의 로드/자동재생 옵션 재적용, 미사용 이미지 정리 cursor 순회와 실패 종료 코드 보완
+
+- 후보 57개 검사 후 정식 태그를 자동 게시하던 경로 폐쇄. 정식 게시에는 현재 final 62개 재검사 및 동일 배포 ZIP/명시 승인이 필요하며 재빌드하지 않음
+- 수동 입력을 자동 pass로 기록하던 3개 명령 폐기; 관측값은 Python에서 unverified로만 기록. 정적 검사에서 발견한 Promise/테스트 any/불필요 PHP 타입 분기를 보완
+
+- Facebook 사진·`permalink.php`·`story.php`·Watch·Reel 주소의 공식 게시물 표시 누락 수정. 클라이언트·서버가 동일 화이트리스트로 식별자를 보존하고 추적 파라미터는 제거하며 편집·글보기의 공통 표시기를 사용 (정책 1.6.1)
+- Facebook `/share/p/`, `/share/v/`, `/share/r/` 및 `fb.watch`는 공개 IP에 고정한 HEAD 요청으로 허용 Facebook 경로만 추적하고, 최종 허용 게시물 주소를 확인한 뒤 표시. 프로필·목록·확인할 수 없는 공유 주소는 구체적인 안내와 원문을 유지
+- 링크 미리보기의 10회/분 제한 카운터를 G7 일반 관리자 요청과 분리해 화면 진입만으로 미리보기가 429로 차단되던 충돌 방지. 요청 제한 자체는 유지
+- G7 페이지의 늦은 슬러그 확인 응답이 입력 본문의 전송 상태를 비우는 경우, 호스트 저장 동작 전에 수정된 에디터 필드만 공식 `setLocal` 경로로 재동기화. 제목·슬러그·다른 폼·읽기 전용 문서·G7 코어는 변경하지 않음
+
+### Tests
+
+- Facebook 실제 제보·일반 게시물·고유링크·영상 URL의 식별자/추적 파라미터·중복/잘못된 ID·위장 호스트를 클라이언트/서버 공통 fixture로 회귀 검사. 공유 주소의 허용 호스트/루프/비공개 주소 차단과 실제 Laravel throttle 충돌·카운터 분리·11번째 요청 차단 검사 추가
+- 저장 경계·읽기 전용·다른 폼/모달·SPA 이동·리스너 정리 회귀 검사 및 실제 G7 엔진의 늦은 상태 응답 후 본문 보존 검사 추가
 
 ## [0.1.1-rc.2] - 2026-09-02
 

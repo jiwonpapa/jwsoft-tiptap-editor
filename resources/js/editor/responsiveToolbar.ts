@@ -52,7 +52,7 @@ export function installResponsiveInsert(
     typeof ResizeObserver === "undefined" ? null : new ResizeObserver(schedule);
   observer?.observe(toolbar);
   window.addEventListener("resize", schedule);
-  document.fonts?.ready.then(schedule);
+  document.fonts?.ready.then(schedule, schedule);
   schedule();
   return () => {
     destroyed = true;
