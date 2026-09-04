@@ -70,6 +70,17 @@ def execute_checks(root: Path, execution: Execution) -> None:
 
 def audit_dependencies(root: Path) -> None:
     # Audit is intentionally separate from offline checks; CI and release require both.
-    run(["npm", "audit", "--json", "--audit-level=moderate"], root, capture=True)
+    run(
+        [
+            "npm",
+            "audit",
+            "--json",
+            "--audit-level=moderate",
+            "--fetch-timeout=30000",
+            "--fetch-retries=1",
+        ],
+        root,
+        capture=True,
+    )
     run(["composer", "audit", "--locked", "--no-interaction"], root)
     audit_python(root)

@@ -16,7 +16,17 @@ class QualityTests(unittest.TestCase):
             audit_dependencies(root)
         self.assertEqual(
             command.call_args_list[0].args,
-            (["npm", "audit", "--json", "--audit-level=moderate"], root),
+            (
+                [
+                    "npm",
+                    "audit",
+                    "--json",
+                    "--audit-level=moderate",
+                    "--fetch-timeout=30000",
+                    "--fetch-retries=1",
+                ],
+                root,
+            ),
         )
         self.assertEqual(command.call_args_list[0].kwargs, {"capture": True})
         self.assertEqual(
