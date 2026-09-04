@@ -1,6 +1,6 @@
 {
   "$schema": "./editor-policy.schema.json",
-  "policyVersion": "1.6.1",
+  "policyVersion": "1.7.0",
   "externalEmbeds": {
     "x": {
       "hosts": [
@@ -66,6 +66,29 @@
         "https://staticxx.facebook.com"
       ],
       "imageOrigins": ["https://www.facebook.com"]
+    },
+    "instagram": {
+      "hosts": ["instagram.com", "www.instagram.com"],
+      "pathPattern": "^/(p|reel|tv)/([A-Za-z0-9_-]{5,64})/?$",
+      "canonicalHost": "www.instagram.com",
+      "sdkUrl": "https://www.instagram.com/embed.js",
+      "scriptOrigins": ["https://www.instagram.com"],
+      "connectOrigins": ["https://www.instagram.com"],
+      "frameOrigins": ["https://www.instagram.com"],
+      "imageOrigins": ["https://www.instagram.com"]
+    },
+    "tiktok": {
+      "hosts": ["tiktok.com", "www.tiktok.com", "m.tiktok.com"],
+      "pathPattern": "^/@([A-Za-z0-9._-]{2,30})/video/([1-9][0-9]{5,24})/?$",
+      "canonicalHost": "www.tiktok.com",
+      "sdkUrl": "https://www.tiktok.com/embed.js",
+      "scriptOrigins": [
+        "https://www.tiktok.com",
+        "https://sf16-website-login.neutral.ttwstatic.com"
+      ],
+      "connectOrigins": ["https://www.tiktok.com"],
+      "frameOrigins": ["https://www.tiktok.com"],
+      "imageOrigins": ["https://www.tiktok.com"]
     }
   },
   "elements": {

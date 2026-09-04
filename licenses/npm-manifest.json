@@ -534,6 +534,28 @@
       ]
     },
     {
+      "name": "social-media-parser",
+      "version": "0.3.0",
+      "license": "MIT",
+      "files": [
+        {
+          "file": "licenses/npm/social-media-parser/LICENSE",
+          "sha256": "1126322e2cc8d165adc4c792eeb195717de2bcc7b39be1ce77959d78e87ef685"
+        }
+      ]
+    },
+    {
+      "name": "typescript",
+      "version": "5.9.3",
+      "license": "Apache-2.0",
+      "files": [
+        {
+          "file": "licenses/npm/typescript/LICENSE.txt",
+          "sha256": "a7d00bfd54525bc694b6e32f64c7ebcf5e6b7ae3657be5cc12767bce74654a47"
+        }
+      ]
+    },
+    {
       "name": "w3c-keyname",
       "version": "2.2.8",
       "license": "MIT",

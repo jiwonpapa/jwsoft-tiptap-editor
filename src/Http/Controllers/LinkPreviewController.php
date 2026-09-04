@@ -25,7 +25,12 @@ class LinkPreviewController extends AdminBaseController
                 'social' => $this->enabled('socialCards', true),
                 'generic' => $this->enabled('genericLinkCards', true),
                 'images' => $this->enabled('smartCardImages', false),
-                'embeds' => ['x' => $this->enabled('xEmbed', true), 'facebook' => $this->enabled('facebookEmbed', true)],
+                'embeds' => [
+                    'x' => $this->enabled('xEmbed', true),
+                    'facebook' => $this->enabled('facebookEmbed', true),
+                    'instagram' => $this->enabled('instagramEmbed', true),
+                    'tiktok' => $this->enabled('tiktokEmbed', true),
+                ],
             ]);
 
             return ResponseHelper::success('messages.preview.created', $preview, domain: 'jwsoft-tiptap-editor');

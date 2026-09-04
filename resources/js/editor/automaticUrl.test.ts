@@ -85,6 +85,24 @@ describe("automatic URL conversion", () => {
     expect(editor.getHTML()).not.toContain("jw-media-youtube");
   });
 
+  it("converts an official YouTube iframe snippet without storing its HTML", () => {
+    const { editor } = setup();
+    const paste = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(paste, "clipboardData", {
+      value: {
+        files: [],
+        getData: (type: string) =>
+          type === "text/plain"
+            ? '<iframe src="https://www.youtube-nocookie.com/embed/WuWsLSR2ajA"></iframe>'
+            : "",
+      },
+    });
+    editor.view.dom.dispatchEvent(paste);
+    expect(paste.defaultPrevented).toBe(true);
+    expect(editor.getHTML()).toContain("jw-media-youtube");
+    expect(editor.getHTML()).not.toContain("iframe");
+  });
+
   it.each([{ shiftKey: true }, { isComposing: true }])(
     "does not intercept modified or composing Enter %o",
     (extra) => {

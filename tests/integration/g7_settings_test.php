@@ -93,6 +93,8 @@ $editorMediaSettings = [
     'socialCards',
     'xEmbed',
     'facebookEmbed',
+    'instagramEmbed',
+    'tiktokEmbed',
     'genericLinkCards',
     'smartCardImages',
     'public_asset_disk',
@@ -205,7 +207,7 @@ $contentExtension = file_get_contents($projectRoot.'/resources/extensions/html-c
 assertSettingsContract(is_string($editorExtension) && is_string($contentExtension), 'extension settings bindings are unreadable');
 
 $frontendEditorSettings = [
-    'socialCards', 'xEmbed', 'facebookEmbed',
+    'socialCards', 'xEmbed', 'facebookEmbed', 'instagramEmbed', 'tiktokEmbed',
     'imageUpload',
     'dragDropImageUpload',
     'pasteImageUpload',
@@ -228,7 +230,7 @@ foreach ($frontendEditorSettings as $setting) {
     assertSettingsContract(($defaults['frontend_schema'][$setting]['expose'] ?? false) === true, "frontend schema does not expose: {$setting}");
     assertSettingsContract(str_contains($editorExtension, "?.{$setting} ??"), "html_editor does not bind frontend setting: {$setting}");
 }
-foreach (['mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'socialCards', 'xEmbed', 'facebookEmbed'] as $setting) {
+foreach (['mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'socialCards', 'xEmbed', 'facebookEmbed', 'instagramEmbed', 'tiktokEmbed'] as $setting) {
     assertSettingsContract(($defaults['frontend_schema'][$setting]['expose'] ?? false) === true, "frontend schema does not expose content setting: {$setting}");
     assertSettingsContract(str_contains($contentExtension, "?.{$setting} ??"), "html_content does not bind frontend setting: {$setting}");
 }

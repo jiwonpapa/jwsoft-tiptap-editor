@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.1.3] - 2026-09-04
+
+### Added
+
+- 대표 SNS 지원 범위를 YouTube·Vimeo·X·Facebook·Instagram·TikTok으로 고정하고, MIT `social-media-parser`를 릴리스에 번들해 다양한 주소와 추적 파라미터를 정규화
+- 링크 카드 모달과 빈 문단 붙여넣기에서 대표 SNS의 공식 퍼가기 코드를 받아 원본 URL만 추출. 입력 `iframe`·`script`·`style`은 저장하지 않음
+- Instagram 게시물·릴스와 TikTok 동영상을 편집/글보기 공통 격리 프레임에서 공식 SDK로 표시하고 제공자별 관리자 ON/OFF 제공
+
+### Security
+
+- 정책 1.7.0과 ADR-0018로 Instagram·TikTok 실행 호스트·경로·SDK·CSP를 고정하고 서버에서 canonical URL을 재검증
+- 비공개·삭제·지역·로그인 제한 또는 SDK 실패 시 실행 HTML 대신 재시도와 원문 링크를 유지
+
 ## [0.1.2] - 2026-09-02
 
 ### Fixed

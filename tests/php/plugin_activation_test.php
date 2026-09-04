@@ -108,7 +108,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'xEmbed', 'facebookEmbed', 'instagramEmbed', 'tiktokEmbed', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -130,6 +130,8 @@ namespace {
         || ($settings['socialCards']['default'] ?? null) !== true
         || ($settings['xEmbed']['default'] ?? null) !== true
         || ($settings['facebookEmbed']['default'] ?? null) !== true
+        || ($settings['instagramEmbed']['default'] ?? null) !== true
+        || ($settings['tiktokEmbed']['default'] ?? null) !== true
         || ($settings['genericLinkCards']['default'] ?? null) !== true
         || ($settings['smartCardImages']['default'] ?? null) !== false
         || array_key_exists('legacyContentRiskAcknowledged', $settings)) {
@@ -150,6 +152,8 @@ namespace {
         || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['xEmbed']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['facebookEmbed']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['instagramEmbed']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['tiktokEmbed']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['smartCardImages']['expose'] ?? null) !== false) {
         throw new RuntimeException('Retired activation acknowledgement must be absent; feature defaults must stay fail-safe.');
     }

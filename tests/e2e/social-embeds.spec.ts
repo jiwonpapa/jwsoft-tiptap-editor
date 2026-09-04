@@ -3,6 +3,8 @@ import path from "node:path";
 const bundle = path.resolve("dist/js/plugin.iife.js");
 const xUrl = "https://x.com/Interior/status/463440424141459456";
 const fbUrl = "https://www.facebook.com/ISS/posts/1194948136005111";
+const instagramUrl = "https://www.instagram.com/p/DA5VlaMK1Wc/";
+const tiktokUrl = "https://www.tiktok.com/@scout2015/video/6718335390845095173";
 const card = (provider: string, url: string) =>
   `<figure class="jw-card jw-card-${provider}"><a class="jw-card-link" href="${url}" target="_blank" rel="noopener noreferrer" title="${provider}"><strong>${provider} post</strong></a></figure>`;
 
@@ -35,11 +37,29 @@ async function setup(
             body: `window.FB={init(){},XFBML:{parse(target,done){target.textContent='Facebook full public post';target.style.height='650px';done()}}};`,
           });
     });
+    await page.route("https://www.instagram.com/embed.js", (route) => {
+      sdkRequests++;
+      return options.failure
+        ? route.abort()
+        : route.fulfill({
+            contentType: "application/javascript",
+            body: `window.instgrm={Embeds:{process(){document.querySelectorAll('.instagram-media').forEach(post=>{post.textContent='Instagram full public post';post.style.height='520px';const frame=document.createElement('iframe');frame.hidden=true;post.append(frame)})}}};`,
+          });
+    });
+    await page.route("https://www.tiktok.com/embed.js", (route) => {
+      sdkRequests++;
+      return options.failure
+        ? route.abort()
+        : route.fulfill({
+            contentType: "application/javascript",
+            body: `document.querySelectorAll('.tiktok-embed').forEach(post=>{post.textContent='TikTok full public video';post.style.height='720px';const frame=document.createElement('iframe');frame.hidden=true;post.append(frame)});`,
+          });
+    });
   }
   await page.route("http://social-test.test/", (route) =>
     route.fulfill({
       contentType: "text/html; charset=utf-8",
-      body: `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><div id="jwsoft-tiptap-content"></div><div class="jwsoft-tiptap-content" id="view">${card("x", xUrl)}${card("facebook", fbUrl)}</div>`,
+      body: `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><div id="jwsoft-tiptap-content"></div><div class="jwsoft-tiptap-content" id="view">${card("x", xUrl)}${card("facebook", fbUrl)}${card("instagram", instagramUrl)}${card("tiktok", tiktokUrl)}</div>`,
     }),
   );
   await page.goto("http://social-test.test/");
@@ -71,6 +91,8 @@ async function setup(
         socialCards: true,
         xEmbed: !off,
         facebookEmbed: !off,
+        instagramEmbed: !off,
+        tiktokEmbed: !off,
         externalMediaLoadMode: click ? "click" : "immediate",
       };
       const handlers = window.handlers;
@@ -78,7 +100,11 @@ async function setup(
       handlers["jwsoft-tiptap-editor.injectContentStyles"]({ params });
     },
     {
-      html: card("x", xUrl) + card("facebook", fbUrl),
+      html:
+        card("x", xUrl) +
+        card("facebook", fbUrl) +
+        card("instagram", instagramUrl) +
+        card("tiktok", tiktokUrl),
       off: options.off,
       click: options.click,
     },
@@ -94,13 +120,25 @@ test("official whitelist display is shared by editing/viewing, responsive, and n
   const network = await setup(page);
   await expect(
     page.locator('.jw-social-surface[data-state="rendered"]'),
-  ).toHaveCount(4);
-  expect(network.requests()).toBe(4);
+  ).toHaveCount(8);
+  expect(network.requests()).toBe(8);
   await expect(
     page
       .frameLocator("iframe.jw-social-frame")
       .nth(0)
       .getByText("X full post with body and media"),
+  ).toBeVisible();
+  await expect(
+    page
+      .frameLocator("iframe.jw-social-frame")
+      .nth(2)
+      .getByText("Instagram full public post"),
+  ).toBeVisible();
+  await expect(
+    page
+      .frameLocator("iframe.jw-social-frame")
+      .nth(3)
+      .getByText("TikTok full public video"),
   ).toBeVisible();
   await expect(
     page
@@ -120,19 +158,19 @@ test("official whitelist display is shared by editing/viewing, responsive, and n
     .click();
   await expect(
     page.locator(".jwsoft-tiptap-editable iframe.jw-social-frame"),
-  ).toHaveCount(1);
+  ).toHaveCount(3);
   const values = await page.evaluate(() => JSON.stringify(window.updates));
   expect(values).not.toMatch(
     /<iframe|<script|srcdoc|full public post|full post with body/,
   );
-  expect(values).toContain("jw-card-facebook");
+  expect(values).toContain("jw-card-instagram");
   await page.evaluate(() => {
     window.handlers["jwsoft-tiptap-editor.injectContentStyles"]({
       params: { smartCards: false },
     });
   });
   await expect(page.locator("#view iframe")).toHaveCount(0);
-  await expect(page.locator("#view a.jw-card-link")).toHaveCount(2);
+  await expect(page.locator("#view a.jw-card-link")).toHaveCount(4);
   expect(errors).toEqual([]);
 });
 
@@ -177,7 +215,7 @@ test("live official providers render in both surfaces", async ({
   await setup(page, { live: true });
   await expect(
     page.locator('.jw-social-surface[data-state="rendered"]'),
-  ).toHaveCount(4, { timeout: 30000 });
+  ).toHaveCount(8, { timeout: 30000 });
   for (const [index, frame] of page
     .frames()
     .filter((frame) =>

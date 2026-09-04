@@ -1,6 +1,19 @@
 import { normalizeSocialUrl, type SocialOptions } from "./socialPolicy";
 import { socialDocument } from "./socialDocument";
 
+const PROVIDER_LABELS = {
+  x: "X",
+  facebook: "Facebook",
+  instagram: "Instagram",
+  tiktok: "TikTok",
+} as const;
+const PROVIDER_MIN_WIDTH = {
+  x: 250,
+  facebook: 350,
+  instagram: 326,
+  tiktok: 325,
+} as const;
+
 /** Common display-only renderer. SDKs are disposed with this frame, never serialized. */
 export function createSocialPlayer(
   url: string,
@@ -18,7 +31,7 @@ export function createSocialPlayer(
   status.className = "jw-social-status";
   status.setAttribute("role", "status");
   const english = window.G7Core?.locale?.current?.() === "en";
-  const label = provider === "x" ? "X" : "Facebook";
+  const label = PROVIDER_LABELS[embed.provider];
   const original = document.createElement("a");
   original.href = embed.url;
   original.target = "_blank";
@@ -69,7 +82,7 @@ export function createSocialPlayer(
     channel = [...token].map((n) => n.toString(16).padStart(8, "0")).join("");
     width = Math.min(
       550,
-      Math.max(provider === "x" ? 250 : 350, dom.clientWidth || 550),
+      Math.max(PROVIDER_MIN_WIDTH[embed.provider], dom.clientWidth || 550),
     );
     frame = document.createElement("iframe");
     frame.title = `${label} ${english ? "post" : "게시물"}`;

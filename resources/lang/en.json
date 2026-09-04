@@ -23,6 +23,8 @@
     "fields": {
       "x_embed": { "label": "Official X post embeds" },
       "facebook_embed": { "label": "Official Facebook post embeds" },
+      "instagram_embed": { "label": "Official Instagram post embeds" },
+      "tiktok_embed": { "label": "Official TikTok video embeds" },
       "external_embeds": {
         "hint": "When link and social smart cards are enabled, only allowlisted public posts load the official SDK. External code executes and the provider receives IP/browser information. Click-to-load defers this connection. OFF keeps stored content and displays link cards. Private, deleted or region-restricted posts may be unavailable."
       },
@@ -69,7 +71,7 @@
       },
       "smart_cards": { "label": "Link smart cards" },
       "auto_smart_cards": { "label": "Auto-convert URLs to cards" },
-      "social_cards": { "label": "Social link cards" },
+      "social_cards": { "label": "Representative social link cards" },
       "generic_link_cards": { "label": "Generic HTTPS link cards" },
       "smart_card_images": { "label": "Show preview images" },
       "public_asset_disk": {
