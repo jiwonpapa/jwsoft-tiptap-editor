@@ -58,6 +58,8 @@ DOMPurify declares `MPL-2.0 OR Apache-2.0`; this distribution uses the Apache-2.
 | `prosemirror-transform@1.12.0`             | `MIT`                     |
 | `prosemirror-view@1.42.3`                  | `MIT`                     |
 | `rope-sequence@1.3.4`                      | `MIT`                     |
+| `social-media-parser@0.3.0`                | `MIT`                     |
+| `typescript@5.9.3`                         | `Apache-2.0`              |
 | `w3c-keyname@2.2.8`                        | `MIT`                     |
 
 ## PHP runtime dependencies

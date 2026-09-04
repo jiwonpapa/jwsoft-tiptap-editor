@@ -6,3 +6,4 @@
 *.webp binary
 *.zip binary
 dist/js/plugin.iife.js binary
+licenses/npm/typescript/LICENSE.txt binary

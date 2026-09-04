@@ -755,6 +755,44 @@
                     ]
                   },
                   {
+                    "id": "field_instagram_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.instagram_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "instagramEmbed" }
+                      }
+                    ]
+                  },
+                  {
+                    "id": "field_tiktok_embed",
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "section-heading-md" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.tiktok_embed.label"
+                      },
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "tiktokEmbed" }
+                      }
+                    ]
+                  },
+                  {
                     "id": "field_smart_card_images",
                     "type": "basic",
                     "name": "Div",

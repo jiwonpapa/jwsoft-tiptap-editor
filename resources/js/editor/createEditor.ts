@@ -9,6 +9,7 @@ import {
 } from "@/editor/modules";
 import { sanitizePastedHtml } from "@/editor/pastePolicy";
 import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
+import { normalizeExternalInput } from "@/editor/socialInput";
 
 interface CreateEditorOptions extends EditorModuleOptions {
   element: HTMLElement;
@@ -23,6 +24,17 @@ interface CreateEditorOptions extends EditorModuleOptions {
 
 function imageFiles(files: FileList | null | undefined): File[] {
   return [...(files ?? [])].filter((file) => file.type.startsWith("image/"));
+}
+
+function externalUrlFromClipboard(data: DataTransfer | null): string | null {
+  const plainText = data?.getData("text/plain").trim() ?? "";
+  const source = data?.getData("text/html") ?? "";
+  const input = plainText.includes("<")
+    ? plainText
+    : !plainText || /\s/u.test(plainText)
+      ? source || plainText
+      : plainText;
+  return normalizeExternalInput(input);
 }
 
 export function createEditor(options: CreateEditorOptions): Editor {
@@ -55,22 +67,20 @@ export function createEditor(options: CreateEditorOptions): Editor {
           options.onImageFilesPasted(files, view.state.selection.from);
           return true;
         }
-        const plainText =
-          event.clipboardData?.getData("text/plain").trim() ?? "";
+        const source = event.clipboardData?.getData("text/html") ?? "";
         const selection = view.state.selection;
+        const externalUrl = externalUrlFromClipboard(event.clipboardData);
         if (
           options.onPlainUrlPasted &&
-          plainText !== "" &&
-          !/\s/u.test(plainText) &&
+          externalUrl &&
           selection.empty &&
           selection.$from.parent.type.name === "paragraph" &&
           selection.$from.parent.content.size === 0 &&
-          options.onPlainUrlPasted(plainText, selection.from)
+          options.onPlainUrlPasted(externalUrl, selection.from)
         ) {
           event.preventDefault();
           return true;
         }
-        const source = event.clipboardData?.getData("text/html") ?? "";
         if (!source) return false;
         const paste = sanitizePastedHtml(source);
         const wrapper = document.createElement("div");

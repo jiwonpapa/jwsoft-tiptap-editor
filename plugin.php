@@ -138,7 +138,7 @@ class Plugin extends AbstractPlugin
                 'type' => 'boolean',
                 'default' => true,
                 'label' => ['ko' => 'SNS 스마트카드', 'en' => 'Social smart cards'],
-                'hint' => ['ko' => 'Instagram·X·TikTok·Facebook·Threads 링크 카드를 허용합니다.', 'en' => 'Allow cards for Instagram, X, TikTok, Facebook, and Threads links.'],
+                'hint' => ['ko' => 'X·Facebook·Instagram·TikTok 링크 카드를 허용합니다. YouTube·Vimeo는 동영상 설정을 따릅니다.', 'en' => 'Allow X, Facebook, Instagram, and TikTok link cards. YouTube and Vimeo follow video settings.'],
                 'required' => false,
             ],
             'genericLinkCards' => [
@@ -158,6 +158,18 @@ class Plugin extends AbstractPlugin
                 'type' => 'boolean', 'default' => true,
                 'label' => ['ko' => 'Facebook 공식 게시물 삽입', 'en' => 'Official Facebook post embeds'],
                 'hint' => ['ko' => 'SNS 스마트카드가 켜졌을 때 허용된 Facebook 공개 게시물만 공식 SDK로 표시합니다. 비공개·지역 제한 게시물은 지원하지 않습니다.', 'en' => 'With social smart cards enabled, display allowlisted public Facebook posts using the official SDK. Private or region-restricted posts are not supported.'],
+                'required' => false,
+            ],
+            'instagramEmbed' => [
+                'type' => 'boolean', 'default' => true,
+                'label' => ['ko' => 'Instagram 공식 게시물 삽입', 'en' => 'Official Instagram post embeds'],
+                'hint' => ['ko' => '허용된 Instagram 공개 게시물·릴스만 공식 SDK로 표시합니다. 외부 연결과 외부 코드 실행이 발생합니다.', 'en' => 'Display allowlisted public Instagram posts and reels using the official SDK. Connects to the provider and executes external code.'],
+                'required' => false,
+            ],
+            'tiktokEmbed' => [
+                'type' => 'boolean', 'default' => true,
+                'label' => ['ko' => 'TikTok 공식 동영상 삽입', 'en' => 'Official TikTok video embeds'],
+                'hint' => ['ko' => '허용된 TikTok 공개 동영상만 공식 SDK로 표시합니다. 외부 연결과 외부 코드 실행이 발생합니다.', 'en' => 'Display allowlisted public TikTok videos using the official SDK. Connects to the provider and executes external code.'],
                 'required' => false,
             ],
             'smartCardImages' => [

@@ -79,6 +79,8 @@
               "socialCards": "{{_global.plugins['jwsoft-tiptap-editor']?.socialCards ?? true}}",
               "xEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.xEmbed ?? true}}",
               "facebookEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.facebookEmbed ?? true}}",
+              "instagramEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.instagramEmbed ?? true}}",
+              "tiktokEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.tiktokEmbed ?? true}}",
               "externalMediaLoadMode": "{{_global.plugins['jwsoft-tiptap-editor']?.externalMediaLoadMode ?? 'immediate'}}",
               "mediaAutoplay": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaAutoplay ?? false}}"
             }

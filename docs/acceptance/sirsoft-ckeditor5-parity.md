@@ -66,8 +66,8 @@
 
 ## D-2. 링크 스마트카드
 
-- [x] Instagram·X·TikTok·Facebook·Threads·일반 HTTPS provider 분류 <!-- p0:cards.providers -->
-- [x] 붙여넣기 자동 변환·툴바 수동 삽입·실패 시 원 URL 보존 <!-- p0:cards.insert -->
+- [x] 대표 6개(YouTube·Vimeo·X·Facebook·Instagram·TikTok)와 일반 HTTPS provider 분류 <!-- p0:cards.providers -->
+- [x] URL·공식 퍼가기 코드 자동 변환·툴바 수동 삽입·실패 시 원 URL 보존 <!-- p0:cards.insert -->
 - [x] DNS·redirect 공개 IP 검증과 연결 IP 고정 <!-- p0:cards.ssrf -->
 - [x] 저장 HTML에 provider script·iframe·임의 embed 0 <!-- p0:cards.canonical -->
 - [x] 기능 OFF와 기존 canonical card 무손실 <!-- p0:cards.settings -->

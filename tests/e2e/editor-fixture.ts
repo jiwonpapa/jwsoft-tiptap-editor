@@ -136,6 +136,8 @@ export async function mountEditor(
             socialCards: withSmartCards,
             xEmbed: withRichEmbeds,
             facebookEmbed: withRichEmbeds,
+            instagramEmbed: withRichEmbeds,
+            tiktokEmbed: withRichEmbeds,
             autoSmartCards: withSmartCards,
             autoEmbedUrls: withMediaEmbed,
             youtubeEmbed: true,

@@ -80,7 +80,9 @@ test("link card toolbar inserts a generic HTTPS preview", async ({
   await mountEditor(page, "standard", false, false, false, true);
   await insertTool(page, "링크 카드");
   const dialog = page.getByRole("dialog", { name: "링크 카드" });
-  await dialog.getByLabel("HTTPS 주소").fill("https://example.com/article");
+  await dialog
+    .getByLabel("주소 또는 퍼가기 코드")
+    .fill("https://example.com/article");
   await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();
 
   const card = page.locator(".jwsoft-tiptap-editable figure.jw-card-generic");
@@ -89,6 +91,46 @@ test("link card toolbar inserts a generic HTTPS preview", async ({
     "rel",
     "noopener noreferrer",
   );
+});
+
+test("link card toolbar accepts an official Instagram embed snippet", async ({
+  page,
+}, testInfo) => {
+  test.skip(testInfo.project.name !== "chromium-desktop");
+  await page.route("**/link-preview", async (route) => {
+    expect(route.request().postDataJSON()).toEqual({
+      url: "https://www.instagram.com/reel/C6H039Ctw_b/",
+    });
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        success: true,
+        data: {
+          url: "https://www.instagram.com/reel/C6H039Ctw_b/",
+          provider: "instagram",
+          provider_label: "Instagram",
+          title: "Instagram post",
+          description: "",
+          image_url: null,
+        },
+      }),
+    });
+  });
+  await mountEditor(page, "standard", false, false, false, true);
+  await insertTool(page, "링크 카드");
+  const dialog = page.getByRole("dialog", { name: "링크 카드" });
+  await dialog
+    .getByLabel("주소 또는 퍼가기 코드")
+    .fill(
+      '<blockquote class="instagram-media" data-instgrm-permalink="https://www.instagram.com/reel/C6H039Ctw_b/?utm_source=ig_embed"></blockquote><script src="https://www.instagram.com/embed.js"></script>',
+    );
+  await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();
+  const card = page.locator(".jwsoft-tiptap-editable figure.jw-card-instagram");
+  await expect(card.locator("a.jw-card-link")).toHaveAttribute(
+    "href",
+    "https://www.instagram.com/reel/C6H039Ctw_b/",
+  );
+  await expect(card.locator("script, iframe")).toHaveCount(0);
 });
 
 test("failed automatic preview preserves the original URL as a link", async ({
@@ -158,7 +200,9 @@ test("closing a pending link preview modal does not insert late content", async 
   await mountEditor(page, "standard", false, false, false, true);
   await insertTool(page, "링크 카드");
   const dialog = page.getByRole("dialog", { name: "링크 카드", exact: true });
-  await dialog.getByLabel("HTTPS 주소").fill("https://example.com/post");
+  await dialog
+    .getByLabel("주소 또는 퍼가기 코드")
+    .fill("https://example.com/post");
   await dialog.getByRole("button", { name: "링크 카드 삽입" }).click();
   await expect.poll(() => requested).toBe(true);
   await dialog.getByRole("button", { name: "닫기" }).click();

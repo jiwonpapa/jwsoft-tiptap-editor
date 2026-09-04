@@ -4,6 +4,7 @@ import type { DOMOutputSpec } from "@tiptap/pm/model";
 import { editorText } from "@/editor/locale";
 import { authorizationHeaders } from "@/g7/authorization";
 import { socialNodeView } from "./socialView";
+import { normalizeExternalInput } from "./socialInput";
 import type { SocialOptions } from "./socialPolicy";
 
 const ENDPOINT = "/api/plugins/jwsoft-tiptap-editor/link-preview";
@@ -93,6 +94,12 @@ export async function fetchLinkPreview(
   locale: string = "ko",
   signal?: AbortSignal,
 ): Promise<SmartCardPreview> {
+  const normalizedUrl = normalizeExternalInput(url);
+  if (!normalizedUrl) {
+    throw new Error(
+      editorText(locale, "지원하는 주소 또는 퍼가기 코드를 입력하십시오."),
+    );
+  }
   const response = await request(ENDPOINT, {
     method: "POST",
     credentials: "same-origin",
@@ -101,7 +108,7 @@ export async function fetchLinkPreview(
       "Content-Type": "application/json",
       ...authorizationHeaders(),
     },
-    body: JSON.stringify({ url }),
+    body: JSON.stringify({ url: normalizedUrl }),
     ...(signal ? { signal } : {}),
   });
   let payload: PreviewPayload = {};
@@ -142,7 +149,13 @@ export const SmartCardExtension = Node.create<SocialOptions>({
   atom: true,
   draggable: true,
   selectable: true,
-  addOptions: () => ({ x: false, facebook: false, loadMode: "immediate" }),
+  addOptions: () => ({
+    x: false,
+    facebook: false,
+    instagram: false,
+    tiktok: false,
+    loadMode: "immediate",
+  }),
   addNodeView() {
     return socialNodeView(this.options);
   },

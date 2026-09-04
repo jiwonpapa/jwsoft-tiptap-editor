@@ -70,6 +70,8 @@ export interface InitEditorParams {
   socialCards?: boolean | string;
   xEmbed?: boolean | string;
   facebookEmbed?: boolean | string;
+  instagramEmbed?: boolean | string;
+  tiktokEmbed?: boolean | string;
   autoSmartCards?: boolean | string;
   imageMaxSizeMb?: number | string;
 }

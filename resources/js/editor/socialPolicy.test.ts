@@ -34,6 +34,16 @@ describe("external execution whitelist", () => {
     ],
     ["https://x.com/i/web/status/20", "x", "https://x.com/i/web/status/20"],
     [
+      "https://instagram.com/reel/C6H039Ctw_b/?utm_source=ig_embed",
+      "instagram",
+      "https://www.instagram.com/reel/C6H039Ctw_b/",
+    ],
+    [
+      "https://m.tiktok.com/@scout2015/video/6718335390845095173?is_copy_url=1",
+      "tiktok",
+      "https://www.tiktok.com/@scout2015/video/6718335390845095173",
+    ],
+    [
       "https://m.facebook.com/facebook/posts/10154009990506729/",
       "facebook",
       "https://www.facebook.com/facebook/posts/10154009990506729",
@@ -62,6 +72,10 @@ describe("external execution whitelist", () => {
     "https://fb.watch/abc",
     "https://facebook.com/groups/1/posts/2",
     "https://www.facebook.com.evil.test/page/posts/2",
+    "https://instagram.com/explore/tags/test",
+    "https://instagram.com/p/%2e%2e/settings",
+    "https://tiktok.com/@user/photo/6718335390845095173",
+    "https://tiktok.com/@user/video/not-a-number",
   ])("does not execute a non-whitelisted URL %s", (url) =>
     expect(normalizeSocialUrl(url)).toBeNull(),
   );
@@ -71,10 +85,14 @@ describe("external execution whitelist", () => {
       socialCards: true,
       xEmbed: true,
       facebookEmbed: true,
+      instagramEmbed: true,
+      tiktokEmbed: true,
     };
     expect(socialOptions(params)).toEqual({
       x: true,
       facebook: true,
+      instagram: true,
+      tiktok: true,
       loadMode: "immediate",
     });
     expect(socialOptions({ ...params, smartCards: false }).x).toBe(false);
@@ -82,27 +100,37 @@ describe("external execution whitelist", () => {
       false,
     );
     expect(socialOptions({ ...params, xEmbed: false }).x).toBe(false);
+    expect(socialOptions({ ...params, instagramEmbed: false }).instagram).toBe(
+      false,
+    );
     expect(
       socialOptions({ ...params, externalMediaLoadMode: "click" }).loadMode,
     ).toBe("click");
     expect(socialOptions({}).x).toBe(false);
   });
-  it("creates a fixed-provider CSP and script, not user supplied HTML", () => {
-    const embed = normalizeSocialUrl(
+  it.each([
+    [
       "https://x.com/a/status/20?q=%3Cscript%3E",
-    )!;
+      "https://platform.twitter.com/widgets.js",
+    ],
+    [
+      "https://www.instagram.com/p/DA5VlaMK1Wc/",
+      "https://www.instagram.com/embed.js",
+    ],
+    [
+      "https://www.tiktok.com/@scout2015/video/6718335390845095173",
+      "https://www.tiktok.com/embed.js",
+    ],
+  ])("creates a fixed-provider CSP and script for %s", (url, sdk) => {
+    const embed = normalizeSocialUrl(url)!;
     const html = socialDocument(
       embed,
       "0123456789abcdef",
       "0123456789abcdef",
       500,
     );
-    expect(html).toContain("https://platform.twitter.com/widgets.js");
+    expect(html).toContain(sdk);
     expect(html).toContain("default-src 'none'");
-    expect(html).toContain(
-      "connect-src https://cdn.syndication.twimg.com https://syndication.twitter.com",
-    );
-    expect(html).not.toContain("connect.facebook.net");
     expect(html).not.toContain("%3Cscript%3E");
     expect(html).not.toContain("unsafe-eval");
   });

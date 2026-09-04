@@ -23,7 +23,7 @@ class LinkPreviewService
     ) {}
 
     /**
-     * @param array{social: bool, generic: bool, images: bool, embeds?: array{x?: bool, facebook?: bool}} $options
+     * @param array{social: bool, generic: bool, images: bool, embeds?: array{x?: bool, facebook?: bool, instagram?: bool, tiktok?: bool}} $options
      * @return array{url: string, provider: string, provider_label: string, title: string, description: string, image_url: ?string}
      */
     public function preview(string $value, array $options): array

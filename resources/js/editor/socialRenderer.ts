@@ -1,5 +1,5 @@
 import { createSocialPlayer } from "./socialPlayer";
-import type { SocialOptions } from "./socialPolicy";
+import type { SocialOptions, SocialProvider } from "./socialPolicy";
 
 const rendered = new Map<
   HTMLElement,
@@ -13,9 +13,19 @@ let observer: MutationObserver | null = null;
 let options: SocialOptions = {
   x: false,
   facebook: false,
+  instagram: false,
+  tiktok: false,
   loadMode: "immediate",
 };
 let lifecycle = false;
+
+function providerFromFigure(figure: HTMLElement): SocialProvider | "" {
+  return (
+    (["x", "facebook", "instagram", "tiktok"] as const).find((provider) =>
+      figure.classList.contains(`jw-card-${provider}`),
+    ) ?? ""
+  );
+}
 
 export function enhanceContentSocial(current: SocialOptions = options): number {
   const signature = JSON.stringify(current);
@@ -37,11 +47,7 @@ export function enhanceContentSocial(current: SocialOptions = options): number {
   )) {
     if (figure.closest(".jwsoft-tiptap-editable") || rendered.has(figure))
       continue;
-    const provider = figure.classList.contains("jw-card-x")
-      ? "x"
-      : figure.classList.contains("jw-card-facebook")
-        ? "facebook"
-        : "";
+    const provider = providerFromFigure(figure);
     const source = figure.querySelector<HTMLAnchorElement>("a.jw-card-link");
     const player = createSocialPlayer(
       source?.getAttribute("href") ?? "",

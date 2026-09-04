@@ -18,10 +18,12 @@
     "externalEmbeds": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["x", "facebook"],
+      "required": ["x", "facebook", "instagram", "tiktok"],
       "properties": {
         "x": { "$ref": "#/$defs/externalProvider" },
-        "facebook": { "$ref": "#/$defs/externalProvider" }
+        "facebook": { "$ref": "#/$defs/externalProvider" },
+        "instagram": { "$ref": "#/$defs/externalProvider" },
+        "tiktok": { "$ref": "#/$defs/externalProvider" }
       }
     },
     "$schema": { "type": "string" },

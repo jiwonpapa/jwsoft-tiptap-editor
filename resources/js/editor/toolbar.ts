@@ -25,11 +25,8 @@ import {
   type MediaEmbedOptions,
 } from "@/editor/mediaEmbed";
 import { uploadEditorMedia } from "@/editor/mediaUpload";
-import {
-  fetchLinkPreview,
-  insertSmartCard,
-  isSmartCardUrl,
-} from "@/editor/smartCard";
+import { fetchLinkPreview, insertSmartCard } from "@/editor/smartCard";
+import { normalizeExternalInput } from "@/editor/socialInput";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
@@ -212,7 +209,7 @@ function changeIndentation(editor: Editor, direction: 1 | -1): boolean {
 
 function formField(
   labelText: string,
-  input: HTMLInputElement | HTMLSelectElement,
+  input: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
 ): HTMLElement {
   const label = document.createElement("label");
   label.className = "jwsoft-tiptap-field";
@@ -874,10 +871,8 @@ function createSmartCardDialog(
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
-  const url = document.createElement("input");
-  url.type = "url";
-  url.inputMode = "url";
-  url.placeholder = "https://example.com/post";
+  const url = document.createElement("textarea");
+  url.placeholder = "https://example.com/post\n<blockquote …>";
   const progress = document.createElement("div");
   progress.className = "jwsoft-tiptap-upload-status";
   progress.setAttribute("role", "status");
@@ -897,10 +892,10 @@ function createSmartCardDialog(
   hint.className = "jwsoft-tiptap-dialog-hint";
   hint.textContent =
     locale === "en"
-      ? "Public metadata becomes a link preview card. Private or blocked posts may be unavailable."
-      : "공개 정보를 링크 미리보기 카드로 삽입합니다. 비공개·조회 제한 게시물은 지원되지 않을 수 있습니다.";
+      ? "Paste a URL or official embed code for YouTube, Vimeo, X, Facebook, Instagram, or TikTok."
+      : "YouTube·Vimeo·X·Facebook·Instagram·TikTok 주소 또는 공식 퍼가기 코드를 붙여넣으세요.";
   form.append(
-    formField(editorText(locale, "HTTPS 주소"), url),
+    formField(editorText(locale, "주소 또는 퍼가기 코드"), url),
     hint,
     progress,
     error,
@@ -931,14 +926,15 @@ function createSmartCardDialog(
     apply.textContent = editorText(locale, "링크 카드 삽입");
   });
   fallback.addEventListener("click", () => {
-    if (controller || !isSmartCardUrl(url.value) || editor.isDestroyed) return;
+    const fallbackUrl = normalizeExternalInput(url.value);
+    if (controller || !fallbackUrl || editor.isDestroyed) return;
     editor
       .chain()
       .focus()
       .insertContent({
         type: "text",
-        text: url.value,
-        marks: [{ type: "link", attrs: { href: url.value } }],
+        text: fallbackUrl,
+        marks: [{ type: "link", attrs: { href: fallbackUrl } }],
       })
       .run();
     form.reset();
@@ -981,7 +977,7 @@ function createSmartCardDialog(
           : editorText(locale, "링크 미리보기를 가져오지 못했습니다.");
       error.hidden = false;
       progress.hidden = true;
-      fallback.hidden = !isSmartCardUrl(url.value);
+      fallback.hidden = !normalizeExternalInput(url.value);
       apply.textContent =
         locale === "en" ? "Retry preview" : "미리보기 다시 시도";
       url.disabled = false;

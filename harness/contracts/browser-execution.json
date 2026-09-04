@@ -111,6 +111,12 @@
     },
     {
       "file": "editor-links.spec.ts",
+      "title": "link card toolbar accepts an official Instagram embed snippet",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
       "title": "failed automatic preview preserves the original URL as a link",
       "project": "chromium-desktop",
       "required": true
@@ -130,6 +136,12 @@
     {
       "file": "editor-links.spec.ts",
       "title": "link card toolbar inserts a generic HTTPS preview",
+      "project": "chromium-mobile",
+      "required": false
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "link card toolbar accepts an official Instagram embed snippet",
       "project": "chromium-mobile",
       "required": false
     },

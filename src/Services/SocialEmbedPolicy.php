@@ -35,7 +35,12 @@ final class SocialEmbedPolicy
                 }
             }
             if (preg_match('~'.$policy['pathPattern'].'~D', $path, $match) !== 1) return null;
-            $canonicalPath = $provider === 'facebook' ? '/'.$match[1].'/'.$match[2].'/'.$match[3] : rtrim($path, '/');
+            $canonicalPath = match ($provider) {
+                'facebook' => '/'.$match[1].'/'.$match[2].'/'.$match[3],
+                'instagram' => '/'.$match[1].'/'.$match[2].'/',
+                'tiktok' => '/@'.$match[1].'/video/'.$match[2],
+                default => rtrim($path, '/'),
+            };
             return ['provider' => $provider, 'url' => 'https://'.$policy['canonicalHost'].$canonicalPath];
         }
         return null;
