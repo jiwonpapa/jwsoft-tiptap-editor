@@ -32,7 +32,7 @@ namespace {
         } catch (LinkPreviewException) {
             return;
         }
-        throw new RuntimeException('Non-public destination was accepted: '.$host);
+        throw new RuntimeException('Non-public destination was accepted: '.$host.' '.json_encode(ResolverDnsFixture::$records));
     }
 
     $resolver = new DnsSafeUrlResolver();

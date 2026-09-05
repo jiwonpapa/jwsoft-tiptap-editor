@@ -48,10 +48,12 @@ class DnsSafeUrlResolver implements SafeUrlResolverInterface
 
         // HTTP destinations must be unicast. Limit IPv6 to native global unicast
         // (2000::/3), excluding mapped/NAT64 routes that can conceal an IPv4 target.
+        // PHP 8.2 accepts 6to4 (2002::/16); exclude that IPv4 tunnel explicitly.
         $packed = inet_pton($address);
         if ($packed === false
             || (strlen($packed) === 4 && ord($packed[0]) >= 224)
-            || (strlen($packed) === 16 && (ord($packed[0]) & 0xe0) !== 0x20)) {
+            || (strlen($packed) === 16 && ((ord($packed[0]) & 0xe0) !== 0x20
+                || str_starts_with($packed, "\x20\x02")))) {
             throw new LinkPreviewException('preview_private_address');
         }
 
