@@ -25,7 +25,12 @@ class DnsSafeUrlResolver implements SafeUrlResolverInterface
         foreach ($records as $record) {
             $address = $record['ip'] ?? $record['ipv6'] ?? null;
             if (is_string($address)) {
-                $addresses[] = $this->requirePublicIp($address);
+                $this->requirePublicIp($address);
+                // Unknown network-specific NAT64 prefixes can look globally routable.
+                // Validate all DNS results, but only connect to a public IPv4 address.
+                if (filter_var($address, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false) {
+                    $addresses[] = $address;
+                }
             }
         }
         $addresses = array_values(array_unique($addresses));
@@ -41,8 +46,19 @@ class DnsSafeUrlResolver implements SafeUrlResolverInterface
         if (filter_var(
             $address,
             FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
+            FILTER_FLAG_GLOBAL_RANGE,
         ) === false) {
+            throw new LinkPreviewException('preview_private_address');
+        }
+
+        // Reject non-unicast and known IPv6 translation ranges in mixed DNS answers.
+        // Passing the IPv6 checks does not authorize connecting through that address.
+        // PHP 8.2 accepts 6to4 (2002::/16); exclude that IPv4 tunnel explicitly.
+        $packed = inet_pton($address);
+        if ($packed === false
+            || (strlen($packed) === 4 && ord($packed[0]) >= 224)
+            || (strlen($packed) === 16 && ((ord($packed[0]) & 0xe0) !== 0x20
+                || str_starts_with($packed, "\x20\x02")))) {
             throw new LinkPreviewException('preview_private_address');
         }
 

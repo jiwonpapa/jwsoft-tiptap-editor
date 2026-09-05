@@ -24,6 +24,7 @@ PHP_TESTS = (
     "editor_sanitizer_test",
     "parity_corpus_test",
     "upload_settings_test",
+    "dns_safe_url_resolver_test",
 )
 
 

@@ -4,6 +4,7 @@ parameters:
         - src/Services/EditorSanitizer.php
         - src/Services/EditorContent.php
         - src/Services/SocialEmbedPolicy.php
+        - src/Services/DnsSafeUrlResolver.php
         - src/Policy
         - src/ValueObjects
         - src/Exceptions

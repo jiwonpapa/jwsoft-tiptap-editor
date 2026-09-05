@@ -95,7 +95,7 @@ class LinkPreviewService
                 ->withOptions([
                     'allow_redirects' => false,
                     'stream' => true,
-                    'curl' => [CURLOPT_RESOLVE => ["{$host}:443:{$resolveAddress}"]],
+                    'curl' => [CURLOPT_RESOLVE => ["{$host}:443:{$resolveAddress}"], CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4],
                 ])
                 ->connectTimeout(3)
                 ->timeout(6)
@@ -137,7 +137,7 @@ class LinkPreviewService
             try {
                 $response = $this->http
                     ->withHeaders(['Accept' => 'text/html', 'User-Agent' => 'JWSoft-Tiptap-LinkPreview/1.0'])
-                    ->withOptions(['allow_redirects' => false, 'curl' => [CURLOPT_RESOLVE => ["{$host}:443:{$resolveAddress}"]]])
+                    ->withOptions(['allow_redirects' => false, 'curl' => [CURLOPT_RESOLVE => ["{$host}:443:{$resolveAddress}"], CURLOPT_IPRESOLVE => CURL_IPRESOLVE_V4]])
                     ->connectTimeout(3)->timeout(6)->head($url);
             } catch (ConnectionException $exception) {
                 throw new LinkPreviewException('preview_facebook_unavailable', previous: $exception);
