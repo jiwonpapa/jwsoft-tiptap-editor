@@ -136,6 +136,31 @@ try {
     // expected
 }
 
+// Exercise the real resolver before requests and on redirects; never send traffic.
+$pinnedRequests = [];
+$pinnedHttp = new Factory();
+$pinnedHttp->fake(function ($request, $options) use ($pinnedHttp, &$pinnedRequests) {
+    $pinnedRequests[] = $request->url();
+    assertLinkPreview($options['allow_redirects'] === false, 'redirects must be explicitly revalidated');
+    assertLinkPreview($options['curl'][CURLOPT_RESOLVE] === ['8.8.8.8:443:8.8.8.8'], 'connection IP must remain pinned');
+    if (str_ends_with($request->url(), '/redirect')) {
+        return $pinnedHttp->response('', 302, ['Location' => 'https://100.64.0.1/']);
+    }
+    return $pinnedHttp->response('<html><title>Public preview</title></html>', 200, ['Content-Type' => 'text/html']);
+});
+$pinnedService = new LinkPreviewService($pinnedHttp, new DnsSafeUrlResolver());
+$pinnedOptions = ['social' => false, 'generic' => true, 'images' => false];
+foreach (['https://100.64.0.1/', 'https://8.8.8.8/redirect'] as $url) {
+    try {
+        $pinnedService->preview($url, $pinnedOptions);
+        throw new RuntimeException('shared address must fail before HTTP, including redirects');
+    } catch (LinkPreviewException $exception) {
+        assertLinkPreview($exception->getMessage() === 'preview_private_address', 'unexpected SSRF refusal');
+    }
+}
+assertLinkPreview($pinnedRequests === ['https://8.8.8.8/redirect'], 'no request may reach a non-public destination');
+assertLinkPreview($pinnedService->preview('https://8.8.8.8/article', $pinnedOptions)['title'] === 'Public preview', 'public preview must continue working');
+
 // Facebook share wrappers must resolve only through pinned public Facebook hosts.
 $shareHttp = new Factory();
 $shareResolver = new TestSafeUrlResolver();

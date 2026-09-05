@@ -41,8 +41,17 @@ class DnsSafeUrlResolver implements SafeUrlResolverInterface
         if (filter_var(
             $address,
             FILTER_VALIDATE_IP,
-            FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE,
+            FILTER_FLAG_GLOBAL_RANGE,
         ) === false) {
+            throw new LinkPreviewException('preview_private_address');
+        }
+
+        // HTTP destinations must be unicast. Limit IPv6 to native global unicast
+        // (2000::/3), excluding mapped/NAT64 routes that can conceal an IPv4 target.
+        $packed = inet_pton($address);
+        if ($packed === false
+            || (strlen($packed) === 4 && ord($packed[0]) >= 224)
+            || (strlen($packed) === 16 && (ord($packed[0]) & 0xe0) !== 0x20)) {
             throw new LinkPreviewException('preview_private_address');
         }
 
