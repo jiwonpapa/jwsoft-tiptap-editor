@@ -43,7 +43,7 @@
     "@tiptap/pm": "3.30.5",
     "@tiptap/starter-kit": "3.30.5",
     "dompurify": "3.4.14",
-    "lucide": "1.37.0",
+    "lucide": "1.39.0",
     "social-media-parser": "0.3.0"
   },
   "devDependencies": {
