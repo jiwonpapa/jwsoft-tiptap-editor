@@ -8,6 +8,7 @@ import subprocess
 from dataclasses import dataclass
 from pathlib import Path
 
+from .execution import Execution
 from .files import Object, object_value
 from .http import validate_http_url
 from .process import run
@@ -21,6 +22,7 @@ class Remote:
     artifact_dir: str
     php: str = "php"
     user: str = ""
+    execution: Execution | None = None
 
     def __post_init__(self) -> None:
         for value in (self.host, self.root, self.php, self.artifact_dir):
@@ -40,6 +42,14 @@ class Remote:
         ssh = shutil.which("ssh")
         if ssh is None:
             raise ValueError("SSH executable is missing")
+        if self.execution is not None:
+            log = self.execution.run(
+                [ssh, self.host, shlex.join(command)],
+                input_text=None if php else source,
+                label=filename,
+                display=False,
+            )
+            return log.read_text()
         result = subprocess.run(  # noqa: S603 -- resolved SSH executable and quoted argv
             [ssh, self.host, shlex.join(command)],
             cwd=self.project,
@@ -60,7 +70,7 @@ class Remote:
         if not re.fullmatch(r"[A-Za-z0-9._-]+\.zip", artifact.name):
             raise ValueError("Unsafe artifact filename")
         target = f"{self.artifact_dir}/{artifact.name}"
-        run(["rsync", "-a", "--checksum", str(artifact), f"{self.host}:{target}"], self.project)
+        self.execute(["rsync", "-a", "--checksum", str(artifact), f"{self.host}:{target}"], "stage")
         return target
 
     def apply(self, artifact: str, digest: str, mode: str) -> None:
@@ -71,7 +81,7 @@ class Remote:
 
     def smoke(self, url: str) -> None:
         validate_http_url(url)
-        run(
+        self.execute(
             [
                 "curl",
                 "--fail",
@@ -89,5 +99,11 @@ class Remote:
                 "--",
                 url,
             ],
-            self.project,
+            "smoke",
         )
+
+    def execute(self, argv: list[str], label: str) -> None:
+        if self.execution is None:
+            run(argv, self.project)
+        else:
+            self.execution.run(argv, label=label)

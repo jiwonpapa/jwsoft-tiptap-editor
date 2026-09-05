@@ -126,7 +126,12 @@ fs.mkdirSync(path.join(root, "test-results", "release"), {
   recursive: true,
 });
 fs.writeFileSync(
-  path.join(root, "test-results", "release", "license.json"),
+  path.join(
+    root,
+    "test-results",
+    "release",
+    artifactChecked ? "license.json" : "license-source.json",
+  ),
   `${JSON.stringify(evidence, null, 2)}\n`,
 );
 console.log(

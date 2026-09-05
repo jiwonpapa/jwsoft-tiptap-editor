@@ -4,17 +4,15 @@ import os
 import sys
 from pathlib import Path
 
-from .dependencies import audit_python
 from .execution import Execution
 from .files import read_object
 from .governance import check
 from .license_source import validate_source_licenses
-from .process import run, tracked_inputs
+from .process import tracked_inputs
 from .security import check_secrets
 
 LEGACY_TESTS = (
     "license-audit",
-    "deploy-evidence-test",
     "stable-evidence-test",
     "release-phases-test",
     "remote-deploy-preflight-test",
@@ -66,21 +64,3 @@ def execute_checks(root: Path, execution: Execution) -> None:
         if relative.endswith(".php"):
             execution.run(["php", "-l", relative])
     execution.run(["bash", "scripts/check-shell.sh"])
-
-
-def audit_dependencies(root: Path) -> None:
-    # Audit is intentionally separate from offline checks; CI and release require both.
-    run(
-        [
-            "npm",
-            "audit",
-            "--json",
-            "--audit-level=moderate",
-            "--fetch-timeout=30000",
-            "--fetch-retries=1",
-        ],
-        root,
-        capture=True,
-    )
-    run(["composer", "audit", "--locked", "--no-interaction"], root)
-    audit_python(root)

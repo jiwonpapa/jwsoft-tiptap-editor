@@ -396,7 +396,7 @@
     {
       "id": "supply-chain.no-cdn",
       "gate": "supply-chain",
-      "requirement": "런타임 CDN 요청 없음",
+      "requirement": "일반 런타임 CDN 요청 없음, 승인된 공식 SNS SDK만 예외",
       "artifacts": ["test-results/parity/supply-chain.json"]
     },
     {
@@ -404,6 +404,7 @@
       "gate": "license-supply-chain",
       "requirement": "npm composer lock과 audit",
       "artifacts": [
+        "test-results/harness/audit.json",
         "test-results/release/license.json",
         "test-results/parity/supply-chain.json"
       ]

@@ -5,8 +5,10 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .audit import audit_dependencies
 from .browser import run_browser
 from .clean import clean_caches
+from .dependencies import audit_python
 from .deploy_entry import deploy_from_environment
 from .evidence import record_observation
 from .files import ROOT
@@ -16,7 +18,7 @@ from .host import validate_host
 from .integration import run_integration
 from .lifecycle import run_lifecycle
 from .provenance import source_fingerprint
-from .quality import audit_dependencies, check_all
+from .quality import check_all
 from .receipt import validate_artifact_execution
 from .release import publish_candidate, publish_stable
 
@@ -24,7 +26,7 @@ from .release import publish_candidate, publish_stable
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("check", "governance", "audit", "browser"):
+    for name in ("check", "governance", "audit", "audit-python", "browser"):
         sub.add_parser(name)
     fingerprint = sub.add_parser("fingerprint")
     fingerprint.add_argument("--root", type=Path, default=ROOT)
@@ -68,6 +70,7 @@ def dispatch(args: argparse.Namespace) -> None:
         "check": lambda: check_all(ROOT),
         "governance": lambda: check(ROOT),
         "audit": lambda: audit_dependencies(ROOT),
+        "audit-python": lambda: print(f"[jwsoft] audited Python tools: {audit_python(ROOT)}"),
         "browser": lambda: run_browser(ROOT),
         "clean": lambda: print(clean_caches(ROOT, apply=args.apply)),
         "publish-candidate": lambda: publish_candidate(

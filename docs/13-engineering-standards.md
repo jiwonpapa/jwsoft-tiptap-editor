@@ -61,6 +61,13 @@ GitHub `main` 보호의 선언은 `harness/governance/main-protection.json`입�
 
 첫 명령은 `unverified` 관측만 기록합니다. 게시 명령은 계획이 기본이며 후보는 현재 57개, 최종은 62개를 재검사합니다. 후보 적용은 `--apply --approval publish-verified-jw-editor-candidate`, 최종은 `--apply --approval publish-verified-jw-editor-stable`이 필요합니다. ADR-0017에 따라 후보는 공개 main과 동일한 commit의 태그·Latest로 전달하되 제목·설명에 최종 승인 전임을 표시합니다. 태그 자동 게시는 없습니다. 최종 명령은 로컬·원격 태그, 후보의 commit/checksum 표식, 재다운로드 ZIP과 두 배포 ZIP을 대조한 뒤 같은 릴리스의 검증 완료 표시만 갱신합니다. 재빌드나 자산 덮어쓰기는 하지 않습니다. CLI 구현의 존재는 실행 완료가 아닙니다.
 
+## 2026-09-05 감사 개선
+
+- 의존성 감사는 `test-results/harness/audit.json`에 실행 명령·로그·lockfile hash·소스·시각을 기록합니다. 기존 `supply-chain.locks-audit` 항목이 세 언어의 최신 실행 기록을 검증합니다. npm 네트워크 오류도 원문 로그를 보존하며 성공으로 처리하지 않습니다.
+- 배포 성공 기록은 Python 트랜잭션만 생성합니다. `test-results/harness/deploy-staging.json`과 `deploy-production.json`이 원격 적용·스크립트 hash·설치 전후 상태·HTTP smoke 및 결과 파일을 결합합니다. 이전 단독 Node 기록기는 삭제됐으며 수동 pass나 과거 schema 2 배포 기록은 새 승격 근거가 아닙니다.
+- 소스 라이선스는 `license-source.json`, 패키지 라이선스는 `license.json`으로 분리합니다. 서로의 증거를 덮어쓰지 않습니다.
+- ESLint inline config를 금지하고 신규 범용 JS 하네스 검사를 루트/기타 경로에도 적용합니다. 명시된 제품·테스트·언어 전용 도구와 기존 이전 목록만 허용합니다.
+
 ## 아직 남는 작업
 
 기존 Node 검증기의 나머지 이전, toolbar/writingTools 등 대형 책임 분리, 호스트 의존 PHP 정적 분석은 단계적으로 남습니다. 만료되는 기술 부채를 정상 통과 수치로 감추지 않습니다. 실행기 구현과 해당 버전의 검사 통과·배포는 별도로 판정합니다.

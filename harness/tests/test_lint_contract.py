@@ -8,6 +8,24 @@ from harness.jw_harness.process import run
 
 
 class LintContractTests(unittest.TestCase):
+    def test_inline_suppressions_cannot_disable_real_type_rules(self) -> None:
+        javascript = """
+import { ESLint } from 'eslint';
+const lint = new ESLint();
+const output = [];
+for (const comment of ['// eslint-disable-line', '/* eslint-disable */']) {
+ const [result] = await lint.lintText('export const x: any = 1; ' + comment,
+  {filePath:'resources/js/editor/content.ts'});
+ output.push(result.messages.map(m=>m.ruleId));
+}
+console.log(JSON.stringify(output));
+"""
+        results = json.loads(
+            run(["node", "--input-type=module", "-e", javascript], ROOT, capture=True)
+        )
+        for rules in results:
+            self.assertIn("@typescript-eslint/no-explicit-any", rules)
+
     def test_any_and_unhandled_promises_fail_the_real_linter(self) -> None:
         javascript = """
 import { ESLint } from 'eslint';

@@ -1,7 +1,9 @@
 """Enforce bounded source files, migration inventory and explicit expiring debt."""
 
 import ast
+import io
 import re
+import tokenize
 from collections.abc import Callable
 from datetime import date
 from pathlib import Path
@@ -15,6 +17,26 @@ GENERATED = {
     "dist/js/plugin.iife.js",
 }
 EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".php", ".sh"}
+NATIVE_CONFIGS = {"eslint.config.mjs", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"}
+
+
+def native_javascript(relative: str) -> bool:
+    return (
+        relative in NATIVE_CONFIGS
+        or (
+            relative.endswith(".ts")
+            and relative.startswith(
+                (
+                    "resources/js/",
+                    "tests/e2e/",
+                    "tests/g7-browser/",
+                    "tests/helpers/",
+                    "tests/scaffold/",
+                )
+            )
+        )
+        or relative in {"tests/dom-setup.ts", "tests/integration/g7_state_sync_test.mjs"}
+    )
 
 
 def file_limit(relative: str) -> int:
@@ -64,7 +86,7 @@ def inspect_source(relative: str, text: str, policy: Object) -> list[str]:
     maximum = object_value(debt[relative])["maxLines"] if relative in debt else file_limit(relative)
     if isinstance(maximum, int) and len(text.splitlines()) > maximum:
         errors.append(f"File exceeds {maximum} lines: {relative}")
-    if relative.startswith(("scripts/", "harness/")) and relative.endswith(
+    if not native_javascript(relative) and relative.endswith(
         (".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx")
     ):
         allowed = {
@@ -73,9 +95,16 @@ def inspect_source(relative: str, text: str, policy: Object) -> list[str]:
         }
         if relative not in allowed:
             errors.append(f"New generic JS harness forbidden; use Python: {relative}")
+    comment_text = text
+    if relative.endswith(".py"):
+        comment_text = "\n".join(
+            token.string
+            for token in tokenize.generate_tokens(io.StringIO(text).readline)
+            if token.type == tokenize.COMMENT
+        )
     if re.search(
-        r"(?m)^\s*(?://|#|/\*|\*)[^\n]*(?:@ts-(?:ignore|nocheck)|@phpstan-ignore|eslint-disable)",
-        text,
+        r"(?m)(?://|#|/\*|^\s*\*)\s*(?:@ts-(?:ignore|nocheck)|@phpstan-ignore|eslint-disable)\b",
+        comment_text,
     ):
         errors.append(f"Unreviewed checker suppression: {relative}")
     if relative.endswith(".py"):

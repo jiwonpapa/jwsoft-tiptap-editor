@@ -169,11 +169,11 @@ class DeploymentTests(unittest.TestCase):
                     deploy_from_environment(root, "production", current, apply=True)
                 command.assert_not_called()
 
-    def test_shell_records_pass_only_after_guarded_transaction(self) -> None:
+    def test_shell_cannot_record_pass_outside_guarded_transaction(self) -> None:
         shell = (ROOT / "scripts/deploy.sh").read_text()
-        self.assertLess(
-            shell.index("deploy-transaction"), shell.index('deploy-evidence.mjs" record')
-        )
+        self.assertIn("deploy-transaction", shell)
+        self.assertNotIn("deploy-evidence.mjs", shell)
+        self.assertFalse((ROOT / "scripts/deploy-evidence.mjs").exists())
         self.assertNotIn("|| true", shell)
         self.assertIn('[ "$action" = "--apply" ]', shell)
 

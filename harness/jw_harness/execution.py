@@ -1,5 +1,6 @@
 """Only an owning execution can publish a fresh successful receipt."""
 
+import hashlib
 import subprocess
 import time
 import uuid
@@ -38,6 +39,9 @@ class Execution:
         *,
         environment: Mapping[str, str] | None = None,
         cwd: Path | None = None,
+        input_text: str | None = None,
+        label: str = "",
+        display: bool = True,
     ) -> Path:
         log = self.directory / f"{len(self.commands):03d}.log"
         started = time.monotonic_ns()
@@ -52,16 +56,22 @@ class Execution:
                     timeout=1200,
                     check=False,
                     text=True,
+                    input=input_text,
                 )
             output = log.read_text()
             if len(output) > 6000:
                 output = (
                     f"[jwsoft] Full execution log: {log.relative_to(self.root)}\n" + output[-4000:]
                 )
-            print(output, end="", flush=True)
+            if display or result.returncode != 0:
+                print(output, end="", flush=True)
             self.commands.append(
                 {
                     "argv": list(argv),
+                    "label": label,
+                    "inputSha256": hashlib.sha256(input_text.encode()).hexdigest()
+                    if input_text is not None
+                    else None,
                     "cwd": str(cwd or self.root),
                     "exitCode": result.returncode,
                     "durationNs": time.monotonic_ns() - started,

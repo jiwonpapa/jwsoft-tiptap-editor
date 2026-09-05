@@ -42,11 +42,6 @@ if [ "$environment" = "production" ]; then
     || fail "production에는 PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production이 필요합니다."
   [ -n "${APPROVED_STAGING_SHA256:-}" ] || fail "production에는 APPROVED_STAGING_SHA256가 필요합니다."
   [ "$APPROVED_STAGING_SHA256" = "$checksum" ] || fail "staging 승인 checksum과 artifact가 다릅니다."
-  DEPLOY_EVIDENCE_CHECKSUM="$checksum" \
-  DEPLOY_EVIDENCE_VERSION="$version" \
-  DEPLOY_EVIDENCE_TARGET="$DEPLOY_HOST:$G7_REMOTE_ROOT" \
-  DEPLOY_EVIDENCE_SAME_TARGET_APPROVED="${SAME_TARGET_PROMOTION_APPROVED:-0}" \
-    node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" verify-production
 fi
 
 info "환경: $environment"
@@ -67,14 +62,4 @@ require_command curl
 # Python owns apply + HTTP smoke + state-aware compensation.
 (cd "$PROJECT_ROOT" && "${HARNESS_PYTHON:-python3}" -m harness.jw_harness deploy-transaction \
   --environment "$environment" --artifact "$artifact" --apply)
-DEPLOY_EVIDENCE_ENVIRONMENT="$environment" \
-DEPLOY_EVIDENCE_CHECKSUM="$checksum" \
-DEPLOY_EVIDENCE_VERSION="$version" \
-DEPLOY_EVIDENCE_ARTIFACT="$(basename "$artifact")" \
-DEPLOY_EVIDENCE_MODE="$DEPLOY_MODE" \
-DEPLOY_EVIDENCE_APP_ENV="$EXPECTED_APP_ENV" \
-DEPLOY_EVIDENCE_TARGET="$DEPLOY_HOST:$G7_REMOTE_ROOT" \
-DEPLOY_EVIDENCE_SMOKE_URL="$SMOKE_URL" \
-DEPLOY_EVIDENCE_SAME_TARGET_APPROVED="${SAME_TARGET_PROMOTION_APPROVED:-0}" \
-  node "$PROJECT_ROOT/scripts/deploy-evidence.mjs" record
 info "배포와 smoke 통과"

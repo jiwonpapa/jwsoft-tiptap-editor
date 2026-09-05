@@ -466,7 +466,7 @@ test("production evidence requires matching staging role, version and archive", 
     };
     proof.stagingEvidenceSha256 = hashFile(write(stagingFile, staging));
     write(productionFile, proof);
-    validateStableArtifact(context, productionFile);
+    assert.throws(() => validateStableArtifact(context, productionFile));
     for (const override of [
       { sameTargetPromotionApproved: false },
       { appliedAt: staging.appliedAt },

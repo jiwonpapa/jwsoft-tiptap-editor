@@ -292,6 +292,11 @@ export function validateStableArtifact(context, relative) {
       "artifact license check is missing or stale",
     );
     packageMatches(data.artifactSha256);
+  } else if (relative === "test-results/harness/audit.json") {
+    requireValue(
+      data.sourceFingerprint === fingerprint,
+      "dependency audit has stale inputs",
+    );
   } else if (relative === "test-results/parity/supply-chain.json") {
     packageMatches(data.artifactSha256);
     requireValue(
@@ -327,6 +332,9 @@ export function validateStableArtifact(context, relative) {
   } else throw new Error(`no freshness validator for ${relative}`);
   if (
     [
+      "test-results/harness/audit.json",
+      "test-results/deploy/staging.json",
+      "test-results/deploy/production.json",
       "test-results/parity/unit.json",
       "test-results/parity/corpus.json",
       "test-results/parity/integration.json",
