@@ -201,8 +201,6 @@
     "scripts/build-vendor-bundle.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/copy-runtime-licenses.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/deploy-contract-test.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
-    "scripts/deploy-evidence-test.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
-    "scripts/deploy-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/deployment-gate.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/evidence-provenance.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",
     "scripts/generate-parity-evidence.mjs": "existing Node validator or native JS tooling; migration inventory, not permission to add new scripts",

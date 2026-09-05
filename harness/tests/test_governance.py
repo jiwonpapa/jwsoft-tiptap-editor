@@ -21,12 +21,20 @@ class GovernanceTests(unittest.TestCase):
         self.assertTrue(any("300 lines" in error for error in errors))
 
     def test_new_javascript_harness_is_rejected(self) -> None:
-        for prefix in ("scripts", "harness", "harness/nested"):
+        for prefix in (".", "tools", "scripts", "harness", "harness/nested"):
             for suffix in ("js", "mjs", "cjs", "ts", "tsx"):
                 errors = inspect_source(
                     f"{prefix}/new-glue.{suffix}", "console.log(1);", self.policy
                 )
                 self.assertTrue(any("use Python" in error for error in errors))
+
+    def test_trailing_checker_suppression_is_rejected(self) -> None:
+        for source in (
+            "call(); // eslint-disable-line\n",
+            "call(); /* eslint-disable */\n",
+            "call(); // @phpstan-ignore-line\n",
+        ):
+            self.assertTrue(inspect_source("resources/js/bad.ts", source, self.policy))
 
     def test_root_and_other_first_party_files_are_scanned(self) -> None:
         from unittest.mock import patch

@@ -84,7 +84,7 @@ def rollback(
 
 def deploy_transaction(
     remote: DeploymentTarget, archive: Path, checksum: str, mode: str, smoke_url: str
-) -> None:
+) -> Object:
     if mode not in ("install", "update") or hash_file(archive) != checksum:
         raise ValueError("Invalid deployment mode or checksum")
     version, files = archive_manifest(archive)
@@ -109,8 +109,10 @@ def deploy_transaction(
         remote.apply(current, checksum, mode)
         activate_state(remote, True, False)
         remote.command("optimize:clear")
-        verify_archive(remote.state(), version, files)
+        after = remote.state()
+        verify_archive(after, version, files)
         remote.smoke(smoke_url)
+        return {"before": before, "after": after}
     except BaseException as original:
         try:
             rollback(remote, before, previous)

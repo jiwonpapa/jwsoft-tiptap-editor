@@ -79,7 +79,7 @@ PRODUCTION_APPROVAL=jwsoft-tiptap-editor-production \
 
 하네스는 DB 전체 백업을 자동으로 만들지 않습니다. 이 플러그인은 기존 HTML 필드를 유지하며 G7 plugin update의 파일 백업·복원을 사용합니다. 적용 실패 시 하네스는 jwsoft를 비활성화하고 CKEditor 재활성화를 시도합니다. DB migration이 추가되는 릴리스는 별도 migration/backup ADR과 운영 승인 없이는 배포할 수 없습니다.
 
-staging smoke가 통과하면 `test-results/deploy/staging.json`에 artifact checksum과 대상·smoke URL의 SHA-256 지문만 기록합니다. production 계획·적용은 이 staging 증거와 `APPROVED_STAGING_SHA256`가 현재 artifact에 모두 일치해야 하며, 성공 후 `production.json`을 기록합니다. 원격 호스트·경로·URL 원문과 비밀값은 증거에 저장하지 않습니다.
+staging smoke가 통과하면 Python 실행기가 `test-results/deploy/staging.json`과 `test-results/harness/deploy-staging.json`을 함께 기록합니다. 적용된 ZIP·원격 스크립트·전후 파일/활성 상태·HTTP 명령의 실행 로그와 해시가 연결되어야 하며 단독 pass 기록은 거부됩니다. production 적용은 이 staging 실행 증거와 `APPROVED_STAGING_SHA256`가 현재 artifact에 모두 일치해야 합니다. 요약에는 대상 지문만 넣으며 로컬의 비공개 실행 로그에는 명령 인자의 호스트·경로가 포함될 수 있어 공개하거나 커밋하지 않습니다. 비밀번호·토큰은 명령 인자로 전달하지 않습니다.
 
 production 증거는 staging JSON의 SHA-256과 적용 시각을 연결하며 staging보다 나중에 실제 적용되어야 합니다. 이전 기록은 `test-results/deploy/history/`에 보존합니다. 완료 후 `make release-check`로 재빌드 없이 전체 62개를 확인합니다. 후보 ZIP의 버전·바이트는 승격 중 변경하지 않습니다. 승인된 단계 분리의 근거는 [ADR 0012](adr/0012-phased-release-promotion.md)입니다.
 

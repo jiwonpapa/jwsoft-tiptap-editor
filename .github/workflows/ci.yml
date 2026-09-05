@@ -42,6 +42,8 @@ jobs:
         with:
           name: verification-evidence
           path: |
+            test-results/executions
+            test-results/parity
             test-results/harness
             test-results/playwright
             coverage/coverage-summary.json

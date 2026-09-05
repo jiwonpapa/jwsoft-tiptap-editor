@@ -10,6 +10,7 @@ const debt = JSON.parse(
 );
 
 export default [
+  { linterOptions: { noInlineConfig: true } },
   {
     ignores: [
       "dist/**",

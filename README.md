@@ -4,7 +4,7 @@
 
 그누보드7에서 글과 이미지·동영상·SNS 게시물을 함께 작성하는 리치 텍스트 에디터 플러그인입니다. G7 코어 수정 없이 설치하며, 작성 화면과 글보기 화면에 같은 미디어 표시 정책을 적용합니다.
 
-> 현재 공개 배포본은 [Releases](https://github.com/jiwonpapa/jwsoft-tiptap-editor/releases)에서 확인하세요. `main`의 0.1.3은 정식 출시 검증 중이며, 버전 표기나 ZIP 생성만으로 안정판 승인을 뜻하지 않습니다.
+> 현재 공개 배포본과 최종 검증 상태는 [Releases](https://github.com/jiwonpapa/jwsoft-tiptap-editor/releases)에서 확인하세요. 버전 표기나 ZIP 생성만으로 안정판 승인을 뜻하지 않습니다.
 
 ## 무엇을 할 수 있나요?
 

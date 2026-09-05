@@ -101,7 +101,7 @@
 
 ## H. 공급망과 배포
 
-- [x] CDN 요청 0 <!-- p0:supply-chain.no-cdn -->
+- [x] 일반 런타임 CDN 요청 0, 승인된 공식 SNS SDK만 예외 <!-- p0:supply-chain.no-cdn -->
 - [x] npm/composer lock과 audit 통과 <!-- p0:supply-chain.locks-audit -->
 - [x] reproducible build 또는 산출물 checksum 동일성 <!-- p0:supply-chain.reproducible -->
 - [x] package manifest·vendor·dist 포함 <!-- p0:supply-chain.package -->

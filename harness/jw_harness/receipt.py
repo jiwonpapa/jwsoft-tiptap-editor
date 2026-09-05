@@ -3,6 +3,7 @@
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 
+from .audit import AUDIT_RECEIPT, validate_audit
 from .browser import UI_OBSERVATIONS
 from .browser_report import items, validate_cases
 from .files import Object, hash_file, object_value, read_object, repository_file, string_value
@@ -79,6 +80,8 @@ def validate_browser(root: Path, data: Object, artifact: str) -> None:
 
 
 def execution_route(artifact: str) -> tuple[str, str]:
+    if artifact == AUDIT_RECEIPT:
+        return artifact, "dependency-audit"
     if artifact in ("test-results/parity/unit.json", "test-results/parity/corpus.json"):
         receipt, scope = "test-results/parity/checks.json", "checks"
     elif artifact == "test-results/parity/integration.json":
@@ -125,8 +128,16 @@ def validate_lifecycle_execution(root: Path, data: Object, artifact: str) -> Non
 
 
 def validate_artifact_execution(root: Path, artifact: str, fingerprint: str) -> None:
+    if artifact in ("test-results/deploy/staging.json", "test-results/deploy/production.json"):
+        from .deploy_evidence import validate_deployment
+
+        validate_deployment(root, artifact, fingerprint)
+        return
     receipt, scope = execution_route(artifact)
     data = validate_journal(root, receipt, fingerprint, scope)
+    if scope == "dependency-audit":
+        validate_audit(root, data)
+        return
     if scope == "g7-integration":
         validate_integration(root, data)
         return

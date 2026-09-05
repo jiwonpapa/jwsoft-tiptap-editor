@@ -4,9 +4,11 @@ import os
 import shlex
 from pathlib import Path
 
+from .deploy_evidence import finish_deployment, verify_staging
 from .deploy_remote import Remote
 from .deploy_transaction import archive_manifest, deploy_transaction
-from .files import hash_file
+from .execution import Execution
+from .files import Object, hash_file
 from .http import validate_http_url
 from .process import run
 
@@ -28,23 +30,38 @@ def deploy_from_environment(root: Path, environment: str, archive: Path, *, appl
     validate_http_url(values["SMOKE_URL"])
     checksum = hash_file(archive)
     version, _ = archive_manifest(archive)
+    staging = None
     if environment == "production":
         if values.get("PRODUCTION_APPROVAL") != "jwsoft-tiptap-editor-production":
             raise ValueError("Production confirmation token is missing")
         if values.get("APPROVED_STAGING_SHA256") != checksum:
             raise ValueError("Approved staging checksum mismatch")
-        values.update(
-            {
-                "DEPLOY_EVIDENCE_CHECKSUM": checksum,
-                "DEPLOY_EVIDENCE_VERSION": version,
-                "DEPLOY_EVIDENCE_TARGET": f"{values['DEPLOY_HOST']}:{values['G7_REMOTE_ROOT']}",
-                "DEPLOY_EVIDENCE_SAME_TARGET_APPROVED": values.get(
-                    "SAME_TARGET_PROMOTION_APPROVED", "0"
-                ),
-            }
+        staging = verify_staging(
+            root,
+            version,
+            checksum,
+            f"{values['DEPLOY_HOST']}:{values['G7_REMOTE_ROOT']}",
+            values.get("SAME_TARGET_PROMOTION_APPROVED") == "1",
         )
-        run(["node", "scripts/deploy-evidence.mjs", "verify-production"], root, environment=values)
     run(["node", "scripts/deployment-gate.mjs", environment, str(archive)], root)
+    execution = Execution(
+        root, f"test-results/harness/deploy-{environment}.json", f"deploy-{environment}"
+    )
+    try:
+        execute_deployment(execution, environment, archive, values, staging)
+    except BaseException:
+        execution.fail()
+        raise
+
+
+def execute_deployment(
+    execution: Execution,
+    environment: str,
+    archive: Path,
+    values: dict[str, str],
+    staging: Object | None,
+) -> None:
+    root = execution.root
     remote = Remote(
         root,
         values["DEPLOY_HOST"],
@@ -52,6 +69,7 @@ def deploy_from_environment(root: Path, environment: str, archive: Path, *, appl
         values["REMOTE_ARTIFACT_DIR"],
         values.get("PHP_BIN", "php"),
         values.get("DEPLOY_RUN_USER", ""),
+        execution,
     )
     print(
         remote.script(
@@ -65,5 +83,11 @@ def deploy_from_environment(root: Path, environment: str, archive: Path, *, appl
             ],
         )
     )
-    run(["ssh", remote.host, shlex.join(["mkdir", "-p", "--", remote.artifact_dir])], root)
-    deploy_transaction(remote, archive, checksum, values["DEPLOY_MODE"], values["SMOKE_URL"])
+    execution.run(
+        ["ssh", remote.host, shlex.join(["mkdir", "-p", "--", remote.artifact_dir])],
+        label="prepare",
+    )
+    snapshots = deploy_transaction(
+        remote, archive, hash_file(archive), values["DEPLOY_MODE"], values["SMOKE_URL"]
+    )
+    finish_deployment(execution, environment, archive, values, snapshots, staging)
