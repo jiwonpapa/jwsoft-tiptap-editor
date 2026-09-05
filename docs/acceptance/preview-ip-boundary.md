@@ -8,16 +8,20 @@
 
 `DnsSafeUrlResolver`는 PHP 8.2부터 제공되는 `FILTER_FLAG_GLOBAL_RANGE`로
 공개 주소를 판정합니다. 사설·예약 주소만 제외하는 판정으로 되돌리지 않습니다.
-HTTP 목적지에서는 IPv4 multicast를 제외하고 IPv6는 native global unicast
-`2000::/3` 안에서만 허용합니다. mapped/NAT64 변환 주소는 외부처럼 보이는
-주소가 내부 IPv4 목적지를 숨길 수 있어 거부합니다. IPv6 특수용도 제외는
-PHP의 global-range 판정도 함께 통과해야 합니다. PHP 8.2의 global-range 판정은
+DNS 검사에서는 IPv4 multicast와 IPv6 `2000::/3` 밖의 주소도 거부합니다.
+IPv6 특수용도 제외는 PHP의 global-range 판정도 함께 통과해야 합니다.
+PHP 8.2의 global-range 판정은
 6to4 `2002::/16`을 허용하므로, 이 IPv4 터널 대역은 버전과 무관하게 명시적으로
 제외합니다. 최소 지원 버전 CI에서도 같은 차단 회귀를 실행합니다.
 
 한 호스트의 A/AAAA 응답에 차단 주소가 하나라도 섞이면 전체를 거부합니다.
-첫 공개 응답만 선택하고 나머지 결과를 무시하지 않습니다. 후속 리다이렉트도
-다시 검증하며, 허용한 IP를 실제 연결에 고정합니다. 임의 요청 HTML은 실행하지
+첫 공개 응답만 선택하고 나머지 결과를 무시하지 않습니다. 검사에 통과하더라도
+실제 연결은 공개 IPv4만 선택하고 HTTP client도 IPv4로 제한합니다. 일반 공개
+IPv6처럼 보이는 network-specific NAT64 대역은 주소만으로 안전하게 구분할 수
+없기 때문입니다. A/AAAA 응답 순서와 무관하게 이중 주소 사이트는 공개 A로
+연결하고, AAAA만 있는 사이트는 카드 생성을 거부하고 원문 링크를 유지합니다.
+이 제한은 서버 미리보기 요청에만 해당하며 사이트 전체 IPv6나 SNS SDK를 끄지 않습니다.
+후속 리다이렉트도 다시 검증하며, 허용한 IP를 실제 연결에 고정합니다. 임의 요청 HTML은 실행하지
 않고, 요청 실패 시 기존 URL과 오류 안내를 유지합니다.
 
 ## 검증
@@ -34,4 +38,5 @@ PHP의 global-range 판정도 함께 통과해야 합니다. PHP 8.2의 global-r
 
 근거: [PHP 8.2 추가 상수](https://www.php.net/manual/en/migration82.constants.php),
 [IANA IPv4 특수 주소](https://www.iana.org/assignments/iana-ipv4-special-registry/),
-[IANA IPv6 global unicast](https://www.iana.org/assignments/ipv6-unicast-address-assignments/).
+[IANA IPv6 global unicast](https://www.iana.org/assignments/ipv6-unicast-address-assignments/),
+[RFC 6052의 network-specific IPv6 변환](https://www.rfc-editor.org/rfc/rfc6052.html#section-3.4).

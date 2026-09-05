@@ -32,7 +32,7 @@ namespace {
         } catch (LinkPreviewException) {
             return;
         }
-        throw new RuntimeException('Non-public destination was accepted: '.$host.' '.json_encode(ResolverDnsFixture::$records));
+        throw new RuntimeException('Disallowed destination was accepted: '.$host.' '.json_encode(ResolverDnsFixture::$records));
     }
 
     $resolver = new DnsSafeUrlResolver();
@@ -58,7 +58,7 @@ namespace {
         }
     }
 
-    $allowed = ['8.8.8.8', '1.1.1.1', '100.63.255.255', '100.128.0.0', '2606:4700:4700::1111', '2001:4860:4860::8888'];
+    $allowed = ['8.8.8.8', '1.1.1.1', '100.63.255.255', '100.128.0.0'];
     foreach ($allowed as $address) {
         ResolverDnsFixture::$records = [[str_contains($address, ':') ? 'ipv6' : 'ip' => $address]];
         if ($resolver->resolve(' PROOF.EXAMPLE. ') !== $address) {
@@ -66,6 +66,19 @@ namespace {
         }
         if (! str_contains($address, ':') && $resolver->resolve($address) !== $address) {
             throw new RuntimeException('Public literal IP was changed or rejected');
+        }
+    }
+    // A global-looking AAAA can be a network-specific NAT64 prefix. Never connect
+    // through it, but keep ordinary dual-stack hosts usable over their public A.
+    foreach (['2606:4700:4700::1111', '2001:4860:4860::8888', '2606:4700:1234:5678::a00:1'] as $ipv6) {
+        $record = ['ipv6' => $ipv6];
+        ResolverDnsFixture::$records = [$record];
+        expectResolverRejected($resolver, 'proof.example');
+        foreach ([[$record, ['ip' => '8.8.8.8']], [['ip' => '8.8.8.8'], $record]] as $records) {
+            ResolverDnsFixture::$records = $records;
+            if ($resolver->resolve('proof.example') !== '8.8.8.8') {
+                throw new RuntimeException('Dual-stack resolution must pin only the public IPv4');
+            }
         }
     }
     foreach ([[], false, [[]]] as $records) {

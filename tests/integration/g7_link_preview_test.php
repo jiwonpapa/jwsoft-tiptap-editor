@@ -143,6 +143,7 @@ $pinnedHttp->fake(function ($request, $options) use ($pinnedHttp, &$pinnedReques
     $pinnedRequests[] = $request->url();
     assertLinkPreview($options['allow_redirects'] === false, 'redirects must be explicitly revalidated');
     assertLinkPreview($options['curl'][CURLOPT_RESOLVE] === ['8.8.8.8:443:8.8.8.8'], 'connection IP must remain pinned');
+    assertLinkPreview($options['curl'][CURLOPT_IPRESOLVE] === CURL_IPRESOLVE_V4, 'HTTP transport must not fall back to IPv6');
     if (str_ends_with($request->url(), '/redirect')) {
         return $pinnedHttp->response('', 302, ['Location' => 'https://100.64.0.1/']);
     }
