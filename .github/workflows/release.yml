@@ -14,7 +14,7 @@ jobs:
       G7_ROOT: ${{ vars.G7_INTEGRATION_ROOT }}
       G7_BASE_URL: ${{ vars.G7_INTEGRATION_URL }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 24.15.0
