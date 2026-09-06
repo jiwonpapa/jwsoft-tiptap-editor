@@ -3,6 +3,25 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import { recordBrowserEvidence, mountEditor } from "./editor-fixture";
 
+test("unsaved reload raises a native warning and dismiss preserves the document", async ({
+  page,
+}) => {
+  await mountEditor(page);
+  const body = page.locator(".jwsoft-tiptap-editable");
+  await body.click();
+  await page.keyboard.type(" unsaved");
+  const before = await body.textContent();
+  const cdp = await page.context().newCDPSession(page);
+  const nativeDialog = page.waitForEvent("dialog");
+  // Dismissed reload never commits; do not wait for a nonexistent load event.
+  const reload = cdp.send("Page.reload");
+  const warning = await nativeDialog;
+  expect(warning.type()).toBe("beforeunload");
+  await warning.dismiss();
+  await reload;
+  await expect(body).toHaveText(before!);
+});
+
 test("Chromium Korean IME paste undo and redo preserve canonical content", async ({
   context,
   page,

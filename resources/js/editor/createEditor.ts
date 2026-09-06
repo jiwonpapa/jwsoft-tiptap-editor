@@ -1,15 +1,9 @@
 import { Editor } from "@tiptap/core";
 import {
-  DOMParser as ProseMirrorDOMParser,
-  DOMSerializer,
-} from "@tiptap/pm/model";
-import {
   createEditorExtensions,
   type EditorModuleOptions,
 } from "@/editor/modules";
-import { sanitizePastedHtml } from "@/editor/pastePolicy";
-import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
-import { normalizeExternalInput } from "@/editor/socialInput";
+import { clipboardHandlers, imageFiles } from "@/editor/clipboard";
 
 interface CreateEditorOptions extends EditorModuleOptions {
   element: HTMLElement;
@@ -22,21 +16,6 @@ interface CreateEditorOptions extends EditorModuleOptions {
   onPlainUrlPasted?: (url: string, position: number, end?: number) => boolean;
 }
 
-function imageFiles(files: FileList | null | undefined): File[] {
-  return [...(files ?? [])].filter((file) => file.type.startsWith("image/"));
-}
-
-function externalUrlFromClipboard(data: DataTransfer | null): string | null {
-  const plainText = data?.getData("text/plain").trim() ?? "";
-  const source = data?.getData("text/html") ?? "";
-  const input = plainText.includes("<")
-    ? plainText
-    : !plainText || /\s/u.test(plainText)
-      ? source || plainText
-      : plainText;
-  return normalizeExternalInput(input);
-}
-
 export function createEditor(options: CreateEditorOptions): Editor {
   return new Editor({
     element: options.element,
@@ -44,6 +23,7 @@ export function createEditor(options: CreateEditorOptions): Editor {
     editable: options.editable,
     extensions: createEditorExtensions(options),
     editorProps: {
+      ...clipboardHandlers(options),
       attributes: {
         class: "jwsoft-tiptap-editable",
         role: "textbox",
@@ -58,49 +38,6 @@ export function createEditor(options: CreateEditorOptions): Editor {
           view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
           view.state.selection.from;
         options.onImageFilesDropped(files, position);
-        return true;
-      },
-      handlePaste: (view, event) => {
-        const files = imageFiles(event.clipboardData?.files);
-        if (files.length && options.onImageFilesPasted) {
-          event.preventDefault();
-          options.onImageFilesPasted(files, view.state.selection.from);
-          return true;
-        }
-        const source = event.clipboardData?.getData("text/html") ?? "";
-        const selection = view.state.selection;
-        const externalUrl = externalUrlFromClipboard(event.clipboardData);
-        if (
-          options.onPlainUrlPasted &&
-          externalUrl &&
-          selection.empty &&
-          selection.$from.parent.type.name === "paragraph" &&
-          selection.$from.parent.content.size === 0 &&
-          options.onPlainUrlPasted(externalUrl, selection.from)
-        ) {
-          event.preventDefault();
-          return true;
-        }
-        if (!source) return false;
-        const paste = sanitizePastedHtml(source);
-        const wrapper = document.createElement("div");
-        wrapper.innerHTML = paste.html;
-        const slice = ProseMirrorDOMParser.fromSchema(
-          view.state.schema,
-        ).parseSlice(wrapper, { preserveWhitespace: true });
-        const serialized = document.createElement("div");
-        serialized.appendChild(
-          DOMSerializer.fromSchema(view.state.schema).serializeFragment(
-            slice.content,
-          ),
-        );
-        if (
-          paste.changed ||
-          analyzeLegacyHtml(paste.html, serialized.innerHTML).hasLoss
-        ) {
-          options.onPasteSanitized?.();
-        }
-        view.dispatch(view.state.tr.replaceSelection(slice).scrollIntoView());
         return true;
       },
       handleKeyDown: (view, event) => {

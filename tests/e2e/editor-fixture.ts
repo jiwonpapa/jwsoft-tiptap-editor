@@ -94,6 +94,8 @@ export async function mountEditor(
       G7Core: {
         locale: { current: () => "ko", supported: () => ["ko"] },
         state: {
+          // Native warning fixture; actual save acknowledgement is tested in G7.
+          subscribe: () => () => {},
           getLocal: () => ({ form: { content_mode: "html" } }),
           setLocal: (
             updates: Record<string, unknown>,

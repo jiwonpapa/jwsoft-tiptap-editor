@@ -10,6 +10,11 @@ import {
   uploadImage,
 } from "./context.ts";
 import type { Context, Observation } from "./context.ts";
+import {
+  insertSafeText,
+  assertSafeSavedText,
+  assertSaveClearedGuard,
+} from "./basicEditing.ts";
 
 export const board = "free";
 export const boardApi = (admin: boolean, slug = board) =>
@@ -59,6 +64,7 @@ export async function boardSurface(
   await createBoardPost(c, admin, name);
   const body = `jw-editor ${name} create ${c.runId}`;
   await editor(c).fill(body);
+  await insertSafeText(c);
   await editor(c).press("ControlOrMeta+b");
   await editor(c).press("End");
   await editor(c).press("Enter");
@@ -66,6 +72,8 @@ export async function boardSurface(
   await uploadImage(c);
   const screenshots = [await shot(c, `${name}-create`)];
   const created = await saveBoardPost(c, admin);
+  assertSafeSavedText(canonical(created.content));
+  await assertSaveClearedGuard(c);
   const id = positive(created.id);
   assert(canonical(created.content).includes(body));
   await c.page.goto(c.base + boardShow(admin, id));
@@ -74,6 +82,7 @@ export async function boardSurface(
   screenshots.push(await shot(c, `${name}-show`));
   await openEditor(c, boardEdit(admin, id));
   assert((await editor(c).innerHTML()).includes(body));
+  assertSafeSavedText(await editor(c).innerHTML());
   await editor(c).locator("p").first().click();
   await c.page.keyboard.press("End");
   await c.page.keyboard.insertText(" updated");

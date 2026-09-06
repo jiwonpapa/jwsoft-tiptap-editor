@@ -6,6 +6,9 @@ import type { Editor } from "@tiptap/core";
 import { activeClassToken } from "@/editor/classTokens";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
 import { createDialog, type DialogHandle } from "@/editor/dialog";
+import { formField, formError } from "@/editor/dialogFields";
+import { createLinkDialog } from "@/editor/linkDialog";
+import { installPlainTextDialog } from "@/editor/plainTextDialog";
 import { editorIcon, iconForLabel } from "@/editor/icons";
 import { createImageUploadQueue } from "@/editor/imageUploadQueue";
 import { createPopover } from "@/editor/popover";
@@ -205,114 +208,6 @@ function changeIndentation(editor: Editor, direction: 1 | -1): boolean {
   const token = nextIndentationToken(editor, direction);
   if (token === undefined) return false;
   return editor.chain().focus().setClassToken("indentation", token).run();
-}
-
-function formField(
-  labelText: string,
-  input: HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement,
-): HTMLElement {
-  const label = document.createElement("label");
-  label.className = "jwsoft-tiptap-field";
-  const text = document.createElement("span");
-  text.textContent = labelText;
-  label.append(text, input);
-  return label;
-}
-
-function formError(): HTMLElement {
-  const error = document.createElement("div");
-  error.className = "jwsoft-tiptap-dialog-error";
-  error.setAttribute("role", "alert");
-  error.hidden = true;
-  return error;
-}
-
-function createLinkDialog(
-  editor: Editor,
-  trigger: HTMLButtonElement,
-  locale: string,
-): DialogHandle {
-  const form = document.createElement("form");
-  form.className = "jwsoft-tiptap-dialog-form";
-  const href = document.createElement("input");
-  href.type = "text";
-  href.inputMode = "url";
-  href.placeholder =
-    locale === "en"
-      ? "https://example.com or /path"
-      : "https://example.com 또는 /경로";
-  const title = document.createElement("input");
-  title.type = "text";
-  const blank = document.createElement("input");
-  blank.type = "checkbox";
-  const blankLabel = formField(editorText(locale, "새 창에서 열기"), blank);
-  blankLabel.classList.add("jwsoft-tiptap-field-inline");
-  const error = formError();
-  const actions = document.createElement("div");
-  actions.className = "jwsoft-tiptap-dialog-actions";
-  const apply = document.createElement("button");
-  apply.type = "submit";
-  apply.className = "jwsoft-tiptap-dialog-primary";
-  apply.textContent = editorText(locale, "링크 적용");
-  const remove = document.createElement("button");
-  remove.type = "button";
-  remove.textContent = editorText(locale, "링크 해제");
-  actions.append(apply, remove);
-  form.append(
-    formField(editorText(locale, "주소"), href),
-    formField(editorText(locale, "설명"), title),
-    blankLabel,
-    error,
-    actions,
-  );
-
-  trigger.addEventListener("click", () => {
-    const attributes = editor.getAttributes("link");
-    href.value = typeof attributes.href === "string" ? attributes.href : "";
-    title.value = typeof attributes.title === "string" ? attributes.title : "";
-    blank.checked = attributes.target === "_blank";
-    error.hidden = true;
-  });
-  const handle = createDialog({
-    editor,
-    title: editorText(locale, "링크"),
-    trigger,
-    content: form,
-    locale,
-    compact: true,
-  });
-
-  form.addEventListener("submit", (event) => {
-    event.preventDefault();
-    event.stopPropagation();
-    const value = href.value.trim();
-    if (!isAllowedEditorUrl(value)) {
-      error.textContent = editorText(
-        locale,
-        "https, mailto, tel 또는 상대 경로만 사용할 수 있습니다.",
-      );
-      error.hidden = false;
-      href.focus();
-      return;
-    }
-    editor
-      .chain()
-      .focus()
-      .extendMarkRange("link")
-      .setLink({
-        href: value,
-        title: title.value.trim() || null,
-        target: blank.checked ? "_blank" : null,
-        rel: blank.checked ? "noopener noreferrer" : null,
-      })
-      .run();
-    handle.close();
-  });
-  remove.addEventListener("click", () => {
-    editor.chain().focus().extendMarkRange("link").unsetLink().run();
-    handle.close();
-  });
-  return handle;
 }
 
 function createTableDialog(
@@ -1038,6 +933,24 @@ function installRovingKeyboard(toolbar: HTMLElement): void {
   });
 }
 
+function installAdditionalTools(
+  editor: Editor,
+  region: HTMLElement,
+  toolbar: HTMLElement,
+  panel: HTMLElement,
+  locale: string,
+) {
+  const formatting = installWritingTools(
+    editor,
+    region,
+    toolbar,
+    panel,
+    locale,
+  );
+  installPlainTextDialog(editor, region, panel, locale);
+  return formatting;
+}
+
 export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   const { editor, profile } = options;
   const locale = options.locale ?? "ko";
@@ -1259,7 +1172,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   toolbar.prepend(history);
   if (profile !== "minimal") {
     const more = menu(locale === "en" ? "More tools" : "도구 더보기", "more");
-    const formatting = installWritingTools(
+    const formatting = installAdditionalTools(
       editor,
       region,
       toolbar,

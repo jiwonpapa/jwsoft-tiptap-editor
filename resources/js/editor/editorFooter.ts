@@ -38,13 +38,13 @@ export function createEditorFooter(
     ? [
         "Select text to format it. Use the image, video and link tools to insert media.",
         "Paste a supported URL on an empty line, or type it and press Enter. Availability depends on administrator settings.",
-        "Ctrl/⌘ + Z undoes an edit. Escape closes this dialog. Changes are saved with the page’s Save button.",
+        "Ctrl/⌘ + Z undoes an edit. Ctrl/⌘ + Shift + V pastes plain text; More tools also provides Paste as text. Use the page’s Save button; reload/close warnings are not autosave.",
         "Existing content is not changed by installation. Unsupported formatting may change only when you edit and save it.",
       ]
     : [
         "글자를 선택해 서식을 바꾸고 이미지·동영상·링크 도구로 미디어를 넣습니다.",
         "빈 줄에 지원 URL을 붙여넣거나 입력 후 Enter를 누르세요. 관리자 설정에 따라 사용 가능한 기능이 다릅니다.",
-        "Ctrl/⌘ + Z로 실행취소하고 Esc로 창을 닫습니다. 본문은 글쓰기 화면의 저장 버튼으로 저장합니다.",
+        "Ctrl/⌘ + Z는 실행취소, Ctrl/⌘ + Shift + V는 텍스트 붙여넣기입니다. 더보기에도 텍스트만 붙여넣기가 있습니다. 본문은 저장 버튼으로 저장하며 새로고침·탭 닫기 경고는 자동저장이 아닙니다.",
         "설치만으로 기존 글은 바뀌지 않습니다. 기존 글을 수정 후 저장할 때 지원하지 않는 서식이 달라질 수 있습니다.",
       ]) {
     const item = document.createElement("li");

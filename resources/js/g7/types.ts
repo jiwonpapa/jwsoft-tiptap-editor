@@ -1,4 +1,5 @@
 export interface G7StateApi {
+  subscribe?: (listener: () => void) => () => void;
   get?: () => Record<string, unknown>;
   getLocal?: () => Record<string, unknown>;
   setLocal?: (

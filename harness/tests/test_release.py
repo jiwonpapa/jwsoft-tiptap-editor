@@ -57,7 +57,9 @@ def remote_download_stub(
                     "isPrerelease": False,
                     "isDraft": False,
                     "name": release_title("v1.0.0", "candidate"),
-                    "body": release_notes("v1.0.0", "commit", hash_file(artifact), "candidate"),
+                    "body": release_notes(
+                        "v1.0.0", "commit", hash_file(artifact), "candidate", "- Fix link insertion"
+                    ),
                 }
             )
         if argv[2] == "download":
@@ -80,6 +82,9 @@ class ReleaseTests(unittest.TestCase):
                 root = Path(directory)
                 artifact = root / "jwsoft-tiptap-editor-1.0.0.zip"
                 artifact.write_bytes(b"verified-package")
+                (root / "CHANGELOG.md").write_text(
+                    "## [1.0.0] - 2026-09-06\n\n- Fix link insertion\n"
+                )
                 calls: list[list[str]] = []
 
                 with patch(
@@ -213,11 +218,14 @@ class ReleaseTests(unittest.TestCase):
             "isPrerelease": False,
             "isDraft": False,
             "name": release_title("v1.0.0", "candidate"),
-            "body": release_notes("v1.0.0", "other-commit", "a" * 64, "candidate"),
+            "body": release_notes("v1.0.0", "other-commit", "a" * 64, "candidate", "- Changed"),
         }
-        with patch(
-            "harness.jw_harness.release_remote.run", return_value=json.dumps(metadata)
-        ) as runner:
+        with (
+            patch(
+                "harness.jw_harness.release_remote.run", return_value=json.dumps(metadata)
+            ) as runner,
+            patch("harness.jw_harness.release_remote.changelog_entry", return_value="- Changed"),
+        ):
             with self.assertRaises(ValueError):
                 promote_candidate(ROOT, "v1.0.0", "commit", ROOT / "unused.zip", "a" * 64)
             self.assertEqual(runner.call_count, 1)
