@@ -60,10 +60,28 @@ it("keeps warning during saving and failure, clearing only on host acknowledgeme
   local = { hasChanges: true, isSaving: false };
   changed();
   expect(warns()).toBe(true);
+  local = { hasChanges: true, isSaving: true };
+  changed();
   local = { hasChanges: false, isSaving: false };
   changed();
   expect(warns()).toBe(false);
   editor.commands.insertContent("추가");
+  expect(warns()).toBe(true);
+});
+
+it("does not accept a stale clean snapshot or lose edits made during a save", () => {
+  setup();
+  editor.commands.insertContent("첫 변경");
+  local = { hasChanges: true, isSaving: false };
+  changed();
+  local = { hasChanges: false, isSaving: false };
+  changed();
+  expect(warns()).toBe(true);
+  local = { hasChanges: true, isSaving: true };
+  changed();
+  editor.commands.insertContent("저장 중 추가 변경");
+  local = { hasChanges: false, isSaving: false };
+  changed();
   expect(warns()).toBe(true);
 });
 

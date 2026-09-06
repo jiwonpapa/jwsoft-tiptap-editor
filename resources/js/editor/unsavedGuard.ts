@@ -12,6 +12,7 @@ export function installUnsavedGuard(
   const route = window.location.href;
   let baseline = editor.getHTML();
   let hostDirty = core?.state?.getLocal?.().hasChanges === true;
+  let savingContent: string | undefined;
   let listening = false;
   let disposed = false;
   const active = () =>
@@ -36,10 +37,14 @@ export function installUnsavedGuard(
   const hostChanged = () => {
     if (!active()) return;
     const local = core?.state?.getLocal?.();
-    // Only an observed dirty -> clean host transition acknowledges a save.
-    // Clicking submit, an HTTP failure or the initial debounce never does.
-    if (hostDirty && local?.hasChanges === false && local.isSaving !== true) {
-      baseline = editor.getHTML();
+    // A stale clean snapshot is not a save. A completed save acknowledges only
+    // the content present at request start, not edits made while it was pending.
+    if (local?.isSaving === true && savingContent === undefined) {
+      savingContent = editor.getHTML();
+    }
+    if (local?.isSaving === false && savingContent !== undefined) {
+      if (local.hasChanges === false) baseline = savingContent;
+      savingContent = undefined;
     }
     hostDirty = local?.hasChanges === true;
     refresh();

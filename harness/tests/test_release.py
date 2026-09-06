@@ -220,9 +220,12 @@ class ReleaseTests(unittest.TestCase):
             "name": release_title("v1.0.0", "candidate"),
             "body": release_notes("v1.0.0", "other-commit", "a" * 64, "candidate", "- Changed"),
         }
-        with patch(
-            "harness.jw_harness.release_remote.run", return_value=json.dumps(metadata)
-        ) as runner:
+        with (
+            patch(
+                "harness.jw_harness.release_remote.run", return_value=json.dumps(metadata)
+            ) as runner,
+            patch("harness.jw_harness.release_remote.changelog_entry", return_value="- Changed"),
+        ):
             with self.assertRaises(ValueError):
                 promote_candidate(ROOT, "v1.0.0", "commit", ROOT / "unused.zip", "a" * 64)
             self.assertEqual(runner.call_count, 1)
