@@ -8,7 +8,8 @@ export function installUnsavedGuard(
 ): () => void {
   const element = editor.view.dom;
   const window = element.ownerDocument.defaultView;
-  if (!window) return () => {};
+  // Without a save-state subscription we cannot safely acknowledge persistence.
+  if (!window || !core?.state?.subscribe) return () => {};
   const route = window.location.href;
   let baseline = editor.getHTML();
   let hostDirty = core?.state?.getLocal?.().hasChanges === true;

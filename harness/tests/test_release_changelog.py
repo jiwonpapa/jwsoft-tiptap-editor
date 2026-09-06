@@ -30,6 +30,9 @@ class ReleaseChangelogTests(unittest.TestCase):
                 "",
                 heading.replace("1.0.0", "1.0.1"),
                 heading * 2,
+                heading + "## [1.0.0]\n- Undated duplicate\n",
+                heading + "## [1.0.0] - TBD\n- Undated duplicate\n",
+                heading + "## [1.0.0] - 2026-09-06  \n- Whitespace duplicate\n",
                 "## [1.0.0] - 2026-09-06\n### Fixed\n",
                 "## [1.0.0]\n- Changed",
             ):

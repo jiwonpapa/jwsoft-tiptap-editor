@@ -115,3 +115,13 @@ it("unsubscribes and removes listeners on destroy or repeated cleanup", () => {
   expect(warns()).toBe(false);
   expect(unsubscribe).toHaveBeenCalledOnce();
 });
+
+it("does not install an unacknowledgeable guard on hosts without subscriptions", () => {
+  const cleanup = setup();
+  cleanup();
+  installUnsavedGuard(editor, {
+    state: { getLocal: () => ({ hasChanges: false }) },
+  });
+  editor.commands.insertContent("변경");
+  expect(warns()).toBe(false);
+});

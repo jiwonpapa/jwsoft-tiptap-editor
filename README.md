@@ -79,6 +79,7 @@ https://github.com/jiwonpapa/jwsoft-tiptap-editor
 - 에디터와 MIT 주소 정규화 라이브러리는 패키지에 포함합니다. X·Facebook·Instagram·TikTok 공식 SDK는 사용자 승인된 화이트리스트 예외이며 설정에 따라 외부 연결합니다.
 - Office/Google Docs 변환, 공동 편집, AI 작성, 페이지 빌더와 임의 외부 모듈 설치는 포함하지 않습니다.
 - 실제 UI와 검증 결과는 별도입니다. 상단 이미지는 소개용 일러스트입니다.
+- 새로고침·탭 닫기 경고는 G7 공개 `state.subscribe` 계약을 제공하는 연동에서 동작합니다. 이 API가 없는 커스텀 호스트에는 저장 여부를 오판하지 않도록 경고를 설치하지 않습니다.
 
 ## 개발과 기능 확장
 
