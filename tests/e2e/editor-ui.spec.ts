@@ -60,7 +60,7 @@ test("focused menus expose named tools and keyboard actions without mixing categ
   await expect(panel).toBeVisible();
   await expect(
     panel.locator("[data-editor-command] .jwsoft-menu-text"),
-  ).toHaveText(["찾기 / 바꾸기", "전체화면"]);
+  ).toHaveText(["찾기 / 바꾸기", "전체화면", "텍스트만 붙여넣기"]);
   await expect(
     panel.getByRole("button", { name: "찾기 / 바꾸기", exact: true }),
   ).toBeFocused();

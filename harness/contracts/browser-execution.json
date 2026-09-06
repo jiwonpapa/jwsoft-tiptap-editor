@@ -2,6 +2,42 @@
   "schemaVersion": 1,
   "cases": [
     {
+      "file": "editor-links.spec.ts",
+      "title": "empty-cursor link insertion and display text are real safe document content",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "empty-cursor link insertion and display text are real safe document content",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "plain-text dialog preserves selection and literal text without HTML or embeds",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "plain-text dialog preserves selection and literal text without HTML or embeds",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "unsaved reload raises a native warning and dismiss preserves the document",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "unsaved reload raises a native warning and dismiss preserves the document",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
       "file": "editor-formatting.spec.ts",
       "title": "link quote lists alignment and indentation use policy-safe controls",
       "project": "chromium-desktop",

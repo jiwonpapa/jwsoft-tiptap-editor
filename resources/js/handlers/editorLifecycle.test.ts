@@ -412,7 +412,7 @@ describe("G7 editor lifecycle", () => {
     expect(
       panels.find((panel) => panel.getAttribute("aria-label") === "도구 더보기")
         ?.textContent,
-    ).toBe("도구 더보기찾기 / 바꾸기전체화면");
+    ).toBe("도구 더보기찾기 / 바꾸기전체화면텍스트만 붙여넣기");
     expect(
       panels.find((panel) => panel.getAttribute("aria-label") === "목록")
         ?.textContent,
@@ -457,8 +457,8 @@ describe("G7 editor lifecycle", () => {
     const inputs = dialog?.querySelectorAll<HTMLInputElement>("input");
     if (inputs) {
       inputs[0].value = "https://example.com";
-      inputs[1].value = "예시";
-      inputs[2].checked = true;
+      inputs[2].value = "예시";
+      inputs[3].checked = true;
     }
     dialog
       ?.querySelector("form")

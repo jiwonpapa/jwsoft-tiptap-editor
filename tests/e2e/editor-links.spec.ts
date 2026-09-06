@@ -1,5 +1,85 @@
 import { expect, test } from "@playwright/test";
-import { mountEditor, insertTool } from "./editor-fixture";
+import { mountEditor, insertTool, menuAction } from "./editor-fixture";
+
+test("empty-cursor link insertion and display text are real safe document content", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(page, "standard", false, false, false, false, "<p></p>");
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await insertTool(page, "링크");
+  const dialog = page.getByRole("dialog", { name: "링크", exact: true });
+  await dialog.getByLabel("주소", { exact: true }).fill("https://example.com");
+  await dialog.getByLabel("새 창에서 열기").check();
+  await dialog.getByRole("button", { name: "링크 적용", exact: true }).click();
+  await expect(editable.locator("a")).toHaveText("https://example.com");
+  await expect(editable.locator("a")).toHaveAttribute(
+    "rel",
+    "noopener noreferrer",
+  );
+  await editable.focus();
+  await page.keyboard.press("ControlOrMeta+A");
+  await insertTool(page, "링크");
+  await dialog
+    .getByLabel("표시할 텍스트 (선택 사항)")
+    .fill('<b onclick="evil()">표시</b>');
+  await dialog.getByRole("button", { name: "링크 적용", exact: true }).click();
+  await expect(editable.locator("a")).toHaveText(
+    '<b onclick="evil()">표시</b>',
+  );
+  await expect(editable.locator("b, [onclick], [style], script")).toHaveCount(
+    0,
+  );
+  await page.screenshot({
+    path: testInfo.outputPath("safe-link-insertion.png"),
+    fullPage: true,
+  });
+});
+
+test("plain-text dialog preserves selection and literal text without HTML or embeds", async ({
+  page,
+}, testInfo) => {
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    true,
+    false,
+    true,
+    "<p><strong>선택</strong></p>",
+  );
+  const editable = page.locator(".jwsoft-tiptap-editable");
+  await editable.click();
+  await page.keyboard.press("ControlOrMeta+A");
+  await menuAction(page, "도구 더보기", "텍스트만 붙여넣기");
+  const dialog = page.getByRole("dialog", {
+    name: "텍스트만 붙여넣기",
+    exact: true,
+  });
+  await expect(dialog.getByRole("textbox")).toBeFocused();
+  await dialog
+    .getByRole("textbox")
+    .fill(
+      "<img src=x onerror=evil()>\nhttps://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    );
+  await page.screenshot({
+    path: testInfo.outputPath("plain-text-modal.png"),
+    fullPage: true,
+  });
+  await dialog
+    .getByRole("button", { name: "텍스트 삽입", exact: true })
+    .click();
+  await expect(editable.locator("p")).toHaveText([
+    "<img src=x onerror=evil()>",
+    "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  ]);
+  await expect(
+    editable.locator("strong, a, img, iframe, figure, [style], script"),
+  ).toHaveCount(0);
+  await editable.focus();
+  await page.keyboard.press("ControlOrMeta+Z");
+  await expect(editable.locator("strong")).toHaveText("선택");
+});
 
 test("pasted SNS URL becomes a safe canonical smart card", async ({
   page,

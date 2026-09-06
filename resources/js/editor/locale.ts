@@ -41,6 +41,9 @@ const ENGLISH_COPY: Record<string, string> = {
   "새 창에서 열기": "Open in a new window",
   "링크 적용": "Apply link",
   "링크 해제": "Remove link",
+  "표시할 텍스트 (선택 사항)": "Display text (optional)",
+  "비우면 선택한 글자 또는 주소를 사용합니다.":
+    "Leave empty to keep selected text or use the URL.",
   주소: "URL",
   설명: "Description",
   링크: "Link",

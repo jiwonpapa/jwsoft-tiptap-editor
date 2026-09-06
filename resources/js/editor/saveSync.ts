@@ -1,4 +1,5 @@
 import type { Editor } from "@tiptap/core";
+import { installUnsavedGuard } from "./unsavedGuard";
 
 /**
  * Publish a dirty, self-managed field before the host handles a save action.
@@ -11,6 +12,7 @@ export function installEditorSaveSync(
   editor: Editor,
   sync: () => void,
 ): () => void {
+  const removeUnsavedGuard = installUnsavedGuard(editor, window.G7Core);
   const element = editor.view.dom;
   const document = element.ownerDocument;
   const location = document.defaultView?.location;
@@ -54,6 +56,7 @@ export function installEditorSaveSync(
   document.addEventListener("submit", publish, true);
   editor.on("update", updated);
   const cleanup = () => {
+    removeUnsavedGuard();
     disposed = true;
     document.removeEventListener("click", publish, true);
     document.removeEventListener("submit", publish, true);
