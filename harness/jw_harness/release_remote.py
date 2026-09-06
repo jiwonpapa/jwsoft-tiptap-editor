@@ -6,6 +6,7 @@ from pathlib import Path
 
 from .files import hash_file, object_value
 from .process import run
+from .release_changelog import changelog_entry
 
 
 def release_title(tag: str, phase: str) -> str:
@@ -13,7 +14,7 @@ def release_title(tag: str, phase: str) -> str:
     return f"jw-editor {tag} — {suffix}"
 
 
-def release_notes(tag: str, head: str, checksum: str, phase: str) -> str:
+def release_notes(tag: str, head: str, checksum: str, phase: str, changes: str) -> str:
     notice = (
         "후보 57/57 통과. GitHub 설치·업데이트·제거 및 배포 5개는 검증 전입니다. "
         "Latest는 G7 업데이트 전달 채널이며 최종 승인 완료를 뜻하지 않습니다."
@@ -27,6 +28,7 @@ def release_notes(tag: str, head: str, checksum: str, phase: str) -> str:
         "G7용 정책 기반 에디터입니다. 설치·지원 범위·업데이트 주의사항은 "
         "저장소 README와 CHANGELOG를 참고하십시오. 기존 글은 수정·저장 시 "
         "서식이 달라질 수 있으며 자동 변환하지 않습니다.\n\n"
+        f"## 이번 버전의 변경 사항\n\n{changes}\n\n"
         f"Commit: `{head}`\n\nZIP SHA256: `{checksum}`\n"
     )
 
@@ -71,6 +73,7 @@ def create_candidate(root: Path, tag: str, head: str, artifact: Path, checksum: 
         object_value(item).get("tagName") == tag for item in releases
     ):
         raise ValueError("Existing release cannot be overwritten")
+    changes = changelog_entry(root, tag)
     verify_tags(root, tag, head, create=True)
     if hash_file(artifact) != checksum:
         raise ValueError("Release asset changed during verification")
@@ -88,7 +91,7 @@ def create_candidate(root: Path, tag: str, head: str, artifact: Path, checksum: 
             "--title",
             release_title(tag, "candidate"),
             "--notes",
-            release_notes(tag, head, checksum, "candidate"),
+            release_notes(tag, head, checksum, "candidate", changes),
         ],
         root,
     )
@@ -109,7 +112,8 @@ def promote_candidate(root: Path, tag: str, head: str, artifact: Path, checksum:
         metadata.get("isPrerelease") is not False
         or metadata.get("isDraft") is not False
         or metadata.get("name") != release_title(tag, "candidate")
-        or metadata.get("body") != release_notes(tag, head, checksum, "candidate")
+        or metadata.get("body")
+        != release_notes(tag, head, checksum, "candidate", changelog_entry(root, tag))
     ):
         raise ValueError("Only the matching ADR-0017 candidate may be promoted; no overwrite")
     verify_remote_package(root, tag, artifact, checksum)
@@ -123,7 +127,7 @@ def promote_candidate(root: Path, tag: str, head: str, artifact: Path, checksum:
             "--title",
             release_title(tag, "final"),
             "--notes",
-            release_notes(tag, head, checksum, "final"),
+            release_notes(tag, head, checksum, "final", changelog_entry(root, tag)),
         ],
         root,
     )
