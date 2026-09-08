@@ -82,10 +82,12 @@
     {
       "id": "editor.image-layout",
       "gate": "unit-browser-integration-security",
-      "requirement": "이미지 업로드 caption 정렬 반응형 크기",
+      "requirement": "이미지 업로드 caption 정렬 반응형 크기와 선택형 이미지 편집",
       "artifacts": [
         "test-results/parity/unit.json",
         "test-results/parity/browser/editor-image-layout.json",
+        "test-results/parity/browser/editor-image-editing-chromium-desktop.json",
+        "test-results/parity/browser/editor-image-editing-chromium-mobile.json",
         "test-results/parity/integration.json",
         "test-results/parity/corpus.json"
       ]
@@ -282,9 +284,13 @@
     },
     {
       "id": "settings.editor-media",
-      "gate": "integration",
-      "requirement": "에디터 미디어 설정 UI 저장 검증 런타임 적용",
-      "artifacts": ["test-results/parity/integration.json"]
+      "gate": "browser-integration",
+      "requirement": "에디터 미디어와 이미지 편집 설정 UI 저장 검증 런타임 적용",
+      "artifacts": [
+        "test-results/parity/browser/editor-image-editing-chromium-desktop.json",
+        "test-results/parity/browser/editor-image-editing-chromium-mobile.json",
+        "test-results/parity/integration.json"
+      ]
     },
     {
       "id": "settings.asset-disk",

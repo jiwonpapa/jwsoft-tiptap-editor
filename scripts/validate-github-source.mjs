@@ -18,6 +18,7 @@ const fail = (message) => {
 
 const required = [
   "dist/js/plugin.iife.js",
+  "dist/js/image-editor.iife.js",
   "vendor-bundle.zip",
   "vendor-bundle.json",
   "composer.json",
@@ -61,7 +62,10 @@ try {
 }
 
 if (!process.exitCode) {
+  const runtimeBytes = ["plugin.iife.js", "image-editor.iife.js"]
+    .map((file) => fs.statSync(resolve(`dist/js/${file}`)).size)
+    .join(" + ");
   console.log(
-    `[jwsoft] GitHub 설치 원본 검사 통과: JS ${fs.statSync(resolve("dist/js/plugin.iife.js")).size} bytes, Composer ${packages.length} packages`,
+    `[jwsoft] GitHub 설치 원본 검사 통과: JS ${runtimeBytes} bytes, Composer ${packages.length} packages`,
   );
 }

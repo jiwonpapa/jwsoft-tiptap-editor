@@ -49,6 +49,7 @@ $runtimeFiles = [
     'plugin.php',
     'plugin.json',
     'dist/js/plugin.iife.js',
+    'dist/js/image-editor.iife.js',
     'vendor-bundle.zip',
     'vendor-bundle.json',
 ];

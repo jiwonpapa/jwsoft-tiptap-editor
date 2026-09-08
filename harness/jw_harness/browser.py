@@ -12,6 +12,8 @@ UI_OBSERVATIONS = (
     "editor-ime.json",
     "editor-indentation.json",
     "editor-image-layout.json",
+    "editor-image-editing-chromium-desktop.json",
+    "editor-image-editing-chromium-mobile.json",
     "editor-document-appearance-chromium-desktop.json",
     "editor-document-appearance-chromium-mobile.json",
 )
@@ -23,8 +25,8 @@ def run_browser(root: Path) -> None:
     suites = sorted(root.glob("tests/e2e/editor-*.spec.ts"))
     suites.append(root / "tests/e2e/social-embeds.spec.ts")
     try:
-        if len(suites) != 6 or not all(file.is_file() for file in suites):
-            raise ValueError("The five editor suites and deterministic social suite are required")
+        if len(suites) != 7 or not all(file.is_file() for file in suites):
+            raise ValueError("The six editor suites and deterministic social suite are required")
         execution.run(["npm", "run", "build"])
         environment = dict(os.environ)
         environment.update(
@@ -57,6 +59,7 @@ def run_browser(root: Path) -> None:
             report=str(report.relative_to(root)),
             reportSha256=hash_file(report),
             runtimeSha256=hash_file(root / "dist/js/plugin.iife.js"),
+            imageEditorRuntimeSha256=hash_file(root / "dist/js/image-editor.iife.js"),
         )
     except BaseException:
         execution.fail()

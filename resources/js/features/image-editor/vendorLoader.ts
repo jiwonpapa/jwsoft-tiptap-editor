@@ -20,34 +20,63 @@ function vendorAssetUrl(): string {
   if (!base)
     throw new Error("jw-editor 이미지 편집 자산 경로를 찾지 못했습니다.");
   const url = new URL(VENDOR_FILE, base);
-  if (!/^https?:$/.test(url.protocol)) {
+  if (
+    !/^https?:$/.test(url.protocol) ||
+    url.origin !== window.location.origin ||
+    url.username ||
+    url.password
+  ) {
     throw new Error("jw-editor 이미지 편집 자산 경로가 안전하지 않습니다.");
   }
   return url.href;
 }
 
 function loadScript(): Promise<ImageEditorVendor> {
+  let source: string;
+  try {
+    source = vendorAssetUrl();
+  } catch (error) {
+    return Promise.reject(error);
+  }
   return new Promise((resolve, reject) => {
     const script = document.createElement("script");
+    let settled = false;
+    const finish = (
+      result: { vendor: ImageEditorVendor } | { error: Error },
+    ): void => {
+      if (settled) return;
+      settled = true;
+      window.clearTimeout(timeout);
+      script.removeEventListener("load", handleLoad);
+      script.removeEventListener("error", handleError);
+      if ("vendor" in result) resolve(result.vendor);
+      else {
+        script.remove();
+        reject(result.error);
+      }
+    };
+    const handleLoad = (): void => {
+      const vendor = window.__JWSoftImageEditorVendor;
+      finish(
+        vendor
+          ? { vendor }
+          : { error: new Error("이미지 편집 도구 초기화에 실패했습니다.") },
+      );
+    };
+    const handleError = (): void =>
+      finish({ error: new Error("이미지 편집 도구를 불러오지 못했습니다.") });
     const timeout = window.setTimeout(
-      () => reject(new Error("이미지 편집 도구 로드 시간이 초과됐습니다.")),
+      () =>
+        finish({
+          error: new Error("이미지 편집 도구 로드 시간이 초과됐습니다."),
+        }),
       30_000,
     );
-    const cleanup = () => window.clearTimeout(timeout);
-    script.src = vendorAssetUrl();
+    script.src = source;
     script.async = true;
     script.dataset.jwsoftImageEditor = "vendor";
-    script.addEventListener("load", () => {
-      cleanup();
-      const vendor = window.__JWSoftImageEditorVendor;
-      if (vendor) resolve(vendor);
-      else reject(new Error("이미지 편집 도구 초기화에 실패했습니다."));
-    });
-    script.addEventListener("error", () => {
-      cleanup();
-      script.remove();
-      reject(new Error("이미지 편집 도구를 불러오지 못했습니다."));
-    });
+    script.addEventListener("load", handleLoad);
+    script.addEventListener("error", handleError);
     document.head.appendChild(script);
   });
 }

@@ -18,6 +18,19 @@ const composerLock = JSON.parse(
 const licenseRoot = path.join(stage, "licenses", "npm");
 fs.mkdirSync(licenseRoot, { recursive: true });
 
+const vendoredLicenseSources = {
+  "styled-components": {
+    version: "5.3.11",
+    license: "MIT",
+    file: path.join(
+      root,
+      "licenses/sources/npm/styled-components/5.3.11/LICENSE",
+    ),
+    source:
+      "https://github.com/styled-components/styled-components/blob/v5.3.11/LICENSE",
+  },
+};
+
 const sha256 = (file) =>
   crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
 const packages = [];
@@ -39,18 +52,36 @@ for (const [location, metadata] of Object.entries(npmLock.packages)) {
     )
     .map((entry) => entry.name)
     .sort();
-  if (licenseFiles.length === 0) {
-    throw new Error(`runtime dependency license file is missing: ${name}`);
+  const sources = licenseFiles.map((file) => ({
+    file,
+    source: path.join(sourceDirectory, file),
+    upstream: null,
+  }));
+  if (sources.length === 0) {
+    const fallback = vendoredLicenseSources[name];
+    if (
+      !fallback ||
+      fallback.version !== metadata.version ||
+      fallback.license !== metadata.license ||
+      !fs.existsSync(fallback.file)
+    ) {
+      throw new Error(`runtime dependency license file is missing: ${name}`);
+    }
+    sources.push({
+      file: "LICENSE",
+      source: fallback.file,
+      upstream: fallback.source,
+    });
   }
   const destinationDirectory = path.join(licenseRoot, ...name.split("/"));
   fs.mkdirSync(destinationDirectory, { recursive: true });
-  const files = licenseFiles.map((file) => {
-    const source = path.join(sourceDirectory, file);
-    const destination = path.join(destinationDirectory, file);
-    fs.copyFileSync(source, destination);
+  const files = sources.map((source) => {
+    const destination = path.join(destinationDirectory, source.file);
+    fs.copyFileSync(source.source, destination);
     return {
       file: path.relative(stage, destination),
       sha256: sha256(destination),
+      ...(source.upstream ? { upstream: source.upstream } : {}),
     };
   });
   packages.push({

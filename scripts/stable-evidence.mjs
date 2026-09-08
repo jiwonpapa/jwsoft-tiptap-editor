@@ -24,6 +24,8 @@ const runtimeBrowserFiles = new Set([
   "instance-lifecycle.json",
   "editor-indentation.json",
   "editor-image-layout.json",
+  "editor-image-editing-chromium-desktop.json",
+  "editor-image-editing-chromium-mobile.json",
   "editor-ime.json",
   "editor-document-appearance-chromium-desktop.json",
   "editor-document-appearance-chromium-mobile.json",
@@ -223,6 +225,13 @@ export function validateStableArtifact(context, relative) {
         Boolean(runtimeSha256) && data.runtimeSha256 === runtimeSha256,
         "browser runtime bundle is missing or stale",
       );
+      if (filename.startsWith("editor-image-editing-")) {
+        requireValue(
+          data.imageEditorRuntimeSha256 ===
+            hashFile(evidenceFile(root, "dist/js/image-editor.iife.js")),
+          "image editor runtime bundle is missing or stale",
+        );
+      }
     } else packageMatches(data.pluginPackageSha256);
     if (filename === "evidence.json") validateMobileLayout(data.responsive);
     let screenshotCount = 0;
@@ -280,6 +289,11 @@ export function validateStableArtifact(context, relative) {
     requireValue(
       Boolean(runtimeSha256) && data.runtimeSha256 === runtimeSha256,
       "reproducible runtime bundle is stale",
+    );
+    requireValue(
+      data.imageEditorRuntimeSha256 ===
+        hashFile(evidenceFile(root, "dist/js/image-editor.iife.js")),
+      "reproducible image editor runtime bundle is stale",
     );
     packageMatches(data.artifactSha256);
     requireValue(

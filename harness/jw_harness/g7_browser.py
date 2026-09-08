@@ -172,6 +172,9 @@ def run_g7_browser(root: Path, host: Path, base: str) -> None:
             "pluginPackageSha256": checksum,
             "sourceFingerprint": execution.fingerprint,
             "runtimeSha256": hash_file(root / "dist/js/plugin.iife.js"),
+            "imageEditorRuntimeSha256": hash_file(
+                root / "dist/js/image-editor.iife.js"
+            ),
             "sourceCommit": run(["git", "rev-parse", "HEAD"], root, capture=True),
             "g7Commit": run(["git", "rev-parse", "HEAD"], host, capture=True),
             "observedAt": datetime.now(UTC).isoformat(),
@@ -185,6 +188,7 @@ def run_g7_browser(root: Path, host: Path, base: str) -> None:
             reports=reports,
             counts=counts,
             runtimeSha256=metadata["runtimeSha256"],
+            imageEditorRuntimeSha256=metadata["imageEditorRuntimeSha256"],
         )
     except BaseException:
         execution.fail()

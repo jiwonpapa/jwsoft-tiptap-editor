@@ -50,6 +50,9 @@ export function recordBrowserEvidence(
         runtimeSha256: createHash("sha256")
           .update(fs.readFileSync(bundlePath))
           .digest("hex"),
+        imageEditorRuntimeSha256: createHash("sha256")
+          .update(fs.readFileSync(imageEditorBundlePath))
+          .digest("hex"),
         ...result,
       },
       null,

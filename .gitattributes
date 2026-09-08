@@ -7,3 +7,5 @@
 *.zip binary
 dist/js/plugin.iife.js binary
 licenses/npm/typescript/LICENSE.txt binary
+licenses/npm/** binary
+licenses/sources/** binary

@@ -31,7 +31,7 @@
 - [x] 제목, 문단, bold, italic, underline, strike <!-- p0:editor.text-formatting -->
 - [x] 링크, 인용, 목록, 정렬, 들여쓰기 동등 동작 <!-- p0:editor.indentation -->
 - [x] 표 생성·편집 <!-- p0:editor.table -->
-- [x] 이미지 업로드·caption·정렬·크기 <!-- p0:editor.image-layout -->
+- [x] 이미지 업로드·caption·정렬·크기와 선택형 이미지 편집의 새 파일 저장·원본 속성 보존 <!-- p0:editor.image-layout -->
 - [x] code block, 원문 HTML 편집 금지 정책, horizontal rule <!-- p0:editor.source-policy -->
 - [x] undo/redo, 붙여넣기, 실제 한글 IME <!-- p0:editor.ime -->
 
@@ -74,7 +74,7 @@
 
 ## E. G7 관리 기능
 
-- [x] imageUpload, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정 <!-- p0:settings.editor-media -->
+- [x] imageUpload, imageEditor, imageMaxSizeMb, videoUpload, videoMaxSizeMb, videoChunkSizeMb, smartCards, autoSmartCards, editorHeight, toolbar 설정 <!-- p0:settings.editor-media -->
 - [x] public asset disk 설정 <!-- p0:settings.asset-disk -->
 - [x] cleanup 설정 <!-- p0:settings.cleanup -->
 - [x] 관리자 메뉴와 read/delete 권한 <!-- p0:settings.admin-permissions -->

@@ -15,9 +15,16 @@ GENERATED = {
     "resources/js/generated/editorPolicy.ts",
     "src/Generated/EditorPolicy.php",
     "dist/js/plugin.iife.js",
+    "dist/js/image-editor.iife.js",
 }
 EXTENSIONS = {".ts", ".tsx", ".js", ".jsx", ".mjs", ".cjs", ".py", ".php", ".sh"}
-NATIVE_CONFIGS = {"eslint.config.mjs", "vite.config.ts", "vitest.config.ts", "playwright.config.ts"}
+NATIVE_CONFIGS = {
+    "eslint.config.mjs",
+    "vite.config.ts",
+    "vite.image-editor.config.ts",
+    "vitest.config.ts",
+    "playwright.config.ts",
+}
 
 
 def native_javascript(relative: str) -> bool:

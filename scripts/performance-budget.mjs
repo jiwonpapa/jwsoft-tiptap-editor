@@ -5,11 +5,14 @@ import zlib from "node:zlib";
 
 const root = path.resolve(import.meta.dirname, "..");
 const bundlePath = path.join(root, "dist/js/plugin.iife.js");
+const imageEditorBundlePath = path.join(root, "dist/js/image-editor.iife.js");
 const browserPath = path.join(
   root,
   "test-results/parity/browser/evidence.json",
 );
 if (!fs.existsSync(bundlePath)) throw new Error("dist bundle is missing");
+if (!fs.existsSync(imageEditorBundlePath))
+  throw new Error("image editor dist bundle is missing");
 if (!fs.existsSync(browserPath)) throw new Error("browser evidence is missing");
 
 const browser = JSON.parse(fs.readFileSync(browserPath, "utf8"));
@@ -29,13 +32,19 @@ const percentile = (values, quantile) => {
 const gzipBytes = zlib.gzipSync(fs.readFileSync(bundlePath), {
   level: 9,
 }).byteLength;
+const imageEditorGzipBytes = zlib.gzipSync(
+  fs.readFileSync(imageEditorBundlePath),
+  { level: 9 },
+).byteLength;
 const budgets = {
   bundleGzipBytes: 500 * 1024,
+  lazyImageEditorBundleGzipBytes: 450 * 1024,
   routeToEditorP95Ms: 2_500,
   maxConcurrentInstances: 1,
 };
 const observed = {
   bundleGzipBytes: gzipBytes,
+  lazyImageEditorBundleGzipBytes: imageEditorGzipBytes,
   routeToEditorP95Ms: percentile(readyMs, 0.95),
   maxConcurrentInstances: Math.max(...instances),
 };
@@ -63,5 +72,5 @@ fs.writeFileSync(
   )}\n`,
 );
 console.log(
-  `[jwsoft] performance budget 통과: gzip ${gzipBytes} bytes, route p95 ${observed.routeToEditorP95Ms} ms`,
+  `[jwsoft] performance budget 통과: initial gzip ${gzipBytes} bytes, lazy image editor gzip ${imageEditorGzipBytes} bytes, route p95 ${observed.routeToEditorP95Ms} ms`,
 );
