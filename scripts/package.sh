@@ -5,7 +5,9 @@ source "$(cd "$(dirname "$0")" && pwd)/lib.sh"
 
 require_command zip
 require_command composer
-[ -f "$PROJECT_ROOT/dist/js/plugin.iife.js" ] || fail "먼저 make build를 실행하십시오."
+for bundle in plugin.iife.js image-editor.iife.js; do
+  [ -s "$PROJECT_ROOT/dist/js/$bundle" ] || fail "먼저 make build를 실행하십시오: dist/js/$bundle 누락"
+done
 [ -f "$PROJECT_ROOT/composer.lock" ] || fail "composer.lock이 없습니다. composer install/update로 잠금 파일을 생성하십시오."
 
 version="$(node -p "require('$PROJECT_ROOT/package.json').version")"
@@ -74,15 +76,22 @@ find "$stage" -exec touch -t 198001010000 {} +
 checksum="$(sha256_file "$artifact")"
 printf '%s  %s\n' "$checksum" "$(basename "$artifact")" > "$PROJECT_ROOT/.build/SHA256SUMS"
 
-if unzip -l "$artifact" | grep -E '(^|/)(\.env|node_modules|vendor|tests|harness|deploy)(/|$)' >/dev/null; then
+if unzip -Z1 "$artifact" | grep -E '(^|/)(\.env|vendor|tests|harness|deploy)(/|$)' >/dev/null; then
   fail "artifact에 개발 전용 또는 비밀 경로가 포함되었습니다."
+fi
+if unzip -Z1 "$artifact" \
+  | grep -E '(^|/)node_modules(/|$)' \
+  | grep -Ev '^jwsoft-tiptap-editor/licenses/npm/' >/dev/null; then
+  fail "artifact에 실행 가능한 node_modules 경로가 포함되었습니다."
 fi
 [ "$(unzip -p "$artifact" jwsoft-tiptap-editor/vendor-bundle.zip | sha256_file /dev/stdin)" = "$(node -p "require('$stage/vendor-bundle.json').zip_sha256")" ] \
   || fail "artifact 내부 vendor bundle checksum이 다릅니다."
 [ "$(sha256_file "$PROJECT_ROOT/vendor-bundle.zip")" = "$(node -p "require('$PROJECT_ROOT/vendor-bundle.json').zip_sha256")" ] \
   || fail "GitHub 설치용 vendor bundle checksum이 다릅니다."
-[ -s "$PROJECT_ROOT/dist/js/plugin.iife.js" ] \
-  || fail "GitHub 설치용 dist/js/plugin.iife.js가 없습니다."
+for bundle in plugin.iife.js image-editor.iife.js; do
+  [ -s "$PROJECT_ROOT/dist/js/$bundle" ] \
+    || fail "GitHub 설치용 dist/js/$bundle 파일이 없습니다."
+done
 node "$PROJECT_ROOT/scripts/validate-github-source.mjs"
 
 info "artifact: $artifact"

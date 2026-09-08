@@ -25,6 +25,7 @@
     "resources/js/**/*.ts",
     "tests/**/*.ts",
     "vite.config.ts",
+    "vite.image-editor.config.ts",
     "vitest.config.ts",
     "playwright.config.ts"
   ]

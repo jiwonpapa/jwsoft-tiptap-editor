@@ -15,6 +15,12 @@ const npmLock = JSON.parse(
 const composerLock = JSON.parse(
   fs.readFileSync(path.join(root, "composer.lock"), "utf8"),
 );
+const licenseSources = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "policy/runtime-license-sources.json"),
+    "utf8",
+  ),
+);
 const licenseRoot = path.join(stage, "licenses", "npm");
 fs.mkdirSync(licenseRoot, { recursive: true });
 
@@ -39,18 +45,45 @@ for (const [location, metadata] of Object.entries(npmLock.packages)) {
     )
     .map((entry) => entry.name)
     .sort();
-  if (licenseFiles.length === 0) {
-    throw new Error(`runtime dependency license file is missing: ${name}`);
+  const sources = licenseFiles.map((file) => ({
+    file,
+    source: path.join(sourceDirectory, file),
+    upstream: null,
+  }));
+  if (sources.length === 0) {
+    const fallback = licenseSources.packages?.[name];
+    const fallbackFile = fallback?.file
+      ? path.resolve(root, fallback.file)
+      : "";
+    if (
+      licenseSources.schemaVersion !== 1 ||
+      !fallback ||
+      fallback.version !== metadata.version ||
+      fallback.license !== metadata.license ||
+      !fallbackFile.startsWith(
+        path.join(root, "licenses/sources") + path.sep,
+      ) ||
+      !fs.existsSync(fallbackFile) ||
+      sha256(fallbackFile) !== fallback.sha256 ||
+      !/^https:\/\/github\.com\//.test(fallback.upstream ?? "")
+    ) {
+      throw new Error(`runtime dependency license file is missing: ${name}`);
+    }
+    sources.push({
+      file: fallback.destination,
+      source: fallbackFile,
+      upstream: fallback.upstream,
+    });
   }
   const destinationDirectory = path.join(licenseRoot, ...name.split("/"));
   fs.mkdirSync(destinationDirectory, { recursive: true });
-  const files = licenseFiles.map((file) => {
-    const source = path.join(sourceDirectory, file);
-    const destination = path.join(destinationDirectory, file);
-    fs.copyFileSync(source, destination);
+  const files = sources.map((source) => {
+    const destination = path.join(destinationDirectory, source.file);
+    fs.copyFileSync(source.source, destination);
     return {
       file: path.relative(stage, destination),
       sha256: sha256(destination),
+      ...(source.upstream ? { upstream: source.upstream } : {}),
     };
   });
   packages.push({

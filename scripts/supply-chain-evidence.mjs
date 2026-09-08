@@ -16,6 +16,7 @@ if (!fs.existsSync(artifact))
 
 const runtimeFiles = [
   "dist/js/plugin.iife.js",
+  "dist/js/image-editor.iife.js",
   "resources/extensions/html-editor.json",
   "resources/extensions/html-content.json",
   "plugin.php",
@@ -37,11 +38,30 @@ if (remoteRuntimeHits.length) {
     `runtime CDN reference found: ${remoteRuntimeHits.join(", ")}`,
   );
 }
-const runtimeDependencies = Object.keys(pkg.dependencies ?? {});
-if (
-  runtimeDependencies.some((name) => name === "react" || name === "react-dom")
-) {
-  throw new Error("React must not be bundled as a runtime dependency");
+const imageEditorDependencies = {
+  "filerobot-image-editor": "5.0.0",
+  react: "18.3.1",
+  "react-dom": "18.3.1",
+  "react-filerobot-image-editor": "4.9.1",
+  "react-konva": "18.2.16",
+  "styled-components": "5.3.11",
+};
+const npmLock = JSON.parse(
+  fs.readFileSync(path.join(root, "package-lock.json"), "utf8"),
+);
+for (const [name, version] of Object.entries(imageEditorDependencies)) {
+  if (pkg.dependencies?.[name] !== version) {
+    throw new Error(`image editor dependency is not pinned: ${name}`);
+  }
+  const locations = Object.entries(npmLock.packages ?? {}).filter(
+    ([location, metadata]) =>
+      (location === `node_modules/${name}` ||
+        location.endsWith(`/node_modules/${name}`)) &&
+      metadata.version === version,
+  );
+  if (locations.length !== 1) {
+    throw new Error(`image editor dependency is duplicated or stale: ${name}`);
+  }
 }
 
 const listing = execFileSync("unzip", ["-Z1", artifact], { encoding: "utf8" })
@@ -53,9 +73,12 @@ const requiredEntries = [
   "jwsoft-tiptap-editor/THIRD_PARTY_NOTICES.md",
   "jwsoft-tiptap-editor/config/settings/defaults.json",
   "jwsoft-tiptap-editor/dist/js/plugin.iife.js",
+  "jwsoft-tiptap-editor/dist/js/image-editor.iife.js",
   "jwsoft-tiptap-editor/licenses/npm-manifest.json",
   "jwsoft-tiptap-editor/licenses/composer-manifest.json",
   "jwsoft-tiptap-editor/licenses/npm/dompurify/LICENSE",
+  "jwsoft-tiptap-editor/licenses/npm/filerobot-image-editor/LICENSE",
+  "jwsoft-tiptap-editor/licenses/npm/react/LICENSE",
   "jwsoft-tiptap-editor/vendor-bundle.zip",
   "jwsoft-tiptap-editor/vendor-bundle.json",
 ];
@@ -63,10 +86,15 @@ for (const entry of requiredEntries) {
   if (!listing.includes(entry))
     throw new Error(`package entry is missing: ${entry}`);
 }
-const forbidden = listing.filter((entry) =>
-  /(^|\/)(?:\.env(?:\.|$)|node_modules|tests|harness|deploy|vendor)(?:\/|$)|\.test\.[^/]+$/.test(
-    entry,
-  ),
+const nestedLicenseEntry = (entry) =>
+  entry.startsWith("jwsoft-tiptap-editor/licenses/npm/") &&
+  /\/node_modules\//.test(entry) &&
+  /\/(?:licen[cs]e|copying|notice)(?:\.[^/]*)?$/i.test(entry);
+const forbidden = listing.filter(
+  (entry) =>
+    /(^|\/)(?:\.env(?:\.|$)|node_modules|tests|harness|deploy|vendor)(?:\/|$)|\.test\.[^/]+$/.test(
+      entry,
+    ) && !nestedLicenseEntry(entry),
 );
 if (forbidden.length)
   throw new Error(`forbidden package paths: ${forbidden.join(", ")}`);
@@ -105,7 +133,7 @@ fs.writeFileSync(
       artifactSha256: sha256,
       reproducibleChecksumVerified: true,
       runtimeCdnReferences: 0,
-      runtimeReactDependencies: 0,
+      bundledImageEditorDependencies: imageEditorDependencies,
       npmLock: "package-lock.json",
       composerLock: "composer.lock",
       requiredEntries,

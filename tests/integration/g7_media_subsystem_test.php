@@ -4,8 +4,10 @@ use App\Contracts\Extension\StorageInterface;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Routing\Router;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Facade;
+use Illuminate\Support\Facades\Route;
 use Plugins\Jwsoft\TiptapEditor\Exceptions\MediaUploadException;
 use Plugins\Jwsoft\TiptapEditor\Models\JwsoftTiptapMediaUpload;
 use Plugins\Jwsoft\TiptapEditor\Models\JwsoftTiptapMediaUploadSession;
@@ -28,6 +30,23 @@ $container->instance('log', new class {
     public function error(string $message, array $context = []): void {}
 });
 Facade::setFacadeApplication($container);
+
+$router = new Router($container['events'], $container);
+$container->instance('router', $router);
+Route::prefix('api/plugins/jwsoft-tiptap-editor')
+    ->name('api.plugins.jwsoft-tiptap-editor.')
+    ->middleware('api')
+    ->group($projectRoot.'/src/routes/api.php');
+$partRoute = null;
+foreach ($router->getRoutes() as $route) {
+    if ($route->uri() === 'api/plugins/jwsoft-tiptap-editor/media/uploads/{token}/parts/{part}') {
+        $partRoute = $route;
+        break;
+    }
+}
+if ($partRoute === null || $partRoute->methods() !== ['POST']) {
+    throw new RuntimeException('MP4 multipart chunk route must use POST so PHP receives the uploaded file');
+}
 
 function assertMediaSubsystem(bool $condition, string $message): void
 {

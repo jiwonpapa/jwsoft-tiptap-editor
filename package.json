@@ -1,6 +1,6 @@
 {
   "name": "@jwsoft/tiptap-editor",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "jw-editor: rich-text and media editor for Gnuboard 7",
   "private": true,
   "type": "module",
@@ -10,7 +10,7 @@
     "npm": ">=10"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "vite build && vite build --config vite.image-editor.config.ts",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run validate && npm run test:unit",
     "lint": "eslint resources/js tests scripts *.config.ts --max-warnings=0",
     "generate": "node scripts/generate-policy.mjs && node scripts/generate-third-party-notices.mjs",
@@ -43,8 +43,14 @@
     "@tiptap/pm": "3.30.5",
     "@tiptap/starter-kit": "3.30.5",
     "dompurify": "3.4.14",
+    "filerobot-image-editor": "5.0.0",
     "lucide": "1.37.0",
-    "social-media-parser": "0.3.0"
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "react-filerobot-image-editor": "4.9.1",
+    "react-konva": "18.2.16",
+    "social-media-parser": "0.3.0",
+    "styled-components": "5.3.11"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",

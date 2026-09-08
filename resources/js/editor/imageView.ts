@@ -1,15 +1,8 @@
-import type { NodeViewRenderer } from "@tiptap/core";
+import type { Editor, NodeViewRenderer } from "@tiptap/core";
+import { NodeSelection } from "@tiptap/pm/state";
 import { normalizeClassTokens } from "@/editor/classTokens";
 
-export const resizableImageView: NodeViewRenderer = ({
-  node,
-  editor,
-  getPos,
-}) => {
-  let current = node;
-  const dom = document.createElement("figure");
-  const image = document.createElement("img");
-  const caption = document.createElement("figcaption");
+function createResizeHandle(): HTMLButtonElement {
   const handle = document.createElement("button");
   handle.type = "button";
   handle.className = "jwsoft-image-resize";
@@ -23,6 +16,47 @@ export const resizableImageView: NodeViewRenderer = ({
   );
   handle.setAttribute("aria-valuemin", "10");
   handle.setAttribute("aria-valuemax", "100");
+  return handle;
+}
+
+function installImageInteractions(
+  editor: Editor,
+  dom: HTMLElement,
+  handle: HTMLButtonElement,
+  getPosition: () => number | undefined,
+): () => void {
+  const select = (event: MouseEvent) => {
+    if (!editor.isEditable || event.target === handle) return;
+    const position = getPosition();
+    if (typeof position !== "number" || editor.isDestroyed) return;
+    event.preventDefault();
+    event.stopPropagation();
+    editor.view.dispatch(
+      editor.state.tr.setSelection(
+        NodeSelection.create(editor.state.doc, position),
+      ),
+    );
+    editor.view.focus();
+  };
+  const editableChanged = () => (handle.disabled = !editor.isEditable);
+  dom.addEventListener("click", select);
+  editor.on("update", editableChanged);
+  return () => {
+    dom.removeEventListener("click", select);
+    editor.off("update", editableChanged);
+  };
+}
+
+export const resizableImageView: NodeViewRenderer = ({
+  node,
+  editor,
+  getPos,
+}) => {
+  let current = node;
+  const dom = document.createElement("figure");
+  const image = document.createElement("img");
+  const caption = document.createElement("figcaption");
+  const handle = createResizeHandle();
   dom.append(image, caption, handle);
   let startX = 0,
     startWidth = 0,
@@ -127,10 +161,12 @@ export const resizableImageView: NodeViewRenderer = ({
             );
     commit();
   });
-  const editableChanged = () => {
-    handle.disabled = !editor.isEditable;
-  };
-  editor.on("update", editableChanged);
+  const removeImageInteractions = installImageInteractions(
+    editor,
+    dom,
+    handle,
+    getPos,
+  );
   update();
   return {
     dom,
@@ -152,7 +188,7 @@ export const resizableImageView: NodeViewRenderer = ({
     ignoreMutation: () => true,
     destroy() {
       cancel();
-      editor.off("update", editableChanged);
+      removeImageInteractions();
     },
   };
 };

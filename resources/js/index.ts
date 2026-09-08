@@ -10,6 +10,13 @@ import { editorRegistry } from "@/editor/editorRegistry";
 import { startEditorLifecycleCleanup } from "@/editor/editorLifecycle";
 import type { HandlerMap } from "@/g7/types";
 import pluginManifest from "../../plugin.json";
+import { captureImageEditorAssetBase } from "@/features/image-editor/vendorLoader";
+
+if (typeof document !== "undefined") {
+  captureImageEditorAssetBase(
+    document.currentScript as HTMLScriptElement | null,
+  );
+}
 
 export const JWSoftTiptapEditorBuild = Object.freeze({
   identifier: "jwsoft-tiptap-editor",

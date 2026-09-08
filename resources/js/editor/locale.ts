@@ -97,6 +97,9 @@ const ENGLISH_COPY: Record<string, string> = {
   "이미지를 업로드하는 중입니다…": "Uploading image…",
   "업로드 완료. 본문에 삽입합니다.": "Upload complete. Inserting into content.",
   "이미지 업로드에 실패했습니다.": "Image upload failed.",
+  "이미지 편집에 실패했습니다.": "Image editing failed.",
+  "편집본은 새 이미지로 업로드하며 원본과 설명·배치 설정은 유지합니다.":
+    "The edited copy is uploaded as a new image while the original, description, and layout settings are preserved.",
   "이미지 {{current}}/{{total}} 업로드 중…":
     "Uploading image {{current}}/{{total}}…",
   "이미지 {{count}}개를 업로드해 삽입했습니다.":

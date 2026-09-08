@@ -108,11 +108,15 @@ function fixture(run) {
   };
   const read = (file) =>
     JSON.parse(fs.readFileSync(path.join(root, file), "utf8"));
+  const imageEditorRuntimeSha256 = hashFile(
+    write("dist/js/image-editor.iife.js", "image editor runtime"),
+  );
   const context = {
     root,
     version: "0.1.0-alpha.21",
     fingerprint: "f".repeat(64),
     runtimeSha256: "b".repeat(64),
+    imageEditorRuntimeSha256,
     artifactSha256: "a".repeat(64),
   };
   const browser = {
@@ -121,6 +125,7 @@ function fixture(run) {
     sourceCommit: "c".repeat(40),
     observedAt: "2026-08-30T00:00:00Z",
     runtimeSha256: context.runtimeSha256,
+    imageEditorRuntimeSha256,
   };
   const responsive = {
     viewport: { width: 412, height: 800 },
@@ -138,31 +143,23 @@ function fixture(run) {
 
 test("runtime proof alone is insufficient; stale bundle and missing provenance fail", () =>
   fixture(({ context, write, browser }) => {
-    const file = "test-results/parity/browser/editor-ime.json";
+    const file =
+      "test-results/parity/browser/editor-image-editing-chromium-desktop.json";
+    const validate = () => validateStableArtifact(context, file);
     write(file, browser);
-    assert.throws(
-      () => validateStableArtifact(context, file),
-      /execution|browser-ui/i,
-    );
+    assert.throws(validate, /execution|browser-ui/i);
     write(file, { ...browser, runtimeSha256: "c".repeat(64) });
-    assert.throws(
-      () => validateStableArtifact(context, file),
-      /runtime bundle/,
-    );
+    assert.throws(validate, /runtime bundle/);
+    write(file, { ...browser, imageEditorRuntimeSha256: "d".repeat(64) });
+    assert.throws(validate, /image editor runtime bundle/);
     write(file, {
       ...browser,
       runtimeSha256: undefined,
       pluginPackageSha256: context.artifactSha256,
     });
-    assert.throws(
-      () => validateStableArtifact(context, file),
-      /runtime bundle/,
-    );
+    assert.throws(validate, /runtime bundle/);
     write(file, { ...browser, observedAt: undefined });
-    assert.throws(
-      () => validateStableArtifact(context, file),
-      /observation time/,
-    );
+    assert.throws(validate, /observation time/);
   }));
 
 test("an older browser version cannot pass even with a matching runtime", () =>
@@ -402,6 +399,7 @@ test("package provenance requires current inputs, bundle and unchanged ZIP bytes
       version: context.version,
       sourceFingerprint: context.fingerprint,
       runtimeSha256: context.runtimeSha256,
+      imageEditorRuntimeSha256: context.imageEditorRuntimeSha256,
       builds: 2,
       artifact,
       artifactSha256,

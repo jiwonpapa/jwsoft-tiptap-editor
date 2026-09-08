@@ -49,6 +49,8 @@ G7 7.0.9 게시판 사용자·관리자 `store/update`, 상품 설명 `store/upd
 
 툴바 선택, 편집기 드롭, 클립보드 파일 입력은 모두 동일한 인증·MIME·크기 검증 업로드 API를 사용합니다. `dragDropImageUpload`와 `pasteImageUpload`는 입력 경로만 제어하며 서버 검증을 우회하지 않습니다.
 
+선택형 `imageEditor` 하위 모듈은 관리 이미지의 JPEG·PNG·WebP만 편집하며 기본값은 OFF입니다. 편집 결과는 원본을 덮어쓰지 않고 같은 업로드 API에 새 파일로 저장한 뒤 선택 이미지의 URL만 교체합니다. 대형 편집 자산은 모달을 실제로 열 때 플러그인 자체 자산 경로에서 불러오며, 외부 CDN과 임의 런타임 확장은 허용하지 않습니다. 상세 결정은 [ADR 0019](adr/0019-bundled-image-editor-feature.md)을 따릅니다.
+
 새 이미지 배치의 저장 정본은 `figure.jw-image > img + figcaption?`입니다. 정렬과 25·50·75·100% 크기는 정책 class token으로만 표현하고 출력 CSS가 `max-width: 100%`를 강제합니다. 기존 단독 `img`는 조용히 변환하지 않고 그대로 왕복하며, 사용자가 이미지 편집을 적용할 때만 새 figure 구조로 전환합니다.
 
 G7 StorageInterface를 사용합니다. 업로드 레코드, 장기 캐시 serve, 참조 스캔, 관리자 단건·일괄 삭제, opt-in 미사용 정리를 `sirsoft-ckeditor5`와 동등한 계약으로 제공합니다. 저장 후 DB 기록 실패 시 물리 파일을 즉시 회수하고, 참조 소스가 불완전하면 실제 자동 삭제를 중단합니다.

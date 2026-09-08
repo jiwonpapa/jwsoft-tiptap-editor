@@ -39,6 +39,9 @@ const evidence = {
   version: pkg.version,
   sourceFingerprint: sourceFingerprint(root),
   runtimeSha256: hashFile(path.join(root, "dist/js/plugin.iife.js")),
+  imageEditorRuntimeSha256: hashFile(
+    path.join(root, "dist/js/image-editor.iife.js"),
+  ),
   sourceDateEpoch: Number(epoch),
   builds: checksums.length,
   artifact: path.relative(root, artifact),

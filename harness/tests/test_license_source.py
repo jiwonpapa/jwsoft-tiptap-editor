@@ -30,6 +30,10 @@ def fixture(root: Path) -> Path:
     )
     write_object(root / "composer.lock", {"packages": [package]})
     write_object(root / "licenses/composer-manifest.json", {"packages": [package]})
+    write_object(
+        root / "policy/runtime-license-sources.json",
+        {"schemaVersion": 1, "packages": {}},
+    )
     return copied
 
 
@@ -66,5 +70,47 @@ class SourceLicenseTests(unittest.TestCase):
                 {"file": "licenses/npm/example/LICENSE", "sha256": hash_file(copied)}
             ]
             write_object(root / "licenses/npm-manifest.json", manifest)
+            with self.assertRaises(ValueError):
+                validate_source_licenses(root)
+
+    def test_exact_approved_fallback_covers_an_upstream_package_omission(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            copied = fixture(root)
+            original = root / "node_modules/example/LICENSE"
+            source = root / "licenses/sources/npm/example/1.0.0/LICENSE"
+            source.parent.mkdir(parents=True)
+            source.write_bytes(original.read_bytes())
+            original.unlink()
+            digest = hash_file(source)
+            manifest = read_object(root / "licenses/npm-manifest.json")
+            packages = manifest["packages"]
+            assert isinstance(packages, list) and isinstance(packages[0], dict)
+            packages[0]["files"] = [
+                {
+                    "file": "licenses/npm/example/LICENSE",
+                    "sha256": digest,
+                    "upstream": "https://github.com/example/project/blob/v1.0.0/LICENSE",
+                }
+            ]
+            write_object(root / "licenses/npm-manifest.json", manifest)
+            write_object(
+                root / "policy/runtime-license-sources.json",
+                {
+                    "schemaVersion": 1,
+                    "packages": {
+                        "example": {
+                            "version": "1.0.0",
+                            "license": "MIT",
+                            "file": "licenses/sources/npm/example/1.0.0/LICENSE",
+                            "destination": "LICENSE",
+                            "sha256": digest,
+                            "upstream": "https://github.com/example/project/blob/v1.0.0/LICENSE",
+                        }
+                    },
+                },
+            )
+            validate_source_licenses(root)
+            copied.write_text("changed")
             with self.assertRaises(ValueError):
                 validate_source_licenses(root)

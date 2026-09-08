@@ -158,6 +158,15 @@ html.dark .jwsoft-video-progress { background: #252c36; color: #e2e8f0; }
 .jwsoft-image-details { padding-top: 5px; }
 .jwsoft-image-details summary { cursor: pointer; font-size: 12px; color: #596579; padding: 6px 0; }
 .jwsoft-detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 14px; }
+.jwsoft-image-editor-dialog { width: min(1120px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); overflow: hidden; }
+.jwsoft-image-editor-module { display: grid; grid-template-rows: auto minmax(360px, 1fr) auto auto; min-height: min(720px, calc(100dvh - 110px)); }
+.jwsoft-image-editor-lead { margin: 0; padding: 12px 22px; border-bottom: 1px solid #edf0f4; color: #64748b; font-size: 12px; line-height: 1.55; }
+.jwsoft-image-editor-workspace { min-width: 0; min-height: 360px; height: min(590px, calc(100dvh - 240px)); overflow: hidden; background: #eef1f5; }
+.jwsoft-image-editor-workspace:empty { display: grid; place-items: center; }
+.jwsoft-image-editor-status { min-height: 20px; margin: 0; padding: 8px 22px 0; color: #475569; font-size: 12px; }
+.jwsoft-image-editor-module > .jwsoft-tiptap-dialog-error { margin: 0; padding: 8px 22px 0; }
+.jwsoft-image-editor-actions { margin: 0 22px; padding: 14px 0 18px; }
+.jwsoft-image-editor-workspace .FIE_root { border-radius: 0; font-family: inherit; }
 html.dark .jwsoft-tiptap-shell { --jw-surface: #171a20; --jw-muted: #252a33; --jw-border: #343b47; --jw-ink: #e5e9ef; --jw-subtle: #a2acba; }
 html.dark .jwsoft-tiptap-dialog, html.dark .jwsoft-tiptap-popover { background: #1b2028; color: #e5e9ef; border-color: #394150; }
 html.dark .jwsoft-tiptap-dialog-header { color: #e5e9ef; border-color: #394150; }
@@ -167,6 +176,9 @@ html.dark .jwsoft-dialog-tabs, html.dark .jwsoft-upload-dropzone { background: #
 html.dark .jwsoft-dialog-tabs button[aria-selected=true] { background: #3a4351; color: #fff; }
 html.dark .jwsoft-upload-dropzone strong { color: #d1d9e5; }
 html.dark .jwsoft-upload-item { border-color: #414b5b; }
+html.dark .jwsoft-image-editor-lead { border-color: #394150; color: #aab4c2; }
+html.dark .jwsoft-image-editor-workspace { background: #11151b; }
+html.dark .jwsoft-image-editor-status { color: #b7c0ce; }
 @keyframes jwsoft-reveal { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 @media (max-width: 640px) {
   .jwsoft-tiptap-toolbar { gap: 3px; padding: 5px; }
@@ -180,6 +192,14 @@ html.dark .jwsoft-upload-item { border-color: #414b5b; }
   .jwsoft-tiptap-dialog-form { padding: 16px; gap: 16px; }
   .jwsoft-tiptap-dialog-actions button, .jwsoft-tiptap-dialog-close, .jwsoft-upload-item > button { min-height: 44px; }
   .jwsoft-detail-grid { gap: 12px; }
+  .jwsoft-image-editor-dialog { inset: 0; width: 100vw; height: 100dvh; max-height: 100dvh; border: 0; border-radius: 0; }
+  .jwsoft-image-editor-dialog .jwsoft-tiptap-dialog-header { padding-block: 10px; }
+  .jwsoft-image-editor-module { min-height: calc(100dvh - 65px); grid-template-rows: auto minmax(250px, 1fr) auto auto; }
+  .jwsoft-image-editor-lead { padding: 8px 16px; }
+  .jwsoft-image-editor-workspace { height: auto; min-height: 250px; }
+  .jwsoft-image-editor-status, .jwsoft-image-editor-module > .jwsoft-tiptap-dialog-error { padding-inline: 16px; }
+  .jwsoft-image-editor-actions { margin-inline: 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); }
+  .jwsoft-image-editor-actions button { flex: 1 1 0; }
   .jwsoft-tiptap-tool[data-tooltip]:hover::after { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { .jwsoft-tiptap-dialog[open], .jwsoft-tiptap-popover:popover-open { animation: none; } .jwsoft-tiptap-tool, .jwsoft-upload-dropzone { transition: none; } }

@@ -31,6 +31,7 @@ import { uploadEditorMedia } from "@/editor/mediaUpload";
 import { fetchLinkPreview, insertSmartCard } from "@/editor/smartCard";
 import { normalizeExternalInput } from "@/editor/socialInput";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
+import { installEditorFeatures } from "@/features/registry";
 
 export const TOOLBAR_PROFILES = ["minimal", "standard", "full"] as const;
 export type ToolbarProfile = (typeof TOOLBAR_PROFILES)[number];
@@ -39,6 +40,7 @@ interface ToolbarOptions {
   editor: Editor;
   profile: ToolbarProfile;
   imageUpload: boolean;
+  imageEditor: boolean;
   imageMaxSizeMb: number;
   mediaEmbed: boolean;
   mediaOptions: MediaEmbedOptions;
@@ -951,6 +953,41 @@ function installAdditionalTools(
   return formatting;
 }
 
+function installImageControls(
+  options: ToolbarOptions,
+  group: HTMLElement,
+  controls: UpdatableControl[],
+  dialogs: DialogHandle[],
+  locale: string,
+): void {
+  const image = createButton({
+    label: editorText(locale, "이미지"),
+    run: () => undefined,
+  });
+  group.appendChild(image);
+  controls.push(image);
+  dialogs.push(
+    createImageDialog(
+      options.editor,
+      image,
+      options.imageUpload,
+      options.imageMaxSizeMb,
+      locale,
+    ),
+  );
+  const features = installEditorFeatures({
+    editor: options.editor,
+    flags: { imageEditor: options.imageEditor },
+    maxSizeMb: options.imageMaxSizeMb,
+    locale,
+  });
+  for (const feature of features) {
+    group.appendChild(feature.control);
+    controls.push(feature.control);
+    dialogs.push(feature.dialog);
+  }
+}
+
 export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   const { editor, profile } = options;
   const locale = options.locale ?? "ko";
@@ -1109,17 +1146,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   add(insert, link);
   dialogs.push(createLinkDialog(editor, link, locale));
 
-  const image = createButton({ label: t("이미지"), run: () => undefined });
-  add(insert, image);
-  dialogs.push(
-    createImageDialog(
-      editor,
-      image,
-      options.imageUpload,
-      options.imageMaxSizeMb,
-      locale,
-    ),
-  );
+  installImageControls(options, insert, controls, dialogs, locale);
 
   if (profile !== "minimal") {
     const table = createButton({ label: t("표"), run: () => undefined });

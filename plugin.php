@@ -45,6 +45,13 @@ class Plugin extends AbstractPlugin
                 'hint' => ['ko' => '클립보드의 이미지 파일을 서버에 업로드한 뒤 삽입합니다.', 'en' => 'Upload and insert image files from the clipboard.'],
                 'required' => false,
             ],
+            'imageEditor' => [
+                'type' => 'boolean',
+                'default' => false,
+                'label' => ['ko' => '이미지 편집 도구', 'en' => 'Image editing tools'],
+                'hint' => ['ko' => '업로드한 JPEG·PNG·WebP 이미지를 자르기·회전·보정한 뒤 새 파일로 저장합니다. 원본은 덮어쓰지 않습니다.', 'en' => 'Crop, rotate, and adjust uploaded JPEG, PNG, and WebP images, then save a new file without overwriting the original.'],
+                'required' => false,
+            ],
             'mediaEmbed' => [
                 'type' => 'boolean',
                 'default' => false,

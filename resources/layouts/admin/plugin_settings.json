@@ -359,6 +359,45 @@
                     ]
                   }
                 ]
+              },
+              {
+                "id": "field_image_editor",
+                "type": "basic",
+                "name": "Div",
+                "props": { "className": "section-heading-md" },
+                "children": [
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-1" },
+                    "children": [
+                      {
+                        "type": "basic",
+                        "name": "Label",
+                        "props": { "className": "form-label" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_editor.label"
+                      },
+                      {
+                        "type": "basic",
+                        "name": "P",
+                        "props": { "className": "form-hint" },
+                        "text": "$t:jwsoft-tiptap-editor.settings.fields.image_editor.hint"
+                      }
+                    ]
+                  },
+                  {
+                    "type": "basic",
+                    "name": "Div",
+                    "props": { "className": "lg:col-span-2" },
+                    "children": [
+                      {
+                        "type": "composite",
+                        "name": "Toggle",
+                        "props": { "name": "imageEditor" }
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },

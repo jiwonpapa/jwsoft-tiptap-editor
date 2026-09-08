@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "packages": {
+    "styled-components": {
+      "version": "5.3.11",
+      "license": "MIT",
+      "file": "licenses/sources/npm/styled-components/5.3.11/LICENSE",
+      "destination": "LICENSE",
+      "sha256": "5b893305a717230e5b0024ff5ca3eec1dc05ba600c9b140730488d97ce56f1e6",
+      "upstream": "https://github.com/styled-components/styled-components/blob/v5.3.11/LICENSE"
+    }
+  }
+}

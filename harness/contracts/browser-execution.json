@@ -230,6 +230,30 @@
       "required": true
     },
     {
+      "file": "editor-image-editing.spec.ts",
+      "title": "optional image editor lazy-loads and replaces only the selected image source",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-image-editing.spec.ts",
+      "title": "optional image editor lazy-loads and replaces only the selected image source",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-image-editing.spec.ts",
+      "title": "image editor stays absent when its setting is off",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-image-editing.spec.ts",
+      "title": "image editor stays absent when its setting is off",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
       "file": "editor-ui.spec.ts",
       "title": "title Enter keeps the document and title, requires body and leaves explicit save usable",
       "project": "chromium-desktop",
