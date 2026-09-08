@@ -1,6 +1,6 @@
 {
   "name": "@jwsoft/tiptap-editor",
-  "version": "0.1.6",
+  "version": "0.2.0",
   "description": "jw-editor: rich-text and media editor for Gnuboard 7",
   "private": true,
   "type": "module",
