@@ -11,6 +11,10 @@ export const root = path.resolve(
 );
 
 export const bundlePath = path.join(root, "dist/js/plugin.iife.js");
+export const imageEditorBundlePath = path.join(
+  root,
+  "dist/js/image-editor.iife.js",
+);
 
 export const pluginVersion: string = JSON.parse(
   fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
@@ -65,6 +69,7 @@ export async function mountEditor(
   origin = "http://jwsoft.test",
   hostForm = false,
   richEmbeds = false,
+  imageEditor = false,
 ): Promise<void> {
   await page.route(`${origin}/`, (route) =>
     route.fulfill({
@@ -116,6 +121,7 @@ export async function mountEditor(
       withSmartCards,
       initialContent,
       withRichEmbeds,
+      withImageEditor,
     }) => {
       const runtime = window as typeof window & {
         __e2eHandlers: Record<
@@ -131,6 +137,7 @@ export async function mountEditor(
             height: 280,
             toolbar: profile,
             imageUpload: withImageUpload,
+            imageEditor: withImageEditor,
             mediaEmbed: withMediaEmbed,
             videoUpload: withVideoUpload,
             videoMaxSizeMb: 200,
@@ -159,6 +166,7 @@ export async function mountEditor(
       withSmartCards: smartCards,
       initialContent: content,
       withRichEmbeds: richEmbeds,
+      withImageEditor: imageEditor,
     },
   );
 }
