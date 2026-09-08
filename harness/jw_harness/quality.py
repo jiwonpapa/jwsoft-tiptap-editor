@@ -10,6 +10,7 @@ from .governance import check
 from .license_source import validate_source_licenses
 from .process import tracked_inputs
 from .security import check_secrets
+from .version_policy import validate_version_policy
 
 LEGACY_TESTS = (
     "license-audit",
@@ -47,6 +48,7 @@ def check_all(root: Path) -> None:
 
 def execute_checks(root: Path, execution: Execution) -> None:
     validate_ci_tag(root)
+    validate_version_policy(root)
     check(root)
     check_secrets(root)
     validate_source_licenses(root)
