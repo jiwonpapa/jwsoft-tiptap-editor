@@ -29,7 +29,7 @@ describe("MP4 chunk upload", () => {
   beforeEach(() => window.sessionStorage.clear());
 
   it("retries a failed chunk and completes the upload", async () => {
-    let putAttempts = 0;
+    let uploadAttempts = 0;
     const request = vi.fn(
       async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input);
@@ -48,11 +48,13 @@ describe("MP4 chunk upload", () => {
           );
         }
         if (url.endsWith("/parts/0")) {
-          putAttempts += 1;
+          uploadAttempts += 1;
+          expect(init?.method).toBe("POST");
+          expect((init?.body as FormData).get("chunk")).toBeInstanceOf(File);
           expect((init?.body as FormData).get("checksum")).toBe(
             "d7e840ae173b0f836da3d1ceb035606e1eb7803fe87ad395a63556eb87c89724",
           );
-          return putAttempts === 1
+          return uploadAttempts === 1
             ? response({ success: false, message: "retry" }, 500)
             : response({ success: true, data: {} });
         }
@@ -82,7 +84,7 @@ describe("MP4 chunk upload", () => {
     expect(uploaded.url).toBe(
       "/api/plugins/jwsoft-tiptap-editor/media/abcdef123456",
     );
-    expect(putAttempts).toBe(2);
+    expect(uploadAttempts).toBe(2);
     expect(progress).toEqual([
       `0/${mp4.byteLength}`,
       `${mp4.byteLength}/${mp4.byteLength}`,

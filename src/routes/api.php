@@ -24,7 +24,7 @@ Route::post('media/uploads', [MediaUploadController::class, 'begin'])
 Route::get('media/uploads/{token}', [MediaUploadController::class, 'status'])
     ->where('token', '[a-f0-9]{32}')
     ->name('api.jwsoft-tiptap-editor.media.uploads.status');
-Route::put('media/uploads/{token}/parts/{part}', [MediaUploadController::class, 'part'])
+Route::post('media/uploads/{token}/parts/{part}', [MediaUploadController::class, 'part'])
     ->where('token', '[a-f0-9]{32}')
     ->whereNumber('part')
     ->name('api.jwsoft-tiptap-editor.media.uploads.part');

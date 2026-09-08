@@ -4,15 +4,15 @@
 
 `resources/js/editor/modules.ts`는 번들에 포함된 기본 편집·이미지·표·미디어·SNS 확장을 조립합니다. 각 모듈은 독립 factory로 설정을 받고 Tiptap extensions를 반환합니다. `createEditor.ts`는 조립된 schema와 편집 이벤트를 연결하고 G7 상태 동기화는 `handlers/initEditor.ts`가 담당합니다.
 
-| 영역              | 현재 진입점                                                                    | 확장할 때 함께 확인할 부분                          |
-| ----------------- | ------------------------------------------------------------------------------ | --------------------------------------------------- |
-| 서식·새 문서 요소 | `editor/modules.ts`, `classTokens.ts`, `inlineStyle.ts`                        | 서버 HTML 정책, 저장 왕복, 조회 CSS                 |
-| 이미지 업로더     | `imageUpload.ts`, `imageUploadQueue.ts`, 서버 image service와 공개 image hooks | 인증·권한·MIME·크기·파일 정리·모달·드롭/붙여넣기    |
-| 이미지 편집 도구  | `features/image-editor/`, 내부 feature registry                                | 설정 ON/OFF·지연 로드·새 파일 업로드·원본 보존      |
-| MP4 업로더        | `mediaUpload.ts`, 서버 media service                                           | 청크 hash·재시도·재개·만료·Range·원본명             |
-| 영상 표시         | `mediaEmbed.ts`, `mediaView.ts`, `mediaPlayer.ts`, `mediaRenderer.ts`          | 편집/조회 일치, allowlist, 런타임 DOM 저장 금지     |
-| SNS               | `smartCard.ts`, `socialPolicy.ts`, `socialPlayer.ts`                           | SSRF, 공식 제공자 화이트리스트, 실패 시 원 URL 보존 |
-| 도움말·HTML 조회  | `editorFooter.ts`, `dialog.ts`                                                 | 읽기 전용, 명시적 복사, focus/cleanup, 본문과 분리  |
+| 영역              | 현재 진입점                                                                    | 확장할 때 함께 확인할 부분                             |
+| ----------------- | ------------------------------------------------------------------------------ | ------------------------------------------------------ |
+| 서식·새 문서 요소 | `editor/modules.ts`, `classTokens.ts`, `inlineStyle.ts`                        | 서버 HTML 정책, 저장 왕복, 조회 CSS                    |
+| 이미지 업로더     | `imageUpload.ts`, `imageUploadQueue.ts`, 서버 image service와 공개 image hooks | 인증·권한·MIME·크기·파일 정리·모달·드롭/붙여넣기       |
+| 이미지 편집 도구  | `features/image-editor/`, 내부 feature registry                                | 설정 ON/OFF·지연 로드·새 파일 업로드·원본 보존         |
+| MP4 업로더        | `mediaUpload.ts`, 서버 media service                                           | multipart POST 청크·hash·재시도·재개·만료·Range·원본명 |
+| 영상 표시         | `mediaEmbed.ts`, `mediaView.ts`, `mediaPlayer.ts`, `mediaRenderer.ts`          | 편집/조회 일치, allowlist, 런타임 DOM 저장 금지        |
+| SNS               | `smartCard.ts`, `socialPolicy.ts`, `socialPlayer.ts`                           | SSRF, 공식 제공자 화이트리스트, 실패 시 원 URL 보존    |
+| 도움말·HTML 조회  | `editorFooter.ts`, `dialog.ts`                                                 | 읽기 전용, 명시적 복사, focus/cleanup, 본문과 분리     |
 
 모듈 분리는 **소스·번들 수준**입니다. 현재 런타임에서 임의 확장을 등록하거나 URL에서 모듈을 내려받는 공개 API는 없습니다. 별도 설치 가능한 플러그인 SDK를 제공한다고 표현하지 않습니다. 업로더 교체 역시 프런트엔드 함수만 교체하면 끝나는 계약이 아닙니다.
 

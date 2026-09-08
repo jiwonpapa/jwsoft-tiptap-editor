@@ -222,7 +222,7 @@ test("portrait MP4 keeps its decoded ratio responsively in editor and content", 
       }
       if (url.endsWith("/parts/0")) {
         partRequests += 1;
-        expect(request.method()).toBe("PUT");
+        expect(request.method()).toBe("POST");
         expect(request.postDataBuffer()?.length).toBeGreaterThan(
           playable.length,
         );

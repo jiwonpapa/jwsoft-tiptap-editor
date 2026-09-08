@@ -228,7 +228,7 @@ async function sha256(blob: Blob): Promise<string> {
     .join("");
 }
 
-async function putPart(
+async function uploadPart(
   request: typeof fetch,
   session: UploadSession,
   part: number,
@@ -245,7 +245,7 @@ async function putPart(
       const response = await request(
         `${ENDPOINT}/${session.token}/parts/${part}`,
         {
-          method: "PUT",
+          method: "POST",
           credentials: "same-origin",
           headers: { Accept: "application/json", ...authorizationHeaders() },
           body: form,
@@ -318,7 +318,7 @@ function uploadPartWithProgress(
       reject(new DOMException("Aborted", "AbortError"));
       return;
     }
-    xhr.open("PUT", url);
+    xhr.open("POST", url);
     xhr.withCredentials = true;
     xhr.setRequestHeader("Accept", "application/json");
     for (const [key, value] of Object.entries(authorizationHeaders()))
@@ -401,7 +401,7 @@ export async function uploadEditorMedia(
       }
       return request(input, init);
     };
-    await putPart(
+    await uploadPart(
       partRequest,
       session,
       part,

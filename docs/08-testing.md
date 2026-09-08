@@ -28,7 +28,7 @@
 - 게시판 4개·상품 설명 3개·상품 공통정보 2개·페이지 2개 편집 write route middleware 선언
 - FormRequest
 - image upload/serve/cleanup
-- MP4 chunk checksum/retry/assembly/serve/session cleanup
+- MP4 multipart POST route/chunk checksum/retry/assembly/serve/session cleanup
 - link preview provider/metadata/redirect/SSRF/body limit and canonical card
 - repository와 StorageInterface
 - permission, hook, settings schema
