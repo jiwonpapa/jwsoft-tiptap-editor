@@ -18,7 +18,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/@babel/code-frame/node_modules/js-tokens/LICENSE",
+          "file": "licenses/npm/@babel/code-frame/_nested/js-tokens/LICENSE",
           "sha256": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1"
         }
       ]
@@ -51,7 +51,7 @@
       "license": "ISC",
       "files": [
         {
-          "file": "licenses/npm/@babel/core/node_modules/semver/LICENSE",
+          "file": "licenses/npm/@babel/core/_nested/semver/LICENSE",
           "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
         }
       ]
@@ -95,7 +95,7 @@
       "license": "ISC",
       "files": [
         {
-          "file": "licenses/npm/@babel/helper-compilation-targets/node_modules/lru-cache/LICENSE",
+          "file": "licenses/npm/@babel/helper-compilation-targets/_nested/lru-cache/LICENSE",
           "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
         }
       ]
@@ -106,7 +106,7 @@
       "license": "ISC",
       "files": [
         {
-          "file": "licenses/npm/@babel/helper-compilation-targets/node_modules/semver/LICENSE",
+          "file": "licenses/npm/@babel/helper-compilation-targets/_nested/semver/LICENSE",
           "sha256": "4ec3d4c66cd87f5c8d8ad911b10f99bf27cb00cdfcff82621956e379186b016b"
         }
       ]
@@ -968,7 +968,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/hoist-non-react-statics/node_modules/react-is/LICENSE",
+          "file": "licenses/npm/hoist-non-react-statics/_nested/react-is/LICENSE",
           "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
         }
       ]
@@ -1056,7 +1056,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/loose-envify/node_modules/js-tokens/LICENSE",
+          "file": "licenses/npm/loose-envify/_nested/js-tokens/LICENSE",
           "sha256": "2213d91c606205c71eb051a199478cdc2adde945893404d7f1421436dd6d5cc1"
         }
       ]
@@ -1166,7 +1166,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/prop-types/node_modules/react-is/LICENSE",
+          "file": "licenses/npm/prop-types/_nested/react-is/LICENSE",
           "sha256": "52412d7bc7ce4157ea628bbaacb8829e0a9cb3c58f57f99176126bc8cf2bfc85"
         }
       ]
@@ -1353,7 +1353,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/react-filerobot-image-editor/node_modules/konva/LICENSE",
+          "file": "licenses/npm/react-filerobot-image-editor/_nested/konva/LICENSE",
           "sha256": "7190132c82df30243dc2ba512c9509ea3b629329b4266e9f2c3b5dbd04029613"
         }
       ]
@@ -1453,7 +1453,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/styled-components/node_modules/babel-plugin-styled-components/LICENSE.md",
+          "file": "licenses/npm/styled-components/_nested/babel-plugin-styled-components/LICENSE.md",
           "sha256": "f3da3b4b086da191ae35a1e70d452b83d0bed62f90fc7ea89a3e56e251fe9486"
         }
       ]
@@ -1464,7 +1464,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/styled-components/node_modules/has-flag/license",
+          "file": "licenses/npm/styled-components/_nested/has-flag/license",
           "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
         }
       ]
@@ -1475,7 +1475,7 @@
       "license": "MIT",
       "files": [
         {
-          "file": "licenses/npm/styled-components/node_modules/supports-color/license",
+          "file": "licenses/npm/styled-components/_nested/supports-color/license",
           "sha256": "48da2f39e100d4085767e94966b43f4fa95ff6a0698fba57ed460914e35f94a0"
         }
       ]

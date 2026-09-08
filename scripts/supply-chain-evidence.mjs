@@ -86,15 +86,10 @@ for (const entry of requiredEntries) {
   if (!listing.includes(entry))
     throw new Error(`package entry is missing: ${entry}`);
 }
-const nestedLicenseEntry = (entry) =>
-  entry.startsWith("jwsoft-tiptap-editor/licenses/npm/") &&
-  /\/node_modules\//.test(entry) &&
-  /\/(?:licen[cs]e|copying|notice)(?:\.[^/]*)?$/i.test(entry);
-const forbidden = listing.filter(
-  (entry) =>
-    /(^|\/)(?:\.env(?:\.|$)|node_modules|tests|harness|deploy|vendor)(?:\/|$)|\.test\.[^/]+$/.test(
-      entry,
-    ) && !nestedLicenseEntry(entry),
+const forbidden = listing.filter((entry) =>
+  /(^|\/)(?:\.env(?:\.|$)|node_modules|tests|harness|deploy|vendor)(?:\/|$)|\.test\.[^/]+$/.test(
+    entry,
+  ),
 );
 if (forbidden.length)
   throw new Error(`forbidden package paths: ${forbidden.join(", ")}`);
