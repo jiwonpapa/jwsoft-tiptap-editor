@@ -96,6 +96,20 @@ def comparison_base(root: Path) -> str:
     )
 
 
+def latest_version_tag(root: Path) -> str:
+    tags = run(
+        ["git", "tag", "--merged", "HEAD", "--list", "v[0-9]*"], root, capture=True
+    ).splitlines()
+    valid = [tag for tag in tags if SEMVER.fullmatch(tag.removeprefix("v"))]
+    if not valid:
+        raise ValueError("A reachable released version tag is required")
+    latest = valid[0]
+    for tag in valid[1:]:
+        if newer_than(tag.removeprefix("v"), latest.removeprefix("v")):
+            latest = tag
+    return latest
+
+
 def base_version(root: Path, base: str) -> str:
     raw = run(["git", "show", f"{base}:package.json"], root, capture=True)
     data = json.loads(raw)
@@ -126,14 +140,15 @@ def is_deployable(path: str) -> bool:
 def validate_version_policy(root: Path, *, base: str | None = None) -> None:
     current = manifest_version(root)
     resolved_base = base or comparison_base(root)
-    previous = base_version(root, resolved_base)
     changed = deployable_changes(root, resolved_base)
     if not changed:
         return
-    if not newer_than(current, previous):
+    released_tag = latest_version_tag(root)
+    released = base_version(root, released_tag)
+    if not newer_than(current, released):
         sample = ", ".join(changed[:5])
         raise ValueError(
             "Deployable files changed without a higher plugin version "
-            f"({previous} -> {current}): {sample}"
+            f"({released} -> {current}): {sample}"
         )
     changelog_entry(root, f"v{current}")

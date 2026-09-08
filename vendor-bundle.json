@@ -1,6 +1,6 @@
 {
   "schema_version": "1.0",
-  "generated_at": "2026-09-08T04:55:50.000Z",
+  "generated_at": "2026-09-08T05:02:18.000Z",
   "generator": "jwsoft-tiptap-editor scripts/build-vendor-bundle.mjs",
   "target": "plugin:jwsoft-tiptap-editor",
   "composer_json_sha256": "7a5923af75cf7ac002096293fbd80cd80c9ad32a6bfd20c7f64e5f16a1e119a2",
