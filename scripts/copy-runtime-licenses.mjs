@@ -26,6 +26,8 @@ fs.mkdirSync(licenseRoot, { recursive: true });
 
 const sha256 = (file) =>
   crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+const packagedNameParts = (name) =>
+  name.split("/").map((part) => (part === "node_modules" ? "_nested" : part));
 const packages = [];
 for (const [location, metadata] of Object.entries(npmLock.packages)) {
   if (
@@ -75,7 +77,13 @@ for (const [location, metadata] of Object.entries(npmLock.packages)) {
       upstream: fallback.upstream,
     });
   }
-  const destinationDirectory = path.join(licenseRoot, ...name.split("/"));
+  // G7 excludes every node_modules path while extracting an extension ZIP.
+  // Preserve the lockfile identity in metadata and package nested notices under
+  // a safe path segment instead.
+  const destinationDirectory = path.join(
+    licenseRoot,
+    ...packagedNameParts(name),
+  );
   fs.mkdirSync(destinationDirectory, { recursive: true });
   const files = sources.map((source) => {
     const destination = path.join(destinationDirectory, source.file);

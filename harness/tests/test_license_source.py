@@ -38,6 +38,49 @@ def fixture(root: Path) -> Path:
 
 
 class SourceLicenseTests(unittest.TestCase):
+    def test_nested_dependency_uses_extractable_license_path(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            original = root / "node_modules/parent/node_modules/example/LICENSE"
+            original.parent.mkdir(parents=True)
+            original.write_text("Nested example license")
+            copied = root / "licenses/npm/parent/_nested/example/LICENSE"
+            copied.parent.mkdir(parents=True)
+            copied.write_bytes(original.read_bytes())
+            package: Object = {
+                "name": "parent/node_modules/example",
+                "version": "1.0.0",
+                "license": "MIT",
+            }
+            write_object(
+                root / "package-lock.json",
+                {"packages": {"node_modules/parent/node_modules/example": package}},
+            )
+            write_object(
+                root / "licenses/npm-manifest.json",
+                {
+                    "packages": [
+                        {
+                            **package,
+                            "files": [
+                                {
+                                    "file": "licenses/npm/parent/_nested/example/LICENSE",
+                                    "sha256": hash_file(copied),
+                                }
+                            ],
+                        }
+                    ]
+                },
+            )
+            write_object(root / "composer.lock", {"packages": [package]})
+            write_object(root / "licenses/composer-manifest.json", {"packages": [package]})
+            write_object(
+                root / "policy/runtime-license-sources.json",
+                {"schemaVersion": 1, "packages": {}},
+            )
+
+            validate_source_licenses(root)
+
     def test_current_source_passes_but_missing_or_changed_license_fails(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)

@@ -80,9 +80,8 @@ if unzip -Z1 "$artifact" | grep -E '(^|/)(\.env|vendor|tests|harness|deploy)(/|$
   fail "artifact에 개발 전용 또는 비밀 경로가 포함되었습니다."
 fi
 if unzip -Z1 "$artifact" \
-  | grep -E '(^|/)node_modules(/|$)' \
-  | grep -Ev '^jwsoft-tiptap-editor/licenses/npm/' >/dev/null; then
-  fail "artifact에 실행 가능한 node_modules 경로가 포함되었습니다."
+  | grep -E '(^|/)node_modules(/|$)' >/dev/null; then
+  fail "artifact에 node_modules 경로가 포함되었습니다."
 fi
 [ "$(unzip -p "$artifact" jwsoft-tiptap-editor/vendor-bundle.zip | sha256_file /dev/stdin)" = "$(node -p "require('$stage/vendor-bundle.json').zip_sha256")" ] \
   || fail "artifact 내부 vendor bundle checksum이 다릅니다."

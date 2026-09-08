@@ -12,6 +12,12 @@ def package_rows(path: Path) -> list[Object]:
     return [object_value(package) for package in packages]
 
 
+def packaged_license_directory(name: str) -> Path:
+    return Path("licenses/npm").joinpath(
+        *("_nested" if part == "node_modules" else part for part in Path(name).parts)
+    )
+
+
 def validate_source_licenses(root: Path) -> None:
     lock = object_value(read_object(root / "package-lock.json")["packages"])
     source_policy = read_object(root / "policy/runtime-license-sources.json")
@@ -37,7 +43,7 @@ def validate_source_licenses(root: Path) -> None:
         for item in files:
             entry = object_value(item)
             relative = string_value(entry.get("file"))
-            if Path(relative).parent != Path("licenses/npm") / name:
+            if Path(relative).parent != packaged_license_directory(name):
                 raise ValueError("Unexpected GitHub source license path")
             actual = hash_file(repository_file(root, relative))
             original = root / f"node_modules/{name}/{Path(relative).name}"
