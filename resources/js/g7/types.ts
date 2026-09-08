@@ -58,6 +58,7 @@ export interface InitEditorParams {
   imageUpload?: boolean | string;
   dragDropImageUpload?: boolean | string;
   pasteImageUpload?: boolean | string;
+  imageEditor?: boolean | string;
   mediaEmbed?: boolean | string;
   autoEmbedUrls?: boolean | string;
   youtubeEmbed?: boolean | string;

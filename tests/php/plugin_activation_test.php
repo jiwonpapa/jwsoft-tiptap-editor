@@ -108,7 +108,7 @@ namespace {
     }
 
     $settings = $plugin->getSettingsSchema();
-    foreach (['imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'xEmbed', 'facebookEmbed', 'instagramEmbed', 'tiktokEmbed', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
+    foreach (['imageUpload', 'dragDropImageUpload', 'pasteImageUpload', 'imageEditor', 'mediaEmbed', 'autoEmbedUrls', 'youtubeEmbed', 'vimeoEmbed', 'mp4Embed', 'videoUpload', 'videoMaxSizeMb', 'videoChunkSizeMb', 'mediaAutoplay', 'externalMediaLoadMode', 'smartCards', 'autoSmartCards', 'socialCards', 'xEmbed', 'facebookEmbed', 'instagramEmbed', 'tiktokEmbed', 'genericLinkCards', 'smartCardImages', 'imageMaxSizeMb', 'editorHeight', 'toolbar', 'public_asset_disk', 'unusedImageCleanup', 'unusedImageRetentionDays'] as $setting) {
         if (! array_key_exists($setting, $settings)) {
             throw new RuntimeException("Missing image setting: {$setting}");
         }
@@ -118,6 +118,7 @@ namespace {
         || ($settings['unusedImageCleanup']['default'] ?? null) !== false
         || ($settings['dragDropImageUpload']['default'] ?? null) !== true
         || ($settings['pasteImageUpload']['default'] ?? null) !== true
+        || ($settings['imageEditor']['default'] ?? null) !== false
         || ($settings['mediaEmbed']['default'] ?? null) !== false
         || ($settings['autoEmbedUrls']['default'] ?? null) !== false
         || ($settings['videoUpload']['default'] ?? null) !== false
@@ -147,6 +148,7 @@ namespace {
         || array_key_exists('legacyContentRiskAcknowledged', $settingsConfig['frontend_schema'])
         || ($settingsConfig['frontend_schema']['dragDropImageUpload']['expose'] ?? null) !== true
         || ($settingsConfig['frontend_schema']['pasteImageUpload']['expose'] ?? null) !== true
+        || ($settingsConfig['frontend_schema']['imageEditor']['expose'] ?? null) !== true
         || ($settingsConfig['defaults']['videoUpload'] ?? null) !== false
         || ($settingsConfig['defaults']['smartCards'] ?? null) !== false
         || ($settingsConfig['frontend_schema']['socialCards']['expose'] ?? null) !== true

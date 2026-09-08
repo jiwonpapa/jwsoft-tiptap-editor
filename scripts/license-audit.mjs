@@ -49,6 +49,8 @@ const allowedNpmLicenses = new Set([
   "MIT",
   "ISC",
   "Apache-2.0",
+  "BSD-3-Clause",
+  "CC-BY-4.0",
   "(MPL-2.0 OR Apache-2.0)",
 ]);
 for (const dependency of runtimeNpm) {

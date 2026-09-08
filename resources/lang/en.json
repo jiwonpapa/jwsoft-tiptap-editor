@@ -51,6 +51,10 @@
         "label": "Clipboard image upload",
         "hint": "Upload pasted images to the server."
       },
+      "image_editor": {
+        "label": "Image editing tools",
+        "hint": "Crop, rotate, and adjust uploaded JPEG, PNG, and WebP images, then save a new file while preserving the original."
+      },
       "image_max_size": {
         "label": "Image max size (MB)",
         "hint": "Limit each file to 1-10 MB."

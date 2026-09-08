@@ -77,6 +77,18 @@ function renderFailure(container: HTMLElement, message: string): void {
   container.appendChild(alert);
 }
 
+function blockConflictingRuntime(container: HTMLElement): boolean {
+  if (!hasConflictingEditorRuntime()) return false;
+  renderFailure(
+    container,
+    editorText(
+      currentLocale(window.G7Core),
+      "sirsoft-ckeditor5가 함께 로드되어 jw-editor 시작을 차단했습니다.",
+    ),
+  );
+  return true;
+}
+
 function createShell(
   container: HTMLElement,
   height: number,
@@ -107,7 +119,7 @@ function showPasteLoss(status: HTMLElement, locale: string): void {
   );
 }
 
-function mountLocaleEditor(options: {
+interface LocaleEditorOptions {
   containerId: string;
   mount: HTMLElement;
   name: string;
@@ -120,6 +132,7 @@ function mountLocaleEditor(options: {
   imageUpload: boolean;
   dragDropImageUpload: boolean;
   pasteImageUpload: boolean;
+  imageEditor: boolean;
   mediaEmbed: boolean;
   autoEmbedUrls: boolean;
   mediaOptions: MediaEmbedOptions;
@@ -132,7 +145,17 @@ function mountLocaleEditor(options: {
   imageMaxSizeMb: number;
   status: HTMLElement;
   consent: PolicyConsent;
-}): void {
+}
+
+interface MultilingualEditorOptions extends Omit<
+  LocaleEditorOptions,
+  "mount" | "locale" | "content" | "multilingual"
+> {
+  shell: HTMLElement;
+  content: Record<string, string>;
+}
+
+function mountLocaleEditor(options: LocaleEditorOptions): void {
   if (editorRegistry.has(options.containerId, options.locale)) return;
   const core = window.G7Core;
   options.mount.replaceChildren();
@@ -210,6 +233,7 @@ function mountLocaleEditor(options: {
     editor,
     profile: options.toolbar,
     imageUpload: options.imageUpload,
+    imageEditor: options.imageEditor,
     imageMaxSizeMb: options.imageMaxSizeMb,
     mediaEmbed: options.mediaEmbed,
     mediaOptions: options.mediaOptions,
@@ -224,30 +248,7 @@ function mountLocaleEditor(options: {
   configureLegacyEditing({ ...options, editor, toolbar });
 }
 
-function mountMultilingualEditors(options: {
-  shell: HTMLElement;
-  containerId: string;
-  name: string;
-  content: Record<string, string>;
-  placeholder: string;
-  editable: boolean;
-  toolbar: ToolbarProfile;
-  imageUpload: boolean;
-  dragDropImageUpload: boolean;
-  pasteImageUpload: boolean;
-  mediaEmbed: boolean;
-  autoEmbedUrls: boolean;
-  mediaOptions: MediaEmbedOptions;
-  mediaPlayback: MediaPlaybackOptions;
-  socialEmbeds: SocialOptions;
-  videoUpload: boolean;
-  videoMaxSizeMb: number;
-  smartCards: boolean;
-  autoSmartCards: boolean;
-  imageMaxSizeMb: number;
-  status: HTMLElement;
-  consent: PolicyConsent;
-}): void {
+function mountMultilingualEditors(options: MultilingualEditorOptions): void {
   const core = window.G7Core;
   const locales = supportedLocales(core, options.content);
   const initialLocale = currentLocale(core);
@@ -274,6 +275,7 @@ function mountMultilingualEditors(options: {
       imageUpload: options.imageUpload,
       dragDropImageUpload: options.dragDropImageUpload,
       pasteImageUpload: options.pasteImageUpload,
+      imageEditor: options.imageEditor,
       mediaEmbed: options.mediaEmbed,
       autoEmbedUrls: options.autoEmbedUrls,
       mediaOptions: options.mediaOptions,
@@ -349,17 +351,7 @@ export async function initEditorHandler(
   if (!container) return;
 
   injectEditorStyles();
-  if (hasConflictingEditorRuntime()) {
-    const locale = currentLocale(window.G7Core);
-    renderFailure(
-      container,
-      editorText(
-        locale,
-        "sirsoft-ckeditor5가 함께 로드되어 jw-editor 시작을 차단했습니다.",
-      ),
-    );
-    return;
-  }
+  if (blockConflictingRuntime(container)) return;
 
   const readOnly = booleanParam(params.readOnly);
   const disabled = booleanParam(params.disabled);
@@ -375,6 +367,7 @@ export async function initEditorHandler(
   const imageUpload = booleanParam(params.imageUpload);
   const dragDropImageUpload = booleanParam(params.dragDropImageUpload);
   const pasteImageUpload = booleanParam(params.pasteImageUpload);
+  const imageEditor = imageUpload && booleanParam(params.imageEditor);
   const mediaEmbed = booleanParam(params.mediaEmbed);
   const autoEmbedUrls = booleanParam(params.autoEmbedUrls);
   const mediaPlayback = mediaPlaybackOptions(
@@ -412,6 +405,7 @@ export async function initEditorHandler(
       imageUpload,
       dragDropImageUpload,
       pasteImageUpload,
+      imageEditor,
       mediaEmbed,
       autoEmbedUrls,
       mediaOptions,
@@ -443,6 +437,7 @@ export async function initEditorHandler(
     imageUpload,
     dragDropImageUpload,
     pasteImageUpload,
+    imageEditor,
     mediaEmbed,
     autoEmbedUrls,
     mediaOptions,

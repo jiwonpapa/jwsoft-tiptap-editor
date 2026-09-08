@@ -8,12 +8,15 @@
 | ----------------- | ------------------------------------------------------------------------------ | --------------------------------------------------- |
 | 서식·새 문서 요소 | `editor/modules.ts`, `classTokens.ts`, `inlineStyle.ts`                        | 서버 HTML 정책, 저장 왕복, 조회 CSS                 |
 | 이미지 업로더     | `imageUpload.ts`, `imageUploadQueue.ts`, 서버 image service와 공개 image hooks | 인증·권한·MIME·크기·파일 정리·모달·드롭/붙여넣기    |
+| 이미지 편집 도구  | `features/image-editor/`, 내부 feature registry                                | 설정 ON/OFF·지연 로드·새 파일 업로드·원본 보존      |
 | MP4 업로더        | `mediaUpload.ts`, 서버 media service                                           | 청크 hash·재시도·재개·만료·Range·원본명             |
 | 영상 표시         | `mediaEmbed.ts`, `mediaView.ts`, `mediaPlayer.ts`, `mediaRenderer.ts`          | 편집/조회 일치, allowlist, 런타임 DOM 저장 금지     |
 | SNS               | `smartCard.ts`, `socialPolicy.ts`, `socialPlayer.ts`                           | SSRF, 공식 제공자 화이트리스트, 실패 시 원 URL 보존 |
 | 도움말·HTML 조회  | `editorFooter.ts`, `dialog.ts`                                                 | 읽기 전용, 명시적 복사, focus/cleanup, 본문과 분리  |
 
 모듈 분리는 **소스·번들 수준**입니다. 현재 런타임에서 임의 확장을 등록하거나 URL에서 모듈을 내려받는 공개 API는 없습니다. 별도 설치 가능한 플러그인 SDK를 제공한다고 표현하지 않습니다. 업로더 교체 역시 프런트엔드 함수만 교체하면 끝나는 계약이 아닙니다.
+
+`imageEditor`는 `jw-editor` ZIP에 같이 들어가는 내부 선택형 기능입니다. 별도 G7 플러그인으로 설치·활성화하지 않으며, OFF일 때 UI와 대형 편집 자산을 로드하지 않습니다. 외부 확장 판매나 AI 글쓰기 기능은 이 내부 계약을 재사용할 수 있지만 별도 승인·권한·데이터 정책 없이 자동 활성화하지 않습니다.
 
 ## 새 기능을 추가하는 절차
 

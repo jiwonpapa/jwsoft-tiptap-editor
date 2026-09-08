@@ -39,6 +39,7 @@ interface ToolbarOptions {
   editor: Editor;
   profile: ToolbarProfile;
   imageUpload: boolean;
+  imageEditor: boolean;
   imageMaxSizeMb: number;
   mediaEmbed: boolean;
   mediaOptions: MediaEmbedOptions;

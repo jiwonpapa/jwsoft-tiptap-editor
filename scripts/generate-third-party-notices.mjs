@@ -68,6 +68,9 @@ ${table(composerPackages)}
 - Tiptap packages: Copyright (c) 2025 Tiptap GmbH, MIT License.
 - ProseMirror, orderedmap, rope-sequence, and w3c-keyname: Copyright Marijn Haverbeke and contributors, MIT License.
 - DOMPurify: Dr.-Ing. Mario Heiderich and Cure53, Apache-2.0 option selected.
+- Filerobot Image Editor: Scaleflex contributors, MIT License.
+- caniuse-lite browser support data: CC-BY-4.0.
+- hoist-non-react-statics: Yahoo! Inc., BSD-3-Clause License.
 - linkifyjs: Copyright (c) 2024 Nick Frasser, MIT License.
 - Symfony packages: Fabien Potencier and Symfony contributors, MIT License.
 - PHP-FIG packages, League URI, and Masterminds HTML5 retain the copyright notices shipped in \`vendor-bundle.zip\`.

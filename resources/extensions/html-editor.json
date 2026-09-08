@@ -24,6 +24,7 @@
               "imageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.imageUpload ?? false}}",
               "dragDropImageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.dragDropImageUpload ?? true}}",
               "pasteImageUpload": "{{_global.plugins['jwsoft-tiptap-editor']?.pasteImageUpload ?? true}}",
+              "imageEditor": "{{_global.plugins['jwsoft-tiptap-editor']?.imageEditor ?? false}}",
               "mediaEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.mediaEmbed ?? false}}",
               "autoEmbedUrls": "{{_global.plugins['jwsoft-tiptap-editor']?.autoEmbedUrls ?? false}}",
               "youtubeEmbed": "{{_global.plugins['jwsoft-tiptap-editor']?.youtubeEmbed ?? true}}",
