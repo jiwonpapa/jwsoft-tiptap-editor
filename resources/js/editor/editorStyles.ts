@@ -213,6 +213,7 @@ ${EDITOR_TOKEN_CSS}
 .jwsoft-context-tools { position: fixed; inset: auto; margin: 0; padding: 5px; max-width: calc(100vw - 16px); box-sizing: border-box; border: 1px solid #dce2eb; border-radius: 10px; background: #fff; color: #334155; box-shadow: 0 5px 20px #172b4d26; }
 .jwsoft-context-tools:popover-open { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; width: max-content; max-width: min(590px, calc(100vw - 16px)); }
 .jwsoft-context-tools .jwsoft-tiptap-select { max-width: 105px; }
+.jwsoft-context-tools .jwsoft-tiptap-tool[data-tooltip]:hover::after { display: none; }
 .jwsoft-editor-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; padding: 4px 12px; font-size: 11px; color: var(--jw-subtle, #687080); background: var(--jw-surface, #fff); border-top: 1px solid var(--jw-border, #edf0f4); border-radius: 0 0 12px 12px; }
 .jwsoft-editor-identity { display: flex; align-items: center; gap: 8px; }
 .jwsoft-editor-identity > span:first-child { font-weight: 650; color: var(--jw-ink); }

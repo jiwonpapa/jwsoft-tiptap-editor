@@ -21,10 +21,18 @@ test("optional image editor lazy-loads and replaces only the selected image sour
   let vendorRequests = 0;
   let uploads = 0;
   await page.addInitScript(() => {
-    window.__JWSoftImageEditorAssetBase = "http://jwsoft.test/assets/";
+    Object.assign(window, {
+      G7Config: {
+        pluginAssets: {
+          "jwsoft-tiptap-editor": {
+            js: "/api/plugins/assets/jwsoft-tiptap-editor/dist/js/plugin.iife.js?v=17",
+          },
+        },
+      },
+    });
   });
   await page.route(
-    "http://jwsoft.test/assets/image-editor.iife.js",
+    "http://jwsoft.test/api/plugins/assets/jwsoft-tiptap-editor/dist/js/image-editor.iife.js?v=17",
     async (route) => {
       vendorRequests += 1;
       await route.fulfill({
@@ -90,7 +98,33 @@ test("optional image editor lazy-loads and replaces only the selected image sour
 
   const figure = page.locator(".jwsoft-tiptap-editable figure.jw-image");
   await figure.locator("img").click({ position: { x: 8, y: 8 } });
-  await insertTool(page, "이미지 편집");
+  const contextTools = page.locator(".jwsoft-context-tools");
+  const contextEdit = contextTools.getByRole("button", {
+    name: "이미지 편집",
+    exact: true,
+  });
+  await expect(contextEdit).toBeVisible();
+  await expect(contextEdit).toContainText("편집");
+  await expect(contextEdit.locator('svg path[d="M10 5H3"]')).toHaveCount(1);
+  await contextEdit.hover();
+  const contextLayout = await contextTools.evaluate((element) => ({
+    clientWidth: element.clientWidth,
+    scrollWidth: element.scrollWidth,
+    clientHeight: element.clientHeight,
+    scrollHeight: element.scrollHeight,
+    documentWidth: document.documentElement.scrollWidth,
+    viewportWidth: window.innerWidth,
+  }));
+  expect(contextLayout.scrollWidth).toBeLessThanOrEqual(
+    contextLayout.clientWidth,
+  );
+  expect(contextLayout.scrollHeight).toBeLessThanOrEqual(
+    contextLayout.clientHeight,
+  );
+  expect(contextLayout.documentWidth).toBeLessThanOrEqual(
+    contextLayout.viewportWidth,
+  );
+  await contextEdit.click();
   const dialog = page.getByRole("dialog", { name: "이미지 편집", exact: true });
   await expect(dialog).toBeVisible();
   await expect(dialog.locator(".FIE_root canvas").first()).toBeVisible({
@@ -152,6 +186,8 @@ test("optional image editor lazy-loads and replaces only the selected image sour
       uploads,
       mobile: testInfo.project.name === "chromium-mobile",
       dialogLayout: layout,
+      contextLayout,
+      contextualEditControl: true,
       sourceReplaced: (await image.getAttribute("src")) === editedUrl,
       attributesPreserved: true,
       uploadFailurePreservedSource: true,
@@ -171,6 +207,11 @@ test("image editor stays absent when its setting is off", async ({ page }) => {
   );
   await expect(
     page.getByRole("button", { name: "이미지 편집", exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    page
+      .locator(".jwsoft-context-tools")
+      .getByRole("button", { name: "이미지 편집", exact: true }),
   ).toHaveCount(0);
   await expect(
     page.locator('script[data-jwsoft-image-editor="vendor"]'),

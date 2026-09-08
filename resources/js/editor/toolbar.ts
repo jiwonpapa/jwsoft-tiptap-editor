@@ -941,6 +941,7 @@ function installAdditionalTools(
   toolbar: HTMLElement,
   panel: HTMLElement,
   locale: string,
+  imageEditorControl: HTMLButtonElement | null,
 ) {
   const formatting = installWritingTools(
     editor,
@@ -948,6 +949,7 @@ function installAdditionalTools(
     toolbar,
     panel,
     locale,
+    imageEditorControl,
   );
   installPlainTextDialog(editor, region, panel, locale);
   return formatting;
@@ -959,7 +961,7 @@ function installImageControls(
   controls: UpdatableControl[],
   dialogs: DialogHandle[],
   locale: string,
-): void {
+): HTMLButtonElement | null {
   const image = createButton({
     label: editorText(locale, "이미지"),
     run: () => undefined,
@@ -981,11 +983,14 @@ function installImageControls(
     maxSizeMb: options.imageMaxSizeMb,
     locale,
   });
+  let imageEditorControl: HTMLButtonElement | null = null;
   for (const feature of features) {
     group.appendChild(feature.control);
     controls.push(feature.control);
     dialogs.push(feature.dialog);
+    if (feature.id === "image-editor") imageEditorControl = feature.control;
   }
+  return imageEditorControl;
 }
 
 export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
@@ -1146,7 +1151,13 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
   add(insert, link);
   dialogs.push(createLinkDialog(editor, link, locale));
 
-  installImageControls(options, insert, controls, dialogs, locale);
+  const imageEditorControl = installImageControls(
+    options,
+    insert,
+    controls,
+    dialogs,
+    locale,
+  );
 
   if (profile !== "minimal") {
     const table = createButton({ label: t("표"), run: () => undefined });
@@ -1205,6 +1216,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
       toolbar,
       more.panel,
       locale,
+      imageEditorControl,
     );
     inline.after(formatting.trigger);
   }
