@@ -48,8 +48,8 @@ class Plugin extends AbstractPlugin
             'imageEditor' => [
                 'type' => 'boolean',
                 'default' => false,
-                'label' => ['ko' => '이미지 편집 도구', 'en' => 'Image editing tools'],
-                'hint' => ['ko' => '업로드한 JPEG·PNG·WebP 이미지를 자르기·회전·보정한 뒤 새 파일로 저장합니다. 원본은 덮어쓰지 않습니다.', 'en' => 'Crop, rotate, and adjust uploaded JPEG, PNG, and WebP images, then save a new file without overwriting the original.'],
+                'label' => ['ko' => '업로드 이미지 편집', 'en' => 'Edit uploaded images'],
+                'hint' => ['ko' => '켜면 본문에 업로드한 JPEG·PNG·WebP 이미지를 선택해 자르기·회전·밝기·대비·필터·크기를 편집할 수 있습니다. 편집본은 새 파일로 저장되고 원본은 유지됩니다.', 'en' => 'Turn this on to select an uploaded JPEG, PNG, or WebP in the document and crop, rotate, adjust, filter, or resize it. Edits are saved as a new file and the original is preserved.'],
                 'required' => false,
             ],
             'mediaEmbed' => [

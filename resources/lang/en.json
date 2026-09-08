@@ -52,8 +52,8 @@
         "hint": "Upload pasted images to the server."
       },
       "image_editor": {
-        "label": "Image editing tools",
-        "hint": "Crop, rotate, and adjust uploaded JPEG, PNG, and WebP images, then save a new file while preserving the original."
+        "label": "Edit uploaded images",
+        "hint": "Turn this on to select an uploaded JPEG, PNG, or WebP in the document and crop, rotate, adjust, filter, or resize it. Edits are saved as a new file and the original is preserved."
       },
       "image_max_size": {
         "label": "Image max size (MB)",

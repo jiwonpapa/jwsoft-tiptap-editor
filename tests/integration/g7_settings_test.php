@@ -43,6 +43,20 @@ function flattenSettingsComponents(array $components): array
     return $result;
 }
 
+/** @param array<string, mixed> $dictionary */
+function hasTranslationKey(array $dictionary, string $key): bool
+{
+    $cursor = $dictionary;
+    foreach (explode('.', $key) as $segment) {
+        if (! is_array($cursor) || ! array_key_exists($segment, $cursor)) {
+            return false;
+        }
+        $cursor = $cursor[$segment];
+    }
+
+    return is_string($cursor) && trim($cursor) !== '';
+}
+
 $layoutPath = $projectRoot.'/resources/layouts/admin/plugin_settings.json';
 $layout = json_decode(file_get_contents($layoutPath), true, flags: JSON_THROW_ON_ERROR);
 $layoutErrors = [];
@@ -54,6 +68,29 @@ $layoutErrors = [];
 });
 assertSettingsContract($layoutErrors === [], 'plugin settings layout failed G7 structure or endpoint validation: '.implode('; ', $layoutErrors));
 assertSettingsContract(($layout['permissions'] ?? []) === ['core.plugins.update'], 'settings layout permission mismatch');
+assertSettingsContract(
+    ($layout['init_actions'] ?? []) === [['handler' => 'reloadExtensions']],
+    'settings layout must refresh extension translations before rendering after an in-app plugin update'
+);
+
+$layoutSource = file_get_contents($layoutPath);
+assertSettingsContract(is_string($layoutSource), 'settings layout source is unreadable');
+preg_match_all('/\\$t:jwsoft-tiptap-editor\\.([A-Za-z0-9_.-]+)/', $layoutSource, $translationMatches);
+$translationKeys = array_values(array_unique($translationMatches[1] ?? []));
+assertSettingsContract($translationKeys !== [], 'settings layout must declare plugin translation keys');
+foreach (['ko', 'en'] as $locale) {
+    $dictionary = json_decode(
+        file_get_contents($projectRoot."/resources/lang/{$locale}.json"),
+        true,
+        flags: JSON_THROW_ON_ERROR
+    );
+    foreach ($translationKeys as $translationKey) {
+        assertSettingsContract(
+            hasTranslationKey($dictionary, $translationKey),
+            "settings translation missing or empty ({$locale}): {$translationKey}"
+        );
+    }
+}
 
 $components = flattenSettingsComponents($layout['slots']['content'] ?? []);
 $controlNames = [];
@@ -151,8 +188,6 @@ assertSettingsContract(count(array_filter($rules['public_asset_disk'], 'is_calla
 assertSettingsContract(in_array('min:1', $rules['unusedImageRetentionDays'], true), 'cleanup retention minimum validation missing');
 assertSettingsContract(in_array('max:3650', $rules['unusedImageRetentionDays'], true), 'cleanup retention maximum validation missing');
 
-$layoutSource = file_get_contents($layoutPath);
-assertSettingsContract(is_string($layoutSource), 'settings layout source is unreadable');
 assertSettingsContract(str_contains($layoutSource, 'available_public_asset_disks'), 'public asset disk selector does not use the G7 catalog');
 assertSettingsContract(str_contains($layoutSource, '/admin/plugins/jwsoft-tiptap-editor/uploads'), 'cleanup settings do not link to upload review');
 

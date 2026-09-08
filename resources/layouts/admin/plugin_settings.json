@@ -7,6 +7,11 @@
     "title": "$t:jwsoft-tiptap-editor.settings.title",
     "description": "$t:jwsoft-tiptap-editor.settings.description"
   },
+  "init_actions": [
+    {
+      "handler": "reloadExtensions"
+    }
+  ],
   "data_sources": [
     {
       "id": "settings",
