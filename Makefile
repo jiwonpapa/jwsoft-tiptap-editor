@@ -4,7 +4,7 @@ HARNESS = $(HARNESS_PYTHON) -m harness.jw_harness
 export HARNESS_PYTHON
 
 .PHONY: bootstrap doctor check build test integration-check parity-evidence parity-gate package license-check license-evidence reproducible-package release-candidate-evidence release-candidate-check stable-readiness-gate release-check deploy-plan deploy clean
-.PHONY: governance-check audit browser-check clean-apply
+.PHONY: governance-check audit browser-check clean-apply version-check
 
 bootstrap:
 	python3 -m venv .venv
@@ -20,6 +20,9 @@ check:
 
 governance-check:
 	$(HARNESS) governance
+
+version-check:
+	$(HARNESS) version-check
 
 audit:
 	$(HARNESS) audit

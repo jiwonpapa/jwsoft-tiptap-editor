@@ -6,6 +6,7 @@ from pathlib import Path
 from .files import ROOT, Object, hash_file, object_value, read_object, repository_file, string_value
 from .process import run
 from .release_remote import create_candidate, promote_candidate, verify_tags
+from .version_policy import validate_version_policy
 
 APPROVAL = "publish-verified-jw-editor-stable"
 CANDIDATE_APPROVAL = "publish-verified-jw-editor-candidate"
@@ -67,6 +68,7 @@ def publication_gate(
         raise ValueError("Stable tag must exactly match the final package version")
     if run(["git", "status", "--porcelain"], root, capture=True):
         raise ValueError("Publication requires a clean worktree")
+    validate_version_policy(root)
     # Re-evaluate actual artifacts; an old summary file is never sufficient.
     run(["node", "scripts/stable-readiness-gate.mjs", f"--phase={phase}"], root)
     package = read_object(root / "test-results/release/reproducibility.json")

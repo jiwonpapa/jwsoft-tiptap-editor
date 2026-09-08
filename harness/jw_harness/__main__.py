@@ -21,12 +21,13 @@ from .provenance import source_fingerprint
 from .quality import check_all
 from .receipt import validate_artifact_execution
 from .release import publish_candidate, publish_stable
+from .version_policy import validate_version_policy
 
 
 def arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
-    for name in ("check", "governance", "audit", "audit-python", "browser"):
+    for name in ("check", "governance", "audit", "audit-python", "browser", "version-check"):
         sub.add_parser(name)
     fingerprint = sub.add_parser("fingerprint")
     fingerprint.add_argument("--root", type=Path, default=ROOT)
@@ -72,6 +73,7 @@ def dispatch(args: argparse.Namespace) -> None:
         "audit": lambda: audit_dependencies(ROOT),
         "audit-python": lambda: print(f"[jwsoft] audited Python tools: {audit_python(ROOT)}"),
         "browser": lambda: run_browser(ROOT),
+        "version-check": lambda: validate_version_policy(ROOT),
         "clean": lambda: print(clean_caches(ROOT, apply=args.apply)),
         "publish-candidate": lambda: publish_candidate(
             ROOT, args.tag, apply=args.apply, approval=args.approval

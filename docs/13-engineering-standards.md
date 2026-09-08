@@ -23,6 +23,7 @@ HTTP 인증은 `resources/js/g7/authorization.ts`, HTML 정책은 `policy/editor
 - Shell: bash 문법 + ShellCheck warning 이상 오류.
 - Vitest 전역 하한: statements 70%, branches 59%, functions 69%, lines 72%. 새 코드의 테스트를 생략해도 좋다는 뜻이 아니며 하한 하향은 승인 대상입니다.
 - 실제 typed lint에 잘못된 코드를 입력하는 회귀, 증거 누락/변조/후보 승격/위험 정리 등 부정 테스트를 필수 유지합니다.
+- 패키지에 포함되는 파일이 하나라도 바뀌면 `package.json`·lockfile·`plugin.json`·`components.json`의 SemVer를 함께 올리고 같은 버전의 CHANGELOG 항목을 추가합니다. `make check`, PR/main CI, 후보·정식 게시 명령이 기준 commit과 비교해 이를 차단합니다.
 
 임의 타입 우회, 실패를 성공으로 변환하는 catch, `.only`, 비밀·환경 하드코딩, 범용 `.mjs` 신규 추가, `.build` 일회성 코드의 정식 검증 사용을 금지합니다. 문구 기반 기능 식별·복사된 정책·불필요한 adapter 결합은 리뷰 항목이기도 합니다. 자동 검사로 의미적 중복을 전부 탐지한다고 주장하지 않습니다.
 

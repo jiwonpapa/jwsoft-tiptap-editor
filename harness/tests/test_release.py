@@ -9,6 +9,7 @@ from harness.jw_harness.files import ROOT, Object, hash_file, object_value, read
 from harness.jw_harness.quality import validate_ci_tag
 from harness.jw_harness.release import (
     DEFERRED,
+    publication_gate,
     publish_candidate,
     publish_stable,
     validate_final,
@@ -142,6 +143,19 @@ class ReleaseTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     publish(ROOT, f"v{version}", apply=True, approval="")
             runner.assert_not_called()
+
+    def test_publication_rechecks_the_version_policy(self) -> None:
+        version = read_object(ROOT / "package.json")["version"]
+        with (
+            patch("harness.jw_harness.release.run", return_value=""),
+            patch(
+                "harness.jw_harness.release.validate_version_policy",
+                side_effect=ValueError("version bump required"),
+            ) as version_policy,
+        ):
+            with self.assertRaisesRegex(ValueError, "version bump required"):
+                publication_gate(ROOT, f"v{version}", "candidate", apply=False, approval="")
+            version_policy.assert_called_once_with(ROOT)
 
     def test_workflow_has_no_stable_publishing_shortcut(self) -> None:
         workflow = (ROOT / ".github/workflows/release.yml").read_text()

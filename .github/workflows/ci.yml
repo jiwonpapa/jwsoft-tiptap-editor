@@ -14,8 +14,12 @@ jobs:
     env:
       # Keep the 100-mount leak test's 10s budget independent of other JSDOM suites.
       VITEST_MAX_WORKERS: "1"
+      # PRs compare with their base; main pushes compare with the pre-push commit.
+      JW_VERSION_BASE: ${{ github.event.pull_request.base.sha || github.event.before }}
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 24.15.0
@@ -32,6 +36,8 @@ jobs:
           coverage: none
       - run: npm ci
       - run: composer install --no-interaction --prefer-dist
+      - name: Enforce deployable version bump
+        run: make version-check
       - run: make audit
       - run: make check
       - run: make build
