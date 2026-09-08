@@ -38,6 +38,7 @@ def repository() -> tuple[tempfile.TemporaryDirectory[str], Path]:
     command(root, "git", "config", "user.name", "Version Policy Test")
     command(root, "git", "add", ".")
     command(root, "git", "commit", "-qm", "initial")
+    command(root, "git", "tag", "v1.0.0")
     return owner, root
 
 
@@ -94,6 +95,15 @@ class VersionPolicyTests(unittest.TestCase):
         with owner:
             (root / "plugin.php").write_text("<?php // changed\n", encoding="utf-8")
             bump(root, "1.0.1")
+            validate_version_policy(root, base="HEAD")
+
+    def test_unreleased_version_can_collect_followup_runtime_changes(self) -> None:
+        owner, root = repository()
+        with owner:
+            bump(root, "1.0.1")
+            command(root, "git", "add", ".")
+            command(root, "git", "commit", "-qm", "prepare unreleased version")
+            (root / "plugin.php").write_text("<?php // followup\n", encoding="utf-8")
             validate_version_policy(root, base="HEAD")
 
     def test_missing_changelog_entry_is_blocked(self) -> None:
