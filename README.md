@@ -108,6 +108,6 @@ Tiptap/ProseMirror 등 제3자 구성요소의 라이선스는 그대로 유지�
 
 ## 문서·지원
 
-[설치](docs/06-installation.md) · [개발 환경](docs/07-development.md) · [아키텍처](docs/03-architecture.md) · [확장 가이드](docs/12-extension-guide.md) · [보안](SECURITY.md) · [변경 기록](CHANGELOG.md)
+[설치](docs/06-installation.md) · [개발 환경](docs/07-development.md) · [아키텍처](docs/03-architecture.md) · [확장 가이드](docs/12-extension-guide.md) · [보안](SECURITY.md) · [변경 기록](CHANGELOG.md) · [홍보용 소개글](docs/marketing/jw-editor-v0.2.1-introduction.md)
 
 문제 제보는 [GitHub Issues](https://github.com/jiwonpapa/jwsoft-tiptap-editor/issues)에 G7 버전, 하단 에디터 버전, 브라우저와 재현 순서를 남겨 주세요. 비밀번호·토큰·개인정보나 보안 취약점의 상세 payload는 공개하지 마세요.
