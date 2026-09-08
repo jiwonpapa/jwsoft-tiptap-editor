@@ -15,21 +15,14 @@ const npmLock = JSON.parse(
 const composerLock = JSON.parse(
   fs.readFileSync(path.join(root, "composer.lock"), "utf8"),
 );
+const licenseSources = JSON.parse(
+  fs.readFileSync(
+    path.join(root, "policy/runtime-license-sources.json"),
+    "utf8",
+  ),
+);
 const licenseRoot = path.join(stage, "licenses", "npm");
 fs.mkdirSync(licenseRoot, { recursive: true });
-
-const vendoredLicenseSources = {
-  "styled-components": {
-    version: "5.3.11",
-    license: "MIT",
-    file: path.join(
-      root,
-      "licenses/sources/npm/styled-components/5.3.11/LICENSE",
-    ),
-    source:
-      "https://github.com/styled-components/styled-components/blob/v5.3.11/LICENSE",
-  },
-};
 
 const sha256 = (file) =>
   crypto.createHash("sha256").update(fs.readFileSync(file)).digest("hex");
@@ -58,19 +51,28 @@ for (const [location, metadata] of Object.entries(npmLock.packages)) {
     upstream: null,
   }));
   if (sources.length === 0) {
-    const fallback = vendoredLicenseSources[name];
+    const fallback = licenseSources.packages?.[name];
+    const fallbackFile = fallback?.file
+      ? path.resolve(root, fallback.file)
+      : "";
     if (
+      licenseSources.schemaVersion !== 1 ||
       !fallback ||
       fallback.version !== metadata.version ||
       fallback.license !== metadata.license ||
-      !fs.existsSync(fallback.file)
+      !fallbackFile.startsWith(
+        path.join(root, "licenses/sources") + path.sep,
+      ) ||
+      !fs.existsSync(fallbackFile) ||
+      sha256(fallbackFile) !== fallback.sha256 ||
+      !/^https:\/\/github\.com\//.test(fallback.upstream ?? "")
     ) {
       throw new Error(`runtime dependency license file is missing: ${name}`);
     }
     sources.push({
-      file: "LICENSE",
-      source: fallback.file,
-      upstream: fallback.source,
+      file: fallback.destination,
+      source: fallbackFile,
+      upstream: fallback.upstream,
     });
   }
   const destinationDirectory = path.join(licenseRoot, ...name.split("/"));

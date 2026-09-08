@@ -14,6 +14,10 @@ def package_rows(path: Path) -> list[Object]:
 
 def validate_source_licenses(root: Path) -> None:
     lock = object_value(read_object(root / "package-lock.json")["packages"])
+    source_policy = read_object(root / "policy/runtime-license-sources.json")
+    if source_policy.get("schemaVersion") != 1:
+        raise ValueError("Runtime license source policy version is invalid")
+    fallbacks = object_value(source_policy.get("packages"))
     expected = {
         name.removeprefix("node_modules/"): object_value(metadata)
         for name, metadata in lock.items()
@@ -36,8 +40,13 @@ def validate_source_licenses(root: Path) -> None:
             if Path(relative).parent != Path("licenses/npm") / name:
                 raise ValueError("Unexpected GitHub source license path")
             actual = hash_file(repository_file(root, relative))
-            original = repository_file(root, f"node_modules/{name}/{Path(relative).name}")
-            if actual != entry.get("sha256") or actual != hash_file(original):
+            original = root / f"node_modules/{name}/{Path(relative).name}"
+            expected_hash = (
+                hash_file(original)
+                if original.is_file()
+                else fallback_hash(root, fallbacks, package, entry)
+            )
+            if actual != entry.get("sha256") or actual != expected_hash:
                 raise ValueError("GitHub source license bytes differ from original")
     composer = package_rows(root / "licenses/composer-manifest.json")
     locked = package_rows(root / "composer.lock")
@@ -47,3 +56,21 @@ def validate_source_licenses(root: Path) -> None:
     )
     if composer != expected_composer:
         raise ValueError("GitHub source Composer license list differs from lock")
+
+
+def fallback_hash(root: Path, fallbacks: Object, package: Object, entry: Object) -> str:
+    name = string_value(package.get("name"))
+    fallback = object_value(fallbacks.get(name))
+    if any(fallback.get(key) != package.get(key) for key in ("version", "license")) or Path(
+        string_value(entry.get("file"))
+    ).name != fallback.get("destination"):
+        raise ValueError("Runtime license fallback metadata differs from npm lock")
+    if entry.get("upstream") != fallback.get("upstream") or not string_value(
+        fallback.get("upstream")
+    ).startswith("https://github.com/"):
+        raise ValueError("Runtime license fallback source is not approved")
+    source = repository_file(root, string_value(fallback.get("file")))
+    digest = hash_file(source)
+    if digest != fallback.get("sha256"):
+        raise ValueError("Runtime license fallback digest differs from policy")
+    return digest
