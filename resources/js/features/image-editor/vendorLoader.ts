@@ -1,25 +1,63 @@
 import type { ImageEditorVendor } from "@/features/image-editor/vendorTypes";
 
 const VENDOR_FILE = "image-editor.iife.js";
+const PLUGIN_IDENTIFIER = "jwsoft-tiptap-editor";
 let pending: Promise<ImageEditorVendor> | null = null;
 
-function discoverAssetBase(): string | null {
+interface G7AssetConfigWindow extends Window {
+  G7Config?: {
+    pluginAssets?: Record<string, { js?: unknown }>;
+  };
+}
+
+function configuredPluginAsset(): string | null {
+  const asset = (window as G7AssetConfigWindow).G7Config?.pluginAssets?.[
+    PLUGIN_IDENTIFIER
+  ]?.js;
+  return typeof asset === "string" && asset.length > 0 ? asset : null;
+}
+
+function discoverPluginAsset(): string | null {
   const scripts = [...document.scripts].reverse();
   const plugin = scripts.find((script) => {
     try {
-      return new URL(script.src).pathname.endsWith("/dist/js/plugin.iife.js");
+      const url = new URL(script.src);
+      return (
+        url.pathname.endsWith("/dist/js/plugin.iife.js") ||
+        url.searchParams.get("file")?.endsWith("/dist/js/plugin.iife.js") ===
+          true
+      );
     } catch {
       return false;
     }
   });
-  return plugin?.src ? new URL(".", plugin.src).href : null;
+  return plugin?.src ?? null;
+}
+
+function siblingVendorAsset(pluginAsset: string): URL | null {
+  const url = new URL(pluginAsset, window.location.href);
+  const queriedFile = url.searchParams.get("file");
+  if (queriedFile?.endsWith("/plugin.iife.js")) {
+    url.searchParams.set(
+      "file",
+      queriedFile.replace(/plugin\.iife\.js$/u, VENDOR_FILE),
+    );
+    return url;
+  }
+  if (!url.pathname.endsWith("/plugin.iife.js")) return null;
+  url.pathname = url.pathname.replace(/plugin\.iife\.js$/u, VENDOR_FILE);
+  return url;
 }
 
 function vendorAssetUrl(): string {
-  const base = window.__JWSoftImageEditorAssetBase ?? discoverAssetBase();
-  if (!base)
+  const override = window.__JWSoftImageEditorAssetBase;
+  const url = override
+    ? new URL(VENDOR_FILE, override)
+    : siblingVendorAsset(
+        configuredPluginAsset() ?? discoverPluginAsset() ?? "",
+      );
+  if (!url)
     throw new Error("jw-editor 이미지 편집 자산 경로를 찾지 못했습니다.");
-  const url = new URL(VENDOR_FILE, base);
   if (
     !/^https?:$/.test(url.protocol) ||
     url.origin !== window.location.origin ||
@@ -86,7 +124,10 @@ export function captureImageEditorAssetBase(
 ): void {
   if (!script?.src) return;
   try {
-    window.__JWSoftImageEditorAssetBase = new URL(".", script.src).href;
+    const url = new URL(script.src);
+    if (url.pathname.endsWith("/dist/js/plugin.iife.js")) {
+      window.__JWSoftImageEditorAssetBase = new URL(".", url).href;
+    }
   } catch {
     // A host may inline the main bundle; discovery remains the fallback.
   }

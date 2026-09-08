@@ -5,18 +5,19 @@ import {
   type ClassTokenCategory,
 } from "@/editor/classTokens";
 import { editorIcon, type EditorIcon } from "@/editor/icons";
+import { installImageContextTools } from "@/editor/imageContextTools";
 import type { InlineCategory } from "@/editor/inlineStyle";
 import { createPopover } from "@/editor/popover";
 import { createFindReplace } from "@/editor/findReplace";
 import { labelMenuAction } from "@/editor/menuControls";
 import { EDITOR_POLICY } from "@/generated/editorPolicy";
-
 export function installWritingTools(
   editor: Editor,
   region: HTMLElement,
   toolbar: HTMLElement,
   more: HTMLElement,
   locale: string,
+  imageEditorControl: HTMLButtonElement | null,
 ) {
   const en = locale === "en";
   const button = (label: string, icon: EditorIcon, run: () => void) => {
@@ -199,7 +200,6 @@ export function installWritingTools(
       toggleFullscreen();
   };
   document.addEventListener("keydown", escapeFullscreen, true);
-
   const context = document.createElement("div");
   context.className = "jwsoft-context-tools";
   context.popover = "manual";
@@ -217,8 +217,8 @@ export function installWritingTools(
     can: () => boolean = () => true,
   ) => {
     const control = button(label, icon, run);
-    context.append(control);
-    contextButtons.push({ button: control, can });
+    contextButtons.push({ button: context.appendChild(control), can });
+    return control;
   };
   const openMain = (label: string) => {
     [...region.querySelectorAll<HTMLButtonElement>("button")]
@@ -259,32 +259,8 @@ export function installWritingTools(
         : `${kind === "image" ? "이미지" : kind === "table" ? "표" : "선택 영역"} 편집 도구`,
     );
     if (kind === "image") {
-      for (const [alignment, icon, label] of [
-        ["left", "alignLeft", "왼쪽"],
-        ["center", "alignCenter", "가운데"],
-        ["right", "alignRight", "오른쪽"],
-      ] as const) {
-        add(en ? `Align ${alignment}` : `이미지 ${label} 정렬`, icon, () => {
-          const tokens = String(
-            editor.getAttributes("image").jwClassTokens ?? "",
-          )
-            .split(/\s+/)
-            .filter((token) => !token.startsWith("jw-image-align-"));
-          tokens.push(`jw-image-align-${alignment}`);
-          editor
-            .chain()
-            .focus()
-            .updateAttributes("image", {
-              jwClassTokens: tokens.sort().join(" "),
-            })
-            .run();
-        });
-      }
-      add(en ? "Image settings" : "이미지 설정", "image", () =>
+      installImageContextTools(editor, en, imageEditorControl, add, () =>
         openMain(en ? "Image" : "이미지"),
-      );
-      add(en ? "Remove image" : "이미지 삭제", "remove", () =>
-        editor.chain().focus().deleteSelection().run(),
       );
     } else if (kind === "table") {
       add(en ? "Add row" : "행 추가", "rows", () =>

@@ -4,6 +4,7 @@ import type { ImageEditorVendor } from "@/features/image-editor/vendorTypes";
 function clearVendorState(): void {
   delete window.__JWSoftImageEditorAssetBase;
   delete window.__JWSoftImageEditorVendor;
+  delete (window as typeof window & { G7Config?: unknown }).G7Config;
   document
     .querySelectorAll("script[data-jwsoft-image-editor='vendor']")
     .forEach((script) => script.remove());
@@ -45,5 +46,64 @@ describe("image editor vendor loader", () => {
     expect(
       document.querySelector("script[data-jwsoft-image-editor='vendor']"),
     ).toBeNull();
+  });
+
+  it("resolves the lazy bundle from G7 plugin assets while the merged bundle runs", async () => {
+    const merged = document.createElement("script");
+    merged.src = `${window.location.origin}/api/plugins/bundle.js?v=17`;
+    (
+      window as typeof window & {
+        G7Config?: { pluginAssets: Record<string, { js: string }> };
+      }
+    ).G7Config = {
+      pluginAssets: {
+        "jwsoft-tiptap-editor": {
+          js: "/api/plugins/assets/jwsoft-tiptap-editor/dist/js/plugin.iife.js?v=17",
+        },
+      },
+    };
+    const { captureImageEditorAssetBase, loadImageEditorVendor } =
+      await import("@/features/image-editor/vendorLoader");
+    captureImageEditorAssetBase(merged);
+    expect(window.__JWSoftImageEditorAssetBase).toBeUndefined();
+
+    const loading = loadImageEditorVendor();
+    const script = document.querySelector<HTMLScriptElement>(
+      "script[data-jwsoft-image-editor='vendor']",
+    );
+    expect(script?.src).toBe(
+      `${window.location.origin}/api/plugins/assets/jwsoft-tiptap-editor/dist/js/image-editor.iife.js?v=17`,
+    );
+    const vendor = {} as ImageEditorVendor;
+    window.__JWSoftImageEditorVendor = vendor;
+    script?.dispatchEvent(new Event("load"));
+    await expect(loading).resolves.toBe(vendor);
+  });
+
+  it("preserves G7 extensionless asset mode and cache version", async () => {
+    (
+      window as typeof window & {
+        G7Config?: { pluginAssets: Record<string, { js: string }> };
+      }
+    ).G7Config = {
+      pluginAssets: {
+        "jwsoft-tiptap-editor": {
+          js: "/api/plugins/assets/jwsoft-tiptap-editor?file=dist%2Fjs%2Fplugin.iife.js&v=23",
+        },
+      },
+    };
+    const { loadImageEditorVendor } =
+      await import("@/features/image-editor/vendorLoader");
+    const loading = loadImageEditorVendor();
+    const script = document.querySelector<HTMLScriptElement>(
+      "script[data-jwsoft-image-editor='vendor']",
+    );
+    expect(script?.src).toBe(
+      `${window.location.origin}/api/plugins/assets/jwsoft-tiptap-editor?file=dist%2Fjs%2Fimage-editor.iife.js&v=23`,
+    );
+    const vendor = {} as ImageEditorVendor;
+    window.__JWSoftImageEditorVendor = vendor;
+    script?.dispatchEvent(new Event("load"));
+    await expect(loading).resolves.toBe(vendor);
   });
 });
