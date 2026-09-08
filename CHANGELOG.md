@@ -4,7 +4,7 @@
 
 ### Maintenance
 
-- 배포 패키지 파일 변경 시 `package.json`·lockfile·플러그인 manifest 버전을 함께 올리고 해당 버전 CHANGELOG를 작성하도록 강제. 로컬 검사, PR/main CI, 후보·정식 게시 명령에서 동일·하향 버전을 차단
+- 최신 공개 버전 뒤 배포 패키지 파일 변경 시 `package.json`·lockfile·플러그인 manifest 버전을 함께 올리고 해당 버전 CHANGELOG를 작성하도록 강제. 공개 전 후속 변경은 같은 릴리스로 묶되 태그 공개 뒤 동일·하향 버전은 로컬 검사, PR/main CI, 후보·정식 게시 명령에서 차단
 - GitHub Actions가 PR 기준 commit 또는 main push 직전 commit의 전체 이력을 가져와 배포 파일 변경 여부를 비교하며, 신규 미추적 배포 파일도 로컬 검사에서 차단
 
 ## [0.2.0] - 2026-09-08
