@@ -21,6 +21,6 @@
     "sort-packages": true
   },
   "require-dev": {
-    "phpstan/phpstan": "2.2.12"
+    "phpstan/phpstan": "2.2.13"
   }
 }
