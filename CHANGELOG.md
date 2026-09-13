@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.2.2] - 2026-09-13
+
+### Security
+
+- Tiptap 9개 직접 의존성을 3.31.3으로 정렬하고 `@tiptap/pm`이 crafted HTML 붙여넣기 컨텍스트 속성을 검증하는 `prosemirror-view` 1.42.3 이상을 요구하도록 고정
+- ProseMirror slice 컨텍스트를 위조한 HTML도 스키마 파싱 전에 기존 클라이언트 정제 정책을 통과하도록 회귀 검사를 추가
+
+### Fixed
+
+- Tiptap 프레임워크 NodeView의 iOS·Android DOM 변경 감지가 편집 화면을 멈출 수 있는 업스트림 수정 포함. jw-editor의 이미지·미디어·SNS·할 일 목록 NodeView 동작과 저장 HTML 계약은 유지
+
+### Maintenance
+
+- Tiptap 3.31.3 기준 제3자 고지와 패키지 라이선스 manifest를 재생성. canonical HTML 스키마 및 데이터 마이그레이션 변경 없음
+
 ## [0.2.1] - 2026-09-08
 
 ### Fixed
