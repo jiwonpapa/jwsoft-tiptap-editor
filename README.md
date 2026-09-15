@@ -1,5 +1,7 @@
 # jw-editor
 
+[![version](https://img.shields.io/github/v/release/jiwonpapa/jwsoft-tiptap-editor?display_name=tag&sort=semver&style=flat-square&label=version&color=0ea5e9)](https://github.com/jiwonpapa/jwsoft-tiptap-editor/releases/latest) [![Gnuboard 7](https://img.shields.io/badge/Gnuboard_7-%E2%89%A57.0.9-2563eb?style=flat-square)](https://github.com/gnuboard/g7) [![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?style=flat-square&logo=php&logoColor=white)](composer.json) [![Tiptap](https://img.shields.io/badge/Tiptap-3.31.3-0f172a?style=flat-square)](package.json) [![license](https://img.shields.io/badge/license-Apache--2.0-D22128?style=flat-square&logo=apache&logoColor=white)](LICENSE) [![CI status](https://img.shields.io/github/actions/workflow/status/jiwonpapa/jwsoft-tiptap-editor/ci.yml?branch=main&style=flat-square&label=status)](https://github.com/jiwonpapa/jwsoft-tiptap-editor/actions/workflows/ci.yml)
+
 ![jw-editor — JW SOFT 회사 캐릭터와 함께하는 Rich-text editor for Gnuboard 7](docs/assets/jw-editor-intro.png)
 
 그누보드7에서 글과 이미지·동영상·SNS 게시물을 함께 작성하는 리치 텍스트 에디터 플러그인입니다. G7 코어 수정 없이 설치하며, 작성 화면과 글보기 화면에 같은 미디어 표시 정책을 적용합니다.
