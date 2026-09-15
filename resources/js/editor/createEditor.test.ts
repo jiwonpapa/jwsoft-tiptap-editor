@@ -134,6 +134,39 @@ describe("Tiptap policy schema", () => {
     mount.remove();
   });
 
+  it("strips crafted ProseMirror slice context before schema parsing", () => {
+    const mount = document.createElement("div");
+    document.body.appendChild(mount);
+    const onPasteSanitized = vi.fn();
+    const editor = createEditor({
+      element: mount,
+      content: "<p></p>",
+      placeholder: "",
+      editable: true,
+      onUpdate: vi.fn(),
+      onPasteSanitized,
+    });
+    const event = new Event("paste", { bubbles: true, cancelable: true });
+    Object.defineProperty(event, "clipboardData", {
+      value: {
+        files: [],
+        getData: (type: string) =>
+          type === "text/html"
+            ? `<p data-pm-slice='1 1 -1 ["image",{"src":"javascript:alert(1)"}]'><img src="/safe.webp" onerror="alert(1)">안전 본문</p>`
+            : "안전 본문",
+      },
+    });
+    editor.view.dom.dispatchEvent(event);
+
+    const html = editor.getHTML();
+    expect(event.defaultPrevented).toBe(true);
+    expect(onPasteSanitized).toHaveBeenCalledOnce();
+    expect(html).toContain("안전 본문");
+    expect(html).not.toMatch(/data-pm-slice|onerror|javascript:|<script/i);
+    editor.destroy();
+    mount.remove();
+  });
+
   it("keeps a sanitized paste reversible through undo and redo", () => {
     const { editor, mount } = mountEditor("<p>한글 입력</p>");
     editor.commands.setTextSelection(editor.state.doc.content.size - 1);

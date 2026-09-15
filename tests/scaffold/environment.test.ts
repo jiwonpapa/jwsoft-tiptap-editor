@@ -5,6 +5,23 @@ import { describe, expect, it } from "vitest";
 
 const root = process.cwd();
 
+function isVersionAtLeast(actual: string, required: string): boolean {
+  const actualParts = actual.split(".").map(Number);
+  const requiredParts = required.split(".").map(Number);
+  if (
+    actualParts.length < requiredParts.length ||
+    actualParts.some((part) => !Number.isInteger(part) || part < 0)
+  ) {
+    return false;
+  }
+  for (const [index, part] of requiredParts.entries()) {
+    const actualPart = actualParts[index] ?? 0;
+    if (actualPart > part) return true;
+    if (actualPart < part) return false;
+  }
+  return true;
+}
+
 describe("environment scaffold", () => {
   it("keeps product identifiers synchronized", () => {
     const plugin = JSON.parse(
@@ -37,5 +54,27 @@ describe("environment scaffold", () => {
       fs.readFileSync(path.join(root, "plugin.json"), "utf8"),
     ) as Record<string, unknown>;
     expect(plugin.trusted_script_hosts).toBeUndefined();
+  });
+
+  it("pins the ProseMirror crafted-paste security floor", () => {
+    const lock = JSON.parse(
+      fs.readFileSync(path.join(root, "package-lock.json"), "utf8"),
+    ) as {
+      packages: Record<
+        string,
+        { version?: string; dependencies?: Record<string, string> }
+      >;
+    };
+
+    const resolvedVersion =
+      lock.packages["node_modules/prosemirror-view"]?.version;
+    const requiredRange =
+      lock.packages["node_modules/@tiptap/pm"]?.dependencies?.[
+        "prosemirror-view"
+      ];
+
+    expect(resolvedVersion).toBeDefined();
+    expect(isVersionAtLeast(resolvedVersion ?? "0.0.0", "1.42.3")).toBe(true);
+    expect(requiredRange).toBe("^1.42.3");
   });
 });
