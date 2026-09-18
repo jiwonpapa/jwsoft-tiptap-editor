@@ -50,7 +50,7 @@
     "react-filerobot-image-editor": "4.9.1",
     "react-konva": "18.2.16",
     "social-media-parser": "0.3.0",
-    "styled-components": "5.3.11"
+    "styled-components": "6.5.3"
   },
   "devDependencies": {
     "@playwright/test": "1.62.1",
