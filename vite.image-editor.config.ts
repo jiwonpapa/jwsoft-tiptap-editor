@@ -23,10 +23,10 @@ export default defineConfig({
     sourcemap: ["1", "true"].includes(
       (process.env.G7_BUILD_SOURCEMAP ?? "").toLowerCase(),
     ),
-    minify: "esbuild",
+    minify: true,
     target: "es2020",
     chunkSizeWarningLimit: 2_000,
-    rollupOptions: {
+    rolldownOptions: {
       output: {
         entryFileNames: "js/image-editor.iife.js",
         assetFileNames: "assets/image-editor-[name]-[hash][extname]",

@@ -37,6 +37,24 @@ describe("Tiptap policy schema", () => {
     mount.remove();
   });
 
+  it("keeps multiple trailing spaces outside links through undo and redo", () => {
+    const { editor, mount } = mountEditor(
+      '<p><a href="https://example.com">링크</a></p>',
+    );
+    editor.commands.setTextSelection(3);
+    editor.commands.insertContent("  ");
+    const html = editor.getHTML();
+    expect(html).toBe('<p><a href="https://example.com">링크</a>  </p>');
+    expect(editor.commands.undo()).toBe(true);
+    expect(editor.getHTML()).toBe(
+      '<p><a href="https://example.com">링크</a></p>',
+    );
+    expect(editor.commands.redo()).toBe(true);
+    expect(editor.getHTML()).toBe(html);
+    editor.destroy();
+    mount.remove();
+  });
+
   it("preserves legacy images and round-trips policy image figures", () => {
     const { editor, mount } = mountEditor(
       '<img src="/legacy.webp" alt="기존"><figure class="jw-image jw-image-align-center jw-image-size-75"><img src="/new.webp" alt="신규"><figcaption>대표 이미지</figcaption></figure>',

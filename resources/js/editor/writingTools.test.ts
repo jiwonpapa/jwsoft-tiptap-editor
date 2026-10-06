@@ -111,8 +111,23 @@ describe("policy-safe writing tools", () => {
     expect(editor.getHTML()).toContain("jw-cell-blue");
     expect(editor.commands.splitCell()).toBe(true);
     expect(editor.getHTML()).not.toContain('colspan="2"');
+    expect(editor.getHTML()).not.toMatch(/(?:colspan|rowspan)="1"/);
     expect(editor.getHTML()).toContain("jw-table-borderless");
     expect(editor.getHTML()).not.toContain("style=");
+    cleanup();
+  });
+  it("round-trips real table spans without serializing default spans", () => {
+    const { editor, cleanup } = mount(
+      '<table class="jw-table jw-table-borderless"><tr><td colspan="2" class="jw-cell-blue"><p>병합</p></td></tr><tr><td rowspan="2"><p>세로</p></td><td colspan="1" rowspan="1"><p>일반</p></td></tr><tr><td><p>끝</p></td></tr></table><p>표 다음 본문</p>',
+    );
+    const html = editor.getHTML();
+    expect(html).toContain('colspan="2"');
+    expect(html).toContain('rowspan="2"');
+    expect(html).toContain("jw-cell-blue");
+    expect(html).toContain("jw-table-borderless");
+    expect(html).not.toMatch(/(?:colspan|rowspan)="1"|style=|data-/);
+    editor.commands.setContent(html);
+    expect(editor.getHTML()).toBe(html);
     cleanup();
   });
   it("resizes images with keyboard tokens and never serializes the handle", () => {

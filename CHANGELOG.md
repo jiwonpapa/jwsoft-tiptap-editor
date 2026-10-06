@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.3] - 2026-10-06
+
+### Security
+
+- DOMPurify를 3.4.16으로 갱신하고 npm 잠금파일의 개발 의존성 보안 패치를 반영. 기존 문자열 입력 정제, 서버 재검증, 인라인 style·임의 class·실행 HTML 금지 정책은 유지
+
+### Fixed
+
+- Tiptap 9개 직접 의존성을 3.31.4로 정렬해 드래그·커서 선택·표 선택·링크 끝 공백 관련 업스트림 수정 반영. 기본 표 셀의 `colspan="1"`·`rowspan="1"`은 생략하되 병합 셀의 실제 span 값과 허용 class token은 유지
+- 기본 표 span 속성 생략을 기존 글의 서식 손실로 오인해 경고·편집 제한이 발생하지 않도록 비교만 보완. 실제 병합 값 손실과 금지 속성 제거는 계속 경고하며 서버 정제·저장 정책은 변경하지 않음
+
+### Maintenance
+
+- Lucide 1.52.0, Playwright 1.63.0, ESLint 10.12.0, jsdom 30.1.2, Prettier 3.9.9, typescript-eslint 8.71.1과 Node 24 타입 최신 패치를 반영
+- Vite 8.3.2의 Rolldown/Oxc 빌드와 Vitest·V8 coverage 5.0.3으로 전환. 자체 호스팅 IIFE 출력·ES2020 대상·지연 이미지 편집 번들·기존 커버리지 하한 유지
+- TypeScript는 SNS 파서의 `^5` 및 typescript-eslint 지원 범위 때문에 5.9.3 유지. 이미지 편집기의 React 18·React Konva 18·styled-components 5·React wrapper 4 버전 계약을 유지하고 베타 태그로 교체하지 않음
+- 서버 환경·그누보드7 코어·PHP/Python 의존성 변경 없음. 버전 manifest와 생성된 번들·제3자 고지를 함께 동기화
+
 ## [0.2.2] - 2026-09-13
 
 ### Security

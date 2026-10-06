@@ -352,6 +352,17 @@ function isEmptyDocument(html: string): boolean {
   );
 }
 
+function normalizeDefaultCellSpans(html: string): string {
+  const template = document.createElement("template");
+  template.innerHTML = html;
+  for (const cell of template.content.querySelectorAll("td,th")) {
+    for (const attribute of ["colspan", "rowspan"]) {
+      if (cell.getAttribute(attribute) === "1") cell.removeAttribute(attribute);
+    }
+  }
+  return template.innerHTML;
+}
+
 export interface LegacyHtmlAnalysis {
   hasLoss: boolean;
   canonicalEditorHtml: string;
@@ -367,8 +378,14 @@ export function analyzeLegacyHtml(
   const canonicalEditorHtml = sanitizeClientHtml(editorHtml);
   const bothEmpty =
     isEmptyDocument(originalHtml) && isEmptyDocument(canonicalEditorHtml);
-  const policyChanged = normalizeRawHtml(originalHtml) !== sanitizedOriginal;
-  const editorChanged = sanitizedOriginal !== canonicalEditorHtml;
+  // Tiptap omits default cell spans; compare their meaning, not their spelling.
+  // This affects loss detection only, never the sanitizer or saved HTML.
+  const comparableOriginal = normalizeDefaultCellSpans(sanitizedOriginal);
+  const policyChanged =
+    normalizeDefaultCellSpans(normalizeRawHtml(originalHtml)) !==
+    comparableOriginal;
+  const editorChanged =
+    comparableOriginal !== normalizeDefaultCellSpans(canonicalEditorHtml);
 
   return {
     hasLoss: !bothEmpty && (policyChanged || editorChanged),
