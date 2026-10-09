@@ -43,7 +43,7 @@ jobs:
       - run: make build
       - run: npx playwright install --with-deps chromium
       - run: make browser-check
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: verification-evidence
