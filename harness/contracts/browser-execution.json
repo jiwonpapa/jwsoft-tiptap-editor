@@ -3,6 +3,30 @@
   "cases": [
     {
       "file": "editor-links.spec.ts",
+      "title": "link card media embeds bypass metadata failures and stay canonical",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
+      "title": "link card media embeds bypass metadata failures and stay canonical",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "canonical whitespace reopens without weakening legacy consent",
+      "project": "chromium-desktop",
+      "required": true
+    },
+    {
+      "file": "editor-lifecycle.spec.ts",
+      "title": "canonical whitespace reopens without weakening legacy consent",
+      "project": "chromium-mobile",
+      "required": true
+    },
+    {
+      "file": "editor-links.spec.ts",
       "title": "empty-cursor link insertion and display text are real safe document content",
       "project": "chromium-desktop",
       "required": true

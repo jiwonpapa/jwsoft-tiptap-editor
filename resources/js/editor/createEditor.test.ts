@@ -1,4 +1,5 @@
 import { createEditor } from "@/editor/createEditor";
+import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
 describe("Tiptap policy schema", () => {
   function mountEditor(content: string, editable = true) {
@@ -37,6 +38,24 @@ describe("Tiptap policy schema", () => {
     mount.remove();
   });
 
+  it("keeps multiple trailing spaces outside links through undo and redo", () => {
+    const { editor, mount } = mountEditor(
+      '<p><a href="https://example.com">링크</a></p>',
+    );
+    editor.commands.setTextSelection(3);
+    editor.commands.insertContent("  ");
+    const html = editor.getHTML();
+    expect(html).toBe('<p><a href="https://example.com">링크</a>  </p>');
+    expect(editor.commands.undo()).toBe(true);
+    expect(editor.getHTML()).toBe(
+      '<p><a href="https://example.com">링크</a></p>',
+    );
+    expect(editor.commands.redo()).toBe(true);
+    expect(editor.getHTML()).toBe(html);
+    editor.destroy();
+    mount.remove();
+  });
+
   it("preserves legacy images and round-trips policy image figures", () => {
     const { editor, mount } = mountEditor(
       '<img src="/legacy.webp" alt="기존"><figure class="jw-image jw-image-align-center jw-image-size-75"><img src="/new.webp" alt="신규"><figcaption>대표 이미지</figcaption></figure>',
@@ -49,6 +68,21 @@ describe("Tiptap policy schema", () => {
     expect(editor.getHTML()).not.toContain("style=");
     editor.destroy();
     mount.remove();
+  });
+
+  it.each([
+    '<p> <s><span class="jw-color-blue jw-font-20">서식</span></s>  </p>',
+    '<p> 앞  중간 <a href="https://example.com">링크</a>  </p>',
+    "<pre><code>  const checked = true;\n  checked;</code></pre>",
+  ])("preserves canonical whitespace on reopen: %s", (content) => {
+    const { editor, mount } = mountEditor(content);
+    try {
+      expect(editor.getHTML()).toBe(content);
+      expect(analyzeLegacyHtml(content, editor.getHTML()).hasLoss).toBe(false);
+    } finally {
+      editor.destroy();
+      mount.remove();
+    }
   });
 
   it("escapes image captions stored as node attributes", () => {

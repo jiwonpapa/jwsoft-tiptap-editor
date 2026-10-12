@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.2.3] - 2026-10-12
+
+### Security
+
+- DOMPurify를 3.4.16으로 갱신하고 npm 잠금파일의 개발 의존성 보안 패치를 반영. 기존 문자열 입력 정제, 서버 재검증, 인라인 style·임의 class·실행 HTML 금지 정책은 유지
+
+### Fixed
+
+- G7 `local-safe` 저장 드라이버에서도 MP4 부분 전송(206/416)을 제공하고 로컬·스트림 응답 모두 원본 파일명·확장자를 보존. 파일 경로 경계 검사와 파일명의 제어문자 차단 유지
+- 링크 카드 모달의 YouTube·Vimeo 공식 퍼가기 코드와 허용된 YouTube·Vimeo·MP4 주소를 기존 미디어 allowlist와 설정에 따라 플레이어로 바로 삽입. 일반 URL·SNS 미리보기는 기존 서버 검증·취소 처리를 유지
+- 저장된 canonical HTML의 문단 앞뒤·연속 공백을 재열기에서 보존하여 자체 작성 글의 전환 경고 오탐과 공백 손실을 방지. 금지 속성 및 실제 서식 손실의 경고·편집 잠금은 유지
+- Tiptap 9개 직접 의존성을 3.31.4로 정렬해 드래그·커서 선택·표 선택·링크 끝 공백 관련 업스트림 수정 반영. 기본 표 셀의 `colspan="1"`·`rowspan="1"`은 생략하되 병합 셀의 실제 span 값과 허용 class token은 유지
+- 기본 표 span 속성 생략을 기존 글의 서식 손실로 오인해 경고·편집 제한이 발생하지 않도록 비교만 보완. 실제 병합 값 손실과 금지 속성 제거는 계속 경고하며 서버 정제·저장 정책은 변경하지 않음
+
+### Maintenance
+
+- Lucide 1.52.0, Playwright 1.63.0, ESLint 10.12.0, jsdom 30.1.2, Prettier 3.9.9, typescript-eslint 8.71.1과 Node 24 타입 최신 패치를 반영
+- Vite 8.3.2의 Rolldown/Oxc 빌드와 Vitest·V8 coverage 5.0.3으로 전환. 자체 호스팅 IIFE 출력·ES2020 대상·지연 이미지 편집 번들·기존 커버리지 하한 유지
+- TypeScript는 SNS 파서의 `^5` 및 typescript-eslint 지원 범위 때문에 5.9.3 유지. 이미지 편집기의 React 18·React Konva 18·styled-components 5·React wrapper 4 버전 계약을 유지하고 베타 태그로 교체하지 않음
+- 서버 환경·그누보드7 코어·PHP/Python 의존성 변경 없음. 버전 manifest와 생성된 번들·제3자 고지를 함께 동기화
+
 ## [0.2.2] - 2026-09-13
 
 ### Security

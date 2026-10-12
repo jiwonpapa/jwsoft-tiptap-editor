@@ -1,6 +1,70 @@
 import { expect, test } from "@playwright/test";
 import { mountEditor, insertTool, menuAction } from "./editor-fixture";
 
+test("link card media embeds bypass metadata failures and stay canonical", async ({
+  page,
+}, testInfo) => {
+  let previewCalls = 0;
+  await page.route("**/link-preview", (route) => {
+    previewCalls += 1;
+    return route.fulfill({ status: 422, body: "preview unavailable" });
+  });
+  await page.route("https://www.youtube-nocookie.com/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: "Player fixture" }),
+  );
+  await page.route("https://player.vimeo.com/**", (route) =>
+    route.fulfill({ contentType: "text/html", body: "Player fixture" }),
+  );
+  await page.route("https://example.com/video.mp4", (route) =>
+    route.fulfill({ status: 404 }),
+  );
+  await mountEditor(page, "standard", false, true, false, true, "<p></p>");
+  for (const [input, provider] of [
+    [
+      '<iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" allowfullscreen></iframe>',
+      "youtube",
+    ],
+    [
+      '<iframe src="https://player.vimeo.com/video/76979871"></iframe>',
+      "vimeo",
+    ],
+    ["https://example.com/video.mp4", "mp4"],
+  ]) {
+    // Each new insertion starts at the trailing paragraph, not a selected atom.
+    await page.locator(".jwsoft-tiptap-editable > p").last().click();
+    await insertTool(page, "링크 카드");
+    const dialog = page.getByRole("dialog", { name: "링크 카드", exact: true });
+    await dialog.getByLabel("주소 또는 퍼가기 코드").fill(input!);
+    await dialog
+      .getByRole("button", { name: "링크 카드 삽입", exact: true })
+      .click();
+    await expect(dialog).not.toBeVisible();
+    await expect(
+      page.locator(`.jwsoft-tiptap-editable .jw-media-${provider}`),
+    ).toHaveCount(1);
+  }
+  await expect(page.locator(".jwsoft-tiptap-editable .jw-media")).toHaveCount(
+    3,
+  );
+  expect(previewCalls).toBe(0);
+  await page
+    .getByRole("button", { name: "jw-editor 도움말", exact: true })
+    .click();
+  await page.getByText("HTML 소스 보기 (읽기 전용)", { exact: true }).click();
+  const source = await page
+    .getByRole("textbox", { name: "읽기 전용 HTML 소스" })
+    .inputValue();
+  expect(source).toContain("jw-media-youtube");
+  expect(source).toContain("jw-media-vimeo");
+  expect(source).toContain("jw-media-mp4");
+  expect(source).not.toMatch(/<iframe|<script|<video|style=|data-/i);
+  await page.getByRole("button", { name: "닫기", exact: true }).click();
+  await page.screenshot({
+    path: testInfo.outputPath("manual-media-insertion.png"),
+    fullPage: true,
+  });
+});
+
 test("empty-cursor link insertion and display text are real safe document content", async ({
   page,
 }, testInfo) => {

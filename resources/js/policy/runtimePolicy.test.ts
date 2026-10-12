@@ -59,6 +59,54 @@ describe("browser policy defense", () => {
     ).toBe(false);
   });
 
+  it.each(["td", "th"])(
+    "ignores omitted default spans only on %s cells",
+    (cell) => {
+      const original = `<table><tbody><tr><${cell} colspan="1" rowspan="1"><p>셀</p></${cell}></tr></tbody></table>`;
+      const edited = `<table><tbody><tr><${cell}><p>셀</p></${cell}></tr></tbody></table>`;
+      expect(analyzeLegacyHtml(original, edited)).toMatchObject({
+        hasLoss: false,
+        policyChanged: false,
+        editorChanged: false,
+        canonicalEditorHtml: edited,
+      });
+      expect(analyzeLegacyHtml(edited, original).hasLoss).toBe(false);
+    },
+  );
+
+  it.each(["colspan", "rowspan"])(
+    "still reports removal of a real %s merge",
+    (attribute) => {
+      expect(
+        analyzeLegacyHtml(
+          `<table><tbody><tr><td ${attribute}="2"><p>셀</p></td></tr></tbody></table>`,
+          "<table><tbody><tr><td><p>셀</p></td></tr></tbody></table>",
+        ),
+      ).toMatchObject({ hasLoss: true, editorChanged: true });
+    },
+  );
+
+  it("does not hide forbidden attributes while ignoring default cell spans", () => {
+    expect(
+      analyzeLegacyHtml(
+        '<table><tbody><tr><td colspan="1" style="color:red" onclick="alert(1)" class="evil"><p>셀</p></td></tr></tbody></table>',
+        "<table><tbody><tr><td><p>셀</p></td></tr></tbody></table>",
+      ),
+    ).toMatchObject({ hasLoss: true, policyChanged: true });
+  });
+
+  it("does not ignore default-sized widths or spans on non-cell elements", () => {
+    for (const original of [
+      '<p colspan="1">본문</p>',
+      '<p><img src="/safe.png" width="1"></p>',
+    ]) {
+      const edited = original.includes("img")
+        ? '<p><img src="/safe.png"></p>'
+        : "<p>본문</p>";
+      expect(analyzeLegacyHtml(original, edited).hasLoss).toBe(true);
+    }
+  });
+
   it("shares strict link and media URL validation with toolbar dialogs", () => {
     expect(isAllowedEditorUrl("https://example.com/path")).toBe(true);
     expect(isAllowedEditorUrl("/relative/path")).toBe(true);

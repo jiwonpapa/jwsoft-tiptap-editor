@@ -208,27 +208,40 @@ $served = (new MediaServeService($repository, $storage))->serve($record);
 assertMediaSubsystem($served instanceof StreamedResponse, 'stored MP4 must produce a streamed response');
 assertMediaSubsystem($served->headers->get('Content-Type') === 'video/mp4', 'MP4 response MIME mismatch');
 assertMediaSubsystem($served->headers->get('X-Content-Type-Options') === 'nosniff', 'MP4 response must prevent MIME sniffing');
+assertMediaSubsystem(str_contains((string) $served->headers->get('Content-Disposition'), 'sample.mp4'), 'streamed MP4 must preserve its original filename');
+$originalName = $record->original_name;
+$record->original_name = "dir/evil\\name\r\n\0.mp4";
+$safeStream = (new MediaServeService($repository, $storage))->serve($record);
+assertMediaSubsystem(str_contains((string) $safeStream->headers->get('Content-Disposition'), 'dir_evil_name___.mp4'), 'streamed filename must remove path and control characters');
+$record->original_name = $originalName;
 
 $localFixture = sys_get_temp_dir().'/jwsoft-range-'.bin2hex(random_bytes(8));
 mkdir($localFixture);
 file_put_contents($localFixture.'/range.mp4', $mp4);
 $storage->localBase = $localFixture;
-$container->make('config')->set('filesystems.disks.test-public.driver', 'local');
 $rangeRecord = clone $record;
 $rangeRecord->file_path = 'media/range.mp4';
 $rangeRecord->original_name = '실제 영상.mp4';
 try {
-    $rangeResponse = (new MediaServeService($repository, $storage))->serve($rangeRecord);
-    assertMediaSubsystem($rangeResponse instanceof Symfony\Component\HttpFoundation\BinaryFileResponse, 'local media needs a range-capable response');
-    $rangeResponse->prepare(Illuminate\Http\Request::create('/video', 'GET', [], [], [], ['HTTP_RANGE' => 'bytes=0-7']));
-    assertMediaSubsystem($rangeResponse->getStatusCode() === 206, 'local MP4 range must return 206');
-    assertMediaSubsystem($rangeResponse->headers->get('Content-Length') === '8', 'range length must be bounded');
-    assertMediaSubsystem(str_contains($rangeResponse->headers->get('Content-Disposition'), '.mp4'), 'download filename must retain its extension');
-    $invalidRange = (new MediaServeService($repository, $storage))->serve($rangeRecord);
-    $invalidRange->prepare(Illuminate\Http\Request::create('/video', 'GET', [], [], [], ['HTTP_RANGE' => 'bytes=999999-1000000']));
-    assertMediaSubsystem($invalidRange->getStatusCode() === 416, 'out-of-bounds range must return 416');
-    $rangeRecord->file_path = 'media/../outside.mp4';
-    assertMediaSubsystem((new MediaServeService($repository, $storage))->serve($rangeRecord) === null, 'media path traversal must fail closed');
+    foreach (['local', 'local-safe'] as $driver) {
+        $container->make('config')->set('filesystems.disks.test-public.driver', $driver);
+        $rangeResponse = (new MediaServeService($repository, $storage))->serve($rangeRecord);
+        assertMediaSubsystem($rangeResponse instanceof Symfony\Component\HttpFoundation\BinaryFileResponse, 'local media needs a range-capable response');
+        $rangeResponse->prepare(Illuminate\Http\Request::create('/video', 'GET', [], [], [], ['HTTP_RANGE' => 'bytes=0-7']));
+        assertMediaSubsystem($rangeResponse->getStatusCode() === 206, 'local MP4 range must return 206');
+        assertMediaSubsystem($rangeResponse->headers->get('Content-Length') === '8', 'range length must be bounded');
+        assertMediaSubsystem(str_contains((string) $rangeResponse->headers->get('Content-Disposition'), rawurlencode('실제 영상.mp4')), 'download filename must retain its Unicode name and extension');
+        ob_start();
+        $rangeResponse->sendContent();
+        $rangeBody = ob_get_clean();
+        assertMediaSubsystem($rangeBody === substr($mp4, 0, 8), 'range must transmit only the requested bytes');
+        $invalidRange = (new MediaServeService($repository, $storage))->serve($rangeRecord);
+        $invalidRange->prepare(Illuminate\Http\Request::create('/video', 'GET', [], [], [], ['HTTP_RANGE' => 'bytes=999999-1000000']));
+        assertMediaSubsystem($invalidRange->getStatusCode() === 416, 'out-of-bounds range must return 416');
+        $rangeRecord->file_path = 'media/../outside.mp4';
+        assertMediaSubsystem((new MediaServeService($repository, $storage))->serve($rangeRecord) === null, 'media path traversal must fail closed');
+        $rangeRecord->file_path = 'media/range.mp4';
+    }
 } finally {
     unlink($localFixture.'/range.mp4');
     rmdir($localFixture);
