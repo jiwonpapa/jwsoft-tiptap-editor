@@ -8,6 +8,7 @@ use Plugins\Jwsoft\TiptapEditor\Models\JwsoftTiptapMediaUpload;
 use Plugins\Jwsoft\TiptapEditor\Repositories\Contracts\MediaUploadRepositoryInterface;
 use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\ResponseHeaderBag;
 
 class MediaServeService
 {
@@ -38,20 +39,22 @@ class MediaServeService
             'Cache-Control' => 'public, max-age=31536000, immutable',
             'X-Content-Type-Options' => 'nosniff',
         ];
-        if (config('filesystems.disks.'.$storage->getDisk().'.driver') === 'local') {
+        $filename = preg_replace('/[\\x00-\\x1f\\x7f\/\\\\\\\\]/', '_', (string) $media->original_name);
+        $filename = $filename !== null && $filename !== '' ? $filename : 'video.mp4';
+        if (in_array(config('filesystems.disks.'.$storage->getDisk().'.driver'), ['local', 'local-safe'], true)) {
             // Resolve exclusively through the G7 storage contract; never infer its root.
             $base = realpath($storage->getBasePath($category));
             $path = $base ? realpath($base.'/'.$relative) : false;
             if (! $base || ! $path || ! str_starts_with($path, $base.DIRECTORY_SEPARATOR) || ! is_file($path)) {
                 return null;
             }
-            $filename = str_replace(['/', '\\', "\r", "\n"], '_', (string) $media->original_name);
             $response = new BinaryFileResponse($path, 200, $headers);
             $response->setContentDisposition('inline', $filename, 'video.mp4');
 
             return $response;
         }
-        $response = $storage->response($category, $relative, (string) $media->original_name, $headers + ['Content-Disposition' => 'inline']);
+        $headers['Content-Disposition'] = (new ResponseHeaderBag())->makeDisposition('inline', $filename, 'video.mp4');
+        $response = $storage->response($category, $relative, $filename, $headers);
         if ($response === null) {
             Log::warning('JWSoft Tiptap MP4 파일 없음', ['media_id' => $media->id, 'hash' => $media->hash]);
         }

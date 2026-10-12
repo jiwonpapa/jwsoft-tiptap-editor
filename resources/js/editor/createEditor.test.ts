@@ -1,4 +1,5 @@
 import { createEditor } from "@/editor/createEditor";
+import { analyzeLegacyHtml } from "@/policy/runtimePolicy";
 
 describe("Tiptap policy schema", () => {
   function mountEditor(content: string, editable = true) {
@@ -67,6 +68,21 @@ describe("Tiptap policy schema", () => {
     expect(editor.getHTML()).not.toContain("style=");
     editor.destroy();
     mount.remove();
+  });
+
+  it.each([
+    '<p> <s><span class="jw-color-blue jw-font-20">서식</span></s>  </p>',
+    '<p> 앞  중간 <a href="https://example.com">링크</a>  </p>',
+    "<pre><code>  const checked = true;\n  checked;</code></pre>",
+  ])("preserves canonical whitespace on reopen: %s", (content) => {
+    const { editor, mount } = mountEditor(content);
+    try {
+      expect(editor.getHTML()).toBe(content);
+      expect(analyzeLegacyHtml(content, editor.getHTML()).hasLoss).toBe(false);
+    } finally {
+      editor.destroy();
+      mount.remove();
+    }
   });
 
   it("escapes image captions stored as node attributes", () => {

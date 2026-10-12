@@ -20,6 +20,7 @@ export function createEditor(options: CreateEditorOptions): Editor {
   return new Editor({
     element: options.element,
     content: options.content,
+    parseOptions: { preserveWhitespace: true },
     editable: options.editable,
     extensions: createEditorExtensions(options),
     editorProps: {

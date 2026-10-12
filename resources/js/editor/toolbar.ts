@@ -28,7 +28,10 @@ import {
   type MediaEmbedOptions,
 } from "@/editor/mediaEmbed";
 import { uploadEditorMedia } from "@/editor/mediaUpload";
-import { fetchLinkPreview, insertSmartCard } from "@/editor/smartCard";
+import {
+  resolveExternalInsert,
+  type ExternalInsertOptions,
+} from "@/editor/externalInsert";
 import { normalizeExternalInput } from "@/editor/socialInput";
 import { isAllowedEditorUrl } from "@/policy/runtimePolicy";
 import { installEditorFeatures } from "@/features/registry";
@@ -765,6 +768,7 @@ function createSmartCardDialog(
   editor: Editor,
   trigger: HTMLButtonElement,
   locale: string,
+  options: ExternalInsertOptions,
 ): DialogHandle {
   const form = document.createElement("form");
   form.className = "jwsoft-tiptap-dialog-form";
@@ -853,15 +857,15 @@ function createSmartCardDialog(
     );
     apply.disabled = true;
     try {
-      const preview = await fetchLinkPreview(
+      const content = await resolveExternalInsert(
         url.value,
-        fetch,
+        options,
         locale,
         request.signal,
       );
       if (request.signal.aborted || !handle.element.open || editor.isDestroyed)
         return;
-      insertSmartCard(editor, preview);
+      editor.chain().focus().insertContent(content).run();
       form.reset();
       progress.hidden = true;
       handle.close();
@@ -1185,7 +1189,7 @@ export function createEditorToolbar(options: ToolbarOptions): HTMLElement {
         run: () => undefined,
       });
       add(insert, smartCard);
-      dialogs.push(createSmartCardDialog(editor, smartCard, locale));
+      dialogs.push(createSmartCardDialog(editor, smartCard, locale, options));
     }
     add(
       insert,

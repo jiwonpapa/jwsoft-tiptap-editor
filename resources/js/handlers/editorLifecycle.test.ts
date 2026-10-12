@@ -200,7 +200,12 @@ describe("G7 editor lifecycle", () => {
     );
   });
 
-  it.each(["", "<p>안전한 기존 본문</p>"])(
+  it.each([
+    "",
+    "<p>안전한 기존 본문</p>",
+    '<p> <s><span class="jw-color-blue jw-font-20">서식</span></s>  </p>',
+    '<p><a href="https://example.com">링크</a>  </p>',
+  ])(
     "does not show a legacy warning for blank or compatible content: %s",
     async (content) => {
       const container = addContainer();

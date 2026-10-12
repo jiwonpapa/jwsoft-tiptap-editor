@@ -3,6 +3,45 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 import { recordBrowserEvidence, mountEditor } from "./editor-fixture";
 
+test("canonical whitespace reopens without weakening legacy consent", async ({
+  page,
+}, testInfo) => {
+  const content =
+    '<p> <s><span class="jw-color-blue jw-font-20">서식</span></s>  </p><p><a href="https://example.com">링크</a>  </p>';
+  await mountEditor(page, "standard", false, false, false, false, content);
+  await expect(page.locator(".jwsoft-tiptap-legacy-warning")).toHaveCount(0);
+  await expect(page.locator(".jwsoft-tiptap-editable")).toHaveAttribute(
+    "contenteditable",
+    "true",
+  );
+  await page
+    .getByRole("button", { name: "jw-editor 도움말", exact: true })
+    .click();
+  await page.getByText("HTML 소스 보기 (읽기 전용)", { exact: true }).click();
+  await expect(
+    page.getByRole("textbox", { name: "읽기 전용 HTML 소스" }),
+  ).toHaveValue(content);
+  await page.getByRole("button", { name: "닫기", exact: true }).click();
+  await page.screenshot({
+    path: testInfo.outputPath("canonical-whitespace-reopen.png"),
+    fullPage: true,
+  });
+  await mountEditor(
+    page,
+    "standard",
+    false,
+    false,
+    false,
+    false,
+    '<p style="color:red" onclick="evil()"> 기존 </p>',
+  );
+  await expect(page.locator(".jwsoft-tiptap-legacy-warning")).toBeVisible();
+  await expect(page.locator(".jwsoft-tiptap-editable")).toHaveAttribute(
+    "contenteditable",
+    "false",
+  );
+});
+
 test("unsaved reload raises a native warning and dismiss preserves the document", async ({
   page,
 }) => {
